@@ -14,6 +14,18 @@ import tempfile
 import shutil
 import argparse
 import logging
+
+# Set up detailed logging to both console and file
+logging.basicConfig(
+    level=logging.DEBUG,  # Show all log levels
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("randomizer_debug.log"),  # Save logs to a file
+        logging.StreamHandler()  # Also show logs in console
+    ]
+)
+import json
+import traceback  # Added for detailed stack traces
 from pathlib import Path
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -25,9 +37,63 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 import ndspy.rom
 import ndspy.narc
 import struct
+from pokemon_rom_reader import IGNORED_POKEMON_IDS  # Import our list of Pokémon to ignore
 
-# Import the complete Pokémon data
-from pokemon_data import POKEMON_BST, SPECIAL_POKEMON
+# Settings file to remember user preferences
+SETTINGS_FILE = "randomizer_settings.json"
+
+# List of Pokémon that should not be replaced when randomizing
+# This includes legendary Pokémon, special story-related Pokémon, and our ignored IDs
+SPECIAL_POKEMON = [
+    # Legendaries and special Pokémon
+    150, 151,  # Mewtwo, Mew
+    243, 244, 245,  # Raikou, Entei, Suicune
+    249, 250, 251,  # Lugia, Ho-Oh, Celebi
+    377, 378, 379, 380, 381, 382, 383, 384, 385, 386,  # Gen 3 legendaries
+    480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494,  # Gen 4 legendaries
+    # Also include all our ignored Pokémon IDs
+    *IGNORED_POKEMON_IDS
+]
+
+# Load saved settings from file
+def load_settings():
+    """Load user settings from the settings file."""
+    default_settings = {
+        "last_rom_path": "",
+        "use_similar_strength": True
+    }
+    
+    try:
+        if os.path.exists(SETTINGS_FILE):
+            with open(SETTINGS_FILE, "r") as f:
+                settings = json.load(f)
+            return settings
+        return default_settings
+    except Exception as e:
+        logger.error(f"Error loading settings: {e}")
+        return default_settings
+
+# Save settings to file
+def save_settings(settings):
+    """Save user settings to the settings file."""
+    try:
+        with open(SETTINGS_FILE, "w") as f:
+            json.dump(settings, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving settings: {e}")
+        # Continue without saving settings - not critical
+
+# Import the ROM reader to get Pokémon data directly from the ROM
+from pokemon_rom_reader import get_pokemon_data
+
+# Special Pokémon that should not be randomized (legendaries, special Pokémon)
+SPECIAL_POKEMON = [
+    144, 145, 146,  # Articuno, Zapdos, Moltres
+    150, 151,       # Mewtwo, Mew
+    243, 244, 245,  # Raikou, Entei, Suicune
+    249, 250, 251,  # Lugia, Ho-Oh, Celebi
+    # Add any other special Pokémon you don't want randomized
+]
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -68,11 +134,30 @@ class RandomizerThread(QThread):
             )
             self.finished_signal.emit(True, f"Randomization completed successfully!\nOutput saved to: {result}")
         except Exception as e:
-            logger.error(f"Error during randomization: {e}")
-            self.finished_signal.emit(False, f"Randomization failed: {str(e)}")
+            # Get the full stack trace as a string
+            error_traceback = traceback.format_exc()
+            
+            # Log the full error details
+            logger.error(f"Error during randomization: {e}\n{error_traceback}")
+            
+            # Show a more detailed error message to the user
+            error_message = f"Randomization failed: {str(e)}\n\nFull Error Details (for debugging):\n{error_traceback}"
+            self.finished_signal.emit(False, error_message)
 
-def find_similar_pokemon(species_id, mapping, used, similar_strength=True):
-    """Find a similar-strength Pokémon to replace the original."""
+def find_similar_pokemon(species_id, mapping, replacement_counts, similar_strength=True, pokemon_data=None, max_reuse=5):
+    """Find a similar-strength Pokémon to replace the original.
+    
+    Args:
+        species_id: The ID of the Pokémon to replace
+        mapping: Dictionary mapping original IDs to replacement IDs
+        replacement_counts: Dictionary tracking how many times each Pokémon has been used
+        similar_strength: Whether to find a Pokémon with similar stats
+        pokemon_data: Dictionary with Pokémon data from the ROM
+        max_reuse: Maximum number of times a Pokémon can be used as a replacement
+        
+    Returns:
+        ID of the replacement Pokémon
+    """
     # If already mapped, use consistent replacement
     if species_id in mapping:
         return mapping[species_id]
@@ -81,169 +166,374 @@ def find_similar_pokemon(species_id, mapping, used, similar_strength=True):
     if species_id in SPECIAL_POKEMON:
         return species_id
     
+    # Skip if we don't have Pokémon data
+    if not pokemon_data:
+        return species_id
+        
     # Skip if not in our database
-    if species_id not in POKEMON_BST:
+    if species_id not in pokemon_data:
         return species_id
     
     if similar_strength:
-        # Find Pokémon with similar BST (within 15% for more options)
-        original_bst = POKEMON_BST[species_id]["bst"]
-        min_bst = original_bst * 0.85
-        max_bst = original_bst * 1.15
+        # WEIGHTED RANDOMIZATION: Find Pokémon with similar strength based on Base Stat Total (BST)
+        # BST is the sum of all six stats (HP, Attack, Defense, Speed, Special Attack, Special Defense)
         
+        # Get the original Pokémon's BST from the ROM data
+        original_bst = pokemon_data[species_id]["bst"]
+        
+        # Allow a range of 15% higher or lower for variety
+        # Example: If original BST is 400, we'll accept 340-460
+        min_bst = original_bst * 0.85  # 15% lower
+        max_bst = original_bst * 1.15  # 15% higher
+        
+        # Create a list of potential replacement Pokémon
         candidates = []
-        for pid, data in POKEMON_BST.items():
-            # Skip special Pokémon and the same species
+        candidate_weights = []  # For weighted selection based on similarity
+        
+        # Check each Pokémon in our data
+        for pid, data in pokemon_data.items():
+            # Skip special Pokémon (legendaries) and the original species
             if pid in SPECIAL_POKEMON or pid == species_id:
                 continue
                 
-            # Be less strict about "used" Pokémon
-            # Only skip if we have plenty of options
-            if pid in used and len(candidates) > 10:
+            # Check if this Pokémon has been used too many times already
+            # This helps create more variety in our randomization
+            times_used = replacement_counts.get(pid, 0)
+            
+            # Skip if we've already used this Pokémon too many times
+            # But be less strict if we don't have many candidates yet
+            if times_used >= max_reuse and len(candidates) > 10:
                 continue
                 
-            # Check if BST is in range
+            # Check if BST is in the acceptable range
             if min_bst <= data["bst"] <= max_bst:
-                candidates.append(pid)
+                candidates.append(pid)  # Add to our list of candidates
+                
+                # Calculate a weight based on how close the BST is to the original
+                # Closer matches get higher weights for better balance
+                bst_difference = abs(data["bst"] - original_bst)
+                similarity = 1.0 - (bst_difference / (original_bst * 0.15))
+                candidate_weights.append(max(0.1, similarity))  # Minimum weight of 0.1
     else:
-        # Use any Pokémon except special ones and the original
-        candidates = []
-        for pid in POKEMON_BST.keys():
-            if pid not in SPECIAL_POKEMON and pid != species_id:
-                candidates.append(pid)
+        # If similar_strength is False, just pick any valid Pokémon (not weighted)
+        # Make sure to exclude special Pokémon, eggs, and placeholders
+        candidates = [pid for pid in pokemon_data.keys() 
+                      if pid != species_id and 
+                         pid not in SPECIAL_POKEMON and
+                         pid not in IGNORED_POKEMON_IDS]
+        candidate_weights = None  # No weights for random selection
     
     # Choose random replacement if we have candidates
     if candidates:
-        # If we have few candidates, we can re-use Pokémon
-        if len(candidates) < 5:
-            # Just pick randomly and don't mark as used
-            new_id = random.choice(candidates)
+        # If we have weights, use weighted random selection
+        # This means Pokémon more similar to the original are more likely to be chosen
+        if similar_strength and candidate_weights:
+            # random.choices returns a list of selections, so we use [0] to get the first one
+            replacement = random.choices(candidates, weights=candidate_weights, k=1)[0]
+            
+            # Log the replacement for debugging
+            if pokemon_data and species_id in pokemon_data and replacement in pokemon_data:
+                orig_name = pokemon_data[species_id].get('name', f'POKEMON_{species_id}')
+                new_name = pokemon_data[replacement].get('name', f'POKEMON_{replacement}')
+                orig_bst = pokemon_data[species_id].get('bst', 0)
+                new_bst = pokemon_data[replacement].get('bst', 0)
+                logger.debug(f"Replaced {orig_name} (BST: {orig_bst}) with {new_name} (BST: {new_bst})")
         else:
-            # We have plenty of options, so avoid re-using if possible
-            unused_candidates = [pid for pid in candidates if pid not in used]
-            if unused_candidates:
-                new_id = random.choice(unused_candidates)
-            else:
-                new_id = random.choice(candidates)
+            # Otherwise use regular random selection
+            replacement = random.choice(candidates)
+        
+        # Track how many times this Pokémon has been used as a replacement
+        # This helps us create more variety in the randomization
+        replacement_counts[replacement] = replacement_counts.get(replacement, 0) + 1
+        
+        # Store this replacement for consistency (same species always replaced by same Pokémon)
+        mapping[species_id] = replacement
+        
+        # Log this replacement
+        if pokemon_data and species_id in pokemon_data and replacement in pokemon_data:
+            orig_name = pokemon_data[species_id].get('name', f'POKEMON_{species_id}')
+            new_name = pokemon_data[replacement].get('name', f'POKEMON_{replacement}')
+            logger.debug(f"Replaced {orig_name} with {new_name} (used {replacement_counts[replacement]} times)")
             
-            # Mark as used
-            used.add(new_id)
-            
-        mapping[species_id] = new_id
-        return new_id
+        return replacement
     
-    # If we get here, we couldn't find a replacement, so just pick any valid Pokémon
-    all_options = [pid for pid in POKEMON_BST.keys() 
-                 if pid != species_id and pid not in SPECIAL_POKEMON]
+    # If we get here, we couldn't find a replacement within the BST range
+    # As a fallback, we'll use any valid Pokémon that isn't special, ignored, or the original
+    # Try to find Pokémon that haven't been used too much yet
+    all_options = [pid for pid in pokemon_data.keys() 
+                  if pid != species_id and 
+                     pid not in SPECIAL_POKEMON and 
+                     pid not in IGNORED_POKEMON_IDS and
+                     replacement_counts.get(pid, 0) < max_reuse]
     
     if all_options:
-        new_id = random.choice(all_options)
-        mapping[species_id] = new_id
-        return new_id
+        logger.info(f"Couldn't find similar-strength replacement for {species_id}, using any available Pokémon")
+        replacement = random.choice(all_options)
         
-    # Absolute fallback - keep original
+        # Track this replacement
+        replacement_counts[replacement] = replacement_counts.get(replacement, 0) + 1
+        mapping[species_id] = replacement
+        
+        return replacement
+    
+    # Absolute fallback - if we can't find ANY replacement, return the original species
+    # This should almost never happen unless we've used every possible Pokémon
+    logger.warning(f"No replacement found for Pokémon #{species_id}, keeping original")
     return species_id
 
-def find_pokemon_offsets(data):
-    """Find offsets in `data` that likely hold Pokémon species IDs.
-
-    This uses two heuristics that work well for HG/SS encounter files:
-    1. "Cluster" heuristic: contiguous lists of at least 4 valid species IDs
-       stored as little-endian 16-bit values (common for land encounters).
-    2. "Water/Fishing" heuristic: 4-byte records of the form
-       [chance][level][species_lo][species_hi].  The chance and level bytes
-       must both be in the 1-100 range.
-       
-    IMPROVED VALIDATION:
-    - Filters out potential level 1 encounters as they're not valid in-game
-    - Uses higher validation thresholds to avoid false positives
-    - Requires longer contiguous sequences (12+ not just 4+) to match route tables
-    """
-    offsets: list[int] = []
-
-    data_len = len(data)
+def find_pokemon_in_encounter_file(data):
+    """Find all Pokémon species in an encounter file using the exact format.
     
-    # First check for the walkrate/surfrate header pattern
-    # This is common at the start of encounter files
-    has_header_pattern = False
-    if len(data) >= 16:
-        walkrate = data[0]
-        surfrate = data[1]
-        rocksmashrate = data[2]
-        # Valid rate values should be in a reasonable range
-        if 0 <= walkrate <= 100 and 0 <= surfrate <= 100 and 0 <= rocksmashrate <= 100:
-            has_header_pattern = True
-
+    Based on the macros.s file, the encounter data has this structure:
+    - Bytes 0-7: Header with walkrate, surfrate, etc.
+    - Bytes 8-19: 12 level values for each slot
+    - Byte 20+: The actual encounters
+    
+    Encounters can be in two formats:
+    1. Just "pokemon SPECIES_X" (2 bytes) for morning/day/night slots
+    2. "encounter SPECIES_X, level1, level2" (4 bytes) for water/fishing entries
+    
+    Each 4-byte encounter is [minlevel, maxlevel, species_lo, species_hi]
+    """
+    offsets = []
+    
+    # Check if this looks like a valid encounter file
+    # We need at least 20 bytes (header + levels)
+    if len(data) < 20:
+        return offsets
+    
+    # Check if header values are reasonable
+    walkrate = data[0]
+    surfrate = data[1]
+    rocksmashrate = data[2]
+    oldrodrate = data[3]
+    goodrodrate = data[4]
+    superrodrate = data[5]
+    
+    # Valid rate values should be in a reasonable range (0-100)
+    valid_rates = all(0 <= rate <= 100 for rate in 
+                      [walkrate, surfrate, rocksmashrate, 
+                       oldrodrate, goodrodrate, superrodrate])
+    
+    if not valid_rates:
+        return offsets
+    
+    # Check levels at offset 8-19 (should all be 2-100)
+    levels_valid = all(2 <= level <= 100 for level in data[8:20])
+    if not levels_valid:
+        return offsets
+    
+    # Now we know this is a properly formatted encounter file!
+    # Process the encounter data in the expected format
+    
+    # Starting offset for encounters is 20 (header + level bytes)
+    current_offset = 20
+    
     # ---------------------------------------------
-    # 1. Cluster heuristic (2-byte species lists)
+    # 1. First handle morning/day/night encounters
     # ---------------------------------------------
-    # For encounter clusters, we're usually looking for 12 consecutive entries
-    # (morning/day/night slots)
-    i = 0
-    while i < data_len - 1:
-        val = data[i] | (data[i + 1] << 8)
-        species_id = val & 0x7FF  # lower 11 bits
-        if 1 <= species_id <= 649:
-            cluster_positions = [i]
-            j = i + 2
-            while j < data_len - 1:
-                nxt = data[j] | (data[j + 1] << 8)
-                nxt_species = nxt & 0x7FF
-                if 1 <= nxt_species <= 649:
-                    cluster_positions.append(j)
-                    j += 2
-                else:
-                    break
-                    
-            # In the encounter files, we're looking for clusters of 12 entries
-            # (morning/day/night), but we'll accept 8+ to be a bit flexible,
-            # especially in files that have the correct header pattern
-            min_cluster_size = 8 if has_header_pattern else 12
-            if len(cluster_positions) >= min_cluster_size:
-                offsets.extend(cluster_positions)
-            i = j  # continue scanning after the cluster
-        else:
-            i += 2
-
-    # --------------------------------------------------
-    # 2. Water / fishing encounter heuristic (4-byte)
-    # --------------------------------------------------
-    for off in range(0, data_len - 3, 4):
-        chance = data[off]
-        level = data[off + 1]
-        species_val = data[off + 2] | (data[off + 3] << 8)
-        species_id = species_val & 0x7FF
+    # Each time slot has 12 entries, and each entry is 2 bytes (just species ID)
+    # Process morning, day, and night slots (36 total Pokémon)
+    slots_to_process = 36 if walkrate > 0 else 0
+    for i in range(slots_to_process):
+        # Make sure we don't go past the end of the file
+        if current_offset + 1 >= len(data):
+            break
+            
+        # Get the species value (2 bytes, little-endian)
+        species_val = data[current_offset] | (data[current_offset + 1] << 8)
+        species_id = species_val & 0x7FF  # Lower 11 bits are the species ID
         
-        # IMPORTANT: Filter out level 1 since it's not valid in the wild
-        # Valid chance is 1-100, valid level is 2-100
-        if 1 <= chance <= 100 and 2 <= level <= 100 and 1 <= species_id <= 649:
-            offsets.append(off + 2)  # store pointer to species word (little-endian)
-
-    # Deduplicate and sort
-    return sorted(set(offsets))
+        # If it's a valid species, add to our list
+        if 1 <= species_id <= 1000:
+            offsets.append(current_offset)
+            
+        current_offset += 2
+    
+    # ---------------------------------------------
+    # 2. Next, process all other encounter types
+    # ---------------------------------------------
+    
+    # The structure repeats for each encounter type, with different counts:
+    # - 2 Hoenn radio slots
+    # - 2 Sinnoh radio slots
+    # - 5 surf encounters
+    # - 5 old rod encounters  
+    # - 5 good rod encounters
+    # - 5 super rod encounters
+    # - 2 rock smash encounters
+    # - 4 headbutt tree encounters
+    
+    # Each special encounter is 4 bytes: [minlevel, maxlevel, species_lo, species_hi]
+    # Process radio encounters (2 hoenn + 2 sinnoh = 4 total)
+    slots_to_process = 4
+    for i in range(slots_to_process):
+        # Make sure we don't go past the end of the file
+        if current_offset + 3 >= len(data):
+            break
+            
+        # Check if it's a valid level range
+        min_level = data[current_offset]
+        max_level = data[current_offset + 1]
+        
+        # Get the species ID (last 2 bytes)
+        species_offset = current_offset + 2
+        species_val = data[species_offset] | (data[species_offset + 1] << 8)
+        species_id = species_val & 0x7FF  # Lower 11 bits are the species ID
+        
+        # Make sure it's a valid entry
+        if 2 <= min_level <= 100 and min_level <= max_level <= 100 and 1 <= species_id <= 1000:
+            offsets.append(species_offset)
+            
+        current_offset += 4
+    
+    # Process water-based encounters (surfing)
+    if surfrate > 0:
+        slots_to_process = 5  # 5 surf encounters
+        for i in range(slots_to_process):
+            if current_offset + 3 >= len(data):
+                break
+                
+            # Check if it's a valid level range
+            min_level = data[current_offset]
+            max_level = data[current_offset + 1]
+            
+            # Get the species ID (last 2 bytes)
+            species_offset = current_offset + 2
+            species_val = data[species_offset] | (data[species_offset + 1] << 8)
+            species_id = species_val & 0x7FF  # Lower 11 bits are the species ID
+            
+            # Make sure it's a valid entry
+            if 2 <= min_level <= 100 and min_level <= max_level <= 100 and 1 <= species_id <= 1000:
+                offsets.append(species_offset)
+                
+            current_offset += 4
+    
+    # Process fishing encounters (old rod)
+    if oldrodrate > 0:
+        slots_to_process = 5  # 5 old rod encounters
+        for i in range(slots_to_process):
+            if current_offset + 3 >= len(data):
+                break
+                
+            # Check if it's a valid level range
+            min_level = data[current_offset]
+            max_level = data[current_offset + 1]
+            
+            # Get the species ID (last 2 bytes)
+            species_offset = current_offset + 2
+            species_val = data[species_offset] | (data[species_offset + 1] << 8)
+            species_id = species_val & 0x7FF  # Lower 11 bits are the species ID
+            
+            # Make sure it's a valid entry
+            if 2 <= min_level <= 100 and min_level <= max_level <= 100 and 1 <= species_id <= 1000:
+                offsets.append(species_offset)
+                
+            current_offset += 4
+    
+    # Process fishing encounters (good rod)
+    if goodrodrate > 0:
+        slots_to_process = 5  # 5 good rod encounters
+        for i in range(slots_to_process):
+            if current_offset + 3 >= len(data):
+                break
+                
+            # Get the species ID (last 2 bytes)
+            species_offset = current_offset + 2
+            species_val = data[species_offset] | (data[species_offset + 1] << 8)
+            species_id = species_val & 0x7FF  # Lower 11 bits are the species ID
+            
+            # Make sure it's a valid entry
+            if 1 <= species_id <= 1000:
+                offsets.append(species_offset)
+                
+            current_offset += 4
+    
+    # Process fishing encounters (super rod)
+    if superrodrate > 0:
+        slots_to_process = 5  # 5 super rod encounters
+        for i in range(slots_to_process):
+            if current_offset + 3 >= len(data):
+                break
+                
+            # Get the species ID (last 2 bytes)
+            species_offset = current_offset + 2
+            species_val = data[species_offset] | (data[species_offset + 1] << 8)
+            species_id = species_val & 0x7FF  # Lower 11 bits are the species ID
+            
+            # Make sure it's a valid entry
+            if 1 <= species_id <= 1000:
+                offsets.append(species_offset)
+                
+            current_offset += 4
+    
+    # Process rock smash encounters
+    if rocksmashrate > 0:
+        slots_to_process = 2  # 2 rock smash encounters
+        for i in range(slots_to_process):
+            if current_offset + 3 >= len(data):
+                break
+                
+            # Get the species ID (last 2 bytes)
+            species_offset = current_offset + 2
+            species_val = data[species_offset] | (data[species_offset + 1] << 8)
+            species_id = species_val & 0x7FF  # Lower 11 bits are the species ID
+            
+            # Make sure it's a valid entry
+            if 1 <= species_id <= 1000:
+                offsets.append(species_offset)
+                
+            current_offset += 4
+    
+    # Return all the offsets where we found valid Pokémon
+    return offsets
 
 def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength=True,
                          update_callback=None, progress_callback=None):
     """
-    Randomize Pokémon encounters in the ROM.
+    Main function to randomize wild encounters in a ROM.
     
     Args:
-        rom_path: Path to the input ROM
-        output_path: Path for the output ROM (if None, uses input name + _randomized)
-        seed: Random seed for consistent randomization
+        rom_path: Path to the ROM file
+        output_path: Where to save the randomized ROM (default: *_randomized.nds)
+        seed: Random seed for reproducible results
         similar_strength: Whether to replace Pokémon with others of similar strength
         update_callback: Function to call with status updates
         progress_callback: Function to call with progress percentage
     
     Returns:
-        Path to the randomized ROM
+        Path to the output ROM
     """
-    # Track all Pokémon changes for the log file
-    pokemon_changes = []
+    
     # Set up output path if not provided
     if output_path is None:
         base, ext = os.path.splitext(rom_path)
         output_path = f"{base}_randomized{ext}"
+    
+    # Load Pokémon data directly from the ROM
+    if update_callback:
+        update_callback("Loading Pokémon data from ROM...")
+    
+    # This reads the actual Pokémon data from the ROM instead of using hardcoded values
+    # Including actual Pokémon names is CRUCIAL for our logs
+    POKEMON_BST = get_pokemon_data(rom_path)
+    
+    # Check if we got proper names - this is important for beginners to understand what's happening
+    names_found = sum(1 for data in POKEMON_BST.values() 
+                     if "name" in data and data["name"] and 
+                        not data["name"].startswith("POKEMON_") and 
+                        not data["name"].startswith("SPECIES_"))
+    
+    if update_callback:
+        update_callback(f"Found data for {len(POKEMON_BST)} Pokémon in ROM")
+        update_callback(f"Found {names_found} Pokémon with proper names")
+        
+        # Give helpful information if we didn't find many names
+        if names_found < 100:
+            update_callback("Warning: Not many Pokémon names were found in ROM.")
+            update_callback("The log will use ID numbers for some Pokémon.")
+        else:
+            update_callback("Successfully loaded Pokémon names for the log file!")
     
     # Initialize random seed
     if seed is not None:
@@ -292,9 +582,14 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
         if progress_callback:
             progress_callback(50)
         
-        # Maps original Pokémon to their replacements for consistency
-        mapping = {}
-        # Track which Pokémon have been used as replacements
+        # Variables to track our mapping and replacements
+        mapping = {}  # This dictionary keeps track of what Pokémon replaces what
+                     # For example, mapping[16] = 165 means "replace Pidgey with Ledyba"
+        
+        # We limit how many times a single Pokémon can be used as a replacement
+        # to ensure more variety
+        replacement_counts = {}  # Counts how many times each Pokémon has been used
+        max_reuse = 5  # Maximum times a single Pokémon can be used as a replacement
         used = set()
         
         # Track how many Pokémon we found and changed
@@ -302,6 +597,11 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
         
         # List to store detailed change information for logging
         pokemon_changes = []
+        
+        # A dictionary to track the most common Pokémon replacements
+        # This will store how many times each Pokémon was replaced with another
+        # Initialize this here to avoid the "string indices must be integers" error
+        most_common_replacements = {}
         
         # This section is critical for finding all Pokémon!
         # We need to understand the exact data format
@@ -343,12 +643,13 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
             if len(modified_data) < 4:
                 continue
             
-            pokemon_offsets = find_pokemon_offsets(modified_data)
-            grass_pokemon = len(pokemon_offsets)  # For progress logs, treat all together
+            # Find all Pokémon offsets using our exact format knowledge
+            pokemon_offsets = find_pokemon_in_encounter_file(modified_data)
+            total_offsets = len(pokemon_offsets)  # For progress logs
             
             # Progress reporting - let the user know what we're finding
-            if (grass_pokemon > 0) and update_callback and i % 25 == 0:
-                update_callback(f"Location #{i}: Found {grass_pokemon} Pokémon entries")
+            if (total_offsets > 0) and update_callback and i % 25 == 0:
+                update_callback(f"Location #{i}: Found {total_offsets} Pokémon entries")
             
             # Track changes for this location
             location_changes = 0
@@ -359,8 +660,14 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
                 val = modified_data[offset] | (modified_data[offset + 1] << 8)
                 species_id = val & 0x7FF
                 
-                # Skip invalid entries and SPECIES_NONE (species_id == 0)
-                if species_id == 0:
+                # Skip invalid entries, SPECIES_NONE (species_id == 0), and our ignored Pokémon
+                if species_id == 0 or species_id in IGNORED_POKEMON_IDS:
+                    continue
+                    
+                # Also skip special Pokémon we don't want to replace (legendaries, etc.)
+                if species_id in SPECIAL_POKEMON:
+                    if update_callback and i % 50 == 0:  # Don't show too many messages
+                        update_callback(f"Keeping special Pokémon: {species_id}")
                     continue
                     
                 # IMPORTANT: We need to randomize ALL species, even if we don't recognize them
@@ -369,8 +676,16 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
                     # Add this species to our database with a default BST of 350
                     POKEMON_BST[species_id] = {"name": f"SPECIES_{species_id}", "bst": 350}
                 
-                # Find a replacement Pokémon
-                new_species = find_similar_pokemon(species_id, mapping, used, similar_strength)
+                # Find a replacement Pokémon, passing our ROM-loaded Pokémon data
+                # Also pass our replacement_counts dictionary to track variety
+                new_species = find_similar_pokemon(
+                    species_id,
+                    mapping, 
+                    replacement_counts,
+                    similar_strength, 
+                    POKEMON_BST,
+                    max_reuse
+                )
                 
                 # Apply the change to the data
                 new_val = (val & 0xF800) | (new_species & 0x7FF)
@@ -383,31 +698,50 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
                 
                 # Record this change for the log if it's actually different
                 if species_id != new_species:
-                    # Get Pokémon names for the log
+                    # Get Pokémon names for the log - THIS IS CRUCIAL
+                    # We need to display actual Pokémon names, not generic IDs
+                    
+                    # Start with default placeholder names using the species ID
                     original_name = f"POKEMON_{species_id}"
                     new_name = f"POKEMON_{new_species}"
                     
-                    if species_id in POKEMON_BST:
-                        original_name = POKEMON_BST[species_id]["name"]
+                    # Replace with actual names if available in our data
+                    if species_id in POKEMON_BST and "name" in POKEMON_BST[species_id]:
+                        name = POKEMON_BST[species_id]["name"]
+                        # Only use the name if it looks valid (not empty, not just a number)
+                        if name and len(name) > 1 and not name.isdigit():
+                            original_name = name.upper()  # Use uppercase for consistency
                         original_bst = POKEMON_BST[species_id]["bst"]
                     else:
                         original_bst = "???"
                         
-                    if new_species in POKEMON_BST:
-                        new_name = POKEMON_BST[new_species]["name"]
+                    # Do the same for the replacement Pokémon
+                    if new_species in POKEMON_BST and "name" in POKEMON_BST[new_species]:
+                        name = POKEMON_BST[new_species]["name"]
+                        if name and len(name) > 1 and not name.isdigit():
+                            new_name = name.upper()
                         new_bst = POKEMON_BST[new_species]["bst"]
                     else:
                         new_bst = "???"
+                        
+                    # Double-check that we have actual names, not just placeholders
+                    if original_name.startswith("POKEMON_") or original_name.startswith("SPECIES_"):
+                        original_name = f"#{species_id} (Unknown)" 
+                        
+                    if new_name.startswith("POKEMON_") or new_name.startswith("SPECIES_"):
+                        new_name = f"#{new_species} (Unknown)"
                     
-                    # Add to our changes list
-                    pokemon_changes.append({
-                        "original_id": species_id,
-                        "original_name": original_name,
-                        "original_bst": original_bst,
-                        "new_id": new_species,
-                        "new_name": new_name,
-                        "new_bst": new_bst
-                    })
+                    # Create a nice user-friendly log entry
+                    change_info = f"{original_name} (BST: {original_bst}) → {new_name} (BST: {new_bst})"
+                    pokemon_changes.append(change_info)
+                    
+                    # Show real-time updates in the UI
+                    if update_callback and len(pokemon_changes) % 10 == 0:
+                        update_callback(f"Replacing: {original_name} → {new_name}")
+                    
+                    # Keep track of the most common replacements for summary
+                    key = f"{original_name} → {new_name}"
+                    most_common_replacements[key] = most_common_replacements.get(key, 0) + 1
             
             # Report detailed changes for this location if significant
             if location_changes > 0 and update_callback:
@@ -440,15 +774,21 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
             update_callback(f"Creating change log at {log_path}...")
             update_callback(f"Found and processed {total_pokemon_found} total Pokémon entries!")
         
-        # Sort changes by original Pokémon ID
-        pokemon_changes.sort(key=lambda x: x["original_id"])
+        # Sort changes alphabetically by original Pokémon name
+        # Note: we now store changes as strings, not dictionaries
+        pokemon_changes.sort()
         
         # Count unique species that were randomized
         unique_original_species = set()
         unique_new_species = set()
-        for change in pokemon_changes:
-            unique_original_species.add(change["original_id"])
-            unique_new_species.add(change["new_id"])
+        
+        # Calculate this from our string-based changes now
+        for change_info in pokemon_changes:
+            # These are now strings like "BULBASAUR (BST: 318) → CHIKORITA (BST: 318)"
+            # So we just count them for statistics
+            unique_original_species.add(change_info.split(' (BST')[0])
+            new_species_part = change_info.split(' → ')[1]
+            unique_new_species.add(new_species_part.split(' (BST')[0])
             
         if update_callback:
             update_callback(f"Randomized {len(unique_original_species)} unique Pokémon species!")
@@ -461,26 +801,41 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
             
             log_file.write(f"ROM: {os.path.basename(rom_path)}\n")
             log_file.write(f"Seed: {seed}\n")
-            log_file.write(f"Similar Strength: {'Yes' if similar_strength else 'No'}\n\n")
+            log_file.write(f"Similar Strength: {'Yes' if similar_strength else 'No'}\n")
+            log_file.write(f"Total Pokémon Changed: {len(pokemon_changes)}\n")
+            log_file.write(f"Unique Original Pokémon: {len(unique_original_species)}\n")
+            log_file.write(f"Unique Replacement Pokémon: {len(unique_new_species)}\n\n")
             
+            # Write all individual changes
             log_file.write("-" * 60 + "\n")
-            log_file.write("ORIGINAL POKÉMON          ->  NEW POKÉMON\n")
-            log_file.write("-" * 60 + "\n")
+            log_file.write("ALL POKÉMON REPLACEMENTS\n")
+            log_file.write("-" * 60 + "\n\n")
             
-            # Group changes by original Pokémon (to avoid duplicates)
-            unique_changes = {}
-            for change in pokemon_changes:
-                original_id = change["original_id"]
-                if original_id not in unique_changes:
-                    unique_changes[original_id] = change
+            # Now we can directly write our nicely formatted change strings
+            for change_info in pokemon_changes:
+                log_file.write(f"{change_info}\n")
+                
+            # Show the most common replacements
+            log_file.write("\n" + "-" * 60 + "\n")
+            log_file.write("MOST COMMON REPLACEMENTS\n")
+            log_file.write("-" * 60 + "\n\n")
             
-            # Write each unique change
-            for change in unique_changes.values():
-                log_file.write(f"{change['original_name']:<20} ({change['original_bst']}) -> ")
-                log_file.write(f"{change['new_name']:<15} ({change['new_bst']})\n")
+            # Sort by frequency (most common first)
+            common_replacements = sorted(most_common_replacements.items(), key=lambda x: x[1], reverse=True)
+            
+            # Show the top 20 most common replacements
+            for i, (replacement, count) in enumerate(common_replacements[:20]):
+                log_file.write(f"{count}x: {replacement}\n")
+                
+                # Also show these in the UI
+                if i < 10 and update_callback:  # Only show top 10 in UI
+                    update_callback(f"Common replacement: {count}x {replacement}")
+                    
+            if update_callback:
+                update_callback(f"Detailed change log created at {log_path}")
             
             log_file.write("\n" + "=" * 60 + "\n")
-            log_file.write(f"Total Pokémon Changed: {len(unique_changes)}\n")
+            log_file.write(f"Total Pokémon Changed: {len(pokemon_changes)}\n")
             log_file.write("=" * 60 + "\n")
         
         if update_callback:
@@ -500,6 +855,10 @@ class RandomizerGUI(QMainWindow):
     
     def __init__(self):
         super().__init__()
+        
+        # Load saved settings
+        self.settings = load_settings()
+        
         self.init_ui()
         
     def init_ui(self):
@@ -590,7 +949,22 @@ class RandomizerGUI(QMainWindow):
         # Initialize state
         self.randomizer_thread = None
         self.log("Welcome to the Pokémon Encounter Randomizer!")
-        self.log("Select a ROM file to begin.")
+        
+        # Load last ROM path if available
+        last_rom_path = self.settings.get("last_rom_path", "")
+        if last_rom_path and os.path.exists(last_rom_path):
+            self.input_path_label.setText(last_rom_path)
+            self.log(f"Loaded last used ROM: {last_rom_path}")
+            
+            # Set output path based on last ROM
+            base, ext = os.path.splitext(last_rom_path)
+            output_path = f"{base}_randomized{ext}"
+            self.output_path_label.setText(output_path)
+            
+            # Enable start button
+            self.start_button.setEnabled(True)
+        else:
+            self.log("Select a ROM file to begin.")
     
     def log(self, message):
         """Add a message to the log display."""
@@ -601,8 +975,14 @@ class RandomizerGUI(QMainWindow):
     
     def browse_input(self):
         """Browse for input ROM file."""
+        # Start from last directory if available
+        start_dir = ""
+        last_rom = self.settings.get("last_rom_path", "")
+        if last_rom and os.path.exists(os.path.dirname(last_rom)):
+            start_dir = os.path.dirname(last_rom)
+            
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "Select ROM File", "", "NDS ROM Files (*.nds);;All Files (*)"
+            self, "Select ROM File", start_dir, "NDS ROM Files (*.nds);;All Files (*)"
         )
         if file_path:
             self.input_path_label.setText(file_path)
@@ -612,7 +992,12 @@ class RandomizerGUI(QMainWindow):
             output_path = f"{base}_randomized{ext}"
             self.output_path_label.setText(output_path)
             
-            # Enable start button if we have both paths
+            # Save this path for next time
+            self.settings["last_rom_path"] = file_path
+            save_settings(self.settings)
+            self.log(f"Saved this ROM location for future use")
+            
+            # Enable start button
             self.start_button.setEnabled(True)
     
     def browse_output(self):
