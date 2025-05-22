@@ -86,6 +86,9 @@ def save_settings(settings):
 # Import the ROM reader to get Pokémon data directly from the ROM
 from pokemon_rom_reader import get_pokemon_data
 
+# Import our Pokémon name lookup function
+from pokemon_names import get_pokemon_name, POKEMON_NAMES
+
 # Special Pokémon that should not be randomized (legendaries, special Pokémon)
 SPECIAL_POKEMON = [
     144, 145, 146,  # Articuno, Zapdos, Moltres
@@ -698,38 +701,27 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
                 
                 # Record this change for the log if it's actually different
                 if species_id != new_species:
-                    # Get Pokémon names for the log - THIS IS CRUCIAL
-                    # We need to display actual Pokémon names, not generic IDs
+                    # Get Pokémon names for the log using our dedicated names module
+                    # This is much more reliable than trying to extract names from the ROM
                     
-                    # Start with default placeholder names using the species ID
-                    original_name = f"POKEMON_{species_id}"
-                    new_name = f"POKEMON_{new_species}"
+                    # Use our get_pokemon_name function to get proper names
+                    original_name = get_pokemon_name(species_id)
+                    new_name = get_pokemon_name(new_species)
                     
-                    # Replace with actual names if available in our data
-                    if species_id in POKEMON_BST and "name" in POKEMON_BST[species_id]:
-                        name = POKEMON_BST[species_id]["name"]
-                        # Only use the name if it looks valid (not empty, not just a number)
-                        if name and len(name) > 1 and not name.isdigit():
-                            original_name = name.upper()  # Use uppercase for consistency
+                    # Get BST (Base Stat Total) if available in the Pokémon data
+                    if species_id in POKEMON_BST and "bst" in POKEMON_BST[species_id]:
                         original_bst = POKEMON_BST[species_id]["bst"]
                     else:
                         original_bst = "???"
-                        
-                    # Do the same for the replacement Pokémon
-                    if new_species in POKEMON_BST and "name" in POKEMON_BST[new_species]:
-                        name = POKEMON_BST[new_species]["name"]
-                        if name and len(name) > 1 and not name.isdigit():
-                            new_name = name.upper()
+                    
+                    if new_species in POKEMON_BST and "bst" in POKEMON_BST[new_species]:
                         new_bst = POKEMON_BST[new_species]["bst"]
                     else:
                         new_bst = "???"
-                        
-                    # Double-check that we have actual names, not just placeholders
-                    if original_name.startswith("POKEMON_") or original_name.startswith("SPECIES_"):
-                        original_name = f"#{species_id} (Unknown)" 
-                        
-                    if new_name.startswith("POKEMON_") or new_name.startswith("SPECIES_"):
-                        new_name = f"#{new_species} (Unknown)"
+                    
+                    # Log a message if we're still using unknown Pokémon names
+                    if "UNKNOWN" in original_name or "UNKNOWN" in new_name:
+                        print(f"Note: Using placeholder name for Pokémon ID {species_id} or {new_species}.")
                     
                     # Create a nice user-friendly log entry
                     change_info = f"{original_name} (BST: {original_bst}) → {new_name} (BST: {new_bst})"
@@ -823,13 +815,27 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
             # Sort by frequency (most common first)
             common_replacements = sorted(most_common_replacements.items(), key=lambda x: x[1], reverse=True)
             
-            # Show the top 20 most common replacements
+            # Show the top 20 most common replacements with a nice header for each group
+            log_file.write("The following replacements happened most frequently:\n\n")
+            
+            # Format the replacements in a nice readable way
             for i, (replacement, count) in enumerate(common_replacements[:20]):
-                log_file.write(f"{count}x: {replacement}\n")
+                # Split the replacement into original and new
+                parts = replacement.split(" → ")
+                if len(parts) == 2:
+                    original, new = parts
+                    # Format with clear labels for beginners
+                    log_file.write(f"{count}x: {original} was replaced with {new}\n")
+                else:
+                    # Fallback if the format is unexpected
+                    log_file.write(f"{count}x: {replacement}\n")
                 
-                # Also show these in the UI
-                if i < 10 and update_callback:  # Only show top 10 in UI
-                    update_callback(f"Common replacement: {count}x {replacement}")
+                # Also show these in the UI for real-time feedback
+                if i < 10 and update_callback:  # Only show top 10 in UI to avoid clutter
+                    if len(parts) == 2:
+                        update_callback(f"Common change: {parts[0]} → {parts[1]} ({count} times)")
+                    else:
+                        update_callback(f"Common replacement: {count}x {replacement}")
                     
             if update_callback:
                 update_callback(f"Detailed change log created at {log_path}")
