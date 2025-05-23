@@ -90,3 +90,12 @@ tools/swav2swar.exe
 *.gbapal
 *.4bpp
 changelog
+pokemon_names.py
+tools/libgcc_s_seh-1.dll
+tools/libstdc++-6.dll
+tools/libwinpthread-1.dll
+tools/zlib1.dll
+randomizer_debug.log
+rom.nds.backup
+rom.ld.backup
+randomizer_settings.json

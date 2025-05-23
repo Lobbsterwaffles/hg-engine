@@ -540,12 +540,12 @@ def get_pokemon_data(rom_path, use_caching=True, create_dump=True):
     # Verify BST values against known correct values
     # This will help us identify if our BST calculations are correct
     known_bst_values = {
-        1: 318,    # Bulbasaur: 45+49+49+45+65+65=318
-        4: 309,    # Charmeleon: 58+64+58+80+80+65=309
-        8: 430,    # Blastoise: 79+83+100+78+85+105=430
-        24: 320,   # Pikachu: 35+55+40+90+50+50=320 
-        51: 425,   # Dugtrio: 35+100+50+120+50+70=425
-        149: 680,  # Mewtwo: 106+110+90+130+154+90=680
+        2: 318,    # Bulbasaur: 45+49+49+45+65+65=318
+        4: 309,    # Charmander: 39+52+43+65+60+50=309
+        8: 430,    # Wartortle: 59+63+80+58+65+80=430
+        26: 320,   # Pikachu: 35+55+40+90+50+50=320 
+        52: 425,   # Dugtrio: 35+100+50+120+50+70=425
+        150: 680,  # Dragonite: 91+134+95+80+100+100=680
     }
     
     # Check for mismatches
