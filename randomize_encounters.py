@@ -192,26 +192,32 @@ def find_replacements(mon, mondata, bstrmin, bstrmax):
 
 
 def randomize_slot_list(
-    slot_list, time_name, location_id, location_name, mondata, log_function=None
+    slot_list, time_name, location_id, location_name, mondata, log_function=None, global_replacements=None
 ):
     """Helper function to randomize a list of Pokemon slots and print progress"""
     for i, pokemon_id in enumerate(slot_list):
         mon = mondata[pokemon_id]
-
-        # Skip replacing special Pokemon
-        if pokemon_id in SPECIAL_POKEMON:
-            replacements = [pokemon_id]
-            notes = "SKIP"
+        
+        # Use the global mapping for replacements
+        if global_replacements and pokemon_id in global_replacements:
+            rid = global_replacements[pokemon_id]
+            notes = "SKIP" if pokemon_id in SPECIAL_POKEMON else ""
         else:
-            fac = 0.15
-            replacements = find_replacements(mon, mondata, 1 - fac, 1 + fac)
-            # Filter out special Pokemon from replacement candidates
-            replacements = [r for r in replacements if r not in SPECIAL_POKEMON]
-            if not replacements:  # Fallback if no suitable replacements found
+            # Fallback to old method if global_replacements not provided
+            # Skip replacing special Pokemon
+            if pokemon_id in SPECIAL_POKEMON:
                 replacements = [pokemon_id]
-            notes = ""
-
-        rid = random.choice(replacements)
+                notes = "SKIP"
+            else:
+                fac = 0.15
+                replacements = find_replacements(mon, mondata, 1 - fac, 1 + fac)
+                # Filter out special Pokemon from replacement candidates
+                replacements = [r for r in replacements if r not in SPECIAL_POKEMON]
+                if not replacements:  # Fallback if no suitable replacements found
+                    replacements = [pokemon_id]
+                notes = ""
+            rid = random.choice(replacements)
+            
         rep = mondata[rid]
 
         if mon.bst == 0:
@@ -234,7 +240,7 @@ def randomize_slot_list(
 
 
 def randomize_bytes(
-    input_bytes, mondata, location_id, encounter_names, log_function=None
+    input_bytes, mondata, location_id, encounter_names, log_function=None, global_replacements=None
 ):
     my = encounter_struct.parse(input_bytes)
 
@@ -242,13 +248,13 @@ def randomize_bytes(
     location_name = encounter_names.get(location_id, f"Area {location_id}")
 
     randomize_slot_list(
-        my.morning, "morning", location_id, location_name, mondata, log_function
+        my.morning, "morning", location_id, location_name, mondata, log_function, global_replacements
     )
     randomize_slot_list(
-        my.day, "day", location_id, location_name, mondata, log_function
+        my.day, "day", location_id, location_name, mondata, log_function, global_replacements
     )
     randomize_slot_list(
-        my.night, "night", location_id, location_name, mondata, log_function
+        my.night, "night", location_id, location_name, mondata, log_function, global_replacements
     )
     return encounter_struct.build(my)
 
@@ -259,6 +265,28 @@ def randomize_encounters(rom, log_function=None, progress_callback=None):
 
     # Read encounter names from assembly source
     encounter_names = read_encounter_names(".")
+    
+    # Create a global mapping of Pokémon to their replacements
+    # This ensures that the same Pokémon species is always replaced by the same species
+    global_replacements = {}
+    
+    # For each Pokémon, determine its replacement once
+    for pokemon_id in range(len(mondata)):
+        # Skip special Pokémon
+        if pokemon_id in SPECIAL_POKEMON:
+            global_replacements[pokemon_id] = pokemon_id
+            continue
+            
+        mon = mondata[pokemon_id]
+        fac = 0.15
+        replacements = find_replacements(mon, mondata, 1 - fac, 1 + fac)
+        # Filter out special Pokémon and already used replacements from replacement candidates
+        replacements = [r for r in replacements if r not in SPECIAL_POKEMON and r not in global_replacements.values()]
+        
+        if not replacements:  # Fallback if no suitable replacements found
+            global_replacements[pokemon_id] = pokemon_id
+        else:
+            global_replacements[pokemon_id] = random.choice(replacements)
 
     header_message = f"{'Loc':<4} {'Location':<40} {'Time':<7} {'Slot':<4} {'Original':<15} {'BST':<4} {'→':<2} {'Replacement':<15} {'BST':<4} {'Diff%':<6} {'Notes':<4}"
     separator_message = "-" * 120
@@ -274,7 +302,7 @@ def randomize_encounters(rom, log_function=None, progress_callback=None):
     total_files = len(narc_data.files)
     for i, data in enumerate(narc_data.files):
         narc_data.files[i] = randomize_bytes(
-            bytearray(data), mondata, i, encounter_names, log_function
+            bytearray(data), mondata, i, encounter_names, log_function, global_replacements
         )
 
         # Update progress bar
