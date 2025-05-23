@@ -99,3 +99,7 @@ randomizer_debug.log
 rom.nds.backup
 rom.ld.backup
 randomizer_settings.json
+HGE_randomized_changes.txt
+HGE_randomized_detailed_changes.txt
+pokemon_data_cache.txt
+pokemon_stats_dump.txt

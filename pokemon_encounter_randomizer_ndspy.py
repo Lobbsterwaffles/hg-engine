@@ -87,7 +87,7 @@ def save_settings(settings):
         # Continue without saving settings - not critical
 
 # Import the ROM reader to get Pokémon data directly from the ROM
-from pokemon_rom_reader import get_pokemon_data
+from pokemon_rom_reader_v2 import get_pokemon_data
 
 # Import our Pokémon name lookup function
 from pokemon_names import get_pokemon_name, POKEMON_NAMES
@@ -132,164 +132,7 @@ def extract_area_names(encounters_file_path):
         logger.error(f"Error extracting area names: {e}")
         return {}
 
-
-def generate_area_encounter_log(area_encounters, log_path, update_callback=None):
-    """Generate a log file that shows Pokémon encounters organized by area.
-    
-    This function creates a nicely formatted log file that shows all Pokémon encounters
-    organized by area name and ID. For each area, it lists the Pokémon that can be 
-    encountered there, their level ranges, and whether they were replaced during randomization.
-    
-    Args:
-        area_encounters: Dictionary of encounter data by area
-        log_path: Path to save the log file
-        update_callback: Function to call with status updates
-    """
-    try:
-        # Debug log to see what we've collected
-        if update_callback:
-            update_callback(f"DEBUG: Found {len(area_encounters)} areas with data")
-            
-            # Print out some sample data to help debug
-            for area_id, data in list(area_encounters.items())[:5]:  # Just show first 5 areas
-                try:
-                    area_name = data.get("name", f"Area {area_id}")
-                    encounter_count = len(data.get("encounters", []))
-                    update_callback(f"DEBUG: Area {area_id} ({area_name}) has {encounter_count} encounters")
-                    
-                    # Print details of one encounter to help debug
-                    if encounter_count > 0:
-                        encounter = data.get("encounters", [])[0]  # First encounter
-                        update_callback(f"DEBUG: Sample encounter: {encounter}")
-                        
-                        # Check if the encounter has a pokemon_name field
-                        if "pokemon_name" not in encounter and "pokemon_id" in encounter:
-                            # Try to add the name if missing
-                            pokemon_id = encounter["pokemon_id"]
-                            encounter["pokemon_name"] = f"POKÉMON #{pokemon_id}"
-                except Exception as e:
-                    update_callback(f"DEBUG: Error examining area {area_id}: {e}")
-        
-        # Use a very forgiving approach to finding valid encounters
-        valid_areas = {}
-        for area_id, data in area_encounters.items():
-            # Make sure we have an area name, even if it's just a placeholder
-            if "name" not in data:
-                data["name"] = f"Area {area_id}"
-                
-            # Make sure encounters is a list, even if it's empty
-            encounters = data.get("encounters", [])
-            if not isinstance(encounters, list):
-                encounters = []
-                
-            # Only include the area if it has at least one valid encounter
-            if encounters and any(isinstance(enc, dict) for enc in encounters):
-                valid_areas[area_id] = data
-                
-        if not valid_areas:
-            if update_callback:
-                update_callback("WARNING: No valid encounters found to log - creating empty file as placeholder")
-            
-            # Create an empty file with an explanation
-            with open(log_path, "w", encoding="utf-8") as log_file:
-                log_file.write("NO ENCOUNTERS FOUND\n\n")
-                log_file.write("This file is empty because no valid Pokémon encounters were detected.\n")
-                log_file.write("Possible reasons:\n")
-                log_file.write("1. The ROM may not have any wild encounters\n")
-                log_file.write("2. The area detection may not be working properly\n")
-                log_file.write("3. The encounter format may not match what the randomizer expects\n\n")
-                log_file.write(f"Debug info: Found {len(area_encounters)} total areas")
-            return
-            
-        # Sort areas by ID to maintain order from encounters.s
-        sorted_areas = sorted(valid_areas.items())
-        
-        with open(log_path, "w", encoding="utf-8") as log_file:
-            # Write header
-            log_file.write("="*60 + "\n")
-            log_file.write("POKÉMON ENCOUNTERS BY AREA\n")
-            log_file.write("="*60 + "\n\n")
-            
-            log_file.write(f"Total Areas with Encounters: {len(sorted_areas)}\n\n")
-            
-            # Write encounters for each area
-            for area_id, data in sorted_areas:
-                area_name = data.get("name", f"Area {area_id}")
-                encounters = data.get("encounters", [])
-                
-                if not encounters:
-                    continue
-                
-                # Write area header
-                log_file.write("-"*60 + "\n")
-                log_file.write(f"AREA {area_id}: {area_name}\n")
-                log_file.write("-"*60 + "\n\n")
-                
-                # Create a table header
-                log_file.write(f"{'Original Pokémon':<20} {'Level Range':<15} {'Replacement':<20} {'Status':<10}\n")
-                log_file.write("-"*65 + "\n")
-                
-                # Write each encounter
-                for encounter in encounters:
-                    # Try different possible field names for Pokémon names
-                    original_name = encounter.get("pokemon_name", None)
-                    if original_name is None:
-                        original_name = encounter.get("name", None)
-                    if original_name is None:
-                        # If we still don't have a name, use the Pokémon ID if available
-                        pokemon_id = encounter.get("pokemon_id", 0)
-                        if pokemon_id > 0:
-                            original_name = f"POKÉMON #{pokemon_id}"
-                        else:
-                            original_name = "UNKNOWN"
-                    
-                    # Get level information, with fallbacks
-                    min_level = encounter.get("min_level", 0)
-                    max_level = encounter.get("max_level", min_level)
-                    level_range = f"Lv.{min_level}" if min_level == max_level else f"Lv.{min_level}-{max_level}"
-                    
-                    # Get replacement information
-                    if encounter.get("replaced", False):
-                        # Try different possible field names for replacement names
-                        replacement_name = encounter.get("replacement_name", None)
-                        if replacement_name is None:
-                            replacement_name = encounter.get("new_name", None)
-                        if replacement_name is None:
-                            # If we still don't have a name, use the replacement ID if available
-                            replacement_id = encounter.get("replacement_id", 0)
-                            if replacement_id > 0:
-                                replacement_name = f"POKÉMON #{replacement_id}"
-                            else:
-                                replacement_name = "UNKNOWN REPLACEMENT"
-                        status = "CHANGED"
-                    else:
-                        replacement_name = "(unchanged)"
-                        status = "KEPT"
-                    
-                    log_file.write(f"{original_name:<20} {level_range:<15} {replacement_name:<20} {status:<10}\n")
-                
-                log_file.write("\n")
-            
-            # Footer with summary
-            log_file.write("="*60 + "\n")
-            log_file.write(f"Log created: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-            log_file.write("="*60 + "\n")
-        
-        if update_callback:
-            update_callback(f"Created area encounter log with {len(sorted_areas)} areas at {log_path}")
-            
-    except Exception as e:
-        # Log the error but don't crash
-        logger.error(f"Error generating area encounter log: {e}")
-        if update_callback:
-            update_callback(f"Error generating area encounter log: {e}")
-        
-        # Try to create a simple error file
-        try:
-            with open(log_path, "w", encoding="utf-8") as log_file:
-                log_file.write(f"ERROR: Could not generate area encounter log:\n{str(e)}\n")
-        except:
-            pass
+# Encounter logging functionality has been removed as requested
 
 # Special Pokémon that should not be randomized (legendaries, special Pokémon)
 SPECIAL_POKEMON = [
@@ -886,11 +729,7 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
                                     replacement_key = f"{pokemon_name} → {replacement_name}"
                                     most_common_replacements[replacement_key] = most_common_replacements.get(replacement_key, 0) + 1
                             
-                            # Add to our area encounters tracking
-                            area_encounters[area_id] = {
-                                "name": area_name,
-                                "encounters": encounters
-                            }
+                            # Area encounter tracking has been removed as requested
                         
                 except Exception as e:
                     # Just log the error and continue to the next file
@@ -1555,83 +1394,9 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
             # Choose a selection of areas to include (not all 142, that would be too many)
             selected_areas = random.sample(list(area_names.keys()), min(30, len(area_names)))
             
-            for area_id in selected_areas:
-                if area_id in area_names:
-                    area_name = area_names[area_id]
-                    encounters = []
-                    
-                    # Generate between 3-6 random encounters for this area
-                    num_encounters = random.randint(3, 6)
-                    for _ in range(num_encounters):
-                        # Choose random Pokémon (IDs 1-251 for Gen 1-2)
-                        pokemon_id = random.randint(1, 251)
-                        
-                        # Make sure we have a proper name for the Pokémon
-                        # Try to get the name from our lookup, otherwise use a placeholder
-                        try:
-                            pokemon_name = get_pokemon_name(pokemon_id)
-                            # If we got an empty or None name, use a placeholder
-                            if not pokemon_name:
-                                pokemon_name = f"POKÉMON #{pokemon_id}"
-                        except Exception:
-                            # If there's any error getting the name, use a placeholder
-                            pokemon_name = f"POKÉMON #{pokemon_id}"
-                        
-                        # Set realistic level ranges based on progression
-                        if area_id < 10:  # Early game areas
-                            min_level = random.randint(2, 8)
-                        elif area_id < 30:  # Mid game areas
-                            min_level = random.randint(10, 20)
-                        else:  # Late game areas
-                            min_level = random.randint(25, 40)
-                            
-                        max_level = min_level + random.randint(0, 5)
-                        
-                        # Decide if this Pokémon was replaced or not
-                        # Make 75% of encounters replaced and 25% unchanged
-                        was_replaced = random.random() < 0.75
-                        
-                        # Create the base encounter data that every encounter needs
-                        encounter_data = {
-                            "pokemon_id": pokemon_id,
-                            "pokemon_name": pokemon_name,  # This is the key field that was causing issues
-                            "name": pokemon_name,          # Include both formats for maximum compatibility
-                            "min_level": min_level,
-                            "max_level": max_level,
-                            "replaced": was_replaced
-                        }
-                        
-                        if was_replaced:
-                            # Choose replacement (IDs 1-386 for Gen 1-3)
-                            replacement_id = random.randint(1, 386)
-                            
-                            # Get replacement name with error handling
-                            try:
-                                replacement_name = get_pokemon_name(replacement_id)
-                                if not replacement_name:
-                                    replacement_name = f"POKÉMON #{replacement_id}"
-                            except Exception:
-                                replacement_name = f"POKÉMON #{replacement_id}"
-                            
-                            # Add replacement info to the encounter data
-                            encounter_data["replacement_id"] = replacement_id
-                            encounter_data["replacement_name"] = replacement_name
-                            encounter_data["new_name"] = replacement_name  # Include both formats for compatibility
-                        
-                        # Add the complete encounter data to our list
-                        encounters.append(encounter_data)
-                    
-                    # Add to our area encounters tracking
-                    area_encounters[area_id] = {
-                        "name": area_name,
-                        "encounters": encounters
-                    }
-            
-            if update_callback:
-                update_callback(f"Created example data for {len(area_encounters)} areas")
+            # Encounter data collection for logging has been removed as requested
         
-        # Generate the area encounter log
-        generate_area_encounter_log(area_encounters, area_log_path, update_callback)
+        # Encounter logging functionality has been removed as requested
         
         # Save the modified ROM to the output file
         if update_callback:
@@ -1645,7 +1410,6 @@ def randomize_encounters(rom_path, output_path=None, seed=None, similar_strength
             update_callback("Randomization complete!")
             update_callback(f"Modified ROM saved to: {output_path}")
             update_callback(f"Stats log saved to: {stats_log_path}")
-            update_callback(f"Area encounter log saved to: {area_log_path}")
         
         if progress_callback:
             progress_callback(100)
