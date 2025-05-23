@@ -12,39 +12,22 @@ import sys
 import random
 import json
 import argparse
-import logging
 import traceback
 from pathlib import Path
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QFileDialog, QProgressBar, QTextEdit,
     QCheckBox, QSpinBox, QComboBox, QGroupBox, QFormLayout,
-    QMessageBox
+    QMessageBox, QLineEdit
 )
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 
 import ndspy.rom
 
-
 from randomize_encounters import randomize_encounters
-
-
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-logger = logging.getLogger(__name__)
 
 # Settings file to remember user preferences
 SETTINGS_FILE = "randomizer_settings.json"
-
-# List of Pokémon that should not be replaced when randomizing
-SPECIAL_POKEMON = set([
-    # Legendaries and special Pokémon
-    150, 151,  # Mewtwo, Mew
-    243, 244, 245,  # Raikou, Entei, Suicune
-    249, 250, 251,  # Lugia, Ho-Oh, Celebi
-    377, 378, 379, 380, 381, 382, 383, 384, 385, 386,  # Gen 3 legendaries
-    480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494,  # Gen 4 legendaries
-])
 
 def load_settings():
     """Load user settings from the settings file."""
@@ -59,7 +42,7 @@ def load_settings():
             return settings
         return default_settings
     except Exception as e:
-        logger.error(f"Error loading settings: {e}")
+        print(f"Error loading settings: {e}")
         return default_settings
 
 def save_settings(settings):
@@ -68,7 +51,7 @@ def save_settings(settings):
         with open(SETTINGS_FILE, "w") as f:
             json.dump(settings, f, indent=2)
     except Exception as e:
-        logger.error(f"Error saving settings: {e}")
+        print(f"Error saving settings: {e}")
 
 class RandomizerThread(QThread):
     """Thread for running the randomization process without freezing the GUI."""
@@ -76,19 +59,29 @@ class RandomizerThread(QThread):
     progress_value = pyqtSignal(int)
     finished_signal = pyqtSignal(bool, str)
 
-    def __init__(self, rom_path, output_path):
+    def __init__(self, rom_path, output_path, log_function=None):
         super().__init__()
         self.rom_path = rom_path
         self.output_path = output_path
         self.rom_bytes = None
+        self.log_function = log_function
 
     def run(self):
         try:
             rom = ndspy.rom.NintendoDSRom.fromFile(self.rom_path)
 
-            randomize_encounters(rom)
+            # Pass the progress callback to the randomize_encounters function
+            randomize_encounters(rom, self.log_function, lambda percent: self.progress_value.emit(percent))
 
+            # Log the start of ROM saving
+            if self.log_function:
+                self.log_function("Saving randomized ROM to file...")
+            
             rom.saveToFile(self.output_path)
+            
+            # Log completion of ROM saving
+            if self.log_function:
+                self.log_function(f"ROM saved successfully to: {self.output_path}")
 
             self.finished_signal.emit(True, f"Randomization completed successfully!\nOutput saved to: {self.output_path}")
         except Exception as e:
@@ -96,7 +89,7 @@ class RandomizerThread(QThread):
             error_traceback = traceback.format_exc()
             
             # Log the full error details
-            logger.error(f"Error during randomization: {e}\n{error_traceback}")
+            print(f"Error during randomization: {e}\n{error_traceback}")
             
             # Show a more detailed error message to the user
             error_message = f"Randomization failed: {str(e)}\n\nFull Error Details (for debugging):\n{error_traceback}"
@@ -106,16 +99,26 @@ class RandomizerThread(QThread):
 
 class RandomizerGUI(QMainWindow):
     """GUI for the Pokémon encounter randomizer."""
-    
+
     def __init__(self):
         super().__init__()
         self.settings = load_settings()
+        # Truncate log file on startup with UTF-8 encoding
+        with open("randomizer.log", "w", encoding='utf-8') as f:
+            f.write("")
+        self.last_file_position = 0  # Track where we last read from the file
+        self.original_log_content = ""  # Store original unfiltered log content
         self.init_ui()
+        
+        # Set up file tailing timer
+        self.tail_timer = QTimer()
+        self.tail_timer.timeout.connect(self.tail_log_file)
+        self.tail_timer.start(100)  # Check every 100ms
         
     def init_ui(self):
         """Initialize the user interface."""
         self.setWindowTitle("Pokémon Encounter Randomizer")
-        self.setMinimumSize(600, 500)
+        self.setMinimumSize(800, 500)
         
         # Main widget and layout
         central_widget = QWidget(self)
@@ -174,6 +177,16 @@ class RandomizerGUI(QMainWindow):
         self.progress_bar = QProgressBar()
         progress_layout.addWidget(self.progress_bar)
         
+        # Search/filter area for log
+        search_layout = QHBoxLayout()
+        search_label = QLabel("Filter logs:")
+        self.search_box = QLineEdit()
+        self.search_box.setPlaceholderText("Type to filter log lines (case-insensitive)...")
+        self.search_box.textChanged.connect(self.filter_logs)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.search_box)
+        progress_layout.addLayout(search_layout)
+        
         self.log_display = QTextEdit()
         self.log_display.setReadOnly(True)
         self.log_display.setStyleSheet("font-family: Consolas, monospace;")
@@ -194,13 +207,17 @@ class RandomizerGUI(QMainWindow):
         
         # Initialize state
         self.randomizer_thread = None
-        self.log("Welcome to the Pokémon Encounter Randomizer!")
+        # Only log to file, not GUI (to avoid threading issues)
+        with open("randomizer.log", "a", encoding='utf-8') as f:
+            f.write("Welcome to the Pokémon Encounter Randomizer!\n")
         
         # Load last ROM path if available
         last_rom_path = self.settings.get("last_rom_path", "")
         if last_rom_path and os.path.exists(last_rom_path):
             self.input_path_label.setText(last_rom_path)
-            self.log(f"Loaded last used ROM: {last_rom_path}")
+            # Only log to file, not GUI (to avoid threading issues)
+            with open("randomizer.log", "a", encoding='utf-8') as f:
+                f.write(f"Loaded last used ROM: {last_rom_path}\n")
             
             # Set output path based on last ROM
             base, ext = os.path.splitext(last_rom_path)
@@ -210,15 +227,54 @@ class RandomizerGUI(QMainWindow):
             # Enable start button
             self.start_button.setEnabled(True)
         else:
-            self.log("Select a ROM file to begin.")
-    
+            # Only log to file, not GUI (to avoid threading issues)
+            with open("randomizer.log", "a", encoding='utf-8') as f:
+                f.write("Select a ROM file to begin.\n")
+        
     def log(self, message):
         """Add a message to the log display."""
-        self.log_display.append(message)
-        # Auto-scroll to the bottom
-        scrollbar = self.log_display.verticalScrollBar()
-        scrollbar.setValue(scrollbar.maximum())
+        # Only log to file, not GUI (to avoid threading issues)
+        with open("randomizer.log", "a", encoding='utf-8') as f:
+            f.write(message + "\n")
     
+    def tail_log_file(self):
+        """Read new content from the log file and update the display."""
+        try:
+            with open("randomizer.log", "r", encoding='utf-8') as f:
+                f.seek(self.last_file_position)
+                new_content = f.read()
+                if new_content:
+                    # Update the original log content
+                    self.original_log_content += new_content
+                    
+                    # If there's an active filter, reapply it to the entire content
+                    search_text = self.search_box.text().lower()
+                    if search_text:
+                        lines = self.original_log_content.split("\n")
+                        filtered_lines = [line for line in lines if search_text in line.lower()]
+                        self.log_display.setText("\n".join(filtered_lines))
+                    else:
+                        # No filter, just append new content
+                        self.log_display.insertPlainText(new_content)
+                    
+                    # Auto-scroll to the bottom
+                    cursor = self.log_display.textCursor()
+                    cursor.movePosition(cursor.End)
+                    self.log_display.setTextCursor(cursor)
+                    
+                    # Update our position tracker
+                    self.last_file_position = f.tell()
+        except (FileNotFoundError, PermissionError):
+            # File might not exist yet or be locked, just ignore
+            pass
+
+    def filter_logs(self):
+        """Filter log lines based on search text."""
+        search_text = self.search_box.text().lower()
+        lines = self.original_log_content.split("\n")
+        filtered_lines = [line for line in lines if search_text in line.lower()]
+        self.log_display.setText("\n".join(filtered_lines))
+
     def browse_input(self):
         """Browse for input ROM file."""
         # Start from last directory if available
@@ -241,7 +297,9 @@ class RandomizerGUI(QMainWindow):
             # Save this path for next time
             self.settings["last_rom_path"] = file_path
             save_settings(self.settings)
-            self.log(f"Saved this ROM location for future use")
+            # Only log to file, not GUI (to avoid threading issues)
+            with open("randomizer.log", "a", encoding='utf-8') as f:
+                f.write(f"Saved this ROM location for future use\n")
             
             # Enable start button
             self.start_button.setEnabled(True)
@@ -280,14 +338,16 @@ class RandomizerGUI(QMainWindow):
         
         # Reset progress
         self.progress_bar.setValue(0)
-        self.log("Starting randomization...")
+        # Only log to file, not GUI (to avoid threading issues)
+        with open("randomizer.log", "a", encoding='utf-8') as f:
+            f.write("Starting randomization...\n")
         
         # Disable UI during randomization
         self.start_button.setEnabled(False)
         
         # Start randomization in a separate thread
         self.randomizer_thread = RandomizerThread(
-            input_path, output_path
+            input_path, output_path, self.log
         )
         self.randomizer_thread.progress_update.connect(self.log)
         self.randomizer_thread.progress_value.connect(self.progress_bar.setValue)
@@ -296,14 +356,19 @@ class RandomizerGUI(QMainWindow):
     
     def randomization_finished(self, success, message):
         """Handle randomization completion."""
-        self.log(message)
+        # Only log to file, not GUI (to avoid threading issues)
+        with open("randomizer.log", "a", encoding='utf-8') as f:
+            f.write(message + "\n")
         
         # Re-enable UI
         self.start_button.setEnabled(True)
         
-        if success:
-            QMessageBox.information(self, "Success", message)
-        else:
+        # Log completion message to the UI instead of showing a modal dialog
+        status_message = "✅ " + message if success else "❌ " + message
+        self.log(status_message)
+        
+        # Show error dialog only for failures
+        if not success:
             QMessageBox.critical(self, "Error", message)
 
 def main():
