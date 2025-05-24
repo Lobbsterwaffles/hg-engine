@@ -38,6 +38,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 import ndspy.rom
 
 from randomize_encounters import randomize_encounters
+from randomize_trainers import randomize_trainers
 
 # Settings file to remember user preferences
 SETTINGS_FILE = "randomizer_settings.json"
@@ -76,23 +77,42 @@ class RandomizerThread(QThread):
     progress_value = pyqtSignal(int)
     finished_signal = pyqtSignal(bool, str)
 
-    def __init__(self, rom_path, output_path, log_function=None):
+    def __init__(self, rom_path, output_path, randomize_encounters=True, randomize_trainers=True, log_function=None):
         super().__init__()
         self.rom_path = rom_path
         self.output_path = output_path
+        self.randomize_encounters = randomize_encounters
+        self.randomize_trainers = randomize_trainers
         self.rom_bytes = None
         self.log_function = log_function
 
     def run(self):
         try:
             rom = ndspy.rom.NintendoDSRom.fromFile(self.rom_path)
-
-            # Pass the progress callback to the randomize_encounters function
-            randomize_encounters(
-                rom,
-                self.log_function,
-                lambda percent: self.progress_value.emit(percent),
-            )
+            
+            # Randomize encounters if selected
+            if self.randomize_encounters:
+                if self.log_function:
+                    self.log_function("Starting encounter randomization...")
+                    
+                # Pass the progress callback to the randomize_encounters function
+                randomize_encounters(
+                    rom,
+                    self.log_function,
+                    lambda percent: self.progress_value.emit(percent),
+                )
+                
+            # Randomize trainers if selected
+            if self.randomize_trainers:
+                if self.log_function:
+                    self.log_function("Starting trainer randomization...")
+                    
+                # Pass the progress callback to the randomize_trainers function
+                randomize_trainers(
+                    rom,
+                    self.log_function,
+                    lambda percent: self.progress_value.emit(percent),
+                )
 
             # Log the start of ROM saving
             if self.log_function:
@@ -104,9 +124,19 @@ class RandomizerThread(QThread):
             if self.log_function:
                 self.log_function(f"ROM saved successfully to: {self.output_path}")
 
+            # Determine what was randomized for the success message
+            randomized_features = []
+            if self.randomize_encounters:
+                randomized_features.append("wild encounters")
+            if self.randomize_trainers:
+                randomized_features.append("trainer Pokémon")
+            
+            # Join the list of features into a readable string
+            features_text = " and ".join(randomized_features)
+            
             self.finished_signal.emit(
                 True,
-                f"Randomization completed successfully!\nOutput saved to: {self.output_path}",
+                f"Randomization of {features_text} completed successfully!\nOutput saved to: {self.output_path}",
             )
         except Exception as e:
             # Get the full stack trace as a string
@@ -184,6 +214,19 @@ class RandomizerGUI(QMainWindow):
         # Options area
         options_group = QGroupBox("Randomization Options")
         options_layout = QFormLayout()
+        
+        # Randomization type selection
+        randomization_type_layout = QVBoxLayout()
+        self.randomize_encounters_checkbox = QCheckBox("Randomize Wild Encounters")
+        self.randomize_trainers_checkbox = QCheckBox("Randomize Trainer Pokémon")
+        
+        # Set both options checked by default
+        self.randomize_encounters_checkbox.setChecked(True)
+        self.randomize_trainers_checkbox.setChecked(True)
+        
+        randomization_type_layout.addWidget(self.randomize_encounters_checkbox)
+        randomization_type_layout.addWidget(self.randomize_trainers_checkbox)
+        options_layout.addRow(randomization_type_layout)
 
         # Seed input
         seed_layout = QHBoxLayout()
@@ -363,10 +406,16 @@ class RandomizerGUI(QMainWindow):
             QMessageBox.warning(self, "Error", "Please select an output location.")
             return
 
+        # Check if at least one randomization option is selected
+        if not self.randomize_encounters_checkbox.isChecked() and not self.randomize_trainers_checkbox.isChecked():
+            QMessageBox.warning(self, "Error", "Please select at least one randomization option.")
+            return
+            
         # Get options
         seed = None
         if self.use_seed_checkbox.isChecked():
             seed = self.seed_spinbox.value()
+            random.seed(seed)
 
         # Reset progress
         self.progress_bar.setValue(0)
@@ -377,8 +426,18 @@ class RandomizerGUI(QMainWindow):
         # Disable UI during randomization
         self.start_button.setEnabled(False)
 
+        # Get randomization options
+        randomize_encounters = self.randomize_encounters_checkbox.isChecked()
+        randomize_trainers = self.randomize_trainers_checkbox.isChecked()
+        
         # Start randomization in a separate thread
-        self.randomizer_thread = RandomizerThread(input_path, output_path, self.log)
+        self.randomizer_thread = RandomizerThread(
+            input_path, 
+            output_path, 
+            randomize_encounters=randomize_encounters,
+            randomize_trainers=randomize_trainers,
+            log_function=self.log
+        )
         self.randomizer_thread.progress_update.connect(self.log)
         self.randomizer_thread.progress_value.connect(self.progress_bar.setValue)
         self.randomizer_thread.finished_signal.connect(self.randomization_finished)
