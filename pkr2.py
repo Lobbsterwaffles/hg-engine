@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import (
     QFormLayout,
     QMessageBox,
     QLineEdit,
+    QTabWidget,
 )
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 
@@ -77,12 +78,13 @@ class RandomizerThread(QThread):
     progress_value = pyqtSignal(int)
     finished_signal = pyqtSignal(bool, str)
 
-    def __init__(self, rom_path, output_path, randomize_encounters=True, randomize_trainers=True, log_function=None):
+    def __init__(self, rom_path, output_path, randomize_encounters=True, randomize_trainers=True, type_themed_gyms=False, log_function=None):
         super().__init__()
         self.rom_path = rom_path
         self.output_path = output_path
         self.randomize_encounters = randomize_encounters
         self.randomize_trainers = randomize_trainers
+        self.type_themed_gyms = type_themed_gyms
         self.rom_bytes = None
         self.log_function = log_function
 
@@ -211,22 +213,56 @@ class RandomizerGUI(QMainWindow):
         file_group.setLayout(file_layout)
         main_layout.addWidget(file_group)
 
-        # Options area
-        options_group = QGroupBox("Randomization Options")
-        options_layout = QFormLayout()
+        # Create tab widget
+        self.tab_widget = QTabWidget()
+        main_layout.addWidget(self.tab_widget)
         
-        # Randomization type selection
-        randomization_type_layout = QVBoxLayout()
+        # Pokémon Encounters tab
+        encounters_tab = QWidget()
+        encounters_layout = QVBoxLayout(encounters_tab)
+        
+        # Encounters randomization options
+        encounters_options_group = QGroupBox("Wild Encounter Options")
+        encounters_options_layout = QVBoxLayout()
+        
         self.randomize_encounters_checkbox = QCheckBox("Randomize Wild Encounters")
+        self.randomize_encounters_checkbox.setChecked(True)  # Checked by default
+        encounters_options_layout.addWidget(self.randomize_encounters_checkbox)
+        
+        encounters_options_group.setLayout(encounters_options_layout)
+        encounters_layout.addWidget(encounters_options_group)
+        encounters_layout.addStretch(1)  # Add stretch to keep controls at the top
+        
+        # Trainers tab
+        trainers_tab = QWidget()
+        trainers_layout = QVBoxLayout(trainers_tab)
+        
+        # Trainers randomization options
+        trainers_options_group = QGroupBox("Trainer Options")
+        trainers_options_layout = QVBoxLayout()
+        
         self.randomize_trainers_checkbox = QCheckBox("Randomize Trainer Pokémon")
+        self.randomize_trainers_checkbox.setChecked(True)  # Checked by default
+        trainers_options_layout.addWidget(self.randomize_trainers_checkbox)
         
-        # Set both options checked by default
-        self.randomize_encounters_checkbox.setChecked(True)
-        self.randomize_trainers_checkbox.setChecked(True)
+        self.type_themed_gyms_checkbox = QCheckBox("Type Themed Gyms")
+        self.type_themed_gyms_checkbox.setEnabled(False)  # Disabled by default
+        trainers_options_layout.addWidget(self.type_themed_gyms_checkbox)
         
-        randomization_type_layout.addWidget(self.randomize_encounters_checkbox)
-        randomization_type_layout.addWidget(self.randomize_trainers_checkbox)
-        options_layout.addRow(randomization_type_layout)
+        # Connect trainer checkbox to enable/disable type themed gyms checkbox
+        self.randomize_trainers_checkbox.stateChanged.connect(self.update_type_themed_gyms_enabled)
+        
+        trainers_options_group.setLayout(trainers_options_layout)
+        trainers_layout.addWidget(trainers_options_group)
+        trainers_layout.addStretch(1)  # Add stretch to keep controls at the top
+        
+        # Add tabs to tab widget
+        self.tab_widget.addTab(encounters_tab, "Pokémon Encounters")
+        self.tab_widget.addTab(trainers_tab, "Trainers")
+        
+        # General options group
+        options_group = QGroupBox("General Options")
+        options_layout = QFormLayout()
 
         # Seed input
         seed_layout = QHBoxLayout()
@@ -392,6 +428,12 @@ class RandomizerGUI(QMainWindow):
             if self.input_path_label.text() != "No file selected":
                 self.start_button.setEnabled(True)
 
+    def update_type_themed_gyms_enabled(self, state):
+        """Enable or disable the Type Themed Gyms checkbox based on trainer randomization"""
+        self.type_themed_gyms_checkbox.setEnabled(state == Qt.Checked)
+        if state != Qt.Checked:
+            self.type_themed_gyms_checkbox.setChecked(False)
+
     def start_randomization(self):
         """Start the randomization process."""
         input_path = self.input_path_label.text()
@@ -405,7 +447,7 @@ class RandomizerGUI(QMainWindow):
         if output_path == "No file selected":
             QMessageBox.warning(self, "Error", "Please select an output location.")
             return
-
+            
         # Check if at least one randomization option is selected
         if not self.randomize_encounters_checkbox.isChecked() and not self.randomize_trainers_checkbox.isChecked():
             QMessageBox.warning(self, "Error", "Please select at least one randomization option.")
@@ -429,6 +471,7 @@ class RandomizerGUI(QMainWindow):
         # Get randomization options
         randomize_encounters = self.randomize_encounters_checkbox.isChecked()
         randomize_trainers = self.randomize_trainers_checkbox.isChecked()
+        type_themed_gyms = self.type_themed_gyms_checkbox.isChecked()
         
         # Start randomization in a separate thread
         self.randomizer_thread = RandomizerThread(
@@ -436,6 +479,7 @@ class RandomizerGUI(QMainWindow):
             output_path, 
             randomize_encounters=randomize_encounters,
             randomize_trainers=randomize_trainers,
+            type_themed_gyms=type_themed_gyms,
             log_function=self.log
         )
         self.randomizer_thread.progress_update.connect(self.log)
