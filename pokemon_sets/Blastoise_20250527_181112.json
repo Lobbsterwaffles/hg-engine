@@ -1,0 +1,34 @@
+{
+    "species": "SPECIES_BLASTOISE",
+    "name": "Blastoise",
+    "moves": [
+        {
+            "name": "MOVE_FLASH_CANNON",
+            "source": "level_up",
+            "display_name": "Flash Cannon",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_RAIN_DANCE",
+            "source": "level_up",
+            "display_name": "Rain Dance",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AQUA_TAIL",
+            "source": "level_up",
+            "display_name": "Aqua Tail",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_RAIN_DISH",
+        "display_name": "Ability Rain Dish"
+    }
+}
