@@ -2372,33 +2372,43 @@ class PokemonSetBuilder(QMainWindow):
         self.save_to_file(pokemon_set)
     
     def save_to_file(self, pokemon_set):
-        """Save the Pokemon set to a file in a format compatible with the trainer_randomizer"""
+        """Save the Pokemon set to a collection file organized by generation and alphabetically"""
         try:
             # Create sets directory structure if it doesn't exist
             base_dir = os.path.dirname(os.path.abspath(__file__))
             sets_dir = os.path.join(base_dir, 'pokemon_sets')
+            collections_dir = os.path.join(sets_dir, 'collections')
             randomizer_dir = os.path.join(base_dir, 'trainer_randomizer', 'sets')
             
-            # Create both directories
+            # Create all necessary directories
             os.makedirs(sets_dir, exist_ok=True)
+            os.makedirs(collections_dir, exist_ok=True)
             os.makedirs(randomizer_dir, exist_ok=True)
             
-            # Generate a descriptive filename
+            # Get current timestamp
             import datetime
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            pokemon_name = pokemon_set['name'].replace(' ', '_')
-            filename = f"{pokemon_name}_{timestamp}.json"
             
-            # Filepath for regular sets
-            filepath = os.path.join(sets_dir, filename)
+            # Determine which generation the Pokémon belongs to
+            generation = self.get_pokemon_generation(pokemon_set['species'])
             
-            # Format the moves for easier use in the randomizer
+            # Create the simplified randomizer-friendly format
             move_list = []
             for move in pokemon_set['moves']:
                 if move['name']:
                     move_list.append(move['name'])
             
-            # Create the simplified randomizer-friendly format
+            # Prepare the set data with timestamp
+            set_data = {
+                'species': pokemon_set['species'],
+                'name': pokemon_set['name'],
+                'moves': pokemon_set['moves'],
+                'ability': pokemon_set.get('ability', {}),
+                'generation': generation,
+                'timestamp': timestamp
+            }
+            
+            # Simplified set for randomizer
             randomizer_set = {
                 'species': pokemon_set['species'],
                 'moves': move_list,
@@ -2408,24 +2418,213 @@ class PokemonSetBuilder(QMainWindow):
                 'timestamp': timestamp
             }
             
-            # Save to both locations
-            # 1. Save the detailed version for the set builder
-            with open(filepath, 'w') as f:
-                json.dump(pokemon_set, f, indent=4)
+            # Collection filename based on generation
+            collection_filename = f"gen{generation}_pokemon.json"
+            collection_filepath = os.path.join(collections_dir, collection_filename)
             
-            # 2. Save the simplified version for the randomizer
-            randomizer_filepath = os.path.join(randomizer_dir, f"randomizer_{pokemon_name}.json")
-            with open(randomizer_filepath, 'w') as f:
-                json.dump(randomizer_set, f, indent=4)
+            # Save or update the collection file
+            self.update_collection_file(collection_filepath, set_data)
+            
+            # Update the randomizer collection as well
+            randomizer_collection_filepath = os.path.join(randomizer_dir, f"randomizer_gen{generation}.json")
+            self.update_randomizer_collection(randomizer_collection_filepath, randomizer_set)
+            
+            # Also save individual file for backup/reference
+            pokemon_name = pokemon_set['name'].replace(' ', '_')
+            individual_filepath = os.path.join(sets_dir, f"{pokemon_name}_{timestamp}.json")
+            with open(individual_filepath, 'w') as f:
+                json.dump(set_data, f, indent=4)
             
             QMessageBox.information(self, "Success", 
-                f"Pokemon set saved to:\n- {filepath}\n- {randomizer_filepath}\n\nThe second file is optimized for the trainer_randomizer.")
+                f"Pokemon set saved to:\n- Collection: {collection_filepath}\n- Randomizer: {randomizer_collection_filepath}\n\nSets are organized by generation and alphabetically within each collection.")
             
         except Exception as e:
             error_msg = f"Failed to save Pokemon set: {str(e)}"
             print(f"ERROR: {error_msg}")
             traceback.print_exc()
             QMessageBox.critical(self, "Error", error_msg)
+
+    def get_pokemon_generation(self, species_name):
+        """Determine which generation a Pokémon belongs to based on its species name/ID"""
+        try:
+            # Extract numeric ID if available
+            species_id = None
+            if species_name.isdigit():
+                species_id = int(species_name)
+            else:
+                # Try to extract numeric ID from the species name (e.g., SPECIES_XXX)
+                import re
+                match = re.search(r'SPECIES_(\d+)', species_name)
+                if match:
+                    species_id = int(match.group(1))
+            
+            # Determine generation based on Pokémon ID ranges
+            if species_id is not None:
+                if 1 <= species_id <= 151:  # Gen 1: Bulbasaur to Mew
+                    return 1
+                elif 152 <= species_id <= 251:  # Gen 2: Chikorita to Celebi
+                    return 2
+                elif 252 <= species_id <= 386:  # Gen 3: Treecko to Deoxys
+                    return 3
+                elif 387 <= species_id <= 493:  # Gen 4: Turtwig to Arceus
+                    return 4
+                elif 494 <= species_id <= 649:  # Gen 5: Victini to Genesect
+                    return 5
+                elif 650 <= species_id <= 721:  # Gen 6: Chespin to Volcanion
+                    return 6
+                elif 722 <= species_id <= 809:  # Gen 7: Rowlet to Melmetal
+                    return 7
+                elif 810 <= species_id <= 905:  # Gen 8: Grookey to Enamorus
+                    return 8
+                elif 906 <= species_id <= 1025:  # Gen 9: Sprigatito to Pecharunt
+                    return 9
+                else:
+                    return 9  # Default to the latest generation for unknown IDs
+            
+            # If ID couldn't be determined, use name-based approach
+            gen1_starters = ['BULBASAUR', 'CHARMANDER', 'SQUIRTLE']
+            gen2_starters = ['CHIKORITA', 'CYNDAQUIL', 'TOTODILE']
+            gen3_starters = ['TREECKO', 'TORCHIC', 'MUDKIP']
+            gen4_starters = ['TURTWIG', 'CHIMCHAR', 'PIPLUP']
+            gen5_starters = ['SNIVY', 'TEPIG', 'OSHAWOTT']
+            gen6_starters = ['CHESPIN', 'FENNEKIN', 'FROAKIE']
+            gen7_starters = ['ROWLET', 'LITTEN', 'POPPLIO']
+            gen8_starters = ['GROOKEY', 'SCORBUNNY', 'SOBBLE']
+            gen9_starters = ['SPRIGATITO', 'FUECOCO', 'QUAXLY']
+            
+            species_simple = species_name.replace('SPECIES_', '').upper()
+            
+            for starter in gen1_starters:
+                if starter in species_simple:
+                    return 1
+            for starter in gen2_starters:
+                if starter in species_simple:
+                    return 2
+            for starter in gen3_starters:
+                if starter in species_simple:
+                    return 3
+            for starter in gen4_starters:
+                if starter in species_simple:
+                    return 4
+            for starter in gen5_starters:
+                if starter in species_simple:
+                    return 5
+            for starter in gen6_starters:
+                if starter in species_simple:
+                    return 6
+            for starter in gen7_starters:
+                if starter in species_simple:
+                    return 7
+            for starter in gen8_starters:
+                if starter in species_simple:
+                    return 8
+            for starter in gen9_starters:
+                if starter in species_simple:
+                    return 9
+                
+            # Default to Gen 1 if we couldn't determine the generation
+            return 1
+            
+        except Exception as e:
+            print(f"Error determining Pokémon generation: {str(e)}")
+            return 1  # Default to Gen 1 for safety
+    
+    def update_collection_file(self, filepath, set_data):
+        """Update a collection file with a new Pokémon set, organizing alphabetically"""
+        try:
+            # Initialize collection data structure
+            collection = {
+                'generation': set_data.get('generation', 1),
+                'last_updated': set_data.get('timestamp', ''),
+                'sets': []
+            }
+            
+            # Load existing collection if available
+            if os.path.exists(filepath):
+                with open(filepath, 'r') as f:
+                    try:
+                        existing_collection = json.load(f)
+                        if 'sets' in existing_collection:
+                            collection['sets'] = existing_collection['sets']
+                    except json.JSONDecodeError:
+                        print(f"Warning: Could not parse existing collection file {filepath}. Creating new file.")
+            
+            # Check if this Pokémon already exists in the collection
+            species_name = set_data['species']
+            found = False
+            
+            for i, existing_set in enumerate(collection['sets']):
+                if existing_set.get('species') == species_name:
+                    # Replace the existing set with the new one
+                    collection['sets'][i] = set_data
+                    found = True
+                    break
+            
+            # If not found, add the new set
+            if not found:
+                collection['sets'].append(set_data)
+            
+            # Sort sets alphabetically by Pokémon name
+            collection['sets'] = sorted(collection['sets'], key=lambda x: x.get('name', ''))
+            
+            # Update the last_updated timestamp
+            collection['last_updated'] = set_data.get('timestamp', '')
+            
+            # Save the updated collection
+            with open(filepath, 'w') as f:
+                json.dump(collection, f, indent=4)
+                
+        except Exception as e:
+            print(f"Error updating collection file: {str(e)}")
+            raise
+    
+    def update_randomizer_collection(self, filepath, set_data):
+        """Update a randomizer collection file with a new Pokémon set"""
+        try:
+            # Initialize collection data structure
+            collection = {
+                'last_updated': set_data.get('timestamp', ''),
+                'sets': []
+            }
+            
+            # Load existing collection if available
+            if os.path.exists(filepath):
+                with open(filepath, 'r') as f:
+                    try:
+                        existing_collection = json.load(f)
+                        if 'sets' in existing_collection:
+                            collection['sets'] = existing_collection['sets']
+                    except json.JSONDecodeError:
+                        print(f"Warning: Could not parse existing randomizer collection file {filepath}. Creating new file.")
+            
+            # Check if this Pokémon already exists in the collection
+            species_name = set_data['species']
+            found = False
+            
+            for i, existing_set in enumerate(collection['sets']):
+                if existing_set.get('species') == species_name:
+                    # Replace the existing set with the new one
+                    collection['sets'][i] = set_data
+                    found = True
+                    break
+            
+            # If not found, add the new set
+            if not found:
+                collection['sets'].append(set_data)
+            
+            # Sort sets alphabetically by Pokémon display name
+            collection['sets'] = sorted(collection['sets'], key=lambda x: x.get('display_name', ''))
+            
+            # Update the last_updated timestamp
+            collection['last_updated'] = set_data.get('timestamp', '')
+            
+            # Save the updated collection
+            with open(filepath, 'w') as f:
+                json.dump(collection, f, indent=4)
+                
+        except Exception as e:
+            print(f"Error updating randomizer collection file: {str(e)}")
+            raise
 
 
 if __name__ == '__main__':
