@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_VICTREEBEL",
+    "name": "Victreebel",
+    "moves": [
+        {
+            "name": "MOVE_SPIT_UP",
+            "source": "level_up",
+            "display_name": "Spit Up",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SWALLOW",
+            "source": "level_up",
+            "display_name": "Swallow",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_LEAF_TORNADO",
+            "source": "level_up",
+            "display_name": "Leaf Tornado",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STOCKPILE",
+            "source": "level_up",
+            "display_name": "Stockpile",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CHLOROPHYLL",
+        "display_name": "Ability Chlorophyll"
+    },
+    "generation": 1,
+    "timestamp": "20250528_141539"
+}

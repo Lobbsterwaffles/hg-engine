@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_MILOTIC",
+    "name": "Milotic",
+    "moves": [
+        {
+            "name": "MOVE_COIL",
+            "source": "level_up",
+            "display_name": "Coil",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SLEEP_TALK",
+            "source": "tm",
+            "display_name": "Sleep Talk",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AQUA_TAIL",
+            "source": "level_up",
+            "display_name": "Aqua Tail",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "tm",
+            "display_name": "Rest",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MARVEL_SCALE",
+        "display_name": "Ability Marvel Scale"
+    },
+    "generation": 1,
+    "timestamp": "20250529_204713"
+}

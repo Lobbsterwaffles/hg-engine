@@ -1,0 +1,30 @@
+{
+    "species": "SPECIES_WORMADAM_TRASHY",
+    "name": "Wormadam Trashy",
+    "moves": [
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SYNTHESIS",
+            "source": "tutor",
+            "display_name": "Synthesis",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SUBSTITUTE",
+            "source": "tm",
+            "display_name": "Substitute",
+            "slot": 3
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ANTICIPATION",
+        "display_name": "Ability Anticipation"
+    },
+    "generation": 1,
+    "timestamp": "20250530_123539"
+}

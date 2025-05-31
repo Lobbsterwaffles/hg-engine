@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_BUTTERFREE",
+    "name": "Butterfree",
+    "moves": [
+        {
+            "name": "MOVE_SLEEP_POWDER",
+            "source": "level_up",
+            "display_name": "Sleep Powder",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BUG_BUZZ",
+            "source": "level_up",
+            "display_name": "Bug Buzz",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_QUIVER_DANCE",
+            "source": "level_up",
+            "display_name": "Quiver Dance",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_AIR_SLASH",
+            "source": "level_up",
+            "display_name": "Air Slash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_COMPOUND_EYES",
+        "display_name": "Ability Compound Eyes"
+    },
+    "generation": 1,
+    "timestamp": "20250528_001850"
+}

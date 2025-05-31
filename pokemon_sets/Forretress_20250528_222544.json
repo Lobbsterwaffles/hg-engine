@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_FORRETRESS",
+    "name": "Forretress",
+    "moves": [
+        {
+            "name": "MOVE_TOXIC_SPIKES",
+            "source": "level_up",
+            "display_name": "Toxic Spikes",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STEALTH_ROCK",
+            "source": "tm",
+            "display_name": "Stealth Rock",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_HEAVY_SLAM",
+            "source": "level_up",
+            "display_name": "Heavy Slam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STURDY",
+        "display_name": "Ability Sturdy"
+    },
+    "generation": 1,
+    "timestamp": "20250528_222544"
+}

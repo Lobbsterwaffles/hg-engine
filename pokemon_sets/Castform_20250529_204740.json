@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_CASTFORM",
+    "name": "Castform",
+    "moves": [
+        {
+            "name": "MOVE_HAIL",
+            "source": "level_up",
+            "display_name": "Hail",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_WEATHER_BALL",
+            "source": "level_up",
+            "display_name": "Weather Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_RAIN_DANCE",
+            "source": "level_up",
+            "display_name": "Rain Dance",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SUNNY_DAY",
+            "source": "level_up",
+            "display_name": "Sunny Day",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FORECAST",
+        "display_name": "Ability Forecast"
+    },
+    "generation": 1,
+    "timestamp": "20250529_204740"
+}

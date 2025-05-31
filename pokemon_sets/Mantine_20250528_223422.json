@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_MANTINE",
+    "name": "Mantine",
+    "moves": [
+        {
+            "name": "MOVE_AIR_SLASH",
+            "source": "level_up",
+            "display_name": "Air Slash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ROOST",
+            "source": "level_up",
+            "display_name": "Roost",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CONFUSE_RAY",
+            "source": "level_up",
+            "display_name": "Confuse Ray",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SURF",
+            "source": "tm",
+            "display_name": "Surf",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SWIFT_SWIM",
+        "display_name": "Ability Swift Swim"
+    },
+    "generation": 1,
+    "timestamp": "20250528_223422"
+}

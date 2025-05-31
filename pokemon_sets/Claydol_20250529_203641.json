@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_CLAYDOL",
+    "name": "Claydol",
+    "moves": [
+        {
+            "name": "MOVE_EXPLOSION",
+            "source": "level_up",
+            "display_name": "Explosion",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "level_up",
+            "display_name": "Earth Power",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_LIGHT_SCREEN",
+            "source": "tm",
+            "display_name": "Light Screen",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_REFLECT",
+            "source": "tm",
+            "display_name": "Reflect",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LEVITATE",
+        "display_name": "Ability Levitate"
+    },
+    "generation": 1,
+    "timestamp": "20250529_203641"
+}

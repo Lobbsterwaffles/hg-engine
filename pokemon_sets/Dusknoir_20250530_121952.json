@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_DUSKNOIR",
+    "name": "Dusknoir",
+    "moves": [
+        {
+            "name": "MOVE_FIRE_PUNCH",
+            "source": "level_up",
+            "display_name": "Fire Punch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_PUNCH",
+            "source": "level_up",
+            "display_name": "Shadow Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_SNEAK",
+            "source": "level_up",
+            "display_name": "Shadow Sneak",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ICE_PUNCH",
+            "source": "level_up",
+            "display_name": "Ice Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FRISK",
+        "display_name": "Ability Frisk"
+    },
+    "generation": 1,
+    "timestamp": "20250530_121952"
+}

@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_SWOOBAT",
+    "name": "Swoobat",
+    "moves": [
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "level_up",
+            "display_name": "Calm Mind",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AIR_SLASH",
+            "source": "level_up",
+            "display_name": "Air Slash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "tm",
+            "display_name": "Shadow Ball",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SIMPLE",
+        "display_name": "Ability Simple"
+    },
+    "generation": 1,
+    "timestamp": "20250531_151002"
+}

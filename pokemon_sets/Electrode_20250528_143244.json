@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_ELECTRODE",
+    "name": "Electrode",
+    "moves": [
+        {
+            "name": "MOVE_EERIE_IMPULSE",
+            "source": "level_up",
+            "display_name": "Eerie Impulse",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ELECTRO_BALL",
+            "source": "level_up",
+            "display_name": "Electro Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SCREECH",
+            "source": "level_up",
+            "display_name": "Screech",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_EXPLOSION",
+            "source": "level_up",
+            "display_name": "Explosion",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STATIC",
+        "display_name": "Ability Static"
+    },
+    "generation": 1,
+    "timestamp": "20250528_143244"
+}

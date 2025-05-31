@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_TORTERRA",
+    "name": "Torterra",
+    "moves": [
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_WOOD_HAMMER",
+            "source": "level_up",
+            "display_name": "Wood Hammer",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CURSE",
+            "source": "level_up",
+            "display_name": "Curse",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHELL_ARMOR",
+        "display_name": "Ability Shell Armor"
+    },
+    "generation": 1,
+    "timestamp": "20250530_113133"
+}

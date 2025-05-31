@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_SIMISAGE",
+    "name": "Simisage",
+    "moves": [
+        {
+            "name": "MOVE_SEED_BOMB",
+            "source": "level_up",
+            "display_name": "Seed Bomb",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TAUNT",
+            "source": "tm",
+            "display_name": "Taunt",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BRICK_BREAK",
+            "source": "tm",
+            "display_name": "Brick Break",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SHADOW_CLAW",
+            "source": "tm",
+            "display_name": "Shadow Claw",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_OVERGROW",
+        "display_name": "Ability Overgrow"
+    },
+    "generation": 1,
+    "timestamp": "20250531_145707"
+}

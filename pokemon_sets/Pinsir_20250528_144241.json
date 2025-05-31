@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_PINSIR",
+    "name": "Pinsir",
+    "moves": [
+        {
+            "name": "MOVE_SWORDS_DANCE",
+            "source": "level_up",
+            "display_name": "Swords Dance",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_X_SCISSOR",
+            "source": "level_up",
+            "display_name": "X Scissor",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_STORM_THROW",
+            "source": "level_up",
+            "display_name": "Storm Throw",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THRASH",
+            "source": "level_up",
+            "display_name": "Thrash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MOXIE",
+        "display_name": "Ability Moxie"
+    },
+    "generation": 1,
+    "timestamp": "20250528_144241"
+}

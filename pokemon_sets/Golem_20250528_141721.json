@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_GOLEM",
+    "name": "Golem",
+    "moves": [
+        {
+            "name": "MOVE_ROCK_BLAST",
+            "source": "level_up",
+            "display_name": "Rock Blast",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_HEAVY_SLAM",
+            "source": "level_up",
+            "display_name": "Heavy Slam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROCK_POLISH",
+            "source": "level_up",
+            "display_name": "Rock Polish",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STURDY",
+        "display_name": "Ability Sturdy"
+    },
+    "generation": 1,
+    "timestamp": "20250528_141721"
+}

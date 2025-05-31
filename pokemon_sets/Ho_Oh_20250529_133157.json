@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_HO_OH",
+    "name": "Ho Oh",
+    "moves": [
+        {
+            "name": "MOVE_SACRED_FIRE",
+            "source": "level_up",
+            "display_name": "Sacred Fire",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BRAVE_BIRD",
+            "source": "level_up",
+            "display_name": "Brave Bird",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "tm",
+            "display_name": "Earthquake",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROOST",
+            "source": "tm",
+            "display_name": "Roost",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_REGENERATOR",
+        "display_name": "Ability Regenerator"
+    },
+    "generation": 1,
+    "timestamp": "20250529_133157"
+}

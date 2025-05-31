@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_SEVIPER",
+    "name": "Seviper",
+    "moves": [
+        {
+            "name": "MOVE_COIL",
+            "source": "level_up",
+            "display_name": "Coil",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POISON_JAB",
+            "source": "level_up",
+            "display_name": "Poison Jab",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "tm",
+            "display_name": "Rest",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHED_SKIN",
+        "display_name": "Ability Shed Skin"
+    },
+    "generation": 1,
+    "timestamp": "20250529_203307"
+}

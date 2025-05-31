@@ -1,0 +1,18 @@
+{
+    "species": "SPECIES_UNOWN",
+    "name": "Unown",
+    "moves": [
+        {
+            "name": "MOVE_HIDDEN_POWER",
+            "source": "level_up",
+            "display_name": "Hidden Power",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LEVITATE",
+        "display_name": "Ability Levitate"
+    },
+    "generation": 1,
+    "timestamp": "20250528_222447"
+}

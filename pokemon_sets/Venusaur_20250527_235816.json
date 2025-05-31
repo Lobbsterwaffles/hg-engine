@@ -1,0 +1,24 @@
+{
+    "species": "SPECIES_VENUSAUR",
+    "name": "Venusaur",
+    "moves": [
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "tm",
+            "display_name": "Giga Drain",
+            "slot": 2
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CHLOROPHYLL",
+        "display_name": "Ability Chlorophyll"
+    },
+    "generation": 1,
+    "timestamp": "20250527_235816"
+}

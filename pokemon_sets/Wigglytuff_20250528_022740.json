@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_WIGGLYTUFF",
+    "name": "Wigglytuff",
+    "moves": [
+        {
+            "name": "MOVE_SWEET_KISS",
+            "source": "level_up",
+            "display_name": "Sweet Kiss",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HYPER_VOICE",
+            "source": "level_up",
+            "display_name": "Hyper Voice",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "level_up",
+            "display_name": "Rest",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CHARM",
+            "source": "level_up",
+            "display_name": "Charm",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_COMPETITIVE",
+        "display_name": "Ability Competitive"
+    },
+    "generation": 1,
+    "timestamp": "20250528_022740"
+}

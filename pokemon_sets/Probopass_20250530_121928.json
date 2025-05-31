@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_PROBOPASS",
+    "name": "Probopass",
+    "moves": [
+        {
+            "name": "MOVE_STEALTH_ROCK",
+            "source": "tm",
+            "display_name": "Stealth Rock",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_THUNDER_WAVE",
+            "source": "level_up",
+            "display_name": "Thunder Wave",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ROCK_SLIDE",
+            "source": "level_up",
+            "display_name": "Rock Slide",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "tutor",
+            "display_name": "Iron Head",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STURDY",
+        "display_name": "Ability Sturdy"
+    },
+    "generation": 1,
+    "timestamp": "20250530_121928"
+}

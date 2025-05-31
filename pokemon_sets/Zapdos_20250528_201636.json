@@ -1,11 +1,11 @@
 {
-    "species": "SPECIES_BLASTOISE",
-    "name": "Blastoise",
+    "species": "SPECIES_ZAPDOS",
+    "name": "Zapdos",
     "moves": [
         {
-            "name": "MOVE_FLASH_CANNON",
+            "name": "MOVE_THUNDER",
             "source": "level_up",
-            "display_name": "Flash Cannon",
+            "display_name": "Thunder",
             "slot": 1
         },
         {
@@ -15,20 +15,22 @@
             "slot": 2
         },
         {
-            "name": "MOVE_AQUA_TAIL",
+            "name": "MOVE_ROOST",
             "source": "level_up",
-            "display_name": "Aqua Tail",
+            "display_name": "Roost",
             "slot": 3
         },
         {
-            "name": "MOVE_IRON_DEFENSE",
+            "name": "MOVE_THUNDER_WAVE",
             "source": "level_up",
-            "display_name": "Iron Defense",
+            "display_name": "Thunder Wave",
             "slot": 4
         }
     ],
     "ability": {
-        "name": "ABILITY_RAIN_DISH",
-        "display_name": "Ability Rain Dish"
-    }
+        "name": "ABILITY_STATIC",
+        "display_name": "Ability Static"
+    },
+    "generation": 1,
+    "timestamp": "20250528_201636"
 }

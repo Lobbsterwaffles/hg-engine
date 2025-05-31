@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_ALTARIA",
+    "name": "Altaria",
+    "moves": [
+        {
+            "name": "MOVE_PERISH_SONG",
+            "source": "level_up",
+            "display_name": "Perish Song",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAGON_DANCE",
+            "source": "level_up",
+            "display_name": "Dragon Dance",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAGON_CLAW",
+            "source": "tm",
+            "display_name": "Dragon Claw",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PLUCK",
+            "source": "level_up",
+            "display_name": "Pluck",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CLOUD_NINE",
+        "display_name": "Ability Cloud Nine"
+    },
+    "generation": 1,
+    "timestamp": "20250529_203200"
+}

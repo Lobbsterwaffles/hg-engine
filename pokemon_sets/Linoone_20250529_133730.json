@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_LINOONE",
+    "name": "Linoone",
+    "moves": [
+        {
+            "name": "MOVE_BELLY_DRUM",
+            "source": "level_up",
+            "display_name": "Belly Drum",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PLAY_ROUGH",
+            "source": "level_up",
+            "display_name": "Play Rough",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DOUBLE_EDGE",
+            "source": "level_up",
+            "display_name": "Double Edge",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SEED_BOMB",
+            "source": "tutor",
+            "display_name": "Seed Bomb",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUICK_FEET",
+        "display_name": "Ability Quick Feet"
+    },
+    "generation": 1,
+    "timestamp": "20250529_133730"
+}

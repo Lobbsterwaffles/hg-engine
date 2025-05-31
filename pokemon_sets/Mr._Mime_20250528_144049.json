@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_MR_MIME",
+    "name": "Mr. Mime",
+    "moves": [
+        {
+            "name": "MOVE_REFLECT",
+            "source": "level_up",
+            "display_name": "Reflect",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "level_up",
+            "display_name": "Dazzling Gleam",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_LIGHT_SCREEN",
+            "source": "level_up",
+            "display_name": "Light Screen",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PSYBEAM",
+            "source": "level_up",
+            "display_name": "Psybeam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FILTER",
+        "display_name": "Ability Filter"
+    },
+    "generation": 1,
+    "timestamp": "20250528_144049"
+}

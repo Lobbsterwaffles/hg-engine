@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_HITMONCHAN",
+    "name": "Hitmonchan",
+    "moves": [
+        {
+            "name": "MOVE_BULLET_PUNCH",
+            "source": "level_up",
+            "display_name": "Bullet Punch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAIN_PUNCH",
+            "source": "level_up",
+            "display_name": "Drain Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICE_PUNCH",
+            "source": "level_up",
+            "display_name": "Ice Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THUNDER_PUNCH",
+            "source": "level_up",
+            "display_name": "Thunder Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_IRON_FIST",
+        "display_name": "Ability Iron Fist"
+    },
+    "generation": 1,
+    "timestamp": "20250528_143615"
+}

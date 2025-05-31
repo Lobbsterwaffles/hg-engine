@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_PELIPPER",
+    "name": "Pelipper",
+    "moves": [
+        {
+            "name": "MOVE_HURRICANE",
+            "source": "level_up",
+            "display_name": "Hurricane",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SURF",
+            "source": "tm",
+            "display_name": "Surf",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_TAILWIND",
+            "source": "level_up",
+            "display_name": "Tailwind",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SHOCK_WAVE",
+            "source": "tm",
+            "display_name": "Shock Wave",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DRIZZLE",
+        "display_name": "Ability Drizzle"
+    },
+    "generation": 1,
+    "timestamp": "20250529_134234"
+}

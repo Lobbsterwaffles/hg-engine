@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_AMBIPOM",
+    "name": "Ambipom",
+    "moves": [
+        {
+            "name": "MOVE_DOUBLE_HIT",
+            "source": "level_up",
+            "display_name": "Double Hit",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DUAL_CHOP",
+            "source": "level_up",
+            "display_name": "Dual Chop",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AERIAL_ACE",
+            "source": "tm",
+            "display_name": "Aerial Ace",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SHOCK_WAVE",
+            "source": "tm",
+            "display_name": "Shock Wave",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TECHNICIAN",
+        "display_name": "Ability Technician"
+    },
+    "generation": 1,
+    "timestamp": "20250530_114700"
+}

@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_SUNFLORA",
+    "name": "Sunflora",
+    "moves": [
+        {
+            "name": "MOVE_PETAL_BLIZZARD",
+            "source": "level_up",
+            "display_name": "Petal Blizzard",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SUBSTITUTE",
+            "source": "tm",
+            "display_name": "Substitute",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLUDGE_BOMB",
+            "source": "tm",
+            "display_name": "Sludge Bomb",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_EARLY_BIRD",
+        "display_name": "Ability Early Bird"
+    },
+    "generation": 1,
+    "timestamp": "20250528_203527"
+}

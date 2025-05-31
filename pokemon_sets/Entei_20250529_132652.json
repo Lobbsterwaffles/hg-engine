@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_ENTEI",
+    "name": "Entei",
+    "moves": [
+        {
+            "name": "MOVE_SACRED_FIRE",
+            "source": "level_up",
+            "display_name": "Sacred Fire",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EXTREME_SPEED",
+            "source": "level_up",
+            "display_name": "Extreme Speed",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "tutor",
+            "display_name": "Iron Head",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PRESSURE",
+        "display_name": "Ability Pressure"
+    },
+    "generation": 1,
+    "timestamp": "20250529_132652"
+}

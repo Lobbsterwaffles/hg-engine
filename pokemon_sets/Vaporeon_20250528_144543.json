@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_VAPOREON",
+    "name": "Vaporeon",
+    "moves": [
+        {
+            "name": "MOVE_CHARM",
+            "source": "level_up",
+            "display_name": "Charm",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HYDRO_PUMP",
+            "source": "level_up",
+            "display_name": "Hydro Pump",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_TOXIC",
+            "source": "tm",
+            "display_name": "Toxic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ICY_WIND",
+            "source": "tutor",
+            "display_name": "Icy Wind",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_WATER_ABSORB",
+        "display_name": "Ability Water Absorb"
+    },
+    "generation": 1,
+    "timestamp": "20250528_144543"
+}

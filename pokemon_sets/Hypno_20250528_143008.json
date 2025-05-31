@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_HYPNO",
+    "name": "Hypno",
+    "moves": [
+        {
+            "name": "MOVE_TAUNT",
+            "source": "tm",
+            "display_name": "Taunt",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SWAGGER",
+            "source": "level_up",
+            "display_name": "Swagger",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ZEN_HEADBUTT",
+            "source": "level_up",
+            "display_name": "Zen Headbutt",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DISABLE",
+            "source": "level_up",
+            "display_name": "Disable",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INNER_FOCUS",
+        "display_name": "Ability Inner Focus"
+    },
+    "generation": 1,
+    "timestamp": "20250528_143008"
+}

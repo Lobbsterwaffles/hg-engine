@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_LEDIAN",
+    "name": "Ledian",
+    "moves": [
+        {
+            "name": "MOVE_AGILITY",
+            "source": "level_up",
+            "display_name": "Agility",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BATON_PASS",
+            "source": "level_up",
+            "display_name": "Baton Pass",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BUG_BUZZ",
+            "source": "level_up",
+            "display_name": "Bug Buzz",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_AIR_SLASH",
+            "source": "level_up",
+            "display_name": "Air Slash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_EARLY_BIRD",
+        "display_name": "Ability Early Bird"
+    },
+    "generation": 1,
+    "timestamp": "20250528_202619"
+}

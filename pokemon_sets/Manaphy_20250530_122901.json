@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_MANAPHY",
+    "name": "Manaphy",
+    "moves": [
+        {
+            "name": "MOVE_ENERGY_BALL",
+            "source": "tm",
+            "display_name": "Energy Ball",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SURF",
+            "source": "tm",
+            "display_name": "Surf",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICE_BEAM",
+            "source": "tm",
+            "display_name": "Ice Beam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAIL_GLOW",
+            "source": "level_up",
+            "display_name": "Tail Glow",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HYDRATION",
+        "display_name": "Ability Hydration"
+    },
+    "generation": 1,
+    "timestamp": "20250530_122901"
+}

@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_CHERRIM",
+    "name": "Cherrim",
+    "moves": [
+        {
+            "name": "MOVE_SUNNY_DAY",
+            "source": "level_up",
+            "display_name": "Sunny Day",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SOLAR_BEAM",
+            "source": "level_up",
+            "display_name": "Solar Beam",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_GIGA_IMPACT",
+            "source": "tm",
+            "display_name": "Giga Impact",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FLOWER_GIFT",
+        "display_name": "Ability Flower Gift"
+    },
+    "generation": 1,
+    "timestamp": "20250530_114500"
+}

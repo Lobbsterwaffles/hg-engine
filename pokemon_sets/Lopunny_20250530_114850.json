@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_LOPUNNY",
+    "name": "Lopunny",
+    "moves": [
+        {
+            "name": "MOVE_HIGH_JUMP_KICK",
+            "source": "level_up",
+            "display_name": "High Jump Kick",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DIZZY_PUNCH",
+            "source": "level_up",
+            "display_name": "Dizzy Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_U_TURN",
+            "source": "tm",
+            "display_name": "U Turn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ATTRACT",
+            "source": "tm",
+            "display_name": "Attract",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CUTE_CHARM",
+        "display_name": "Ability Cute Charm"
+    },
+    "generation": 1,
+    "timestamp": "20250530_114850"
+}

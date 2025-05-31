@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_PERSIAN",
+    "name": "Persian",
+    "moves": [
+        {
+            "name": "MOVE_BITE",
+            "source": "level_up",
+            "display_name": "Bite",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SWIFT",
+            "source": "level_up",
+            "display_name": "Swift",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHOCK_WAVE",
+            "source": "tm",
+            "display_name": "Shock Wave",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_WATER_PULSE",
+            "source": "tm",
+            "display_name": "Water Pulse",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TECHNICIAN",
+        "display_name": "Ability Technician"
+    },
+    "generation": 1,
+    "timestamp": "20250528_023333"
+}

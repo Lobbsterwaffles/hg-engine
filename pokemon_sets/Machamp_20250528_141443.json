@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_MACHAMP",
+    "name": "Machamp",
+    "moves": [
+        {
+            "name": "MOVE_DYNAMIC_PUNCH",
+            "source": "level_up",
+            "display_name": "Dynamic Punch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BULK_UP",
+            "source": "level_up",
+            "display_name": "Bulk Up",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THUNDER_PUNCH",
+            "source": "tutor",
+            "display_name": "Thunder Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DUAL_CHOP",
+            "source": "level_up",
+            "display_name": "Dual Chop",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_NO_GUARD",
+        "display_name": "Ability No Guard"
+    },
+    "generation": 1,
+    "timestamp": "20250528_141443"
+}

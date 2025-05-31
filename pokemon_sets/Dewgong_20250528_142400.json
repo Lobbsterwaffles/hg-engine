@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_DEWGONG",
+    "name": "Dewgong",
+    "moves": [
+        {
+            "name": "MOVE_ENCORE",
+            "source": "level_up",
+            "display_name": "Encore",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ICY_WIND",
+            "source": "level_up",
+            "display_name": "Icy Wind",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_GROWL",
+            "source": "level_up",
+            "display_name": "Growl",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SURF",
+            "source": "tm",
+            "display_name": "Surf",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_THICK_FAT",
+        "display_name": "Ability Thick Fat"
+    },
+    "generation": 1,
+    "timestamp": "20250528_142400"
+}

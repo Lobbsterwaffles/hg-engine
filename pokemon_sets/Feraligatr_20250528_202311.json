@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_FERALIGATR",
+    "name": "Feraligatr",
+    "moves": [
+        {
+            "name": "MOVE_WATERFALL",
+            "source": "tm",
+            "display_name": "Waterfall",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_AGILITY",
+            "source": "level_up",
+            "display_name": "Agility",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ICE_FANG",
+            "source": "level_up",
+            "display_name": "Ice Fang",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHEER_FORCE",
+        "display_name": "Ability Sheer Force"
+    },
+    "generation": 1,
+    "timestamp": "20250528_202311"
+}

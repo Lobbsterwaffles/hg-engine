@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_DODRIO",
+    "name": "Dodrio",
+    "moves": [
+        {
+            "name": "MOVE_REST",
+            "source": "tm",
+            "display_name": "Rest",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRILL_PECK",
+            "source": "level_up",
+            "display_name": "Drill Peck",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THRASH",
+            "source": "level_up",
+            "display_name": "Thrash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SWORDS_DANCE",
+            "source": "level_up",
+            "display_name": "Swords Dance",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_EARLY_BIRD",
+        "display_name": "Ability Early Bird"
+    },
+    "generation": 1,
+    "timestamp": "20250528_142234"
+}

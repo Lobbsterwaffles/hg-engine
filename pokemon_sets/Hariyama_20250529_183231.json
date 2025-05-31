@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_HARIYAMA",
+    "name": "Hariyama",
+    "moves": [
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HEAVY_SLAM",
+            "source": "level_up",
+            "display_name": "Heavy Slam",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POISON_JAB",
+            "source": "tm",
+            "display_name": "Poison Jab",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BELLY_DRUM",
+            "source": "level_up",
+            "display_name": "Belly Drum",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_THICK_FAT",
+        "display_name": "Ability Thick Fat"
+    },
+    "generation": 1,
+    "timestamp": "20250529_183231"
+}

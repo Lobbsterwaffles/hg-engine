@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_SNORLAX",
+    "name": "Snorlax",
+    "moves": [
+        {
+            "name": "MOVE_BELLY_DRUM",
+            "source": "level_up",
+            "display_name": "Belly Drum",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BODY_SLAM",
+            "source": "level_up",
+            "display_name": "Body Slam",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "tutor",
+            "display_name": "Iron Head",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_THICK_FAT",
+        "display_name": "Ability Thick Fat"
+    },
+    "generation": 1,
+    "timestamp": "20250528_201151"
+}

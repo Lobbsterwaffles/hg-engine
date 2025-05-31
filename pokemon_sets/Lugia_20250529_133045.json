@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_LUGIA",
+    "name": "Lugia",
+    "moves": [
+        {
+            "name": "MOVE_AEROBLAST",
+            "source": "level_up",
+            "display_name": "Aeroblast",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "tm",
+            "display_name": "Psychic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "level_up",
+            "display_name": "Calm Mind",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MULTISCALE",
+        "display_name": "Ability Multiscale"
+    },
+    "generation": 1,
+    "timestamp": "20250529_133045"
+}

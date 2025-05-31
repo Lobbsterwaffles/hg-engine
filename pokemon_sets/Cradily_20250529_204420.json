@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_CRADILY",
+    "name": "Cradily",
+    "moves": [
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STEALTH_ROCK",
+            "source": "tm",
+            "display_name": "Stealth Rock",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SEED_BOMB",
+            "source": "tutor",
+            "display_name": "Seed Bomb",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROCK_TOMB",
+            "source": "tm",
+            "display_name": "Rock Tomb",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SUCTION_CUPS",
+        "display_name": "Ability Suction Cups"
+    },
+    "generation": 1,
+    "timestamp": "20250529_204420"
+}

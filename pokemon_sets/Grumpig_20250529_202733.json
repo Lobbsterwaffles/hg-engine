@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_GRUMPIG",
+    "name": "Grumpig",
+    "moves": [
+        {
+            "name": "MOVE_ZEN_HEADBUTT",
+            "source": "level_up",
+            "display_name": "Zen Headbutt",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TEETER_DANCE",
+            "source": "level_up",
+            "display_name": "Teeter Dance",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POWER_GEM",
+            "source": "level_up",
+            "display_name": "Power Gem",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "level_up",
+            "display_name": "Rest",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_THICK_FAT",
+        "display_name": "Ability Thick Fat"
+    },
+    "generation": 1,
+    "timestamp": "20250529_202733"
+}

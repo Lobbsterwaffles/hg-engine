@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_GOREBYSS",
+    "name": "Gorebyss",
+    "moves": [
+        {
+            "name": "MOVE_HYDRO_PUMP",
+            "source": "level_up",
+            "display_name": "Hydro Pump",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ATTRACT",
+            "source": "tm",
+            "display_name": "Attract",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_AMNESIA",
+            "source": "level_up",
+            "display_name": "Amnesia",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SWIFT_SWIM",
+        "display_name": "Ability Swift Swim"
+    },
+    "generation": 1,
+    "timestamp": "20250529_205846"
+}

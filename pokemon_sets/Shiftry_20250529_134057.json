@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_SHIFTRY",
+    "name": "Shiftry",
+    "moves": [
+        {
+            "name": "MOVE_LEAF_BLADE",
+            "source": "level_up",
+            "display_name": "Leaf Blade",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EXTRASENSORY",
+            "source": "level_up",
+            "display_name": "Extrasensory",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "tm",
+            "display_name": "Dark Pulse",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAILWIND",
+            "source": "tutor",
+            "display_name": "Tailwind",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CHLOROPHYLL",
+        "display_name": "Ability Chlorophyll"
+    },
+    "generation": 1,
+    "timestamp": "20250529_134057"
+}

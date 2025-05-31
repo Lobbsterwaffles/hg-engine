@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_AZELF",
+    "name": "Azelf",
+    "moves": [
+        {
+            "name": "MOVE_NASTY_PLOT",
+            "source": "level_up",
+            "display_name": "Nasty Plot",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THUNDER",
+            "source": "tm",
+            "display_name": "Thunder",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "tm",
+            "display_name": "Flamethrower",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LEVITATE",
+        "display_name": "Ability Levitate"
+    },
+    "generation": 1,
+    "timestamp": "20250530_122228"
+}

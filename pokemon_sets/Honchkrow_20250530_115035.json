@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_HONCHKROW",
+    "name": "Honchkrow",
+    "moves": [
+        {
+            "name": "MOVE_NIGHT_SLASH",
+            "source": "level_up",
+            "display_name": "Night Slash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "level_up",
+            "display_name": "Sucker Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SUPERPOWER",
+            "source": "tutor",
+            "display_name": "Superpower",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PLUCK",
+            "source": "tm",
+            "display_name": "Pluck",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MOXIE",
+        "display_name": "Ability Moxie"
+    },
+    "generation": 1,
+    "timestamp": "20250530_115035"
+}

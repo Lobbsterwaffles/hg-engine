@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_REGIROCK",
+    "name": "Regirock",
+    "moves": [
+        {
+            "name": "MOVE_HAMMER_ARM",
+            "source": "level_up",
+            "display_name": "Hammer Arm",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ROCK_SLIDE",
+            "source": "level_up",
+            "display_name": "Rock Slide",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "tm",
+            "display_name": "Rest",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CURSE",
+            "source": "level_up",
+            "display_name": "Curse",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CLEAR_BODY",
+        "display_name": "Ability Clear Body"
+    },
+    "generation": 1,
+    "timestamp": "20250529_210323"
+}

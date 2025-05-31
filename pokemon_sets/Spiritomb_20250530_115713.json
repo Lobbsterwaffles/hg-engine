@@ -1,0 +1,36 @@
+{
+    "species": "SPECIES_SPIRITOMB",
+    "name": "Spiritomb",
+    "moves": [
+        {
+            "name": "MOVE_NASTY_PLOT",
+            "source": "level_up",
+            "display_name": "Nasty Plot",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "level_up",
+            "display_name": "Dark Pulse",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PAIN_SPLIT",
+            "source": "egg",
+            "display_name": "Pain Split",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INFILTRATOR",
+        "display_name": "Ability Infiltrator"
+    },
+    "generation": 1,
+    "timestamp": "20250530_115713"
+}
