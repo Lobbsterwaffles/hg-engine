@@ -10,18 +10,22 @@ from PyQt5.QtCore import Qt
 
 class PokemonSetBuilder(QMainWindow):
     def __init__(self):
+        print("Initializing Pokemon Set Builder...")
         super().__init__()
         self.title = "Pokemon Set Builder"
         self.setWindowTitle(self.title)
         self.resize(800, 600)  # Increased size for the new layout
         
+        print("Initializing data structures...")
         # Initialize data structures
         self.all_pokemon_data = {}
         self.move_lists = {
             'level_up': {},
             'egg': {},
             'tm': {},
-            'tutor': {}
+            'tutor': {},
+            'modern_egg': {},
+            'modern_tm': {}
         }
         self.pokemon_abilities = {}  # Store each Pokémon's abilities
         self.pokemon_list = []
@@ -34,14 +38,18 @@ class PokemonSetBuilder(QMainWindow):
         # Track the current selected ability
         self.current_ability = None
         
+        print("Initializing UI...")
         # Initialize UI
         self.init_ui()
         
+        print("Loading data...")
         # Load all data
         self.load_data()
         
+        print("Populating Pokemon dropdown...")
         # Populate Pokemon dropdown
         self.populate_pokemon_dropdown()
+        print("Initialization complete!")
     
     def init_ui(self):
         # Main widget
@@ -128,10 +136,11 @@ class PokemonSetBuilder(QMainWindow):
         # Lists to store all our move dropdowns
         self.level_up_dropdowns = []
         self.egg_dropdowns = []
+        self.modern_egg_dropdowns = []
         self.tm_dropdowns = []
+        self.modern_tm_dropdowns = []
         self.tutor_dropdowns = []
-        
-        # Create 4 tabs, one for each move slot
+                # Create 4 tabs, one for each move slot
         for i in range(4):
             # Create a tab for this move slot
             tab = QWidget()
@@ -149,18 +158,32 @@ class PokemonSetBuilder(QMainWindow):
             level_up_group.setLayout(level_up_layout)
             
             # Egg moves dropdown
-            egg_group = QGroupBox("Egg Moves")
+            egg_group = QGroupBox("Egg Moves (Legacy)")
             egg_layout = QVBoxLayout()
             egg_dropdown = QComboBox()
             egg_layout.addWidget(egg_dropdown)
             egg_group.setLayout(egg_layout)
             
+            # Modern Egg moves dropdown
+            modern_egg_group = QGroupBox("Egg Moves (Modern)")
+            modern_egg_layout = QVBoxLayout()
+            modern_egg_dropdown = QComboBox()
+            modern_egg_layout.addWidget(modern_egg_dropdown)
+            modern_egg_group.setLayout(modern_egg_layout)
+            
             # TM moves dropdown
-            tm_group = QGroupBox("TM Moves")
+            tm_group = QGroupBox("TM Moves (Legacy)")
             tm_layout = QVBoxLayout()
             tm_dropdown = QComboBox()
             tm_layout.addWidget(tm_dropdown)
             tm_group.setLayout(tm_layout)
+            
+            # Modern TM moves dropdown
+            modern_tm_group = QGroupBox("TM Moves (Modern)")
+            modern_tm_layout = QVBoxLayout()
+            modern_tm_dropdown = QComboBox()
+            modern_tm_layout.addWidget(modern_tm_dropdown)
+            modern_tm_group.setLayout(modern_tm_layout)
             
             # Tutor moves dropdown
             tutor_group = QGroupBox("Tutor Moves")
@@ -175,21 +198,31 @@ class PokemonSetBuilder(QMainWindow):
             self.tm_dropdowns.append(tm_dropdown)
             self.tutor_dropdowns.append(tutor_dropdown)
             
+            # Store references to our modern move dropdowns
+            self.modern_egg_dropdowns.append(modern_egg_dropdown)
+            self.modern_tm_dropdowns.append(modern_tm_dropdown)
+            
             # Connect signals to update the moveset when selections change
             # The lambda function captures the current move slot index
             level_up_dropdown.currentIndexChanged.connect(
                 lambda idx, slot=i, dropdown='level_up': self.on_move_selected(idx, slot, dropdown))
             egg_dropdown.currentIndexChanged.connect(
                 lambda idx, slot=i, dropdown='egg': self.on_move_selected(idx, slot, dropdown))
+            modern_egg_dropdown.currentIndexChanged.connect(
+                lambda idx, slot=i, dropdown='modern_egg': self.on_move_selected(idx, slot, dropdown))
             tm_dropdown.currentIndexChanged.connect(
                 lambda idx, slot=i, dropdown='tm': self.on_move_selected(idx, slot, dropdown))
+            modern_tm_dropdown.currentIndexChanged.connect(
+                lambda idx, slot=i, dropdown='modern_tm': self.on_move_selected(idx, slot, dropdown))
             tutor_dropdown.currentIndexChanged.connect(
                 lambda idx, slot=i, dropdown='tutor': self.on_move_selected(idx, slot, dropdown))
             
             # Add move selection groups to this tab
             tab_layout.addWidget(level_up_group)
             tab_layout.addWidget(egg_group)
+            tab_layout.addWidget(modern_egg_group)
             tab_layout.addWidget(tm_group)
+            tab_layout.addWidget(modern_tm_group)
             tab_layout.addWidget(tutor_group)
             
             # Set the layout for this tab
@@ -211,6 +244,7 @@ class PokemonSetBuilder(QMainWindow):
     def load_data(self):
         """Load Pokemon and move data from the game files"""
         try:
+            print("========== STARTING DATA LOAD ==========")
             # Get the base directory
             base_dir = os.path.dirname(os.path.abspath(__file__))
             print(f"Base directory: {base_dir}")
@@ -268,31 +302,67 @@ class PokemonSetBuilder(QMainWindow):
                 print(f"WARNING: Tutor file does not exist at {tutor_file}")
             else:
                 self.parse_tutor_file(tutor_file)
+                print("Finished parsing tutor file.")
+                
+            # Load modern egg moves from JSON file
+            print("Starting to load modern egg moves...")
+            modern_egg_file = os.path.join(base_dir, 'data', 'modern_egg_moves.json')
+            print(f"Modern egg moves file path: {modern_egg_file}")
+            if os.path.exists(modern_egg_file):
+                print(f"Modern egg moves file exists, loading...")
+                self.load_modern_egg_moves(modern_egg_file)
+                print("Finished loading modern egg moves.")
+            else:
+                print(f"WARNING: Modern egg moves file does not exist at {modern_egg_file}")
+            
+            # Load modern TM moves from JSON file
+            print("Starting to load modern TM moves...")
+            modern_tm_file = os.path.join(base_dir, 'data', 'modern_tm_learnset.json')
+            print(f"Modern TM moves file path: {modern_tm_file}")
+            if os.path.exists(modern_tm_file):
+                print(f"Modern TM moves file exists, loading...")
+                self.load_modern_tm_moves(modern_tm_file)
+                print("Finished loading modern TM moves.")
+            else:
+                print(f"WARNING: Modern TM moves file does not exist at {modern_tm_file}")
+            print("Modern move loading complete.")
                 
             # Parse evodata.s for evolution data
+            print("Starting to parse evolution data...")
             evo_file = os.path.join(base_dir, 'armips', 'data', 'evodata.s')
             print(f"Evolution file path: {evo_file}")
             if not os.path.exists(evo_file):
                 print(f"WARNING: Evolution file does not exist at {evo_file}")
                 # Initialize an empty evolution data dictionary
                 self.evolution_data = {}
+                print("Initialized empty evolution data dictionary.")
             else:
+                print("Evolution file exists, parsing...")
                 self.parse_evolution_file(evo_file)
+                print("Finished parsing evolution file.")
                 
             # Parse mondata.s for abilities (this will get accurate abilities for all Pokémon)
+            print("Starting to parse abilities file (second pass)...")
             mondata_file = os.path.join(base_dir, 'armips', 'data', 'mondata.s')
             print(f"Mondata file path: {mondata_file}")
             if not os.path.exists(mondata_file):
                 print(f"WARNING: Mondata file does not exist at {mondata_file}")
                 # Fall back to hardcoded abilities if file not found
+                print("Using fallback hardcoded abilities...")
                 self.setup_pokemon_abilities()
+                print("Finished setting up hardcoded abilities.")
             else:
                 # Use our enhanced parser to get accurate abilities directly from the source file
+                print("Parsing abilities file...")
                 self.parse_abilities_file(mondata_file)
+                print("Finished parsing abilities file.")
             
             # Determine fully evolved, non-legendary Pokemon
+            print("Determining fully evolved non-legendary Pokemon...")
             self.determine_fully_evolved_non_legendary()
+            print("Finished determining fully evolved Pokemon.")
             
+            print("\n========== DATA LOADING COMPLETE ==========\n")
             # Print some sample Pokemon from our list for verification
             print("\nSample of fully evolved Pokemon in dropdown:")
             for i, species in enumerate(self.pokemon_list[:10]):
@@ -304,9 +374,13 @@ class PokemonSetBuilder(QMainWindow):
                 base = self.base_forms[species]
                 print(f"{species} -> {base} ({self.all_pokemon_data[species]['name']} -> {self.all_pokemon_data[base]['name'] if base in self.all_pokemon_data else 'Unknown'})")
             
+            print("Now proceeding to populate_pokemon_dropdown()...")
+            
         except Exception as e:
             error_msg = f"Failed to load data: {str(e)}"
             print(f"ERROR: {error_msg}")
+            print("Exception details:", repr(e))
+            print("Traceback:")
             traceback.print_exc()
             QMessageBox.critical(self, "Error", error_msg)
     
@@ -581,7 +655,7 @@ class PokemonSetBuilder(QMainWindow):
             
             print(f"Starting to parse evolution file: {file_path}")
             
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                 content = f.readlines()
             
             print(f"Total lines in evolution file: {len(content)}")
@@ -595,9 +669,11 @@ class PokemonSetBuilder(QMainWindow):
                 line_count += 1
                 line = line.strip()
                 
-                # Debug output for the first 20 lines
+                # Debug output for the first 20 lines - using ASCII instead of Unicode for arrows
                 if i < 20:
-                    print(f"Line {i+1}: {line}")
+                    # Replace any problematic characters for console display
+                    safe_line = line.replace('→', '->')
+                    print(f"Line {i+1}: {safe_line}")
                 
                 if line.startswith('evodata SPECIES_'):
                     current_pokemon = line.replace('evodata ', '').strip()
@@ -616,6 +692,9 @@ class PokemonSetBuilder(QMainWindow):
             print(f"Found evolution data for {len(evolution_chain)} Pokemon")
             
             # Build base forms by working backwards from each Pokemon
+            evolved_count = 0
+            base_count = 0
+            
             for species in self.all_pokemon_data.keys():
                 base_form = species
                 current = species
@@ -624,15 +703,42 @@ class PokemonSetBuilder(QMainWindow):
                 while current in pre_evolutions:
                     base_form = pre_evolutions[current]
                     current = base_form
+                    evolved_count += 1
                 
+                if base_form == species:
+                    base_count += 1
+                    
                 self.base_forms[species] = base_form
             
-            print(f"Determined base forms for {len(self.base_forms)} Pokemon")
+            # Use ASCII arrows for display
+            print(f"Parsed evolution data for {len(self.all_pokemon_data)} Pokemon species")
+            print(f"Found {evolved_count} fully evolved Pokemon")
+            print(f"Found {base_count} Pokemon that can evolve")
             
+            # Print sample evolution chains with ASCII arrow
+            print("\nSample of fully evolved Pokemon:")
+            sample_count = 0
+            for species, evolutions in list(evolution_chain.items())[:10]:
+                if evolutions:
+                    sample_count += 1
+                    print(f"{sample_count}. {species} ({self.all_pokemon_data.get(species, {}).get('name', species)})")
+                    
+            print("\nSample of evolving Pokemon:")
+            sample_count = 0
+            for species, evos in list(evolution_chain.items())[:5]:
+                if evos:
+                    evo_name = evos[0]
+                    # Use ASCII arrows for console display
+                    print(f"{species} -> {evo_name}")
+                    sample_count += 1
+                        
         except Exception as e:
             error_msg = f"Failed to parse evolution file: {str(e)}"
             print(f"ERROR: {error_msg}")
-            traceback.print_exc()
+            # Continue execution even if there's an error with evolution data
+            print("Continuing with program execution despite evolution parsing error.")
+            self.evolution_data = {}
+            self.base_forms = {species: species for species in self.all_pokemon_data.keys()}
 
     def parse_tm_file(self, file_path):
         """Parse the tmlearnset.txt file to get TM moves for each Pokemon"""
@@ -1989,38 +2095,103 @@ class PokemonSetBuilder(QMainWindow):
             return True
         
         return False
+        
+    def get_base_form(self, species_name):
+        """Get the base evolutionary form for a Pokémon species.
+        
+        This is used to find moves for Pokémon from their base forms
+        when the exact species isn't found in the move lists.
+        
+        Args:
+            species_name: The name of the species to find the base form for
+            
+        Returns:
+            The base form species name, or the original species name if no base form is found,
+            or None if the species_name is None.
+        """
+        if species_name is None:
+            return None
+            
+        # If we already have a computed base_forms dictionary (from parse_evolution_file),
+        # use that for fast lookup
+        if hasattr(self, 'base_forms') and species_name in self.base_forms:
+            return self.base_forms[species_name]
+        
+        # If no base_forms dictionary is available or the species isn't found,
+        # try to determine base form using evolution_data
+        if hasattr(self, 'evolution_data') and self.evolution_data:
+            # Start with the current species
+            current = species_name
+            
+            # Keep going back until we find a Pokémon with no pre-evolution
+            while current in self.evolution_data.get('pre_evolutions', {}):
+                current = self.evolution_data['pre_evolutions'][current]
+                
+            return current
+        
+        # If no evolution data is available, return the original species
+        return species_name
     
     def populate_pokemon_dropdown(self):
         """Populate the Pokemon dropdown"""
-        self.pokemon_dropdown.clear()
-        
-        # Add empty option as first item
-        self.pokemon_dropdown.addItem("Select a Pokemon", None)
-        
-        # Check if we should filter for fully evolved Pokémon only
-        show_fully_evolved_only = self.show_fully_evolved_only.isChecked()
-        
-        # Add Pokémon to the dropdown based on filter settings
-        pokemon_added = 0
-        
-        for species_name in self.pokemon_list:
-            # Skip if we're only showing fully evolved Pokémon and this one isn't fully evolved
-            if show_fully_evolved_only and hasattr(self, 'fully_evolved_pokemon') and species_name not in self.fully_evolved_pokemon:
-                continue
-                
-            # Make sure this species has valid data
-            if species_name in self.all_pokemon_data and 'name' in self.all_pokemon_data[species_name]:
-                display_name = self.all_pokemon_data[species_name]['name']
-                # Store the species name as the item data
-                self.pokemon_dropdown.addItem(display_name, species_name)
-                pokemon_added += 1
-            else:
-                # For species without display names, just show the internal name
-                formatted_name = species_name.replace('SPECIES_', '').replace('_', ' ').title()
-                self.pokemon_dropdown.addItem(formatted_name, species_name)
-                pokemon_added += 1
-                
-        print(f"Added {pokemon_added} Pokémon to dropdown" + " (fully evolved only)" if show_fully_evolved_only else "")
+        try:
+            print("Starting to populate Pokemon dropdown...")
+            self.pokemon_dropdown.clear()
+            
+            # Add empty option as first item
+            print("Adding empty option to dropdown...")
+            self.pokemon_dropdown.addItem("Select a Pokemon", None)
+            
+            # Check if we should filter for fully evolved Pokémon only
+            print("Checking filter settings...")
+            try:
+                show_fully_evolved_only = self.show_fully_evolved_only.isChecked()
+                print(f"Show fully evolved only: {show_fully_evolved_only}")
+            except Exception as filter_error:
+                print(f"Error checking filter: {str(filter_error)}")
+                show_fully_evolved_only = False
+            
+            # Add Pokémon to the dropdown based on filter settings
+            pokemon_added = 0
+            print(f"Starting to add {len(self.pokemon_list)} Pokemon to dropdown...")
+            
+            for i, species_name in enumerate(self.pokemon_list):
+                try:
+                    # Print progress for every 100 Pokemon
+                    if i % 100 == 0:
+                        print(f"Processing Pokemon {i}/{len(self.pokemon_list)}...")
+                    
+                    # Skip if we're only showing fully evolved Pokémon and this one isn't fully evolved
+                    if show_fully_evolved_only and hasattr(self, 'fully_evolved_pokemon') and species_name not in self.fully_evolved_pokemon:
+                        continue
+                    
+                    # Make sure this species has valid data
+                    if species_name in self.all_pokemon_data and 'name' in self.all_pokemon_data[species_name]:
+                        display_name = self.all_pokemon_data[species_name]['name']
+                        # Store the species name as the item data
+                        self.pokemon_dropdown.addItem(display_name, species_name)
+                        pokemon_added += 1
+                    else:
+                        # For species without display names, just show the internal name
+                        formatted_name = species_name.replace('SPECIES_', '').replace('_', ' ').title()
+                        self.pokemon_dropdown.addItem(formatted_name, species_name)
+                        pokemon_added += 1
+                except Exception as pokemon_error:
+                    print(f"Error adding Pokemon {species_name} to dropdown: {str(pokemon_error)}")
+                    continue
+                    
+            print(f"Added {pokemon_added} Pokémon to dropdown" + (" (fully evolved only)" if show_fully_evolved_only else ""))
+            print("Pokemon dropdown population complete.")
+            
+        except Exception as e:
+            print(f"ERROR in populate_pokemon_dropdown: {str(e)}")
+            print(f"Error details: {repr(e)}")
+            traceback.print_exc()
+            # Show a message to the user
+            QMessageBox.warning(self, "Warning", f"Error populating Pokemon dropdown: {str(e)}")
+            # Still continue by adding a placeholder
+            if self.pokemon_dropdown.count() == 0:
+                self.pokemon_dropdown.addItem("Error loading Pokemon", None)
     
     def on_pokemon_selected(self, index):
         """Handle selection of a Pokemon from the dropdown"""
@@ -2158,25 +2329,28 @@ class PokemonSetBuilder(QMainWindow):
     
     def on_move_selected(self, index, slot, dropdown_type):
         """Handle move selection from any dropdown
-        
+    
         Args:
             index: The index of the selected item in the dropdown
             slot: Which move slot (0-3) this selection is for
-            dropdown_type: Which type of dropdown ('level_up', 'egg', 'tm', 'tutor')
+            dropdown_type: Which type of dropdown ('level_up', 'egg', 'tm', 'tutor', 'modern_egg', 'modern_tm')
         """
         # Get the correct dropdown list based on type and slot
         if dropdown_type == 'level_up':
             dropdown = self.level_up_dropdowns[slot]
         elif dropdown_type == 'egg':
             dropdown = self.egg_dropdowns[slot]
+        elif dropdown_type == 'modern_egg':
+            dropdown = self.modern_egg_dropdowns[slot]
         elif dropdown_type == 'tm':
             dropdown = self.tm_dropdowns[slot]
+        elif dropdown_type == 'modern_tm':
+            dropdown = self.modern_tm_dropdowns[slot]
         elif dropdown_type == 'tutor':
             dropdown = self.tutor_dropdowns[slot]
         else:
-            return  # Invalid dropdown type
-        
-        # Skip if nothing is selected or first item ("Select a move") is selected
+            print(f"Unknown dropdown type: {dropdown_type}")
+            return     # Skip if nothing is selected or first item ("Select a move") is selected
         if index <= 0:
             # Clear this move slot
             self.current_moves[slot] = None
@@ -2203,135 +2377,301 @@ class PokemonSetBuilder(QMainWindow):
     
     def clear_other_dropdowns(self, slot, selected_type):
         """Clear other dropdowns on the same tab to prevent multiple selections"""
-        if selected_type != 'level_up':
-            self.level_up_dropdowns[slot].setCurrentIndex(0)
-        if selected_type != 'egg':
-            self.egg_dropdowns[slot].setCurrentIndex(0)
-        if selected_type != 'tm':
-            self.tm_dropdowns[slot].setCurrentIndex(0)
-        if selected_type != 'tutor':
-            self.tutor_dropdowns[slot].setCurrentIndex(0)
+        # Block signals when clearing to prevent unwanted signal cascades
+        dropdowns_to_clear = [
+            ('level_up', self.level_up_dropdowns),
+            ('egg', self.egg_dropdowns),
+            ('modern_egg', self.modern_egg_dropdowns),
+            ('tm', self.tm_dropdowns),
+            ('modern_tm', self.modern_tm_dropdowns),
+            ('tutor', self.tutor_dropdowns)
+        ]
+        
+        for dropdown_type, dropdowns in dropdowns_to_clear:
+            if dropdown_type != selected_type:
+                dropdowns[slot].blockSignals(True)
+                dropdowns[slot].setCurrentIndex(0)
+                dropdowns[slot].blockSignals(False)
+                
+    def populate_ability_dropdown(self, species_name):
+        """Populate the ability dropdown based on selected Pokemon"""
+        # Clear the dropdown first
+        self.ability_dropdown.clear()
+        
+        # Get abilities for the selected Pokemon
+        abilities = self.get_abilities_for_pokemon(species_name)
+        
+        print(f"Found abilities for {species_name}: {abilities}")
+        
+        if not abilities:
+            # No abilities found, add a default option
+            print(f"No abilities found for {species_name}, using default ability")
+            self.ability_dropdown.addItem("Limber", "ABILITY_LIMBER")
+            return
+            
+        # Add each ability to the dropdown with a readable name
+        for ability in abilities:
+            # Make sure the ability is a string
+            if not isinstance(ability, str):
+                print(f"Warning: Got non-string ability: {ability} of type {type(ability)}")
+                continue
+                
+            # Convert ability code to a readable name (e.g., ABILITY_BLAZE -> Blaze)
+            if ability.startswith('ABILITY_'):
+                readable_name = ability.replace('ABILITY_', '').replace('_', ' ').title()
+            else:
+                readable_name = ability.replace('_', ' ').title()
+                
+            print(f"Adding ability: {readable_name} (from {ability})")
+            self.ability_dropdown.addItem(readable_name, ability)
     
     def reset_moveset_display(self):
         """Reset the moveset display when a new Pokemon is selected"""
+        # Reset the move displays
         for i in range(4):
-            self.current_moves[i] = None
-            self.current_move_names[i] = None
             self.move_displays[i].setText("No Move Selected")
+            
+        # Reset current moves array
+        self.current_moves = [None, None, None, None]
+        self.current_move_names = [None, None, None, None]
+            
+        # Reset all dropdowns to index 0
+        all_dropdowns = self.level_up_dropdowns + self.egg_dropdowns + self.tm_dropdowns + self.tutor_dropdowns
+        all_dropdowns += self.modern_egg_dropdowns + self.modern_tm_dropdowns
+        
+        for dropdown in all_dropdowns:
+            if dropdown.count() > 0:  # Only reset if dropdown has items
+                dropdown.setCurrentIndex(0)
     
     def clear_move_dropdowns(self):
         """Clear all move dropdowns across all tabs"""
+        # Add a blockSignals call to prevent signal emission during clearing
+        # This prevents unexpected behavior when clearing dropdowns
+        
         # Clear level-up dropdowns
         for dropdown in self.level_up_dropdowns:
+            dropdown.blockSignals(True)  # Block signals temporarily
             dropdown.clear()
+            dropdown.blockSignals(False) # Unblock signals
         
         # Clear egg dropdowns
         for dropdown in self.egg_dropdowns:
+            dropdown.blockSignals(True)
             dropdown.clear()
+            dropdown.blockSignals(False)
+        
+        # Clear modern egg dropdowns
+        if hasattr(self, 'modern_egg_dropdowns'):
+            for dropdown in self.modern_egg_dropdowns:
+                dropdown.blockSignals(True)
+                dropdown.clear()
+                dropdown.blockSignals(False)
         
         # Clear TM dropdowns
         for dropdown in self.tm_dropdowns:
+            dropdown.blockSignals(True)
             dropdown.clear()
+            dropdown.blockSignals(False)
+        
+        # Clear modern TM dropdowns
+        if hasattr(self, 'modern_tm_dropdowns'):
+            for dropdown in self.modern_tm_dropdowns:
+                dropdown.blockSignals(True)
+                dropdown.clear()
+                dropdown.blockSignals(False)
         
         # Clear tutor dropdowns
         for dropdown in self.tutor_dropdowns:
+            dropdown.blockSignals(True)
             dropdown.clear()
+            dropdown.blockSignals(False)
     
     def populate_move_dropdowns(self, species_name):
         """Populate all move dropdowns across all tabs for the selected Pokemon"""
-        # Clear all dropdowns first
-        self.clear_move_dropdowns()
-        
-        print(f"Populating moves for {species_name}")
-        
-        # Get all the available moves for this Pokemon
-        level_up_moves = []
-        egg_moves = []
-        tm_moves = []
-        tutor_moves = []
-        
-        # Level-up moves
-        if species_name in self.move_lists['level_up']:
-            level_up_moves = sorted(self.move_lists['level_up'][species_name])
-            print(f"Found {len(level_up_moves)} level-up moves for {species_name}")
-        else:
-            print(f"No level-up moves found for {species_name}")
-        
-        # Egg moves - use the base form's egg moves
-        base_form = self.base_forms.get(species_name, species_name)
-        if base_form in self.move_lists['egg']:
-            egg_moves = sorted(self.move_lists['egg'][base_form])
-            print(f"Found {len(egg_moves)} egg moves for {species_name}'s base form ({base_form})")
-        else:
-            print(f"No egg moves found for {species_name}'s base form ({base_form})")
-        
-        # TM moves
-        if species_name in self.move_lists['tm']:
-            tm_moves = sorted(self.move_lists['tm'][species_name])
-            print(f"Found {len(tm_moves)} TM moves for {species_name}")
-        else:
-            print(f"No TM moves found for {species_name}")
-        
-        # Tutor moves
-        if species_name in self.move_lists['tutor']:
-            tutor_moves = sorted(self.move_lists['tutor'][species_name])
-            print(f"Found {len(tutor_moves)} tutor moves for {species_name}")
-        else:
-            print(f"No tutor moves found for {species_name}")
-        
-        # Populate all the dropdowns across all tabs
-        for i in range(4):  # For each of the 4 tabs
-            # Add "Select a move" as the first item for each dropdown
-            self.level_up_dropdowns[i].addItem("Select a move", None)
-            self.egg_dropdowns[i].addItem("Select a move", None)
-            self.tm_dropdowns[i].addItem("Select a move", None)
-            self.tutor_dropdowns[i].addItem("Select a move", None)
+        try:
+            # Clear all dropdowns first
+            self.clear_move_dropdowns()
             
-            # Add level-up moves
-            for move in level_up_moves:
-                display_name = self.format_move_name(move)
-                self.level_up_dropdowns[i].addItem(display_name, move)
+            print(f"Populating moves for {species_name}")
             
-            # Add egg moves
-            for move in egg_moves:
-                display_name = self.format_move_name(move)
-                self.egg_dropdowns[i].addItem(display_name, move)
+            # Get all the available moves for this Pokemon
+            level_up_moves = []
+            egg_moves = []
+            modern_egg_moves = []
+            tm_moves = []
+            modern_tm_moves = []
+            tutor_moves = []
             
-            # Add TM moves
-            for move in tm_moves:
-                display_name = self.format_move_name(move)
-                self.tm_dropdowns[i].addItem(display_name, move)
+            try:
+                # Level-up moves
+                if species_name in self.move_lists['level_up']:
+                    level_up_moves = sorted(self.move_lists['level_up'][species_name])
+                    print(f"Found {len(level_up_moves)} level-up moves for {species_name}")
+                else:
+                    print(f"No level-up moves found for {species_name}")
+            except Exception as e:
+                print(f"Error loading level-up moves: {str(e)}")
             
-            # Add tutor moves
-            for move in tutor_moves:
-                display_name = self.format_move_name(move)
-                self.tutor_dropdowns[i].addItem(display_name, move)
-    
+            try:
+                # Modern egg moves
+                if 'modern_egg' in self.move_lists and species_name in self.move_lists['modern_egg']:
+                    modern_egg_moves = sorted(self.move_lists['modern_egg'][species_name])
+                    print(f"Found {len(modern_egg_moves)} modern egg moves for {species_name}")
+                else:
+                    # Try to find modern egg moves from pre-evolutions
+                    base_form = self.get_base_form(species_name)
+                    if base_form and 'modern_egg' in self.move_lists and base_form in self.move_lists['modern_egg']:
+                        modern_egg_moves = sorted(self.move_lists['modern_egg'][base_form])
+                        print(f"Found {len(modern_egg_moves)} modern egg moves from {species_name}'s base form ({base_form})")
+                    else:
+                        print(f"No modern egg moves found for {species_name}")
+            except Exception as e:
+                print(f"Error loading modern egg moves: {str(e)}")
+            
+            try:
+                # Legacy egg moves - use the base form's egg moves
+                base_form = self.get_base_form(species_name)
+                if base_form and base_form in self.move_lists['egg']:
+                    egg_moves = sorted(self.move_lists['egg'][base_form])
+                    print(f"Found {len(egg_moves)} egg moves for {species_name}'s base form ({base_form})")
+                else:
+                    print(f"No egg moves found for {species_name}'s base form ({base_form})")
+            except Exception as e:
+                print(f"Error loading egg moves: {str(e)}")
+            
+            try:
+                # TM moves
+                if species_name in self.move_lists['tm']:
+                    tm_moves = sorted(self.move_lists['tm'][species_name])
+                    print(f"Found {len(tm_moves)} TM moves for {species_name}")
+                    # Debug output to see what TM moves we found (show first 5)
+                    if tm_moves and len(tm_moves) > 0:
+                        print(f"Sample TM moves: {tm_moves[:5]}")
+                else:
+                    print(f"No TM moves found for {species_name}")
+                    # Try base form for TM moves as a fallback
+                    base_form = self.get_base_form(species_name)
+                    if base_form and base_form in self.move_lists['tm']:
+                        tm_moves = sorted(self.move_lists['tm'][base_form])
+                        print(f"Found {len(tm_moves)} TM moves from {species_name}'s base form ({base_form})")
+                        if tm_moves and len(tm_moves) > 0:
+                            print(f"Sample TM moves from base form: {tm_moves[:5]}")
+                    else:
+                        print(f"No TM moves found for {species_name}'s base form either ({base_form})")
+                        # If we still can't find moves, print all available Pokemon in tm_moves for debugging
+                        print(f"Available Pokemon in TM move list: {list(self.move_lists['tm'].keys())[:10]}... (showing first 10)")
+                        print(f"Total Pokemon with TM moves: {len(self.move_lists['tm'])}")
+            except Exception as e:
+                print(f"Error loading TM moves: {str(e)}")
+            
+            try:
+                # Modern TM moves
+                if 'modern_tm' in self.move_lists and species_name in self.move_lists['modern_tm']:
+                    modern_tm_moves = sorted(self.move_lists['modern_tm'][species_name])
+                    print(f"Found {len(modern_tm_moves)} modern TM moves for {species_name}")
+                else:
+                    # Try to find modern TM moves from pre-evolutions
+                    base_form = self.get_base_form(species_name)
+                    if base_form and 'modern_tm' in self.move_lists and base_form in self.move_lists['modern_tm']:
+                        modern_tm_moves = sorted(self.move_lists['modern_tm'][base_form])
+                        print(f"Found {len(modern_tm_moves)} modern TM moves from {species_name}'s base form ({base_form})")
+                    else:
+                        print(f"No modern TM moves found for {species_name}")
+            except Exception as e:
+                print(f"Error loading modern TM moves: {str(e)}")
+            
+            try:
+                # Tutor moves
+                if species_name in self.move_lists['tutor']:
+                    tutor_moves = sorted(self.move_lists['tutor'][species_name])
+                    print(f"Found {len(tutor_moves)} tutor moves for {species_name}")
+                else:
+                    print(f"No tutor moves found for {species_name}")
+            except Exception as e:
+                print(f"Error loading tutor moves: {str(e)}")
+            
+            # Populate all the dropdowns across all tabs
+            for i in range(4):  # For each of the 4 move slots
+                try:
+                    # Add placeholder option to all dropdowns for each move slot
+                    self.level_up_dropdowns[i].addItem("Select a move", None)
+                    self.egg_dropdowns[i].addItem("Select a move", None)
+                    self.modern_egg_dropdowns[i].addItem("Select a move", None)
+                    self.tm_dropdowns[i].addItem("Select a move", None)
+                    self.modern_tm_dropdowns[i].addItem("Select a move", None)
+                    self.tutor_dropdowns[i].addItem("Select a move", None)
+                
+                    # Add level-up moves
+                    for move in level_up_moves:
+                        display_name = self.format_move_name(move)
+                        self.level_up_dropdowns[i].addItem(display_name, move)
+
+                    # Add egg moves
+                    for move in egg_moves:
+                        display_name = self.format_move_name(move)
+                        self.egg_dropdowns[i].addItem(display_name, move)
+                
+                    # Add modern egg moves
+                    for move in modern_egg_moves:
+                        display_name = self.format_move_name(move)
+                        self.modern_egg_dropdowns[i].addItem(display_name, move)
+                
+                    # Add TM moves
+                    for move in tm_moves:
+                        # Make sure move is properly formatted
+                        try:
+                            display_name = self.format_move_name(move)
+                            print(f"Adding TM move to dropdown: {display_name} (from {move})")
+                            self.tm_dropdowns[i].addItem(display_name, move)
+                        except Exception as move_error:
+                            print(f"Error adding TM move {move} to dropdown: {str(move_error)}")
+                            continue
+                
+                    # Add modern TM moves
+                    for move in modern_tm_moves:
+                        display_name = self.format_move_name(move)
+                        self.modern_tm_dropdowns[i].addItem(display_name, move)
+                
+                    # Add tutor moves
+                    for move in tutor_moves:
+                        display_name = self.format_move_name(move)
+                        self.tutor_dropdowns[i].addItem(display_name, move)
+                except Exception as dropdown_error:
+                    print(f"Error populating move dropdown {i}: {str(dropdown_error)}")
+                    continue
+        
+        except Exception as e:
+            print(f"Error in populate_move_dropdowns: {str(e)}")
+            traceback.print_exc()
+            # Show an error message to the user
+            QMessageBox.warning(self, "Warning", f"Error populating move dropdowns: {str(e)}")
+            return
+
     def format_move_name(self, move_name):
         """Format the move name from MOVE_NAME to Name format"""
         if not move_name.startswith('MOVE_'):
             return move_name
-        
         return move_name[5:].replace('_', ' ').title()
-    
+
     def save_pokemon_set(self):
         """Save the current Pokemon set"""
+        # Check if a Pokemon is selected
         if not self.current_pokemon:
             QMessageBox.warning(self, "Warning", "Please select a Pokemon first.")
             return
-        
+
         # Check if at least one move is selected
         if not any(self.current_moves):
             QMessageBox.warning(self, "Warning", "Please select at least one move.")
             return
-        
+
         # Create the Pokemon set data
         pokemon_set = {
             'species': self.current_pokemon,
             'name': self.all_pokemon_data[self.current_pokemon]['name'],
             'moves': []
         }
-        
+
         # Add the selected ability if available
         if self.current_ability:
             # Get ability name for display
@@ -2340,36 +2680,41 @@ class PokemonSetBuilder(QMainWindow):
                 self.current_ability,
                 self.current_ability.replace('ABILITY_', '').replace('_', ' ').title()
             )
-            
+
             pokemon_set['ability'] = {
                 'name': self.current_ability,
                 'display_name': ability_display_name
             }
         
-        # Add all the selected moves
+        # Add moves to the set, including their source type (level-up, egg, tm, tutor, modern_egg, modern_tm)
         for i, move in enumerate(self.current_moves):
-            if move:  # If there's a move in this slot
-                # Determine the source of this move
-                source = 'unknown'
-                if move in self.move_lists['level_up'].get(self.current_pokemon, []):
-                    source = 'level_up'
-                elif move in self.move_lists['egg'].get(self.base_forms.get(self.current_pokemon, self.current_pokemon), []):
-                    source = 'egg'
-                elif move in self.move_lists['tm'].get(self.current_pokemon, []):
-                    source = 'tm'
-                elif move in self.move_lists['tutor'].get(self.current_pokemon, []):
-                    source = 'tutor'
+            if move:
+                move_type = self.current_move_types[i]
+                move_display_name = self.format_move_name(move)
                 
-                # Add move to our set
-                pokemon_set['moves'].append({
+                move_info = {
                     'name': move,
-                    'source': source,
-                    'display_name': self.current_move_names[i],
-                    'slot': i+1  # 1-based slot number
-                })
+                    'display_name': move_display_name,
+                    'source': move_type
+                }
+                
+                pokemon_set['moves'].append(move_info)
         
-        # Save to file
-        self.save_to_file(pokemon_set)
+        # Get the file path to save to
+        save_directory = os.path.join(os.getcwd(), 'sets')
+        os.makedirs(save_directory, exist_ok=True)
+        
+        # Use the species name and current timestamp for the filename
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{pokemon_set['name']}_{timestamp}.json"
+        file_path = os.path.join(save_directory, filename)
+        
+        # Save the set to a JSON file
+        with open(file_path, 'w') as f:
+            json.dump(pokemon_set, f, indent=4)
+        
+        print(f"Saved Pokemon set to {file_path}")
+        QMessageBox.information(self, "Success", f"Pokemon set saved to {filename}")
     
     def save_to_file(self, pokemon_set):
         """Save the Pokemon set to a collection file organized by generation and alphabetically"""
@@ -2476,107 +2821,13 @@ class PokemonSetBuilder(QMainWindow):
                     return 7
                 elif 810 <= species_id <= 905:  # Gen 8: Grookey to Enamorus
                     return 8
-                elif 906 <= species_id <= 1025:  # Gen 9: Sprigatito to Pecharunt
-                    return 9
-                else:
-                    return 9  # Default to the latest generation for unknown IDs
             
-            # If ID couldn't be determined, use name-based approach
-            gen1_starters = ['BULBASAUR', 'CHARMANDER', 'SQUIRTLE']
-            gen2_starters = ['CHIKORITA', 'CYNDAQUIL', 'TOTODILE']
-            gen3_starters = ['TREECKO', 'TORCHIC', 'MUDKIP']
-            gen4_starters = ['TURTWIG', 'CHIMCHAR', 'PIPLUP']
-            gen5_starters = ['SNIVY', 'TEPIG', 'OSHAWOTT']
-            gen6_starters = ['CHESPIN', 'FENNEKIN', 'FROAKIE']
-            gen7_starters = ['ROWLET', 'LITTEN', 'POPPLIO']
-            gen8_starters = ['GROOKEY', 'SCORBUNNY', 'SOBBLE']
-            gen9_starters = ['SPRIGATITO', 'FUECOCO', 'QUAXLY']
-            
-            species_simple = species_name.replace('SPECIES_', '').upper()
-            
-            for starter in gen1_starters:
-                if starter in species_simple:
-                    return 1
-            for starter in gen2_starters:
-                if starter in species_simple:
-                    return 2
-            for starter in gen3_starters:
-                if starter in species_simple:
-                    return 3
-            for starter in gen4_starters:
-                if starter in species_simple:
-                    return 4
-            for starter in gen5_starters:
-                if starter in species_simple:
-                    return 5
-            for starter in gen6_starters:
-                if starter in species_simple:
-                    return 6
-            for starter in gen7_starters:
-                if starter in species_simple:
-                    return 7
-            for starter in gen8_starters:
-                if starter in species_simple:
-                    return 8
-            for starter in gen9_starters:
-                if starter in species_simple:
-                    return 9
-                
-            # Default to Gen 1 if we couldn't determine the generation
-            return 1
+            # Default to Gen 1 if we can't determine the generation
+            return 1  
             
         except Exception as e:
             print(f"Error determining Pokémon generation: {str(e)}")
             return 1  # Default to Gen 1 for safety
-    
-    def update_collection_file(self, filepath, set_data):
-        """Update a collection file with a new Pokémon set, organizing alphabetically"""
-        try:
-            # Initialize collection data structure
-            collection = {
-                'generation': set_data.get('generation', 1),
-                'last_updated': set_data.get('timestamp', ''),
-                'sets': []
-            }
-            
-            # Load existing collection if available
-            if os.path.exists(filepath):
-                with open(filepath, 'r') as f:
-                    try:
-                        existing_collection = json.load(f)
-                        if 'sets' in existing_collection:
-                            collection['sets'] = existing_collection['sets']
-                    except json.JSONDecodeError:
-                        print(f"Warning: Could not parse existing collection file {filepath}. Creating new file.")
-            
-            # Check if this Pokémon already exists in the collection
-            species_name = set_data['species']
-            found = False
-            
-            for i, existing_set in enumerate(collection['sets']):
-                if existing_set.get('species') == species_name:
-                    # Replace the existing set with the new one
-                    collection['sets'][i] = set_data
-                    found = True
-                    break
-            
-            # If not found, add the new set
-            if not found:
-                collection['sets'].append(set_data)
-            
-            # Sort sets alphabetically by Pokémon name
-            collection['sets'] = sorted(collection['sets'], key=lambda x: x.get('name', ''))
-            
-            # Update the last_updated timestamp
-            collection['last_updated'] = set_data.get('timestamp', '')
-            
-            # Save the updated collection
-            with open(filepath, 'w') as f:
-                json.dump(collection, f, indent=4)
-                
-        except Exception as e:
-            print(f"Error updating collection file: {str(e)}")
-            raise
     
     def update_randomizer_collection(self, filepath, set_data):
         """Update a randomizer collection file with a new Pokémon set"""
@@ -2627,15 +2878,90 @@ class PokemonSetBuilder(QMainWindow):
             raise
 
 
+    def load_modern_egg_moves(self, file_path):
+        """Load modern egg moves from JSON file"""
+        try:
+            if not os.path.exists(file_path):
+                print(f"WARNING: Modern egg moves file not found at {file_path}")
+                return
+            
+            print(f"Loading modern egg moves from {file_path}")
+            
+            with open(file_path, 'r') as f:
+                self.move_lists['modern_egg'] = json.load(f)
+            
+            print(f"Loaded modern egg moves for {len(self.move_lists['modern_egg'])} Pokemon.")
+            
+            # Print some sample data
+            sample_species = list(self.move_lists['modern_egg'].keys())[:3]
+            for species in sample_species:
+                moves = self.move_lists['modern_egg'][species][:5]  # First 5 moves
+                print(f"  {species}: {', '.join(moves[:5])}...")
+            
+        except Exception as e:
+            error_msg = f"Failed to load modern egg moves: {str(e)}"
+            print(f"ERROR: {error_msg}")
+            traceback.print_exc()
+    
+    def load_modern_tm_moves(self, file_path):
+        """Load modern TM moves from JSON file"""
+        try:
+            if not os.path.exists(file_path):
+                print(f"WARNING: Modern TM moves file not found at {file_path}")
+                return
+            
+            print(f"Loading modern TM moves from {file_path}")
+            
+            with open(file_path, 'r') as f:
+                self.move_lists['modern_tm'] = json.load(f)
+            
+            print(f"Loaded modern TM moves for {len(self.move_lists['modern_tm'])} Pokemon.")
+            
+            # Print some sample data
+            sample_species = list(self.move_lists['modern_tm'].keys())[:3]
+            for species in sample_species:
+                moves = self.move_lists['modern_tm'][species][:5]  # First 5 moves
+                print(f"  {species}: {', '.join(moves[:5])}...")
+            
+        except Exception as e:
+            error_msg = f"Failed to load modern TM moves: {str(e)}"
+            print(f"ERROR: {error_msg}")
+            traceback.print_exc()
+
+
 if __name__ == '__main__':
     try:
         print("Starting Pokemon Set Builder")
         print(f"Current working directory: {os.getcwd()}")
+        print("Creating QApplication...")
         app = QApplication(sys.argv)
-        window = PokemonSetBuilder()
-        window.show()
+        
+        # More detailed error handling for the window creation
+        try:
+            print("Creating PokemonSetBuilder...")
+            window = PokemonSetBuilder()
+            print("PokemonSetBuilder object created successfully")
+        except Exception as window_error:
+            print(f"ERROR creating window: {str(window_error)}")
+            print("Window creation traceback:")
+            traceback.print_exc()
+            sys.exit(1)
+            
+        try:
+            print("Showing window...")
+            window.show()
+            print("Window shown successfully")
+        except Exception as show_error:
+            print(f"ERROR showing window: {str(show_error)}")
+            print("Window show traceback:")
+            traceback.print_exc()
+            sys.exit(1)
+            
+        print("Starting Qt event loop...")
         sys.exit(app.exec_())
     except Exception as e:
         print(f"FATAL ERROR: {str(e)}")
+        print("Traceback:")
         traceback.print_exc()
+        print("Error details:", repr(e))
         sys.exit(1)

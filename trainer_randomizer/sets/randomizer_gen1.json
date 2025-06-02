@@ -1,5 +1,5 @@
 {
-    "last_updated": "20250531_151002",
+    "last_updated": "20250531_154343",
     "sets": [
         {
             "species": "SPECIES_ABOMASNOW",
@@ -881,6 +881,19 @@
             "display_name": "Espeon",
             "generated_by": "pokemon_set_builder",
             "timestamp": "20250528_203802"
+        },
+        {
+            "species": "SPECIES_EXCADRILL",
+            "moves": [
+                "MOVE_IRON_HEAD",
+                "MOVE_DRILL_RUN",
+                "MOVE_ROCK_SLIDE",
+                "MOVE_HONE_CLAWS"
+            ],
+            "ability": "ABILITY_SAND_FORCE",
+            "display_name": "Excadrill",
+            "generated_by": "pokemon_set_builder",
+            "timestamp": "20250531_154343"
         },
         {
             "species": "SPECIES_EXEGGUTOR",
