@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_KELDEO",
+    "name": "Keldeo",
+    "moves": [
+        {
+            "name": "MOVE_SECRET_SWORD",
+            "source": "level_up",
+            "display_name": "Secret Sword",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HYDRO_PUMP",
+            "source": "level_up",
+            "display_name": "Hydro Pump",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AQUA_TAIL",
+            "source": "level_up",
+            "display_name": "Aqua Tail",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_WORK_UP",
+            "source": "level_up",
+            "display_name": "Work Up",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_JUSTIFIED",
+        "display_name": "Ability Justified"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_COBALION",
+    "name": "Cobalion",
+    "moves": [
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SACRED_SWORD",
+            "source": "level_up",
+            "display_name": "Sacred Sword",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THUNDER_WAVE",
+            "source": "modern_tm",
+            "display_name": "Thunder Wave",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_POISON_JAB",
+            "source": "modern_tm",
+            "display_name": "Poison Jab",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_JUSTIFIED",
+        "display_name": "Ability Justified"
+    },
+    "generation": 1
+}

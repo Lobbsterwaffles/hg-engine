@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_FLORGES",
+    "name": "Florges",
+    "moves": [
+        {
+            "name": "MOVE_MOONBLAST",
+            "source": "level_up",
+            "display_name": "Moonblast",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_WISH",
+            "source": "level_up",
+            "display_name": "Wish",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_GIGA_IMPACT",
+            "source": "modern_tm",
+            "display_name": "Giga Impact",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "modern_tm",
+            "display_name": "Calm Mind",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FLOWER_VEIL",
+        "display_name": "Ability Flower Veil"
+    },
+    "generation": 1
+}

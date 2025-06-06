@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CRYOGONAL",
+    "name": "Cryogonal",
+    "moves": [
+        {
+            "name": "MOVE_ICE_BEAM",
+            "source": "level_up",
+            "display_name": "Ice Beam",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LIGHT_SCREEN",
+            "source": "level_up",
+            "display_name": "Light Screen",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_REFLECT",
+            "source": "level_up",
+            "display_name": "Reflect",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CONFUSE_RAY",
+            "source": "level_up",
+            "display_name": "Confuse Ray",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LEVITATE",
+        "display_name": "Ability Levitate"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BEARTIC",
+    "name": "Beartic",
+    "moves": [
+        {
+            "name": "MOVE_ICICLE_CRASH",
+            "source": "level_up",
+            "display_name": "Icicle Crash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HAIL",
+            "source": "level_up",
+            "display_name": "Hail",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SLASH",
+            "source": "level_up",
+            "display_name": "Slash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_NIGHT_SLASH",
+            "source": "modern_egg",
+            "display_name": "Night Slash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SLUSH_RUSH",
+        "display_name": "Ability Slush Rush"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_HEATMOR",
+    "name": "Heatmor",
+    "moves": [
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "level_up",
+            "display_name": "Flamethrower",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "modern_egg",
+            "display_name": "Sucker Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAIN_PUNCH",
+            "source": "modern_tm",
+            "display_name": "Drain Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "modern_tm",
+            "display_name": "Giga Drain",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FLASH_FIRE",
+        "display_name": "Ability Flash Fire"
+    },
+    "generation": 1
+}

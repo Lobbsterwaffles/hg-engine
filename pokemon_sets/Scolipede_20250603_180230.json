@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SCOLIPEDE",
+    "name": "Scolipede",
+    "moves": [
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TOXIC",
+            "source": "level_up",
+            "display_name": "Toxic",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BUG_BITE",
+            "source": "level_up",
+            "display_name": "Bug Bite",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PROTECT",
+            "source": "level_up",
+            "display_name": "Protect",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SPEED_BOOST",
+        "display_name": "Ability Speed Boost"
+    },
+    "generation": 1
+}

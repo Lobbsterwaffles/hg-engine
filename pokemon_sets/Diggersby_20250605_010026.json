@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DIGGERSBY",
+    "name": "Diggersby",
+    "moves": [
+        {
+            "name": "MOVE_AGILITY",
+            "source": "level_up",
+            "display_name": "Agility",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FACADE",
+            "source": "level_up",
+            "display_name": "Facade",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FIRE_PUNCH",
+            "source": "modern_tm",
+            "display_name": "Fire Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HUGE_POWER",
+        "display_name": "Ability Huge Power"
+    },
+    "generation": 1
+}

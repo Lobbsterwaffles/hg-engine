@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_EELEKTROSS",
+    "name": "Eelektross",
+    "moves": [
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DISCHARGE",
+            "source": "level_up",
+            "display_name": "Discharge",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "modern_tm",
+            "display_name": "Flamethrower",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DRAGON_CLAW",
+            "source": "modern_tm",
+            "display_name": "Dragon Claw",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LEVITATE",
+        "display_name": "Ability Levitate"
+    },
+    "generation": 1
+}

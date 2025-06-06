@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DURANT",
+    "name": "Durant",
+    "moves": [
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_X_SCISSOR",
+            "source": "level_up",
+            "display_name": "X Scissor",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SUPERPOWER",
+            "source": "modern_tm",
+            "display_name": "Superpower",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HUSTLE",
+        "display_name": "Ability Hustle"
+    },
+    "generation": 1
+}

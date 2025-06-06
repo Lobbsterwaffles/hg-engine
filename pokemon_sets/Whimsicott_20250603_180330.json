@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_WHIMSICOTT",
+    "name": "Whimsicott",
+    "moves": [
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_COTTON_GUARD",
+            "source": "level_up",
+            "display_name": "Cotton Guard",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "level_up",
+            "display_name": "Giga Drain",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SUBSTITUTE",
+            "source": "modern_tm",
+            "display_name": "Substitute",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PRANKSTER",
+        "display_name": "Ability Prankster"
+    },
+    "generation": 1
+}

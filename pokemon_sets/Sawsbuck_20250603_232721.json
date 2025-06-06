@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SAWSBUCK",
+    "name": "Sawsbuck",
+    "moves": [
+        {
+            "name": "MOVE_HORN_LEECH",
+            "source": "level_up",
+            "display_name": "Horn Leech",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_JUMP_KICK",
+            "source": "level_up",
+            "display_name": "Jump Kick",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_MEGAHORN",
+            "source": "level_up",
+            "display_name": "Megahorn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_AROMATHERAPY",
+            "source": "level_up",
+            "display_name": "Aromatherapy",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SAP_SIPPER",
+        "display_name": "Ability Sap Sipper"
+    },
+    "generation": 1
+}

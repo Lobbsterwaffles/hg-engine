@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DELPHOX",
+    "name": "Delphox",
+    "moves": [
+        {
+            "name": "MOVE_PSYSHOCK",
+            "source": "level_up",
+            "display_name": "Psyshock",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MYSTICAL_FIRE",
+            "source": "level_up",
+            "display_name": "Mystical Fire",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "modern_tm",
+            "display_name": "Calm Mind",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "modern_tm",
+            "display_name": "Dazzling Gleam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MAGICIAN",
+        "display_name": "Ability Magician"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GOLURK",
+    "name": "Golurk",
+    "moves": [
+        {
+            "name": "MOVE_DYNAMIC_PUNCH",
+            "source": "level_up",
+            "display_name": "Dynamic Punch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ROCK_SLIDE",
+            "source": "tm",
+            "display_name": "Rock Slide",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DRAIN_PUNCH",
+            "source": "tm",
+            "display_name": "Drain Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_NO_GUARD",
+        "display_name": "Ability No Guard"
+    },
+    "generation": 1
+}

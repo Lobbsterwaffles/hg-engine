@@ -1,0 +1,30 @@
+{
+    "species": "SPECIES_TSAREENA",
+    "name": "Tsareena",
+    "moves": [
+        {
+            "name": "MOVE_TROP_KICK",
+            "display_name": "Trop Kick",
+            "source": "level_up"
+        },
+        {
+            "name": "MOVE_HIGH_JUMP_KICK",
+            "display_name": "High Jump Kick",
+            "source": "level_up"
+        },
+        {
+            "name": "MOVE_SYNTHESIS",
+            "display_name": "Synthesis",
+            "source": "modern_egg"
+        },
+        {
+            "name": "MOVE_UTURN",
+            "display_name": "Uturn",
+            "source": "modern_tm"
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUEENLY_MAJESTY",
+        "display_name": "Ability Queenly Majesty"
+    }
+}

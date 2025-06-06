@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TERRAKION",
+    "name": "Terrakion",
+    "moves": [
+        {
+            "name": "MOVE_SACRED_SWORD",
+            "source": "level_up",
+            "display_name": "Sacred Sword",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STONE_EDGE",
+            "source": "level_up",
+            "display_name": "Stone Edge",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "modern_tm",
+            "display_name": "Earthquake",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SMART_STRIKE",
+            "source": "modern_tm",
+            "display_name": "Smart Strike",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_JUSTIFIED",
+        "display_name": "Ability Justified"
+    },
+    "generation": 1
+}

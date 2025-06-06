@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CONKELDURR",
+    "name": "Conkeldurr",
+    "moves": [
+        {
+            "name": "MOVE_HAMMER_ARM",
+            "source": "level_up",
+            "display_name": "Hammer Arm",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAIN_PUNCH",
+            "source": "modern_tm",
+            "display_name": "Drain Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICE_PUNCH",
+            "source": "modern_tm",
+            "display_name": "Ice Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THUNDERPUNCH",
+            "source": "modern_tm",
+            "display_name": "Thunderpunch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_IRON_FIST",
+        "display_name": "Ability Iron Fist"
+    },
+    "generation": 1
+}

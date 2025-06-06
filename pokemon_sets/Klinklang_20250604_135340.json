@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_KLINKLANG",
+    "name": "Klinklang",
+    "moves": [
+        {
+            "name": "MOVE_GEAR_GRIND",
+            "source": "level_up",
+            "display_name": "Gear Grind",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHIFT_GEAR",
+            "source": "level_up",
+            "display_name": "Shift Gear",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_WILD_CHARGE",
+            "source": "modern_tm",
+            "display_name": "Wild Charge",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FACADE",
+            "source": "modern_tm",
+            "display_name": "Facade",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CLEAR_BODY",
+        "display_name": "Ability Clear Body"
+    },
+    "generation": 1
+}

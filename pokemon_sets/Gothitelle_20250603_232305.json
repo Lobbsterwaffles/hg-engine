@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GOTHITELLE",
+    "name": "Gothitelle",
+    "moves": [
+        {
+            "name": "MOVE_CHARM",
+            "source": "level_up",
+            "display_name": "Charm",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TICKLE",
+            "source": "level_up",
+            "display_name": "Tickle",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FAKE_TEARS",
+            "source": "level_up",
+            "display_name": "Fake Tears",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PSYSHOCK",
+            "source": "level_up",
+            "display_name": "Psyshock",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHADOW_TAG",
+        "display_name": "Ability Shadow Tag"
+    },
+    "generation": 1
+}

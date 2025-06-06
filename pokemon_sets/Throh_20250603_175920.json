@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_THROH",
+    "name": "Throh",
+    "moves": [
+        {
+            "name": "MOVE_CIRCLE_THROW",
+            "source": "level_up",
+            "display_name": "Circle Throw",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STORM_THROW",
+            "source": "level_up",
+            "display_name": "Storm Throw",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BULK_UP",
+            "source": "level_up",
+            "display_name": "Bulk Up",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_POISON_JAB",
+            "source": "tm",
+            "display_name": "Poison Jab",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INNER_FOCUS",
+        "display_name": "Ability Inner Focus"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ESCAVALIER",
+    "name": "Escavalier",
+    "moves": [
+        {
+            "name": "MOVE_SLASH",
+            "source": "level_up",
+            "display_name": "Slash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_X_SCISSOR",
+            "source": "level_up",
+            "display_name": "X Scissor",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SWORDS_DANCE",
+            "source": "level_up",
+            "display_name": "Swords Dance",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_OVERCOAT",
+        "display_name": "Ability Overcoat"
+    },
+    "generation": 1
+}

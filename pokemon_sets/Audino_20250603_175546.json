@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_AUDINO",
+    "name": "Audino",
+    "moves": [
+        {
+            "name": "MOVE_ENTRAINMENT",
+            "source": "level_up",
+            "display_name": "Entrainment",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HYPER_VOICE",
+            "source": "level_up",
+            "display_name": "Hyper Voice",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_YAWN",
+            "source": "modern_egg",
+            "display_name": "Yawn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_WISH",
+            "source": "modern_egg",
+            "display_name": "Wish",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_KLUTZ",
+        "display_name": "Ability Klutz"
+    },
+    "generation": 1
+}

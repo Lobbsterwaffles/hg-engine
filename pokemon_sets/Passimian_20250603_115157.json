@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PASSIMIAN",
+    "name": "Passimian",
+    "moves": [
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_QUICK_ATTACK",
+            "source": "modern_egg",
+            "display_name": "Quick Attack",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BULK_UP",
+            "source": "level_up",
+            "display_name": "Bulk Up",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SEED_BOMB",
+            "source": "modern_tm",
+            "display_name": "Seed Bomb",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DEFIANT",
+        "display_name": "Ability Defiant"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_HAXORUS",
+    "name": "Haxorus",
+    "moves": [
+        {
+            "name": "MOVE_OUTRAGE",
+            "source": "level_up",
+            "display_name": "Outrage",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SCARY_FACE",
+            "source": "level_up",
+            "display_name": "Scary Face",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLASH",
+            "source": "level_up",
+            "display_name": "Slash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MOLD_BREAKER",
+        "display_name": "Ability Mold Breaker"
+    },
+    "generation": 1
+}

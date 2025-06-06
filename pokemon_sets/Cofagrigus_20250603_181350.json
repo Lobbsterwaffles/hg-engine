@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_COFAGRIGUS",
+    "name": "Cofagrigus",
+    "moves": [
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_WILL_O_WISP",
+            "source": "level_up",
+            "display_name": "Will O Wisp",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "level_up",
+            "display_name": "Dark Pulse",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SCARY_FACE",
+            "source": "level_up",
+            "display_name": "Scary Face",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MUMMY",
+        "display_name": "Ability Mummy"
+    },
+    "generation": 1
+}

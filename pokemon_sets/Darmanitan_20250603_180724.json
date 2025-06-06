@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DARMANITAN",
+    "name": "Darmanitan",
+    "moves": [
+        {
+            "name": "MOVE_FLARE_BLITZ",
+            "source": "level_up",
+            "display_name": "Flare Blitz",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SUPERPOWER",
+            "source": "level_up",
+            "display_name": "Superpower",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_U_TURN",
+            "source": "tm",
+            "display_name": "U Turn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROCK_SLIDE",
+            "source": "tm",
+            "display_name": "Rock Slide",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHEER_FORCE",
+        "display_name": "Ability Sheer Force"
+    },
+    "generation": 1
+}

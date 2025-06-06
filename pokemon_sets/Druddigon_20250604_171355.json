@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DRUDDIGON",
+    "name": "Druddigon",
+    "moves": [
+        {
+            "name": "MOVE_HONE_CLAWS",
+            "source": "level_up",
+            "display_name": "Hone Claws",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_OUTRAGE",
+            "source": "level_up",
+            "display_name": "Outrage",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLASH",
+            "source": "level_up",
+            "display_name": "Slash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ROUGH_SKIN",
+        "display_name": "Ability Rough Skin"
+    },
+    "generation": 1
+}

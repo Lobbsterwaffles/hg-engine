@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BARBARACLE",
+    "name": "Barbaracle",
+    "moves": [
+        {
+            "name": "MOVE_RAZOR_SHELL",
+            "source": "level_up",
+            "display_name": "Razor Shell",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STONE_EDGE",
+            "source": "level_up",
+            "display_name": "Stone Edge",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CROSS_CHOP",
+            "source": "level_up",
+            "display_name": "Cross Chop",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_HONE_CLAWS",
+            "source": "level_up",
+            "display_name": "Hone Claws",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TOUGH_CLAWS",
+        "display_name": "Ability Tough Claws"
+    },
+    "generation": 1
+}

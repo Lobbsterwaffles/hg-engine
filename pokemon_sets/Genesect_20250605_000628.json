@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GENESECT",
+    "name": "Genesect",
+    "moves": [
+        {
+            "name": "MOVE_TECHNO_BLAST",
+            "source": "level_up",
+            "display_name": "Techno Blast",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TRI_ATTACK",
+            "source": "level_up",
+            "display_name": "Tri Attack",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BUG_BUZZ",
+            "source": "level_up",
+            "display_name": "Bug Buzz",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "modern_tm",
+            "display_name": "Flamethrower",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DOWNLOAD",
+        "display_name": "Ability Download"
+    },
+    "generation": 1
+}

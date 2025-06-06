@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_VIRIZION",
+    "name": "Virizion",
+    "moves": [
+        {
+            "name": "MOVE_SACRED_SWORD",
+            "source": "level_up",
+            "display_name": "Sacred Sword",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LEAF_BLADE",
+            "source": "level_up",
+            "display_name": "Leaf Blade",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SWORDS_DANCE",
+            "source": "level_up",
+            "display_name": "Swords Dance",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ZEN_HEADBUTT",
+            "source": "modern_tm",
+            "display_name": "Zen Headbutt",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_JUSTIFIED",
+        "display_name": "Ability Justified"
+    },
+    "generation": 1
+}

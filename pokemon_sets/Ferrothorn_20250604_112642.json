@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_FERROTHORN",
+    "name": "Ferrothorn",
+    "moves": [
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "modern_egg",
+            "display_name": "Leech Seed",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CURSE",
+            "source": "level_up",
+            "display_name": "Curse",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_POWER_WHIP",
+            "source": "level_up",
+            "display_name": "Power Whip",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_IRON_BARBS",
+        "display_name": "Ability Iron Barbs"
+    },
+    "generation": 1
+}

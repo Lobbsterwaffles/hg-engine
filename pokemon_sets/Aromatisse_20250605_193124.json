@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_AROMATISSE",
+    "name": "Aromatisse",
+    "moves": [
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "level_up",
+            "display_name": "Calm Mind",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_MOONBLAST",
+            "source": "level_up",
+            "display_name": "Moonblast",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TRICK_ROOM",
+            "source": "modern_tm",
+            "display_name": "Trick Room",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HEALER",
+        "display_name": "Ability Healer"
+    },
+    "generation": 1
+}

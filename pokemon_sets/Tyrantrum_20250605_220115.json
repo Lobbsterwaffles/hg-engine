@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TYRANTRUM",
+    "name": "Tyrantrum",
+    "moves": [
+        {
+            "name": "MOVE_HEAD_SMASH",
+            "source": "level_up",
+            "display_name": "Head Smash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAGON_CLAW",
+            "source": "level_up",
+            "display_name": "Dragon Claw",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAGON_DANCE",
+            "source": "modern_tm",
+            "display_name": "Dragon Dance",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PSYCHIC_FANGS",
+            "source": "modern_tm",
+            "display_name": "Psychic Fangs",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ROCK_HEAD",
+        "display_name": "Ability Rock Head"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BOUFFALANT",
+    "name": "Bouffalant",
+    "moves": [
+        {
+            "name": "MOVE_HEAD_CHARGE",
+            "source": "level_up",
+            "display_name": "Head Charge",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SCARY_FACE",
+            "source": "level_up",
+            "display_name": "Scary Face",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_MEGAHORN",
+            "source": "level_up",
+            "display_name": "Megahorn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THROAT_CHOP",
+            "source": "level_up",
+            "display_name": "Throat Chop",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_RECKLESS",
+        "display_name": "Ability Reckless"
+    },
+    "generation": 1
+}

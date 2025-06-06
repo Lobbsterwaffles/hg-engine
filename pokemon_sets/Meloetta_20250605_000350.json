@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MELOETTA",
+    "name": "Meloetta",
+    "moves": [
+        {
+            "name": "MOVE_PERISH_SONG",
+            "source": "level_up",
+            "display_name": "Perish Song",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HYPER_VOICE",
+            "source": "level_up",
+            "display_name": "Hyper Voice",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_U_TURN",
+            "source": "level_up",
+            "display_name": "U Turn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SERENE_GRACE",
+        "display_name": "Ability Serene Grace"
+    },
+    "generation": 1
+}

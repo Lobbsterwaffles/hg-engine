@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ZEKROM",
+    "name": "Zekrom",
+    "moves": [
+        {
+            "name": "MOVE_BOLT_STRIKE",
+            "source": "level_up",
+            "display_name": "Bolt Strike",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FUSION_BOLT",
+            "source": "level_up",
+            "display_name": "Fusion Bolt",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAGON_CLAW",
+            "source": "level_up",
+            "display_name": "Dragon Claw",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DRAGON_DANCE",
+            "source": "modern_tm",
+            "display_name": "Dragon Dance",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TERAVOLT",
+        "display_name": "Ability Teravolt"
+    },
+    "generation": 1
+}

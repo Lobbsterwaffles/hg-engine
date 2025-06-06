@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BRAVIARY",
+    "name": "Braviary",
+    "moves": [
+        {
+            "name": "MOVE_BRAVE_BIRD",
+            "source": "level_up",
+            "display_name": "Brave Bird",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CRUSH_CLAW",
+            "source": "level_up",
+            "display_name": "Crush Claw",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ROOST",
+            "source": "modern_egg",
+            "display_name": "Roost",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BULK_UP",
+            "source": "modern_tm",
+            "display_name": "Bulk Up",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DEFIANT",
+        "display_name": "Ability Defiant"
+    },
+    "generation": 1
+}

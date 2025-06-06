@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_AMOONGUSS",
+    "name": "Amoonguss",
+    "moves": [
+        {
+            "name": "MOVE_SPORE",
+            "source": "level_up",
+            "display_name": "Spore",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CLEAR_SMOG",
+            "source": "level_up",
+            "display_name": "Clear Smog",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SYNTHESIS",
+            "source": "level_up",
+            "display_name": "Synthesis",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLUDGE_BOMB",
+            "source": "tm",
+            "display_name": "Sludge Bomb",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_REGENERATOR",
+        "display_name": "Ability Regenerator"
+    },
+    "generation": 1
+}

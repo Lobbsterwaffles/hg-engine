@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_AURORUS",
+    "name": "Aurorus",
+    "moves": [
+        {
+            "name": "MOVE_BLIZZARD",
+            "source": "level_up",
+            "display_name": "Blizzard",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "modern_tm",
+            "display_name": "Earth Power",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FREEZE_DRY",
+            "source": "level_up",
+            "display_name": "Freeze Dry",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ANCIENT_POWER",
+            "source": "level_up",
+            "display_name": "Ancient Power",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SNOW_WARNING",
+        "display_name": "Ability Snow Warning"
+    },
+    "generation": 1
+}

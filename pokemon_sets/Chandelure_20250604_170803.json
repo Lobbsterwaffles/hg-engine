@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CHANDELURE",
+    "name": "Chandelure",
+    "moves": [
+        {
+            "name": "MOVE_PAIN_SPLIT",
+            "source": "level_up",
+            "display_name": "Pain Split",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "modern_tm",
+            "display_name": "Flamethrower",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "modern_tm",
+            "display_name": "Dark Pulse",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FLASH_FIRE",
+        "display_name": "Ability Flash Fire"
+    },
+    "generation": 1
+}

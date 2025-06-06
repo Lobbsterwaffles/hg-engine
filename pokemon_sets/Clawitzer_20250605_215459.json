@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CLAWITZER",
+    "name": "Clawitzer",
+    "moves": [
+        {
+            "name": "MOVE_AURA_SPHERE",
+            "source": "level_up",
+            "display_name": "Aura Sphere",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "level_up",
+            "display_name": "Dark Pulse",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAGON_PULSE",
+            "source": "level_up",
+            "display_name": "Dragon Pulse",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_WATER_PULSE",
+            "source": "level_up",
+            "display_name": "Water Pulse",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MEGA_LAUNCHER",
+        "display_name": "Ability Mega Launcher"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_JELLICENT",
+    "name": "Jellicent",
+    "moves": [
+        {
+            "name": "MOVE_WATER_SPOUT",
+            "source": "level_up",
+            "display_name": "Water Spout",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SURF",
+            "source": "tm",
+            "display_name": "Surf",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_WATER_ABSORB",
+        "display_name": "Ability Water Absorb"
+    },
+    "generation": 1
+}

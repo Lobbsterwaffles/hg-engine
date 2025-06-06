@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TALONFLAME",
+    "name": "Talonflame",
+    "moves": [
+        {
+            "name": "MOVE_BRAVE_BIRD",
+            "source": "level_up",
+            "display_name": "Brave Bird",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLARE_BLITZ",
+            "source": "level_up",
+            "display_name": "Flare Blitz",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_TAILWIND",
+            "source": "level_up",
+            "display_name": "Tailwind",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_AERIAL_ACE",
+            "source": "level_up",
+            "display_name": "Aerial Ace",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_GALE_WINGS",
+        "display_name": "Ability Gale Wings"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_HYDREIGON",
+    "name": "Hydreigon",
+    "moves": [
+        {
+            "name": "MOVE_DRAGON_PULSE",
+            "source": "level_up",
+            "display_name": "Dragon Pulse",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "modern_tm",
+            "display_name": "Dark Pulse",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "modern_tm",
+            "display_name": "Flamethrower",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAILWIND",
+            "source": "modern_tm",
+            "display_name": "Tailwind",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LEVITATE",
+        "display_name": "Ability Levitate"
+    },
+    "generation": 1
+}

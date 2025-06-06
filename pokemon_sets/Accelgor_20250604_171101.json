@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ACCELGOR",
+    "name": "Accelgor",
+    "moves": [
+        {
+            "name": "MOVE_BUG_BUZZ",
+            "source": "level_up",
+            "display_name": "Bug Buzz",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "level_up",
+            "display_name": "Giga Drain",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_STRUGGLE_BUG",
+            "source": "level_up",
+            "display_name": "Struggle Bug",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_U_TURN",
+            "source": "level_up",
+            "display_name": "U Turn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HYDRATION",
+        "display_name": "Ability Hydration"
+    },
+    "generation": 1
+}
