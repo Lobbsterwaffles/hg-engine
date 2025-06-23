@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_WALKING_WAKE",
+    "name": "Walking Wake",
+    "moves": [
+        {
+            "name": "MOVE_DRAGON_PULSE",
+            "source": "level_up",
+            "display_name": "Dragon Pulse",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "level_up",
+            "display_name": "Flamethrower",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_HYDRO_STEAM",
+            "source": "level_up",
+            "display_name": "Hydro Steam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FLIP_TURN",
+            "source": "modern_tm",
+            "display_name": "Flip Turn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PROTOSYNTHESIS",
+        "display_name": "Ability Protosynthesis"
+    },
+    "generation": 1
+}

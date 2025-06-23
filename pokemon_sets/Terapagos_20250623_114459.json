@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TERAPAGOS",
+    "name": "Terapagos",
+    "moves": [
+        {
+            "name": "MOVE_TERA_STARSTORM",
+            "source": "level_up",
+            "display_name": "Tera Starstorm",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "modern_tm",
+            "display_name": "Dark Pulse",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "level_up",
+            "display_name": "Earth Power",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROCK_POLISH",
+            "source": "level_up",
+            "display_name": "Rock Polish",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TERA_SHIFT",
+        "display_name": "Ability Tera Shift"
+    },
+    "generation": 1
+}

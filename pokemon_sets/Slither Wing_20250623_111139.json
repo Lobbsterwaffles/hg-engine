@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SLITHER_WING",
+    "name": "Slither Wing",
+    "moves": [
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "modern_tm",
+            "display_name": "Close Combat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "modern_tm",
+            "display_name": "Earthquake",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FIRST_IMPRESSION",
+            "source": "level_up",
+            "display_name": "First Impression",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FLARE_BLITZ",
+            "source": "modern_tm",
+            "display_name": "Flare Blitz",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PROTOSYNTHESIS",
+        "display_name": "Ability Protosynthesis"
+    },
+    "generation": 1
+}
