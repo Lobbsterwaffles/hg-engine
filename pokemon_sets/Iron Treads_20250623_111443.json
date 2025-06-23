@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_IRON_TREADS",
+    "name": "Iron Treads",
+    "moves": [
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_KNOCK_OFF",
+            "source": "level_up",
+            "display_name": "Knock Off",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROCK_TOMB",
+            "source": "modern_tm",
+            "display_name": "Rock Tomb",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUARK_DRIVE",
+        "display_name": "Ability Quark Drive"
+    },
+    "generation": 1
+}

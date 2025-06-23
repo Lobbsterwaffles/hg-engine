@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_IRON_LEAVES",
+    "name": "Iron Leaves",
+    "moves": [
+        {
+            "name": "MOVE_LEAF_BLADE",
+            "source": "level_up",
+            "display_name": "Leaf Blade",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MEGAHORN",
+            "source": "level_up",
+            "display_name": "Megahorn",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PSYBLADE",
+            "source": "level_up",
+            "display_name": "Psyblade",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUARK_DRIVE",
+        "display_name": "Ability Quark Drive"
+    },
+    "generation": 1
+}

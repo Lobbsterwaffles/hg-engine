@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_IRON_VALIANT",
+    "name": "Iron Valiant",
+    "moves": [
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MOONBLAST",
+            "source": "level_up",
+            "display_name": "Moonblast",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "modern_tm",
+            "display_name": "Psychic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SPIRIT_BREAK",
+            "source": "level_up",
+            "display_name": "Spirit Break",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUARK_DRIVE",
+        "display_name": "Ability Quark Drive"
+    },
+    "generation": 1
+}

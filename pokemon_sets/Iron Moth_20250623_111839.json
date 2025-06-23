@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_IRON_MOTH",
+    "name": "Iron Moth",
+    "moves": [
+        {
+            "name": "MOVE_ENERGY_BALL",
+            "source": "modern_tm",
+            "display_name": "Energy Ball",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FIERY_DANCE",
+            "source": "level_up",
+            "display_name": "Fiery Dance",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "modern_tm",
+            "display_name": "Dazzling Gleam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLUDGE_WAVE",
+            "source": "level_up",
+            "display_name": "Sludge Wave",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUARK_DRIVE",
+        "display_name": "Ability Quark Drive"
+    },
+    "generation": 1
+}

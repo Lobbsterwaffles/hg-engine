@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_IRON_CROWN",
+    "name": "Iron Crown",
+    "moves": [
+        {
+            "name": "MOVE_TACHYON_CUTTER",
+            "source": "level_up",
+            "display_name": "Tachyon Cutter",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "level_up",
+            "display_name": "Volt Switch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYSHOCK",
+            "source": "level_up",
+            "display_name": "Psyshock",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FOCUS_BLAST",
+            "source": "modern_tm",
+            "display_name": "Focus Blast",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUARK_DRIVE",
+        "display_name": "Ability Quark Drive"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_KORAIDON",
+    "name": "Koraidon",
+    "moves": [
+        {
+            "name": "MOVE_COLLISION_COURSE",
+            "source": "level_up",
+            "display_name": "Collision Course",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_OUTRAGE",
+            "source": "level_up",
+            "display_name": "Outrage",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FLARE_BLITZ",
+            "source": "level_up",
+            "display_name": "Flare Blitz",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_UTURN",
+            "source": "modern_tm",
+            "display_name": "Uturn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ORICHALCUM_PULSE",
+        "display_name": "Ability Orichalcum Pulse"
+    },
+    "generation": 1
+}

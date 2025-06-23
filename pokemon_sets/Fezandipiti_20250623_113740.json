@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_FEZANDIPITI",
+    "name": "Fezandipiti",
+    "moves": [
+        {
+            "name": "MOVE_ROOST",
+            "source": "level_up",
+            "display_name": "Roost",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TAIL_SLAP",
+            "source": "level_up",
+            "display_name": "Tail Slap",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_MOONBLAST",
+            "source": "level_up",
+            "display_name": "Moonblast",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CROSS_POISON",
+            "source": "level_up",
+            "display_name": "Cross Poison",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TOXIC_CHAIN",
+        "display_name": "Ability Toxic Chain"
+    },
+    "generation": 1
+}

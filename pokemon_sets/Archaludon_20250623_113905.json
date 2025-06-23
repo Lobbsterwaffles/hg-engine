@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ARCHALUDON",
+    "name": "Archaludon",
+    "moves": [
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "modern_tm",
+            "display_name": "Earthquake",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "modern_tm",
+            "display_name": "Iron Head",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BREAKING_SWIPE",
+            "source": "level_up",
+            "display_name": "Breaking Swipe",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STAMINA",
+        "display_name": "Ability Stamina"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BAXCALIBUR",
+    "name": "Baxcalibur",
+    "moves": [
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "modern_tm",
+            "display_name": "Earthquake",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_GLAIVE_RUSH",
+            "source": "level_up",
+            "display_name": "Glaive Rush",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICICLE_CRASH",
+            "source": "level_up",
+            "display_name": "Icicle Crash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ICE_SHARD",
+            "source": "level_up",
+            "display_name": "Ice Shard",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_THERMAL_EXCHANGE",
+        "display_name": "Ability Thermal Exchange"
+    },
+    "generation": 1
+}

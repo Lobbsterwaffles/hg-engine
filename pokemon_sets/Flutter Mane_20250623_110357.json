@@ -1,29 +1,29 @@
 {
-    "species": "SPECIES_GREAT_TUSK",
-    "name": "Great Tusk",
+    "species": "SPECIES_FLUTTER_MANE",
+    "name": "Flutter Mane",
     "moves": [
         {
-            "name": "MOVE_CLOSE_COMBAT",
+            "name": "MOVE_MOONBLAST",
             "source": "level_up",
-            "display_name": "Close Combat",
+            "display_name": "Moonblast",
             "slot": 1
         },
         {
-            "name": "MOVE_ICE_SPINNER",
+            "name": "MOVE_MYSTICAL_FIRE",
             "source": "level_up",
-            "display_name": "Ice Spinner",
+            "display_name": "Mystical Fire",
             "slot": 2
         },
         {
-            "name": "MOVE_HEADLONG_RUSH",
+            "name": "MOVE_PSYSHOCK",
             "source": "level_up",
-            "display_name": "Headlong Rush",
+            "display_name": "Psyshock",
             "slot": 3
         },
         {
-            "name": "MOVE_KNOCK_OFF",
+            "name": "MOVE_SHADOW_BALL",
             "source": "level_up",
-            "display_name": "Knock Off",
+            "display_name": "Shadow Ball",
             "slot": 4
         }
     ],

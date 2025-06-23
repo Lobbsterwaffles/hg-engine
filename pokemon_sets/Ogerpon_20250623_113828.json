@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_OGERPON",
+    "name": "Ogerpon",
+    "moves": [
+        {
+            "name": "MOVE_IVY_CUDGEL",
+            "source": "level_up",
+            "display_name": "Ivy Cudgel",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HORN_LEECH",
+            "source": "level_up",
+            "display_name": "Horn Leech",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_UTURN",
+            "source": "modern_tm",
+            "display_name": "Uturn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THROAT_CHOP",
+            "source": "level_up",
+            "display_name": "Throat Chop",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DEFIANT",
+        "display_name": "Ability Defiant"
+    },
+    "generation": 1
+}

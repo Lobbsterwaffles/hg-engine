@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PECHARUNT",
+    "name": "Pecharunt",
+    "moves": [
+        {
+            "name": "MOVE_MALIGNANT_CHAIN",
+            "source": "level_up",
+            "display_name": "Malignant Chain",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PARTING_SHOT",
+            "source": "level_up",
+            "display_name": "Parting Shot",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "modern_tm",
+            "display_name": "Shadow Ball",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_POISON_PUPPETEER",
+        "display_name": "Ability Poison Puppeteer"
+    },
+    "generation": 1
+}

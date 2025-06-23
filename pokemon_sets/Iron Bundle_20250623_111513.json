@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_IRON_BUNDLE",
+    "name": "Iron Bundle",
+    "moves": [
+        {
+            "name": "MOVE_FLIP_TURN",
+            "source": "level_up",
+            "display_name": "Flip Turn",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HYDRO_PUMP",
+            "source": "level_up",
+            "display_name": "Hydro Pump",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICE_BEAM",
+            "source": "level_up",
+            "display_name": "Ice Beam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FREEZE_DRY",
+            "source": "level_up",
+            "display_name": "Freeze Dry",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_QUARK_DRIVE",
+        "display_name": "Ability Quark Drive"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SINISTCHA",
+    "name": "Sinistcha",
+    "moves": [
+        {
+            "name": "MOVE_MATCHA_GOTCHA",
+            "source": "level_up",
+            "display_name": "Matcha Gotcha",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_STRENGTH_SAP",
+            "source": "level_up",
+            "display_name": "Strength Sap",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "modern_tm",
+            "display_name": "Calm Mind",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HEATPROOF",
+        "display_name": "Ability Heatproof"
+    },
+    "generation": 1
+}

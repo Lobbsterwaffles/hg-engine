@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MIRAIDON",
+    "name": "Miraidon",
+    "moves": [
+        {
+            "name": "MOVE_DISCHARGE",
+            "source": "level_up",
+            "display_name": "Discharge",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_THUNDERBOLT",
+            "source": "modern_tm",
+            "display_name": "Thunderbolt",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "modern_tm",
+            "display_name": "Volt Switch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DRAGON_PULSE",
+            "source": "level_up",
+            "display_name": "Dragon Pulse",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HADRON_ENGINE",
+        "display_name": "Ability Hadron Engine"
+    },
+    "generation": 1
+}

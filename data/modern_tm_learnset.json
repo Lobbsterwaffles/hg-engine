@@ -8394,7 +8394,7 @@
         "MOVE_THROAT_CHOP",
         "MOVE_TRAILBLAZE"
     ],
-    "SPECIES_PORYGON-Z": [
+    "SPECIES_PORYGON_Z": [
         "MOVE_AGILITY",
         "MOVE_BLIZZARD",
         "MOVE_CHARGE",
@@ -13150,7 +13150,7 @@
         "MOVE_WATER_PULSE",
         "MOVE_WHIRLPOOL"
     ],
-    "SPECIES_KOMMO-O": [
+    "SPECIES_KOMMO_O": [
         "MOVE_AERIAL_ACE",
         "MOVE_AURA_SPHERE",
         "MOVE_BODY_PRESS",
@@ -17337,7 +17337,7 @@
         "MOVE_THUNDER_FANG",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_SCREAM-TAIL": [
+    "SPECIES_SCREAM_TAIL": [
         "MOVE_AMNESIA",
         "MOVE_BATON_PASS",
         "MOVE_BLIZZARD",
@@ -17410,7 +17410,7 @@
         "MOVE_WATER_PULSE",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_BRUTE-BONNET": [
+    "SPECIES_BRUTE_BONNET": [
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
         "MOVE_BULLET_SEED",
@@ -17450,7 +17450,7 @@
         "MOVE_VENOSHOCK",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_FLUTTER-MANE": [
+    "SPECIES_FLUTTER_MANE": [
         "MOVE_CALM_MIND",
         "MOVE_CHARGE_BEAM",
         "MOVE_CHARM",
@@ -17493,7 +17493,7 @@
         "MOVE_TRICK_ROOM",
         "MOVE_HYPER_VOICE"
     ],
-    "SPECIES_SLITHER-WING": [
+    "SPECIES_SLITHER_WING": [
         "MOVE_ACROBATICS",
         "MOVE_AERIAL_ACE",
         "MOVE_BODY_PRESS",
@@ -17542,7 +17542,7 @@
         "MOVE_WILLOWISP",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_SANDY-SHOCKS": [
+    "SPECIES_SANDY_SHOCKS": [
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
         "MOVE_BULLDOZE",
@@ -17589,7 +17589,7 @@
         "MOVE_VOLT_SWITCH",
         "MOVE_WILD_CHARGE"
     ],
-    "SPECIES_IRON-TREADS": [
+    "SPECIES_IRON_TREADS": [
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
         "MOVE_BULLDOZE",
@@ -17637,7 +17637,7 @@
         "MOVE_WILD_CHARGE",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_IRON-BUNDLE": [
+    "SPECIES_IRON_BUNDLE": [
         "MOVE_ACROBATICS",
         "MOVE_AGILITY",
         "MOVE_AIR_CUTTER",
@@ -17675,7 +17675,7 @@
         "MOVE_WATER_PULSE",
         "MOVE_WHIRLPOOL"
     ],
-    "SPECIES_IRON-HANDS": [
+    "SPECIES_IRON_HANDS": [
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
         "MOVE_BRICK_BREAK",
@@ -17722,7 +17722,7 @@
         "MOVE_VOLT_SWITCH",
         "MOVE_WILD_CHARGE"
     ],
-    "SPECIES_IRON-JUGULIS": [
+    "SPECIES_IRON_JUGULIS": [
         "MOVE_ACROBATICS",
         "MOVE_AIR_CUTTER",
         "MOVE_AIR_SLASH",
@@ -17775,7 +17775,7 @@
         "MOVE_HYPER_VOICE",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_IRON-MOTH": [
+    "SPECIES_IRON_MOTH": [
         "MOVE_ACID_SPRAY",
         "MOVE_ACROBATICS",
         "MOVE_AGILITY",
@@ -17822,7 +17822,7 @@
         "MOVE_UTURN",
         "MOVE_VENOSHOCK"
     ],
-    "SPECIES_IRON-THORNS": [
+    "SPECIES_IRON_THORNS": [
         "MOVE_BLIZZARD",
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
@@ -17985,7 +17985,7 @@
         "MOVE_THUNDER_WAVE",
         "MOVE_TRICK"
     ],
-    "SPECIES_WO-CHIEN": [
+    "SPECIES_WO_CHIEN": [
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
         "MOVE_BULLET_SEED",
@@ -18027,7 +18027,7 @@
         "MOVE_TRAILBLAZE",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_CHIEN-PAO": [
+    "SPECIES_CHIEN_PAO": [
         "MOVE_ACROBATICS",
         "MOVE_AERIAL_ACE",
         "MOVE_AVALANCHE",
@@ -18062,7 +18062,7 @@
         "MOVE_TERA_BLAST",
         "MOVE_THROAT_CHOP"
     ],
-    "SPECIES_TING-LU": [
+    "SPECIES_TING_LU": [
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
         "MOVE_BULLDOZE",
@@ -18102,7 +18102,7 @@
         "MOVE_THROAT_CHOP",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_CHI-YU": [
+    "SPECIES_CHI_YU": [
         "MOVE_BURNING_JEALOUSY",
         "MOVE_CONFUSE_RAY",
         "MOVE_CRUNCH",
@@ -18139,7 +18139,7 @@
         "MOVE_WILLOWISP",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_ROARING-MOON": [
+    "SPECIES_ROARING_MOON": [
         "MOVE_ACROBATICS",
         "MOVE_AERIAL_ACE",
         "MOVE_AIR_SLASH",
@@ -18199,7 +18199,7 @@
         "MOVE_XSCISSOR",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_IRON-VALIANT": [
+    "SPECIES_IRON_VALIANT": [
         "MOVE_AERIAL_ACE",
         "MOVE_AGILITY",
         "MOVE_AURA_SPHERE",
@@ -18387,7 +18387,7 @@
         "MOVE_WILD_CHARGE",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_WALKING-WAKE": [
+    "SPECIES_WALKING_WAKE": [
         "MOVE_AGILITY",
         "MOVE_BODY_SLAM",
         "MOVE_BREAKING_SWIPE",
@@ -18433,7 +18433,7 @@
         "MOVE_WEATHER_BALL",
         "MOVE_WHIRLPOOL"
     ],
-    "SPECIES_IRON-LEAVES": [
+    "SPECIES_IRON_LEAVES": [
         "MOVE_AERIAL_ACE",
         "MOVE_AGILITY",
         "MOVE_AIR_SLASH",
@@ -18885,7 +18885,7 @@
         "MOVE_TERA_BLAST",
         "MOVE_UPROAR"
     ],
-    "SPECIES_GOUGING-FIRE": [
+    "SPECIES_GOUGING_FIRE": [
         "MOVE_BODY_SLAM",
         "MOVE_BREAKING_SWIPE",
         "MOVE_BULLDOZE",
@@ -18934,7 +18934,7 @@
         "MOVE_THUNDER_FANG",
         "MOVE_WEATHER_BALL"
     ],
-    "SPECIES_RAGING-BOLT": [
+    "SPECIES_RAGING_BOLT": [
         "MOVE_BODY_PRESS",
         "MOVE_BODY_SLAM",
         "MOVE_BREAKING_SWIPE",
@@ -18981,7 +18981,7 @@
         "MOVE_WEATHER_BALL",
         "MOVE_WILD_CHARGE"
     ],
-    "SPECIES_IRON-BOULDER": [
+    "SPECIES_IRON_BOULDER": [
         "MOVE_AERIAL_ACE",
         "MOVE_AGILITY",
         "MOVE_AIR_SLASH",
@@ -19021,7 +19021,7 @@
         "MOVE_XSCISSOR",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_IRON-CROWN": [
+    "SPECIES_IRON_CROWN": [
         "MOVE_AGILITY",
         "MOVE_AIR_SLASH",
         "MOVE_BODY_SLAM",
@@ -19913,7 +19913,7 @@
         "MOVE_WHIRLPOOL",
         "MOVE_WONDER_ROOM"
     ],
-    "SPECIES_MR-MIME": [
+    "SPECIES_MR_MIME": [
         "MOVE_ALLY_SWITCH",
         "MOVE_ATTRACT",
         "MOVE_AVALANCHE",
@@ -24160,7 +24160,7 @@
         "MOVE_THIEF",
         "MOVE_WHIRLPOOL"
     ],
-    "SPECIES_TAPU-KOKO": [
+    "SPECIES_TAPU_KOKO": [
         "MOVE_ACROBATICS",
         "MOVE_AGILITY",
         "MOVE_ASSURANCE",
@@ -24207,7 +24207,7 @@
         "MOVE_WILD_CHARGE",
         "MOVE_WORK_UP"
     ],
-    "SPECIES_TAPU-LELE": [
+    "SPECIES_TAPU_LELE": [
         "MOVE_ALLY_SWITCH",
         "MOVE_CALM_MIND",
         "MOVE_CHARM",
@@ -24250,7 +24250,7 @@
         "MOVE_THUNDERBOLT",
         "MOVE_WONDER_ROOM"
     ],
-    "SPECIES_TAPU-BULU": [
+    "SPECIES_TAPU_BULU": [
         "MOVE_BRICK_BREAK",
         "MOVE_BRUTAL_SWING",
         "MOVE_BULK_UP",
@@ -24303,7 +24303,7 @@
         "MOVE_WORK_UP",
         "MOVE_ZEN_HEADBUTT"
     ],
-    "SPECIES_TAPU-FINI": [
+    "SPECIES_TAPU_FINI": [
         "MOVE_BLIZZARD",
         "MOVE_BRINE",
         "MOVE_CALM_MIND",
@@ -25335,7 +25335,7 @@
         "MOVE_THROAT_CHOP",
         "MOVE_WORK_UP"
     ],
-    "SPECIES_MR-RIME": [
+    "SPECIES_MR_RIME": [
         "MOVE_ALLY_SWITCH",
         "MOVE_ATTRACT",
         "MOVE_AVALANCHE",

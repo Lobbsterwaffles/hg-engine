@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GHOLDENGO",
+    "name": "Gholdengo",
+    "moves": [
+        {
+            "name": "MOVE_MAKE_IT_RAIN",
+            "source": "level_up",
+            "display_name": "Make It Rain",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_NASTY_PLOT",
+            "source": "level_up",
+            "display_name": "Nasty Plot",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_GOOD_AS_GOLD",
+        "display_name": "Ability Good As Gold"
+    },
+    "generation": 1
+}

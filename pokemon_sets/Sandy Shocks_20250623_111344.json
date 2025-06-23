@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SANDY_SHOCKS",
+    "name": "Sandy Shocks",
+    "moves": [
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "level_up",
+            "display_name": "Earth Power",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_THUNDER_WAVE",
+            "source": "level_up",
+            "display_name": "Thunder Wave",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THUNDERBOLT",
+            "source": "modern_tm",
+            "display_name": "Thunderbolt",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "modern_tm",
+            "display_name": "Volt Switch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PROTOSYNTHESIS",
+        "display_name": "Ability Protosynthesis"
+    },
+    "generation": 1
+}

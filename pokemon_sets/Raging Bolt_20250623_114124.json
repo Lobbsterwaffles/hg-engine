@@ -1,29 +1,29 @@
 {
-    "species": "SPECIES_GREAT_TUSK",
-    "name": "Great Tusk",
+    "species": "SPECIES_RAGING_BOLT",
+    "name": "Raging Bolt",
     "moves": [
         {
-            "name": "MOVE_CLOSE_COMBAT",
+            "name": "MOVE_THUNDERCLAP",
             "source": "level_up",
-            "display_name": "Close Combat",
+            "display_name": "Thunderclap",
             "slot": 1
         },
         {
-            "name": "MOVE_ICE_SPINNER",
+            "name": "MOVE_DRAGON_PULSE",
             "source": "level_up",
-            "display_name": "Ice Spinner",
+            "display_name": "Dragon Pulse",
             "slot": 2
         },
         {
-            "name": "MOVE_HEADLONG_RUSH",
+            "name": "MOVE_DISCHARGE",
             "source": "level_up",
-            "display_name": "Headlong Rush",
+            "display_name": "Discharge",
             "slot": 3
         },
         {
-            "name": "MOVE_KNOCK_OFF",
-            "source": "level_up",
-            "display_name": "Knock Off",
+            "name": "MOVE_THUNDERBOLT",
+            "source": "modern_tm",
+            "display_name": "Thunderbolt",
             "slot": 4
         }
     ],

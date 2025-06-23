@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BRUTE_BONNET",
+    "name": "Brute Bonnet",
+    "moves": [
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "level_up",
+            "display_name": "Sucker Punch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "modern_tm",
+            "display_name": "Crunch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SEED_BOMB",
+            "source": "modern_tm",
+            "display_name": "Seed Bomb",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "modern_tm",
+            "display_name": "Close Combat",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PROTOSYNTHESIS",
+        "display_name": "Ability Protosynthesis"
+    },
+    "generation": 1
+}

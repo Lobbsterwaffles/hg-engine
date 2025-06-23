@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CHIEN_PAO",
+    "name": "Chien Pao",
+    "moves": [
+        {
+            "name": "MOVE_ICE_SHARD",
+            "source": "level_up",
+            "display_name": "Ice Shard",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ICICLE_CRASH",
+            "source": "level_up",
+            "display_name": "Icicle Crash",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SACRED_SWORD",
+            "source": "level_up",
+            "display_name": "Sacred Sword",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "level_up",
+            "display_name": "Sucker Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SWORD_OF_RUIN",
+        "display_name": "Ability Sword Of Ruin"
+    },
+    "generation": 1
+}

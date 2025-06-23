@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CHI_YU",
+    "name": "Chi Yu",
+    "moves": [
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "level_up",
+            "display_name": "Dark Pulse",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LAVA_PLUME",
+            "source": "level_up",
+            "display_name": "Lava Plume",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "modern_tm",
+            "display_name": "Psychic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "modern_tm",
+            "display_name": "Flamethrower",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BEADS_OF_RUIN",
+        "display_name": "Ability Beads Of Ruin"
+    },
+    "generation": 1
+}
