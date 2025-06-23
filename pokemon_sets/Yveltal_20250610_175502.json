@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_YVELTAL",
+    "name": "Yveltal",
+    "moves": [
+        {
+            "name": "MOVE_OBLIVION_WING",
+            "source": "level_up",
+            "display_name": "Oblivion Wing",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "level_up",
+            "display_name": "Sucker Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ROOST",
+            "source": "level_up",
+            "display_name": "Roost",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_UTURN",
+            "source": "modern_tm",
+            "display_name": "Uturn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DARK_AURA",
+        "display_name": "Ability Dark Aura"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_HOOPA",
+    "name": "Hoopa",
+    "moves": [
+        {
+            "name": "MOVE_HYPERSPACE_HOLE",
+            "source": "level_up",
+            "display_name": "Hyperspace Hole",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ENERGY_BALL",
+            "source": "modern_tm",
+            "display_name": "Energy Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THUNDERBOLT",
+            "source": "modern_tm",
+            "display_name": "Thunderbolt",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MAGICIAN",
+        "display_name": "Ability Magician"
+    },
+    "generation": 1
+}

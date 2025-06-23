@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_HAWLUCHA",
+    "name": "Hawlucha",
+    "moves": [
+        {
+            "name": "MOVE_FLYING_PRESS",
+            "source": "level_up",
+            "display_name": "Flying Press",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ACROBATICS",
+            "source": "modern_tm",
+            "display_name": "Acrobatics",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SWORDS_DANCE",
+            "source": "level_up",
+            "display_name": "Swords Dance",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAUNT",
+            "source": "level_up",
+            "display_name": "Taunt",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LIMBER",
+        "display_name": "Ability Limber"
+    },
+    "generation": 1
+}

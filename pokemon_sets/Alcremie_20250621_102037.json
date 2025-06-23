@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ALCREMIE",
+    "name": "Alcremie",
+    "moves": [
+        {
+            "name": "MOVE_DRAINING_KISS",
+            "source": "level_up",
+            "display_name": "Draining Kiss",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "modern_tm",
+            "display_name": "Calm Mind",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "level_up",
+            "display_name": "Dazzling Gleam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SWEET_VEIL",
+        "display_name": "Ability Sweet Veil"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_HOUNDSTONE",
+    "name": "Houndstone",
+    "moves": [
+        {
+            "name": "MOVE_PLAY_ROUGH",
+            "source": "level_up",
+            "display_name": "Play Rough",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PHANTOM_FORCE",
+            "source": "level_up",
+            "display_name": "Phantom Force",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_SNEAK",
+            "source": "modern_egg",
+            "display_name": "Shadow Sneak",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_YAWN",
+            "source": "modern_egg",
+            "display_name": "Yawn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FLUFFY",
+        "display_name": "Ability Fluffy"
+    },
+    "generation": 1
+}

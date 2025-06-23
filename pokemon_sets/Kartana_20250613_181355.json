@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_KARTANA",
+    "name": "Kartana",
+    "moves": [
+        {
+            "name": "MOVE_SACRED_SWORD",
+            "source": "level_up",
+            "display_name": "Sacred Sword",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LEAF_BLADE",
+            "source": "level_up",
+            "display_name": "Leaf Blade",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SMART_STRIKE",
+            "source": "modern_tm",
+            "display_name": "Smart Strike",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_NIGHT_SLASH",
+            "source": "level_up",
+            "display_name": "Night Slash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BEAST_BOOST",
+        "display_name": "Ability Beast Boost"
+    },
+    "generation": 1
+}

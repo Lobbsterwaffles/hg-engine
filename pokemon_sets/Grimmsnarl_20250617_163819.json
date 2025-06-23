@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GRIMMSNARL",
+    "name": "Grimmsnarl",
+    "moves": [
+        {
+            "name": "MOVE_SPIRIT_BREAK",
+            "source": "level_up",
+            "display_name": "Spirit Break",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LIGHT_SCREEN",
+            "source": "modern_tm",
+            "display_name": "Light Screen",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_REFLECT",
+            "source": "modern_tm",
+            "display_name": "Reflect",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FALSE_SURRENDER",
+            "source": "level_up",
+            "display_name": "False Surrender",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PRANKSTER",
+        "display_name": "Ability Prankster"
+    },
+    "generation": 1
+}

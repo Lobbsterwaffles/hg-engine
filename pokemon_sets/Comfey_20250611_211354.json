@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_COMFEY",
+    "name": "Comfey",
+    "moves": [
+        {
+            "name": "MOVE_DRAINING_KISS",
+            "source": "level_up",
+            "display_name": "Draining Kiss",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SYNTHESIS",
+            "source": "level_up",
+            "display_name": "Synthesis",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "modern_tm",
+            "display_name": "Giga Drain",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TRIAGE",
+        "display_name": "Ability Triage"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CRABOMINABLE",
+    "name": "Crabominable",
+    "moves": [
+        {
+            "name": "MOVE_ICE_HAMMER",
+            "source": "level_up",
+            "display_name": "Ice Hammer",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAIN_PUNCH",
+            "source": "modern_tm",
+            "display_name": "Drain Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DIZZY_PUNCH",
+            "source": "level_up",
+            "display_name": "Dizzy Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_POWER_UP_PUNCH",
+            "source": "level_up",
+            "display_name": "Power Up Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_IRON_FIST",
+        "display_name": "Ability Iron Fist"
+    },
+    "generation": 1
+}

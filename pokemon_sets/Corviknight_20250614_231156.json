@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CORVIKNIGHT",
+    "name": "Corviknight",
+    "moves": [
+        {
+            "name": "MOVE_BRAVE_BIRD",
+            "source": "level_up",
+            "display_name": "Brave Bird",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SCARY_FACE",
+            "source": "level_up",
+            "display_name": "Scary Face",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MIRROR_ARMOR",
+        "display_name": "Ability Mirror Armor"
+    },
+    "generation": 1
+}

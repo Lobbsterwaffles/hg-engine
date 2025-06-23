@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TOGEDEMARU",
+    "name": "Togedemaru",
+    "moves": [
+        {
+            "name": "MOVE_NUZZLE",
+            "source": "level_up",
+            "display_name": "Nuzzle",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ZING_ZAP",
+            "source": "level_up",
+            "display_name": "Zing Zap",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "modern_tm",
+            "display_name": "Iron Head",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SPIKY_SHIELD",
+            "source": "level_up",
+            "display_name": "Spiky Shield",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STURDY",
+        "display_name": "Ability Sturdy"
+    },
+    "generation": 1
+}

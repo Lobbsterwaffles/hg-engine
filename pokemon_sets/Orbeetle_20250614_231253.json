@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ORBEETLE",
+    "name": "Orbeetle",
+    "moves": [
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "level_up",
+            "display_name": "Calm Mind",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BUG_BUZZ",
+            "source": "level_up",
+            "display_name": "Bug Buzz",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_REFLECT",
+            "source": "level_up",
+            "display_name": "Reflect",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SWARM",
+        "display_name": "Ability Swarm"
+    },
+    "generation": 1
+}

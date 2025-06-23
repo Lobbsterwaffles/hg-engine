@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DHELMISE",
+    "name": "Dhelmise",
+    "moves": [
+        {
+            "name": "MOVE_ANCHOR_SHOT",
+            "source": "level_up",
+            "display_name": "Anchor Shot",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_POWER_WHIP",
+            "source": "level_up",
+            "display_name": "Power Whip",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PHANTOM_FORCE",
+            "source": "level_up",
+            "display_name": "Phantom Force",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BULLDOZE",
+            "source": "modern_tm",
+            "display_name": "Bulldoze",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STEELWORKER",
+        "display_name": "Ability Steelworker"
+    },
+    "generation": 1
+}

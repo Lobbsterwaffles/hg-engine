@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DRACOVISH",
+    "name": "Dracovish",
+    "moves": [
+        {
+            "name": "MOVE_FISHIOUS_REND",
+            "source": "level_up",
+            "display_name": "Fishious Rend",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICE_FANG",
+            "source": "modern_tm",
+            "display_name": "Ice Fang",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PSYCHIC_FANGS",
+            "source": "modern_tm",
+            "display_name": "Psychic Fangs",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STRONG_JAW",
+        "display_name": "Ability Strong Jaw"
+    },
+    "generation": 1
+}

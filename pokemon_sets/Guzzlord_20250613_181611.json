@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GUZZLORD",
+    "name": "Guzzlord",
+    "moves": [
+        {
+            "name": "MOVE_STOCKPILE",
+            "source": "level_up",
+            "display_name": "Stockpile",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAGON_CLAW",
+            "source": "modern_tm",
+            "display_name": "Dragon Claw",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_HEAVY_SLAM",
+            "source": "level_up",
+            "display_name": "Heavy Slam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "modern_tm",
+            "display_name": "Crunch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BEAST_BOOST",
+        "display_name": "Ability Beast Boost"
+    },
+    "generation": 1
+}

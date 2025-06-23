@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PALOSSAND",
+    "name": "Palossand",
+    "moves": [
+        {
+            "name": "MOVE_SHORE_UP",
+            "source": "level_up",
+            "display_name": "Shore Up",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "level_up",
+            "display_name": "Earth Power",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_WATER_COMPACTION",
+        "display_name": "Ability Water Compaction"
+    },
+    "generation": 1
+}

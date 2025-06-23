@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DUBWOOL",
+    "name": "Dubwool",
+    "moves": [
+        {
+            "name": "MOVE_COTTON_GUARD",
+            "source": "level_up",
+            "display_name": "Cotton Guard",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_HEADBUTT",
+            "source": "level_up",
+            "display_name": "Headbutt",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SWAGGER",
+            "source": "modern_egg",
+            "display_name": "Swagger",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FLUFFY",
+        "display_name": "Ability Fluffy"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SANDACONDA",
+    "name": "Sandaconda",
+    "moves": [
+        {
+            "name": "MOVE_COIL",
+            "source": "level_up",
+            "display_name": "Coil",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_GLARE",
+            "source": "level_up",
+            "display_name": "Glare",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "modern_tm",
+            "display_name": "Earthquake",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STONE_EDGE",
+            "source": "modern_tm",
+            "display_name": "Stone Edge",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHED_SKIN",
+        "display_name": "Ability Shed Skin"
+    },
+    "generation": 1
+}

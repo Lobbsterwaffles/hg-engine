@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TATSUGIRI",
+    "name": "Tatsugiri",
+    "moves": [
+        {
+            "name": "MOVE_DRAGON_PULSE",
+            "source": "level_up",
+            "display_name": "Dragon Pulse",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MUDDY_WATER",
+            "source": "level_up",
+            "display_name": "Muddy Water",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_NASTY_PLOT",
+            "source": "level_up",
+            "display_name": "Nasty Plot",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAUNT",
+            "source": "modern_tm",
+            "display_name": "Taunt",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STORM_DRAIN",
+        "display_name": "Ability Storm Drain"
+    },
+    "generation": 1
+}

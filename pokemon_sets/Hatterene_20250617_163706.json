@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_HATTERENE",
+    "name": "Hatterene",
+    "moves": [
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MYSTICAL_FIRE",
+            "source": "modern_egg",
+            "display_name": "Mystical Fire",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAINING_KISS",
+            "source": "modern_tm",
+            "display_name": "Draining Kiss",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_NUZZLE",
+            "source": "modern_egg",
+            "display_name": "Nuzzle",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MAGIC_BOUNCE",
+        "display_name": "Ability Magic Bounce"
+    },
+    "generation": 1
+}

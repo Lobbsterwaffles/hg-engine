@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DONDOZO",
+    "name": "Dondozo",
+    "moves": [
+        {
+            "name": "MOVE_WAVE_CRASH",
+            "source": "level_up",
+            "display_name": "Wave Crash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "modern_tm",
+            "display_name": "Rest",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SLEEP_TALK",
+            "source": "modern_tm",
+            "display_name": "Sleep Talk",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CURSE",
+            "source": "modern_egg",
+            "display_name": "Curse",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_UNAWARE",
+        "display_name": "Ability Unaware"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ARCTOZOLT",
+    "name": "Arctozolt",
+    "moves": [
+        {
+            "name": "MOVE_HAIL",
+            "source": "modern_tm",
+            "display_name": "Hail",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FREEZE_DRY",
+            "source": "level_up",
+            "display_name": "Freeze Dry",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BOLT_BEAK",
+            "source": "level_up",
+            "display_name": "Bolt Beak",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STOMPING_TANTRUM",
+            "source": "modern_tm",
+            "display_name": "Stomping Tantrum",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SLUSH_RUSH",
+        "display_name": "Ability Slush Rush"
+    },
+    "generation": 1
+}

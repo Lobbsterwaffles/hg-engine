@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BASCULEGION",
+    "name": "Basculegion",
+    "moves": [
+        {
+            "name": "MOVE_AQUA_JET",
+            "source": "level_up",
+            "display_name": "Aqua Jet",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLIP_TURN",
+            "source": "level_up",
+            "display_name": "Flip Turn",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_WAVE_CRASH",
+            "source": "level_up",
+            "display_name": "Wave Crash",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SWIFT_SWIM",
+        "display_name": "Ability Swift Swim"
+    },
+    "generation": 1
+}

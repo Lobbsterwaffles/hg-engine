@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ZAMAZENTA",
+    "name": "Zamazenta",
+    "moves": [
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SNARL",
+            "source": "modern_tm",
+            "display_name": "Snarl",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DAUNTLESS_SHIELD",
+        "display_name": "Ability Dauntless Shield"
+    },
+    "generation": 1
+}

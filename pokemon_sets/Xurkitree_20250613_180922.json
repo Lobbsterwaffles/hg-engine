@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_XURKITREE",
+    "name": "Xurkitree",
+    "moves": [
+        {
+            "name": "MOVE_DISCHARGE",
+            "source": "level_up",
+            "display_name": "Discharge",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TAIL_GLOW",
+            "source": "level_up",
+            "display_name": "Tail Glow",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_GRASS_KNOT",
+            "source": "modern_tm",
+            "display_name": "Grass Knot",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SIGNAL_BEAM",
+            "source": "level_up",
+            "display_name": "Signal Beam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BEAST_BOOST",
+        "display_name": "Ability Beast Boost"
+    },
+    "generation": 1
+}

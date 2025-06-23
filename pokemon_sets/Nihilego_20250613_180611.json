@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_NIHILEGO",
+    "name": "Nihilego",
+    "moves": [
+        {
+            "name": "MOVE_TOXIC_SPIKES",
+            "source": "level_up",
+            "display_name": "Toxic Spikes",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STEALTH_ROCK",
+            "source": "level_up",
+            "display_name": "Stealth Rock",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POWER_GEM",
+            "source": "modern_tm",
+            "display_name": "Power Gem",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CLEAR_SMOG",
+            "source": "level_up",
+            "display_name": "Clear Smog",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BEAST_BOOST",
+        "display_name": "Ability Beast Boost"
+    },
+    "generation": 1
+}

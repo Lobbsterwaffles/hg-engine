@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MELMETAL",
+    "name": "Melmetal",
+    "moves": [
+        {
+            "name": "MOVE_DOUBLE_IRON_BASH",
+            "source": "level_up",
+            "display_name": "Double Iron Bash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MEGA_PUNCH",
+            "source": "level_up",
+            "display_name": "Mega Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THUNDER_PUNCH",
+            "source": "level_up",
+            "display_name": "Thunder Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THUNDER_WAVE",
+            "source": "level_up",
+            "display_name": "Thunder Wave",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_IRON_FIST",
+        "display_name": "Ability Iron Fist"
+    },
+    "generation": 1
+}

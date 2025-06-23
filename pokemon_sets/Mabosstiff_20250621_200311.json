@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MABOSSTIFF",
+    "name": "Mabosstiff",
+    "moves": [
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PLAY_ROUGH",
+            "source": "modern_tm",
+            "display_name": "Play Rough",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_JAW_LOCK",
+            "source": "level_up",
+            "display_name": "Jaw Lock",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SCARY_FACE",
+            "source": "level_up",
+            "display_name": "Scary Face",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INTIMIDATE",
+        "display_name": "Ability Intimidate"
+    },
+    "generation": 1
+}

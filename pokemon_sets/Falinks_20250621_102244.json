@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_FALINKS",
+    "name": "Falinks",
+    "moves": [
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "modern_tm",
+            "display_name": "Iron Head",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_NO_RETREAT",
+            "source": "level_up",
+            "display_name": "No Retreat",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_MEGAHORN",
+            "source": "level_up",
+            "display_name": "Megahorn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BATTLE_ARMOR",
+        "display_name": "Ability Battle Armor"
+    },
+    "generation": 1
+}

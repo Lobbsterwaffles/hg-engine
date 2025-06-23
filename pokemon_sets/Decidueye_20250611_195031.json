@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DECIDUEYE",
+    "name": "Decidueye",
+    "moves": [
+        {
+            "name": "MOVE_SPIRIT_SHACKLE",
+            "source": "level_up",
+            "display_name": "Spirit Shackle",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LEAF_BLADE",
+            "source": "level_up",
+            "display_name": "Leaf Blade",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_U_TURN",
+            "source": "level_up",
+            "display_name": "U Turn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SHADOW_SNEAK",
+            "source": "level_up",
+            "display_name": "Shadow Sneak",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LONG_REACH",
+        "display_name": "Ability Long Reach"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_LOKIX",
+    "name": "Lokix",
+    "moves": [
+        {
+            "name": "MOVE_FIRST_IMPRESSION",
+            "source": "level_up",
+            "display_name": "First Impression",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "level_up",
+            "display_name": "Sucker Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_UTURN",
+            "source": "modern_tm",
+            "display_name": "Uturn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_UTURN",
+            "source": "modern_tm",
+            "display_name": "Uturn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TINTED_LENS",
+        "display_name": "Ability Tinted Lens"
+    },
+    "generation": 1
+}

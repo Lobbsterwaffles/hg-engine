@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TOXAPEX",
+    "name": "Toxapex",
+    "moves": [
+        {
+            "name": "MOVE_BANEFUL_BUNKER",
+            "source": "level_up",
+            "display_name": "Baneful Bunker",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TOXIC_SPIKES",
+            "source": "level_up",
+            "display_name": "Toxic Spikes",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_TOXIC",
+            "source": "level_up",
+            "display_name": "Toxic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_LIQUIDATION",
+            "source": "level_up",
+            "display_name": "Liquidation",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_REGENERATOR",
+        "display_name": "Ability Regenerator"
+    },
+    "generation": 1
+}

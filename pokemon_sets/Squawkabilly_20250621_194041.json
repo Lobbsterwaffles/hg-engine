@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SQUAWKABILLY",
+    "name": "Squawkabilly",
+    "moves": [
+        {
+            "name": "MOVE_AERIAL_ACE",
+            "source": "level_up",
+            "display_name": "Aerial Ace",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ROOST",
+            "source": "level_up",
+            "display_name": "Roost",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PARTING_SHOT",
+            "source": "modern_egg",
+            "display_name": "Parting Shot",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_UTURN",
+            "source": "modern_tm",
+            "display_name": "Uturn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HUSTLE",
+        "display_name": "Ability Hustle"
+    },
+    "generation": 1
+}

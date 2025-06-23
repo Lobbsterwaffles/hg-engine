@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GREEDENT",
+    "name": "Greedent",
+    "moves": [
+        {
+            "name": "MOVE_BODY_SLAM",
+            "source": "level_up",
+            "display_name": "Body Slam",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BULLET_SEED",
+            "source": "level_up",
+            "display_name": "Bullet Seed",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SUPER_FANG",
+            "source": "level_up",
+            "display_name": "Super Fang",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STOCKPILE",
+            "source": "level_up",
+            "display_name": "Stockpile",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CHEEK_POUCH",
+        "display_name": "Ability Cheek Pouch"
+    },
+    "generation": 1
+}

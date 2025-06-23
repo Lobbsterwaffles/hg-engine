@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GUMSHOOS",
+    "name": "Gumshoos",
+    "moves": [
+        {
+            "name": "MOVE_HYPER_FANG",
+            "source": "level_up",
+            "display_name": "Hyper Fang",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_THUNDER_FANG",
+            "source": "modern_egg",
+            "display_name": "Thunder Fang",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICE_FANG",
+            "source": "modern_egg",
+            "display_name": "Ice Fang",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STRONG_JAW",
+        "display_name": "Ability Strong Jaw"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_COALOSSAL",
+    "name": "Coalossal",
+    "moves": [
+        {
+            "name": "MOVE_FLAME_CHARGE",
+            "source": "level_up",
+            "display_name": "Flame Charge",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "modern_tm",
+            "display_name": "Flamethrower",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_STONE_EDGE",
+            "source": "modern_tm",
+            "display_name": "Stone Edge",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAR_SHOT",
+            "source": "level_up",
+            "display_name": "Tar Shot",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STEAM_ENGINE",
+        "display_name": "Ability Steam Engine"
+    },
+    "generation": 1
+}

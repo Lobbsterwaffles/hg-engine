@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_STONJOURNER",
+    "name": "Stonjourner",
+    "moves": [
+        {
+            "name": "MOVE_HEAVY_SLAM",
+            "source": "level_up",
+            "display_name": "Heavy Slam",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ROCK_TOMB",
+            "source": "level_up",
+            "display_name": "Rock Tomb",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ROCK_SLIDE",
+            "source": "level_up",
+            "display_name": "Rock Slide",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "modern_tm",
+            "display_name": "Earthquake",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_POWER_SPOT",
+        "display_name": "Ability Power Spot"
+    },
+    "generation": 1
+}

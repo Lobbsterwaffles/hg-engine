@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GLIMMORA",
+    "name": "Glimmora",
+    "moves": [
+        {
+            "name": "MOVE_SPIKY_SHIELD",
+            "source": "level_up",
+            "display_name": "Spiky Shield",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STEALTH_ROCK",
+            "source": "level_up",
+            "display_name": "Stealth Rock",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POWER_GEM",
+            "source": "level_up",
+            "display_name": "Power Gem",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLUDGE_WAVE",
+            "source": "level_up",
+            "display_name": "Sludge Wave",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TOXIC_DEBRIS",
+        "display_name": "Ability Toxic Debris"
+    },
+    "generation": 1
+}

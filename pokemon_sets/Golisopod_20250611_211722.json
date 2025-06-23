@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GOLISOPOD",
+    "name": "Golisopod",
+    "moves": [
+        {
+            "name": "MOVE_FIRST_IMPRESSION",
+            "source": "level_up",
+            "display_name": "First Impression",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LIQUIDATION",
+            "source": "level_up",
+            "display_name": "Liquidation",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_LEECH_LIFE",
+            "source": "modern_tm",
+            "display_name": "Leech Life",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "level_up",
+            "display_name": "Sucker Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_EMERGENCY_EXIT",
+        "display_name": "Ability Emergency Exit"
+    },
+    "generation": 1
+}

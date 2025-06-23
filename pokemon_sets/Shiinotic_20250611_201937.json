@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SHIINOTIC",
+    "name": "Shiinotic",
+    "moves": [
+        {
+            "name": "MOVE_SPORE",
+            "source": "level_up",
+            "display_name": "Spore",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "level_up",
+            "display_name": "Giga Drain",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "level_up",
+            "display_name": "Dazzling Gleam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STRENGTH_SAP",
+            "source": "level_up",
+            "display_name": "Strength Sap",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_EFFECT_SPORE",
+        "display_name": "Ability Effect Spore"
+    },
+    "generation": 1
+}

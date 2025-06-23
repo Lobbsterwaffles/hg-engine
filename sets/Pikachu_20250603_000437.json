@@ -1,0 +1,25 @@
+{
+    "species": "SPECIES_PIKACHU",
+    "name": "Pikachu",
+    "moves": [
+        {
+            "name": "MOVE_THUNDERBOLT",
+            "display_name": "Thunderbolt",
+            "source": "tm"
+        },
+        {
+            "name": "MOVE_IRON_TAIL",
+            "display_name": "Iron Tail",
+            "source": "egg"
+        },
+        {
+            "name": "MOVE_QUICK_ATTACK",
+            "display_name": "Quick Attack",
+            "source": "level_up"
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STATIC",
+        "display_name": "Static"
+    }
+}

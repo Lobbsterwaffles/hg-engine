@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DIANCIE",
+    "name": "Diancie",
+    "moves": [
+        {
+            "name": "MOVE_DIAMOND_STORM",
+            "source": "level_up",
+            "display_name": "Diamond Storm",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_TRICK_ROOM",
+            "source": "modern_tm",
+            "display_name": "Trick Room",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_MOONBLAST",
+            "source": "level_up",
+            "display_name": "Moonblast",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CLEAR_BODY",
+        "display_name": "Ability Clear Body"
+    },
+    "generation": 1
+}

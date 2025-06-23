@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SIRFETCHD",
+    "name": "Sirfetchd",
+    "moves": [
+        {
+            "name": "MOVE_BRAVE_BIRD",
+            "source": "level_up",
+            "display_name": "Brave Bird",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_METEOR_ASSAULT",
+            "source": "level_up",
+            "display_name": "Meteor Assault",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FIRST_IMPRESSION",
+            "source": "level_up",
+            "display_name": "First Impression",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_LEAF_BLADE",
+            "source": "level_up",
+            "display_name": "Leaf Blade",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SCRAPPY",
+        "display_name": "Ability Scrappy"
+    },
+    "generation": 1
+}

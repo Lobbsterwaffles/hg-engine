@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PERRSERKER",
+    "name": "Perrserker",
+    "moves": [
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_TAUNT",
+            "source": "level_up",
+            "display_name": "Taunt",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_NIGHT_SLASH",
+            "source": "modern_egg",
+            "display_name": "Night Slash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "modern_tm",
+            "display_name": "Close Combat",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STEELY_SPIRIT",
+        "display_name": "Ability Steely Spirit"
+    },
+    "generation": 1
+}

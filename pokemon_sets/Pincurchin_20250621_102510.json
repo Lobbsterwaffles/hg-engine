@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PINCURCHIN",
+    "name": "Pincurchin",
+    "moves": [
+        {
+            "name": "MOVE_ZING_ZAP",
+            "source": "level_up",
+            "display_name": "Zing Zap",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DISCHARGE",
+            "source": "level_up",
+            "display_name": "Discharge",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POISON_JAB",
+            "source": "level_up",
+            "display_name": "Poison Jab",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SCALD",
+            "source": "modern_tm",
+            "display_name": "Scald",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ELECTRIC_SURGE",
+        "display_name": "Ability Electric Surge"
+    },
+    "generation": 1
+}

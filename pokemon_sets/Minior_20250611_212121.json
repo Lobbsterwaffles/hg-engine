@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MINIOR",
+    "name": "Minior",
+    "moves": [
+        {
+            "name": "MOVE_SHELL_SMASH",
+            "source": "level_up",
+            "display_name": "Shell Smash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_POWER_GEM",
+            "source": "level_up",
+            "display_name": "Power Gem",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ACROBATICS",
+            "source": "modern_tm",
+            "display_name": "Acrobatics",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "modern_tm",
+            "display_name": "Earth Power",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHIELDS_DOWN",
+        "display_name": "Ability Shields Down"
+    },
+    "generation": 1
+}

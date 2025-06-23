@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CENTISKORCH",
+    "name": "Centiskorch",
+    "moves": [
+        {
+            "name": "MOVE_FIRE_LASH",
+            "source": "level_up",
+            "display_name": "Fire Lash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LEECH_LIFE",
+            "source": "modern_tm",
+            "display_name": "Leech Life",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_KNOCK_OFF",
+            "source": "modern_egg",
+            "display_name": "Knock Off",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_POWER_WHIP",
+            "source": "modern_tm",
+            "display_name": "Power Whip",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FLASH_FIRE",
+        "display_name": "Ability Flash Fire"
+    },
+    "generation": 1
+}

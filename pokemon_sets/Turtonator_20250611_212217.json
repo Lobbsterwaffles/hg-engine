@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TURTONATOR",
+    "name": "Turtonator",
+    "moves": [
+        {
+            "name": "MOVE_SHELL_TRAP",
+            "source": "level_up",
+            "display_name": "Shell Trap",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHELL_SMASH",
+            "source": "level_up",
+            "display_name": "Shell Smash",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAGON_PULSE",
+            "source": "level_up",
+            "display_name": "Dragon Pulse",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_OVERHEAT",
+            "source": "level_up",
+            "display_name": "Overheat",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHELL_ARMOR",
+        "display_name": "Ability Shell Armor"
+    },
+    "generation": 1
+}

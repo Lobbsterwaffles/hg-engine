@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ORANGURU",
+    "name": "Oranguru",
+    "moves": [
+        {
+            "name": "MOVE_TRICK_ROOM",
+            "source": "level_up",
+            "display_name": "Trick Room",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_NASTY_PLOT",
+            "source": "level_up",
+            "display_name": "Nasty Plot",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "level_up",
+            "display_name": "Psychic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TERA_BLAST",
+            "source": "modern_tm",
+            "display_name": "Tera Blast",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INNER_FOCUS",
+        "display_name": "Ability Inner Focus"
+    },
+    "generation": 1
+}

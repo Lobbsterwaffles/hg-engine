@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_AVALUGG",
+    "name": "Avalugg",
+    "moves": [
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AVALANCHE",
+            "source": "level_up",
+            "display_name": "Avalanche",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_OWN_TEMPO",
+        "display_name": "Ability Own Tempo"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_POLTEAGEIST",
+    "name": "Polteageist",
+    "moves": [
+        {
+            "name": "MOVE_SHELL_SMASH",
+            "source": "level_up",
+            "display_name": "Shell Smash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "level_up",
+            "display_name": "Giga Drain",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STORED_POWER",
+            "source": "modern_tm",
+            "display_name": "Stored Power",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CURSED_BODY",
+        "display_name": "Ability Cursed Body"
+    },
+    "generation": 1
+}

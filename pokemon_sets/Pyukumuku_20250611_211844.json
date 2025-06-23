@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PYUKUMUKU",
+    "name": "Pyukumuku",
+    "moves": [
+        {
+            "name": "MOVE_COUNTER",
+            "source": "level_up",
+            "display_name": "Counter",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PAIN_SPLIT",
+            "source": "level_up",
+            "display_name": "Pain Split",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SOAK",
+            "source": "level_up",
+            "display_name": "Soak",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INNARDS_OUT",
+        "display_name": "Ability Innards Out"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GARGANACL",
+    "name": "Garganacl",
+    "moves": [
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STEALTH_ROCK",
+            "source": "level_up",
+            "display_name": "Stealth Rock",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SALT_CURE",
+            "source": "level_up",
+            "display_name": "Salt Cure",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PURIFYING_SALT",
+        "display_name": "Ability Purifying Salt"
+    },
+    "generation": 1
+}

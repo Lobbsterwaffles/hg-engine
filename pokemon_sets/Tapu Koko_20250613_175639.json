@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TAPU_KOKO",
+    "name": "Tapu Koko",
+    "moves": [
+        {
+            "name": "MOVE_NATURES_MADNESS",
+            "source": "level_up",
+            "display_name": "Natures Madness",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "level_up",
+            "display_name": "Volt Switch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THUNDERBOLT",
+            "source": "tm",
+            "display_name": "Thunderbolt",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "level_up",
+            "display_name": "Dazzling Gleam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ELECTRIC_SURGE",
+        "display_name": "Ability Electric Surge"
+    },
+    "generation": 1
+}

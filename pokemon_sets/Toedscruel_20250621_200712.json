@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TOEDSCRUEL",
+    "name": "Toedscruel",
+    "moves": [
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "level_up",
+            "display_name": "Earth Power",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SPORE",
+            "source": "level_up",
+            "display_name": "Spore",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "level_up",
+            "display_name": "Giga Drain",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "modern_egg",
+            "display_name": "Leech Seed",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_MYCELIUM_MIGHT",
+        "display_name": "Ability Mycelium Might"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ORICORIO",
+    "name": "Oricorio",
+    "moves": [
+        {
+            "name": "MOVE_REVELATION_DANCE",
+            "source": "level_up",
+            "display_name": "Revelation Dance",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_AIR_SLASH",
+            "source": "level_up",
+            "display_name": "Air Slash",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_QUIVER_DANCE",
+            "source": "modern_egg",
+            "display_name": "Quiver Dance",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROOST",
+            "source": "level_up",
+            "display_name": "Roost",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DANCER",
+        "display_name": "Ability Dancer"
+    },
+    "generation": 1
+}

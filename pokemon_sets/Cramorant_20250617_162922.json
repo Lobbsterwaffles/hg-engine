@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CRAMORANT",
+    "name": "Cramorant",
+    "moves": [
+        {
+            "name": "MOVE_FEATHER_DANCE",
+            "source": "modern_egg",
+            "display_name": "Feather Dance",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ROOST",
+            "source": "modern_egg",
+            "display_name": "Roost",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SURF",
+            "source": "modern_tm",
+            "display_name": "Surf",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_DRILL_PECK",
+            "source": "level_up",
+            "display_name": "Drill Peck",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_GULP_MISSILE",
+        "display_name": "Ability Gulp Missile"
+    },
+    "generation": 1
+}

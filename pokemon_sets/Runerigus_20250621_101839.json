@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_RUNERIGUS",
+    "name": "Runerigus",
+    "moves": [
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_CLAW",
+            "source": "level_up",
+            "display_name": "Shadow Claw",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DISABLE",
+            "source": "level_up",
+            "display_name": "Disable",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_WILLOWISP",
+            "source": "modern_tm",
+            "display_name": "Willowisp",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_WANDERING_SPIRIT",
+        "display_name": "Ability Wandering Spirit"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MARSHADOW",
+    "name": "Marshadow",
+    "moves": [
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHADOW_SNEAK",
+            "source": "level_up",
+            "display_name": "Shadow Sneak",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SPECTRAL_THIEF",
+            "source": "level_up",
+            "display_name": "Spectral Thief",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "level_up",
+            "display_name": "Sucker Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_TECHNICIAN",
+        "display_name": "Ability Technician"
+    },
+    "generation": 1
+}

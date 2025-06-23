@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PALAFIN",
+    "name": "Palafin",
+    "moves": [
+        {
+            "name": "MOVE_FLIP_TURN",
+            "source": "level_up",
+            "display_name": "Flip Turn",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_WAVE_CRASH",
+            "source": "level_up",
+            "display_name": "Wave Crash",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_JET_PUNCH",
+            "source": "level_up",
+            "display_name": "Jet Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ACROBATICS",
+            "source": "level_up",
+            "display_name": "Acrobatics",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ZERO_TO_HERO",
+        "display_name": "Ability Zero To Hero"
+    },
+    "generation": 1
+}

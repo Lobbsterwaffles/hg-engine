@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SPECTRIER",
+    "name": "Spectrier",
+    "moves": [
+        {
+            "name": "MOVE_DARK_PULSE",
+            "source": "modern_tm",
+            "display_name": "Dark Pulse",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAINING_KISS",
+            "source": "modern_tm",
+            "display_name": "Draining Kiss",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "level_up",
+            "display_name": "Shadow Ball",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "modern_tm",
+            "display_name": "Psychic",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_GRIM_NEIGH",
+        "display_name": "Ability Grim Neigh"
+    },
+    "generation": 1
+}

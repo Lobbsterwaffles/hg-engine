@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MORPEKO",
+    "name": "Morpeko",
+    "moves": [
+        {
+            "name": "MOVE_AURA_WHEEL",
+            "source": "level_up",
+            "display_name": "Aura Wheel",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PARTING_SHOT",
+            "source": "modern_egg",
+            "display_name": "Parting Shot",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SUPER_FANG",
+            "source": "modern_egg",
+            "display_name": "Super Fang",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "modern_tm",
+            "display_name": "Volt Switch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_HUNGER_SWITCH",
+        "display_name": "Ability Hunger Switch"
+    },
+    "generation": 1
+}

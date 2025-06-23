@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CLODSIRE",
+    "name": "Clodsire",
+    "moves": [
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_POISON_JAB",
+            "source": "level_up",
+            "display_name": "Poison Jab",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_GUNK_SHOT",
+            "source": "modern_tm",
+            "display_name": "Gunk Shot",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TOXIC_SPIKES",
+            "source": "level_up",
+            "display_name": "Toxic Spikes",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_WATER_ABSORB",
+        "display_name": "Ability Water Absorb"
+    },
+    "generation": 1
+}

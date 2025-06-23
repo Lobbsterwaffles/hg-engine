@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_INCINEROAR",
+    "name": "Incineroar",
+    "moves": [
+        {
+            "name": "MOVE_DARKEST_LARIAT",
+            "source": "level_up",
+            "display_name": "Darkest Lariat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLARE_BLITZ",
+            "source": "level_up",
+            "display_name": "Flare Blitz",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PARTING_SHOT",
+            "source": "modern_egg",
+            "display_name": "Parting Shot",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FAKE_OUT",
+            "source": "modern_egg",
+            "display_name": "Fake Out",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INTIMIDATE",
+        "display_name": "Ability Intimidate"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SOLGALEO",
+    "name": "Solgaleo",
+    "moves": [
+        {
+            "name": "MOVE_SUNSTEEL_STRIKE",
+            "source": "level_up",
+            "display_name": "Sunsteel Strike",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MORNING_SUN",
+            "source": "level_up",
+            "display_name": "Morning Sun",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC_FANGS",
+            "source": "modern_tm",
+            "display_name": "Psychic Fangs",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "modern_tm",
+            "display_name": "Earthquake",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FULL_METAL_BODY",
+        "display_name": "Ability Full Metal Body"
+    },
+    "generation": 1
+}

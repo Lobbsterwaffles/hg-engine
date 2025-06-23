@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PHEROMOSA",
+    "name": "Pheromosa",
+    "moves": [
+        {
+            "name": "MOVE_HIGH_JUMP_KICK",
+            "source": "level_up",
+            "display_name": "High Jump Kick",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BUG_BUZZ",
+            "source": "level_up",
+            "display_name": "Bug Buzz",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POISON_JAB",
+            "source": "modern_tm",
+            "display_name": "Poison Jab",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ICE_BEAM",
+            "source": "modern_tm",
+            "display_name": "Ice Beam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BEAST_BOOST",
+        "display_name": "Ability Beast Boost"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MEOWSCARADA",
+    "name": "Meowscarada",
+    "moves": [
+        {
+            "name": "MOVE_U_TURN",
+            "source": "level_up",
+            "display_name": "U Turn",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLOWER_TRICK",
+            "source": "level_up",
+            "display_name": "Flower Trick",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "modern_egg",
+            "display_name": "Sucker Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TRIPLE_AXEL",
+            "source": "modern_tm",
+            "display_name": "Triple Axel",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PROTEAN",
+        "display_name": "Ability Protean"
+    },
+    "generation": 1
+}

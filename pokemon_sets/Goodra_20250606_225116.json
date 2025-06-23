@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GOODRA",
+    "name": "Goodra",
+    "moves": [
+        {
+            "name": "MOVE_AQUA_TAIL",
+            "source": "level_up",
+            "display_name": "Aqua Tail",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAGON_CLAW",
+            "source": "modern_tm",
+            "display_name": "Dragon Claw",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POWER_WHIP",
+            "source": "level_up",
+            "display_name": "Power Whip",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BODY_SLAM",
+            "source": "level_up",
+            "display_name": "Body Slam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_GOOEY",
+        "display_name": "Ability Gooey"
+    },
+    "generation": 1
+}

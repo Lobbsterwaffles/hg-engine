@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_WYRDEER",
+    "name": "Wyrdeer",
+    "moves": [
+        {
+            "name": "MOVE_PSYSHIELD_BASH",
+            "source": "level_up",
+            "display_name": "Psyshield Bash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_MEGAHORN",
+            "source": "level_up",
+            "display_name": "Megahorn",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "tm",
+            "display_name": "Rest",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BODY_SLAM",
+            "source": "level_up",
+            "display_name": "Body Slam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INTIMIDATE",
+        "display_name": "Ability Intimidate"
+    },
+    "generation": 1
+}

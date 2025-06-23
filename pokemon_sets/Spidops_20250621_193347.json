@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SPIDOPS",
+    "name": "Spidops",
+    "moves": [
+        {
+            "name": "MOVE_STICKY_WEB",
+            "source": "level_up",
+            "display_name": "Sticky Web",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CIRCLE_THROW",
+            "source": "level_up",
+            "display_name": "Circle Throw",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_LUNGE",
+            "source": "modern_egg",
+            "display_name": "Lunge",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TOXIC_SPIKES",
+            "source": "modern_tm",
+            "display_name": "Toxic Spikes",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STAKEOUT",
+        "display_name": "Ability Stakeout"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_NOIVERN",
+    "name": "Noivern",
+    "moves": [
+        {
+            "name": "MOVE_BOOMBURST",
+            "source": "level_up",
+            "display_name": "Boomburst",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRAGON_PULSE",
+            "source": "level_up",
+            "display_name": "Dragon Pulse",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AIR_SLASH",
+            "source": "level_up",
+            "display_name": "Air Slash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SUPER_FANG",
+            "source": "level_up",
+            "display_name": "Super Fang",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INFILTRATOR",
+        "display_name": "Ability Infiltrator"
+    },
+    "generation": 1
+}

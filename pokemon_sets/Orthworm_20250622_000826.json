@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ORTHWORM",
+    "name": "Orthworm",
+    "moves": [
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTHQUAKE",
+            "source": "level_up",
+            "display_name": "Earthquake",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_EARTH_EATER",
+        "display_name": "Ability Earth Eater"
+    },
+    "generation": 1
+}

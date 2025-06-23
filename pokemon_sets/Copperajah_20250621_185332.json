@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_COPPERAJAH",
+    "name": "Copperajah",
+    "moves": [
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PLAY_ROUGH",
+            "source": "level_up",
+            "display_name": "Play Rough",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SHEER_FORCE",
+        "display_name": "Ability Sheer Force"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CINDERACE",
+    "name": "Cinderace",
+    "moves": [
+        {
+            "name": "MOVE_PYRO_BALL",
+            "source": "level_up",
+            "display_name": "Pyro Ball",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SUCKER_PUNCH",
+            "source": "modern_egg",
+            "display_name": "Sucker Punch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "modern_tm",
+            "display_name": "Iron Head",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_QUICK_ATTACK",
+            "source": "level_up",
+            "display_name": "Quick Attack",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LIBERO",
+        "display_name": "Ability Libero"
+    },
+    "generation": 1
+}

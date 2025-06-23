@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BRAMBLEGHAST",
+    "name": "Brambleghast",
+    "moves": [
+        {
+            "name": "MOVE_POWER_WHIP",
+            "source": "level_up",
+            "display_name": "Power Whip",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_RAPID_SPIN",
+            "source": "level_up",
+            "display_name": "Rapid Spin",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PHANTOM_FORCE",
+            "source": "level_up",
+            "display_name": "Phantom Force",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STRENGTH_SAP",
+            "source": "modern_egg",
+            "display_name": "Strength Sap",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_WIND_RIDER",
+        "display_name": "Ability Wind Rider"
+    },
+    "generation": 1
+}

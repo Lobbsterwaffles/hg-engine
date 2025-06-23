@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_DUDUNSPARCE",
+    "name": "Dudunsparce",
+    "moves": [
+        {
+            "name": "MOVE_BOOMBURST",
+            "source": "level_up",
+            "display_name": "Boomburst",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_EARTH_POWER",
+            "source": "modern_tm",
+            "display_name": "Earth Power",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "modern_tm",
+            "display_name": "Shadow Ball",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_YAWN",
+            "source": "level_up",
+            "display_name": "Yawn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_RATTLED",
+        "display_name": "Ability Rattled"
+    },
+    "generation": 1
+}

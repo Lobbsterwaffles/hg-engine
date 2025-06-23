@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SILVALLY",
+    "name": "Silvally",
+    "moves": [
+        {
+            "name": "MOVE_MULTI_ATTACK",
+            "source": "level_up",
+            "display_name": "Multi Attack",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SLEEP_TALK",
+            "source": "modern_tm",
+            "display_name": "Sleep Talk",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_REST",
+            "source": "modern_tm",
+            "display_name": "Rest",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_RKS_SYSTEM",
+        "display_name": "Ability Rks System"
+    },
+    "generation": 1
+}

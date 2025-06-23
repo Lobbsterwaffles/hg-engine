@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ESPATHRA",
+    "name": "Espathra",
+    "moves": [
+        {
+            "name": "MOVE_LUMINA_CRASH",
+            "source": "level_up",
+            "display_name": "Lumina Crash",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "level_up",
+            "display_name": "Dazzling Gleam",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_STORED_POWER",
+            "source": "modern_tm",
+            "display_name": "Stored Power",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SHADOW_BALL",
+            "source": "modern_tm",
+            "display_name": "Shadow Ball",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SPEED_BOOST",
+        "display_name": "Ability Speed Boost"
+    },
+    "generation": 1
+}

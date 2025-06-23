@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_RILLABOOM",
+    "name": "Rillaboom",
+    "moves": [
+        {
+            "name": "MOVE_GRASSY_GLIDE",
+            "source": "modern_tm",
+            "display_name": "Grassy Glide",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DRUM_BEATING",
+            "source": "level_up",
+            "display_name": "Drum Beating",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_HIGH_HORSEPOWER",
+            "source": "modern_tm",
+            "display_name": "High Horsepower",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAUNT",
+            "source": "level_up",
+            "display_name": "Taunt",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_GRASSY_SURGE",
+        "display_name": "Ability Grassy Surge"
+    },
+    "generation": 1
+}

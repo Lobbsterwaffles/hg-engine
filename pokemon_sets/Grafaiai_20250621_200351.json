@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_GRAFAIAI",
+    "name": "Grafaiai",
+    "moves": [
+        {
+            "name": "MOVE_GUNK_SHOT",
+            "source": "level_up",
+            "display_name": "Gunk Shot",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_KNOCK_OFF",
+            "source": "level_up",
+            "display_name": "Knock Off",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_U_TURN",
+            "source": "level_up",
+            "display_name": "U Turn",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PARTING_SHOT",
+            "source": "modern_egg",
+            "display_name": "Parting Shot",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_POISON_TOUCH",
+        "display_name": "Ability Poison Touch"
+    },
+    "generation": 1
+}

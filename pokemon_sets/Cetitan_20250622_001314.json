@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CETITAN",
+    "name": "Cetitan",
+    "moves": [
+        {
+            "name": "MOVE_ICE_SHARD",
+            "source": "level_up",
+            "display_name": "Ice Shard",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_ICE_SPINNER",
+            "source": "level_up",
+            "display_name": "Ice Spinner",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BELLY_DRUM",
+            "source": "modern_egg",
+            "display_name": "Belly Drum",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_YAWN",
+            "source": "modern_egg",
+            "display_name": "Yawn",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_THICK_FAT",
+        "display_name": "Ability Thick Fat"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ZACIAN",
+    "name": "Zacian",
+    "moves": [
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SACRED_SWORD",
+            "source": "level_up",
+            "display_name": "Sacred Sword",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SLASH",
+            "source": "level_up",
+            "display_name": "Slash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PLAY_ROUGH",
+            "source": "modern_tm",
+            "display_name": "Play Rough",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_INTREPID_SWORD",
+        "display_name": "Ability Intrepid Sword"
+    },
+    "generation": 1
+}

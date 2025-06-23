@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_REVAVROOM",
+    "name": "Revavroom",
+    "moves": [
+        {
+            "name": "MOVE_GUNK_SHOT",
+            "source": "level_up",
+            "display_name": "Gunk Shot",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SHIFT_GEAR",
+            "source": "level_up",
+            "display_name": "Shift Gear",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_HIGH_HORSEPOWER",
+            "source": "modern_tm",
+            "display_name": "High Horsepower",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FILTER",
+        "display_name": "Ability Filter"
+    },
+    "generation": 1
+}

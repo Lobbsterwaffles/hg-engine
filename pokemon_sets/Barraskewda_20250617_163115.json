@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BARRASKEWDA",
+    "name": "Barraskewda",
+    "moves": [
+        {
+            "name": "MOVE_FLIP_TURN",
+            "source": "modern_tm",
+            "display_name": "Flip Turn",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LIQUIDATION",
+            "source": "level_up",
+            "display_name": "Liquidation",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_RAIN_DANCE",
+            "source": "modern_tm",
+            "display_name": "Rain Dance",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SWIFT_SWIM",
+        "display_name": "Ability Swift Swim"
+    },
+    "generation": 1
+}

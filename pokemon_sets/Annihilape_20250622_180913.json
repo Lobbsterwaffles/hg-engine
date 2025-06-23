@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ANNIHILAPE",
+    "name": "Annihilape",
+    "moves": [
+        {
+            "name": "MOVE_RAGE_FIST",
+            "source": "level_up",
+            "display_name": "Rage Fist",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_STOMPING_TANTRUM",
+            "source": "level_up",
+            "display_name": "Stomping Tantrum",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAIN_PUNCH",
+            "source": "modern_tm",
+            "display_name": "Drain Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TAUNT",
+            "source": "modern_tm",
+            "display_name": "Taunt",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DEFIANT",
+        "display_name": "Ability Defiant"
+    },
+    "generation": 1
+}

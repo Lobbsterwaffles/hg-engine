@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ZERAORA",
+    "name": "Zeraora",
+    "moves": [
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_PLASMA_FISTS",
+            "source": "level_up",
+            "display_name": "Plasma Fists",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "level_up",
+            "display_name": "Volt Switch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_POWER_UP_PUNCH",
+            "source": "level_up",
+            "display_name": "Power Up Punch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_VOLT_ABSORB",
+        "display_name": "Ability Volt Absorb"
+    },
+    "generation": 1
+}

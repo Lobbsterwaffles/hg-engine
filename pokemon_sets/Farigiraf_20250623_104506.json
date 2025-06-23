@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_FARIGIRAF",
+    "name": "Farigiraf",
+    "moves": [
+        {
+            "name": "MOVE_TWIN_BEAM",
+            "source": "level_up",
+            "display_name": "Twin Beam",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_BODY_SLAM",
+            "source": "modern_tm",
+            "display_name": "Body Slam",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "modern_tm",
+            "display_name": "Dazzling Gleam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_HYPER_VOICE",
+            "source": "modern_tm",
+            "display_name": "Hyper Voice",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SAP_SIPPER",
+        "display_name": "Ability Sap Sipper"
+    },
+    "generation": 1
+}

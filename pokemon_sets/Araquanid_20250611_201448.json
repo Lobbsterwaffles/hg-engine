@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ARAQUANID",
+    "name": "Araquanid",
+    "moves": [
+        {
+            "name": "MOVE_LEECH_LIFE",
+            "source": "modern_tm",
+            "display_name": "Leech Life",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LIQUIDATION",
+            "source": "level_up",
+            "display_name": "Liquidation",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_STICKY_WEB",
+            "source": "modern_egg",
+            "display_name": "Sticky Web",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_STOCKPILE",
+            "source": "modern_egg",
+            "display_name": "Stockpile",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_WATER_BUBBLE",
+        "display_name": "Ability Water Bubble"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_URSHIFU",
+    "name": "Urshifu",
+    "moves": [
+        {
+            "name": "MOVE_WICKED_BLOW",
+            "source": "level_up",
+            "display_name": "Wicked Blow",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CLOSE_COMBAT",
+            "source": "level_up",
+            "display_name": "Close Combat",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DRAIN_PUNCH",
+            "source": "modern_tm",
+            "display_name": "Drain Punch",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "level_up",
+            "display_name": "Iron Head",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_UNSEEN_FIST",
+        "display_name": "Ability Unseen Fist"
+    },
+    "generation": 1
+}

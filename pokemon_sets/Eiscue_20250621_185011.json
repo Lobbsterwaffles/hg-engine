@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_EISCUE",
+    "name": "Eiscue",
+    "moves": [
+        {
+            "name": "MOVE_HAIL",
+            "source": "level_up",
+            "display_name": "Hail",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HEAD_SMASH",
+            "source": "modern_egg",
+            "display_name": "Head Smash",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ICE_SPINNER",
+            "source": "modern_tm",
+            "display_name": "Ice Spinner",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_IRON_HEAD",
+            "source": "modern_tm",
+            "display_name": "Iron Head",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ICE_FACE",
+        "display_name": "Ability Ice Face"
+    },
+    "generation": 1
+}

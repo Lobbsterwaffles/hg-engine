@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MUDSDALE",
+    "name": "Mudsdale",
+    "moves": [
+        {
+            "name": "MOVE_HIGH_HORSEPOWER",
+            "source": "level_up",
+            "display_name": "High Horsepower",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_IRON_DEFENSE",
+            "source": "level_up",
+            "display_name": "Iron Defense",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_BODY_PRESS",
+            "source": "modern_tm",
+            "display_name": "Body Press",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_HEAVY_SLAM",
+            "source": "level_up",
+            "display_name": "Heavy Slam",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STAMINA",
+        "display_name": "Ability Stamina"
+    },
+    "generation": 1
+}

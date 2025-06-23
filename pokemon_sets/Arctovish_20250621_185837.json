@@ -1,0 +1,29 @@
+{
+    "species": "SPECIES_ARCTOVISH",
+    "name": "Arctovish",
+    "moves": [
+        {
+            "name": "MOVE_FISHIOUS_REND",
+            "source": "level_up",
+            "display_name": "Fishious Rend",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FREEZE_DRY",
+            "source": "level_up",
+            "display_name": "Freeze Dry",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_HAIL",
+            "source": "modern_tm",
+            "display_name": "Hail",
+            "slot": 3
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SLUSH_RUSH",
+        "display_name": "Ability Slush Rush"
+    },
+    "generation": 1
+}

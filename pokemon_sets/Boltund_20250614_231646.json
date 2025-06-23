@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BOLTUND",
+    "name": "Boltund",
+    "moves": [
+        {
+            "name": "MOVE_NUZZLE",
+            "source": "level_up",
+            "display_name": "Nuzzle",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "level_up",
+            "display_name": "Crunch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_THUNDER_FANG",
+            "source": "modern_tm",
+            "display_name": "Thunder Fang",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FIRE_FANG",
+            "source": "modern_tm",
+            "display_name": "Fire Fang",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STRONG_JAW",
+        "display_name": "Ability Strong Jaw"
+    },
+    "generation": 1
+}

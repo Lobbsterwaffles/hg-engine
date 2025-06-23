@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_XERNEAS",
+    "name": "Xerneas",
+    "moves": [
+        {
+            "name": "MOVE_MOONBLAST",
+            "source": "level_up",
+            "display_name": "Moonblast",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_GEOMANCY",
+            "source": "level_up",
+            "display_name": "Geomancy",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AROMATHERAPY",
+            "source": "level_up",
+            "display_name": "Aromatherapy",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_THUNDERBOLT",
+            "source": "modern_tm",
+            "display_name": "Thunderbolt",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_FAIRY_AURA",
+        "display_name": "Ability Fairy Aura"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_PRIMARINA",
+    "name": "Primarina",
+    "moves": [
+        {
+            "name": "MOVE_HYPER_VOICE",
+            "source": "level_up",
+            "display_name": "Hyper Voice",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "modern_tm",
+            "display_name": "Dazzling Gleam",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_ENCORE",
+            "source": "level_up",
+            "display_name": "Encore",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PERISH_SONG",
+            "source": "modern_egg",
+            "display_name": "Perish Song",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LIQUID_VOICE",
+        "display_name": "Ability Liquid Voice"
+    },
+    "generation": 1
+}

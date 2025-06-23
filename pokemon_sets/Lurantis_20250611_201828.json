@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_LURANTIS",
+    "name": "Lurantis",
+    "moves": [
+        {
+            "name": "MOVE_LEAF_STORM",
+            "source": "modern_tm",
+            "display_name": "Leaf Storm",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_SUPERPOWER",
+            "source": "level_up",
+            "display_name": "Superpower",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SYNTHESIS",
+            "source": "level_up",
+            "display_name": "Synthesis",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_X_SCISSOR",
+            "source": "level_up",
+            "display_name": "X Scissor",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CONTRARY",
+        "display_name": "Ability Contrary"
+    },
+    "generation": 1
+}

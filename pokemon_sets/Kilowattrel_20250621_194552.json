@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_KILOWATTREL",
+    "name": "Kilowattrel",
+    "moves": [
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "level_up",
+            "display_name": "Volt Switch",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HURRICANE",
+            "source": "level_up",
+            "display_name": "Hurricane",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DISCHARGE",
+            "source": "level_up",
+            "display_name": "Discharge",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FEATHER_DANCE",
+            "source": "modern_egg",
+            "display_name": "Feather Dance",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_VOLT_ABSORB",
+        "display_name": "Ability Volt Absorb"
+    },
+    "generation": 1
+}

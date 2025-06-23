@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ZARUDE",
+    "name": "Zarude",
+    "moves": [
+        {
+            "name": "MOVE_U_TURN",
+            "source": "level_up",
+            "display_name": "U Turn",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_HAMMER_ARM",
+            "source": "level_up",
+            "display_name": "Hammer Arm",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_POWER_WHIP",
+            "source": "level_up",
+            "display_name": "Power Whip",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "modern_tm",
+            "display_name": "Crunch",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_LEAF_GUARD",
+        "display_name": "Ability Leaf Guard"
+    },
+    "generation": 1
+}

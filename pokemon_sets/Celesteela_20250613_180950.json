@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_CELESTEELA",
+    "name": "Celesteela",
+    "moves": [
+        {
+            "name": "MOVE_HEAVY_SLAM",
+            "source": "level_up",
+            "display_name": "Heavy Slam",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "level_up",
+            "display_name": "Leech Seed",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_AIR_SLASH",
+            "source": "level_up",
+            "display_name": "Air Slash",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_GIGA_DRAIN",
+            "source": "level_up",
+            "display_name": "Giga Drain",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_BEAST_BOOST",
+        "display_name": "Ability Beast Boost"
+    },
+    "generation": 1
+}

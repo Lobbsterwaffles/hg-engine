@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_MAGEARNA",
+    "name": "Magearna",
+    "moves": [
+        {
+            "name": "MOVE_FLEUR_CANNON",
+            "source": "level_up",
+            "display_name": "Fleur Cannon",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLASH_CANNON",
+            "source": "level_up",
+            "display_name": "Flash Cannon",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_DAZZLING_GLEAM",
+            "source": "modern_tm",
+            "display_name": "Dazzling Gleam",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "modern_tm",
+            "display_name": "Calm Mind",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_SOUL_HEART",
+        "display_name": "Ability Soul Heart"
+    },
+    "generation": 1
+}

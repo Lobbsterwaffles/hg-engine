@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_TOXTRICITY",
+    "name": "Toxtricity",
+    "moves": [
+        {
+            "name": "MOVE_BOOMBURST",
+            "source": "level_up",
+            "display_name": "Boomburst",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_OVERDRIVE",
+            "source": "level_up",
+            "display_name": "Overdrive",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_EERIE_IMPULSE",
+            "source": "level_up",
+            "display_name": "Eerie Impulse",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLUDGE_BOMB",
+            "source": "modern_tm",
+            "display_name": "Sludge Bomb",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PUNK_ROCK",
+        "display_name": "Ability Punk Rock"
+    },
+    "generation": 1
+}

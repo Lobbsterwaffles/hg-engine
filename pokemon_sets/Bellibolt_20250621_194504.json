@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_BELLIBOLT",
+    "name": "Bellibolt",
+    "moves": [
+        {
+            "name": "MOVE_THUNDERBOLT",
+            "source": "modern_tm",
+            "display_name": "Thunderbolt",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_VOLT_SWITCH",
+            "source": "modern_tm",
+            "display_name": "Volt Switch",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_MUDDY_WATER",
+            "source": "modern_egg",
+            "display_name": "Muddy Water",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_TOXIC",
+            "source": "modern_tm",
+            "display_name": "Toxic",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_ELECTROMORPHOSIS",
+        "display_name": "Ability Electromorphosis"
+    },
+    "generation": 1
+}

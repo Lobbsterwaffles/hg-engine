@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ETERNATUS",
+    "name": "Eternatus",
+    "moves": [
+        {
+            "name": "MOVE_DYNAMAX_CANNON",
+            "source": "level_up",
+            "display_name": "Dynamax Cannon",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_RECOVER",
+            "source": "level_up",
+            "display_name": "Recover",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "level_up",
+            "display_name": "Flamethrower",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLUDGE_WAVE",
+            "source": "modern_tm",
+            "display_name": "Sludge Wave",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PRESSURE",
+        "display_name": "Ability Pressure"
+    },
+    "generation": 1
+}

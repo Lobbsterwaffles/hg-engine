@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_ELDEGOSS",
+    "name": "Eldegoss",
+    "moves": [
+        {
+            "name": "MOVE_COTTON_GUARD",
+            "source": "level_up",
+            "display_name": "Cotton Guard",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_LEECH_SEED",
+            "source": "modern_egg",
+            "display_name": "Leech Seed",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SYNTHESIS",
+            "source": "level_up",
+            "display_name": "Synthesis",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ENERGY_BALL",
+            "source": "modern_tm",
+            "display_name": "Energy Ball",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_COTTON_DOWN",
+        "display_name": "Ability Cotton Down"
+    },
+    "generation": 1
+}

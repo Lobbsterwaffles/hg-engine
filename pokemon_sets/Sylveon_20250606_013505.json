@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SYLVEON",
+    "name": "Sylveon",
+    "moves": [
+        {
+            "name": "MOVE_HYPER_VOICE",
+            "source": "modern_tm",
+            "display_name": "Hyper Voice",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_CALM_MIND",
+            "source": "modern_tm",
+            "display_name": "Calm Mind",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PSYCHIC",
+            "source": "modern_tm",
+            "display_name": "Psychic",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_WISH",
+            "source": "modern_egg",
+            "display_name": "Wish",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_PIXILATE",
+        "display_name": "Ability Pixilate"
+    },
+    "generation": 1
+}

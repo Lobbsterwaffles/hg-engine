@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SCOVILLAIN",
+    "name": "Scovillain",
+    "moves": [
+        {
+            "name": "MOVE_OVERHEAT",
+            "source": "level_up",
+            "display_name": "Overheat",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "level_up",
+            "display_name": "Flamethrower",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SEED_BOMB",
+            "source": "level_up",
+            "display_name": "Seed Bomb",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FIRE_FANG",
+            "source": "level_up",
+            "display_name": "Fire Fang",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_CHLOROPHYLL",
+        "display_name": "Ability Chlorophyll"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_SKELEDIRGE",
+    "name": "Skeledirge",
+    "moves": [
+        {
+            "name": "MOVE_TORCH_SONG",
+            "source": "level_up",
+            "display_name": "Torch Song",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_WILL_O_WISP",
+            "source": "level_up",
+            "display_name": "Will O Wisp",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_SLACK_OFF",
+            "source": "modern_egg",
+            "display_name": "Slack Off",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_FLAMETHROWER",
+            "source": "level_up",
+            "display_name": "Flamethrower",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_UNAWARE",
+        "display_name": "Ability Unaware"
+    },
+    "generation": 1
+}

@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_THIEVUL",
+    "name": "Thievul",
+    "moves": [
+        {
+            "name": "MOVE_SNARL",
+            "source": "level_up",
+            "display_name": "Snarl",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FOUL_PLAY",
+            "source": "level_up",
+            "display_name": "Foul Play",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_PARTING_SHOT",
+            "source": "level_up",
+            "display_name": "Parting Shot",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_PLAY_ROUGH",
+            "source": "modern_tm",
+            "display_name": "Play Rough",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_STAKEOUT",
+        "display_name": "Ability Stakeout"
+    },
+    "generation": 1
+}

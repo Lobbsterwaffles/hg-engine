@@ -1,0 +1,35 @@
+{
+    "species": "SPECIES_REGIDRAGO",
+    "name": "Regidrago",
+    "moves": [
+        {
+            "name": "MOVE_DRAGON_ENERGY",
+            "source": "level_up",
+            "display_name": "Dragon Energy",
+            "slot": 1
+        },
+        {
+            "name": "MOVE_FIRE_FANG",
+            "source": "modern_tm",
+            "display_name": "Fire Fang",
+            "slot": 2
+        },
+        {
+            "name": "MOVE_HAMMER_ARM",
+            "source": "level_up",
+            "display_name": "Hammer Arm",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_OUTRAGE",
+            "source": "modern_tm",
+            "display_name": "Outrage",
+            "slot": 4
+        }
+    ],
+    "ability": {
+        "name": "ABILITY_DRAGONS_MAW",
+        "display_name": "Ability Dragons Maw"
+    },
+    "generation": 1
+}
