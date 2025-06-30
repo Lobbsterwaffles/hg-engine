@@ -20,35 +20,36 @@ from pokemon_shared import (
 # Direct parsing approach for hge.nds
 # Based on the ROM analysis, we need a different approach
 
-# Pokémon entry structure (each Pokémon is 8 bytes without moves, 20 bytes with moves)
+# Pokémon entry structure (each Pokémon is 8 bytes) - Fixed alignment
 trainer_pokemon_struct = Struct(
-    "ivs" / Int8ul,             # IVs byte
-    "abilityslot" / Int8ul,     # Ability slot
-    "level" / Int16ul,          # Level (halfword)
-    "species" / Int16ul,        # Species ID (halfword)
-    "ball" / Int8ul,            # Ball type
-    "padding" / Int8ul,         # Padding byte for alignment
+    "ivs" / Int8ul,             # 1 byte - IVs
+    "abilityslot" / Int8ul,     # 1 byte - Ability slot
+    "level" / Int16ul,          # 2 bytes - Level (halfword)
+    "species" / Int16ul,        # 2 bytes - Species ID (halfword)
+    "ballseal" / Int16ul,       # 2 bytes - Ball seal (halfword, not byte!)
 )
 
-# Pokémon with moves structure 
+# Pokémon with moves structure (20 bytes total)
 trainer_pokemon_moves_struct = Struct(
-    "ivs" / Int8ul,             # IVs byte
-    "abilityslot" / Int8ul,     # Ability slot
-    "level" / Int16ul,          # Level (halfword)
-    "species" / Int16ul,        # Species ID (halfword)
-    "item" / Int16ul,           # Held item
-    "move1" / Int16ul,          # Move 1
-    "move2" / Int16ul,          # Move 2
-    "move3" / Int16ul,          # Move 3
-    "move4" / Int16ul,          # Move 4
-    "ball" / Int8ul,            # Ball type
-    "padding" / Int8ul,         # Padding
+    "ivs" / Int8ul,             # 1 byte - IVs
+    "abilityslot" / Int8ul,     # 1 byte - Ability slot
+    "level" / Int16ul,          # 2 bytes - Level (halfword)
+    "species" / Int16ul,        # 2 bytes - Species ID (halfword)
+    "item" / Int16ul,           # 2 bytes - Held item
+    "move1" / Int16ul,          # 2 bytes - Move 1
+    "move2" / Int16ul,          # 2 bytes - Move 2
+    "move3" / Int16ul,          # 2 bytes - Move 3
+    "move4" / Int16ul,          # 2 bytes - Move 4
+    "ballseal" / Int16ul,       # 2 bytes - Ball seal (halfword)
 )
 
 # In hge.nds, trainers seem to be stored without the standard header
 # We'll directly parse the Pokémon entries instead of relying on nummons
 
 # These functions are now imported from pokemon_shared.py
+
+# Debug switch - set to True to enable detailed hex debugging
+DEBUG_TRAINER_PARSING = False
 
 def read_trainer_names(base_path):
     """Read trainer names if available"""
@@ -102,106 +103,131 @@ def read_trainer_data(rom):
     
     trainers = []
     for i, data in enumerate(trainer_narc_data.files):
-        try:
-            # Create a Container object to store trainer data
-            from construct import Container
-            trainer = Container()
+        # Create a Container object to store trainer data
+        from construct import Container
+        trainer = Container()
+        
+        # For HG Engine, we need to parse the data differently
+        # Each trainer entry seems to be just a list of Pokémon
+        
+        # First, set some default values
+        trainer.trainerdata = 0  # Assume standard type
+        trainer.trainerclass = 0
+        trainer.battletype = 0
+        trainer.nummons = 0
+        trainer.items = [0, 0, 0, 0]
+        trainer.ai_flags = 0
+        trainer.padding = 0
+        trainer.pokemon = []
+        
+        # Get the expected number of Pokémon for this trainer
+        expected_pokemon = trainer_pokemon_counts.get(i, 0)
+        
+        # Detect if this trainer has Pokémon with moves based on data length
+        # Each Pokémon with moves takes 20 bytes, without moves takes 8 bytes
+        has_moves = False
+        pokemon_size = 8  # Default size without moves
+        
+        if len(data) == 0:
+            # Empty trainer, skip
+            trainers.append((i, trainer))
+            continue
             
-            # For HG Engine, we need to parse the data differently
-            # Each trainer entry seems to be just a list of Pokémon
-            
-            # First, set some default values
-            trainer.trainerdata = 0  # Assume standard type
-            trainer.trainerclass = 0
-            trainer.battletype = 0
-            trainer.nummons = 0
-            trainer.items = [0, 0, 0, 0]
-            trainer.ai_flags = 0
-            trainer.padding = 0
-            trainer.pokemon = []
-            
-            # Get the expected number of Pokémon for this trainer
-            expected_pokemon = trainer_pokemon_counts.get(i, 0)
-            
-            # Detect if this trainer has Pokémon with moves based on data length
-            # Each Pokémon with moves takes 20 bytes, without moves takes 8 bytes
-            has_moves = False
-            pokemon_size = 8  # Default size without moves
-            
-            if len(data) == 0:
-                # Empty trainer, skip
-                trainers.append((i, trainer))
-                continue
-                
-            # Special handling for problem trainers (keep as is)
-            if i in [651, 652, 654, 658, 659]:
-                print(f"Keeping original data for problematic trainer {i}")
-                trainers.append((i, trainer))
-                continue
-            
-            # First, check if this is a trainer with moves
-            # Usually if data length is divisible by 20 and not by 8, it has moves
-            if len(data) % 20 == 0 and len(data) > 0:
+        # Special handling for problem trainers (keep as is)
+        if i in [651, 652, 654, 658, 659]:
+            print(f"Keeping original data for problematic trainer {i}")
+            trainers.append((i, trainer))
+            continue
+        
+        # Determine format based on expected Pokemon count and data size
+        # NOTE: Pokemon with moves = 18 bytes, without moves = 8 bytes
+        if expected_pokemon > 0:
+            # Check if the data size matches expected count with moves (18 bytes each)
+            if len(data) == expected_pokemon * 18:
                 has_moves = True
-                pokemon_size = 20
-                
-            # If expected Pokémon count is available, use it to guess format
-            if expected_pokemon > 0:
-                # Check if the data size matches expected count with moves
-                if len(data) == expected_pokemon * 20:
+                pokemon_size = 18
+            # Check if data size matches expected count without moves (8 bytes each)
+            elif len(data) == expected_pokemon * 8:
+                has_moves = False
+                pokemon_size = 8
+            # If data doesn't match exactly, prefer moves format if closer to expected*18
+            else:
+                diff_with_moves = abs(len(data) - (expected_pokemon * 18))
+                diff_without_moves = abs(len(data) - (expected_pokemon * 8))
+                if diff_with_moves <= diff_without_moves:
                     has_moves = True
-                    pokemon_size = 20
-                # Check if data size matches expected count without moves
-                elif len(data) == expected_pokemon * 8:
+                    pokemon_size = 18
+                    print(f"  WARNING: Data size {len(data)} doesn't match expected {expected_pokemon}*18={expected_pokemon*18}, using moves format")
+                else:
                     has_moves = False
                     pokemon_size = 8
+                    print(f"  WARNING: Data size {len(data)} doesn't match expected {expected_pokemon}*8={expected_pokemon*8}, using no-moves format")
+        else:
+            # Fallback: try to detect based on data length divisibility
+            if len(data) % 18 == 0 and len(data) > 0:
+                has_moves = True
+                pokemon_size = 18
+            elif len(data) % 8 == 0 and len(data) > 0:
+                has_moves = False
+                pokemon_size = 8
+            else:
+                # Default to no moves if unclear
+                has_moves = False
+                pokemon_size = 8
+        
+        # Calculate number of Pokémon based on data length and detected format
+        num_pokemon = len(data) // pokemon_size
+        trainer.nummons = num_pokemon
+        
+        # Debug: Print hex data for all trainers to check alignment
+        if DEBUG_TRAINER_PARSING:
+            print(f"\n=== TRAINER {i} DEBUG ===")
+            print(f"Data length: {len(data)} bytes")
+            print(f"Expected Pokemon: {expected_pokemon}")
+            print(f"Has moves: {has_moves}, Pokemon size: {pokemon_size}")
+            print(f"Calculated num_pokemon: {num_pokemon}")
+            # Print hex data in 8-byte chunks with decimal values
+            for chunk_start in range(0, len(data), 8):  # Print all data
+                chunk = data[chunk_start:chunk_start+8]
+                hex_str = ' '.join(f'{b:02X}({b:3d})' for b in chunk)
+                print(f"Offset {chunk_start:02X}: {hex_str}")
+            print("========================\n")
+        
+        # Now parse each Pokémon entry
+        for j in range(num_pokemon):
+            offset = j * pokemon_size
             
-            # Calculate number of Pokémon based on data length and detected format
-            num_pokemon = len(data) // pokemon_size
-            trainer.nummons = num_pokemon
+            # Make sure we have enough data left
+            if offset + pokemon_size > len(data):
+                break
             
-            # Now parse each Pokémon entry
-            for j in range(num_pokemon):
-                offset = j * pokemon_size
-                
-                # Make sure we have enough data left
-                if offset + pokemon_size > len(data):
-                    break
-                
-                # Parse the Pokémon data
+            # Parse the Pokémon data
+            if has_moves:
+                # Pokémon with moves (18 bytes)
+                pokemon_data = data[offset:offset+pokemon_size]
+                pokemon = trainer_pokemon_moves_struct.parse(pokemon_data)
+            else:
+                # Standard Pokémon (8 bytes)
+                pokemon_data = data[offset:offset+pokemon_size]
+                pokemon = trainer_pokemon_struct.parse(pokemon_data)
+            
+            # Debug: Print parsed data for all trainers
+            if DEBUG_TRAINER_PARSING:
                 if has_moves:
-                    # Pokémon with moves (20 bytes)
-                    pokemon_data = data[offset:offset+pokemon_size]
-                    pokemon = trainer_pokemon_moves_struct.parse(pokemon_data)
+                    print(f"Pokemon {j}: IVs={pokemon.ivs}, Ability={pokemon.abilityslot}, Level={pokemon.level}, Species={pokemon.species}, Item={pokemon.item}, Moves=[{pokemon.move1},{pokemon.move2},{pokemon.move3},{pokemon.move4}], Ballseal={pokemon.ballseal}")
                 else:
-                    # Standard Pokémon (8 bytes)
-                    pokemon_data = data[offset:offset+pokemon_size]
-                    pokemon = trainer_pokemon_struct.parse(pokemon_data)
-                
-                # Add to trainer's team
-                trainer.pokemon.append(pokemon)
+                    print(f"Pokemon {j}: IVs={pokemon.ivs}, Ability={pokemon.abilityslot}, Level={pokemon.level}, Species={pokemon.species}, Ballseal={pokemon.ballseal}")
             
-            # If we found Pokémon, flag this trainer as having moves if needed
-            if has_moves and len(trainer.pokemon) > 0:
-                trainer.trainerdata = 2  # Set flag for having moves
-            
-            trainers.append((i, trainer))
+            # Add to trainer's team
+            trainer.pokemon.append(pokemon)
+        
+        # If we found Pokémon, flag this trainer as having moves if needed
+        if has_moves and len(trainer.pokemon) > 0:
+            trainer.trainerdata = 2  # Set flag for having moves
+        
+        trainers.append((i, trainer))
+        if DEBUG_TRAINER_PARSING:
             print(f"Trainer {i}: Parsed {len(trainer.pokemon)} Pokémon" + (" with moves" if has_moves else ""))
-            
-        except Exception as e:
-            # If parsing fails, create an empty trainer
-            from construct import Container
-            trainer = Container()
-            trainer.trainerdata = 0
-            trainer.trainerclass = 0
-            trainer.battletype = 0
-            trainer.nummons = 0
-            trainer.items = [0, 0, 0, 0]
-            trainer.ai_flags = 0
-            trainer.padding = 0
-            trainer.pokemon = []
-            trainers.append((i, trainer))
-            print(f"Error parsing trainer {i}: {e}")
     
     print(f"Total trainers processed: {len(trainers)}")
     return trainers, trainer_narc_data
