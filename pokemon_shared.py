@@ -7,6 +7,7 @@ different randomization passes.
 from construct import *
 import ndspy.rom
 import ndspy.narc
+import os
 
 # List of Pokémon that should not be replaced when randomizing
 SPECIAL_POKEMON = set(
@@ -51,8 +52,9 @@ SPECIAL_POKEMON = set(
 # Cache for expensive data loading operations
 _pokemon_names_cache = None
 _mondata_cache = None
+_blacklist_cache = None  # Cache for blacklist
 
-# Pokémon mondata structure based on macros.s
+# Pokémon mondata structure based on ROM data (26 bytes total)
 mondata_struct = Struct(
     # Base stats (6 bytes)
     "hp" / Int8ul,
@@ -66,46 +68,27 @@ mondata_struct = Struct(
     "type2" / Int8ul,
     # Catch rate (1 byte)
     "catch_rate" / Int8ul,
-    # Base experience (1 byte)
+    # Base experience or padding (1 byte)
     "base_exp" / Int8ul,
-    # EV yields (2 bytes as halfword with bit fields)
-    "ev_yields"
-    / BitStruct(
-        "hp_yield" / BitsInteger(2),
-        "attack_yield" / BitsInteger(2),
-        "defense_yield" / BitsInteger(2),
-        "speed_yield" / BitsInteger(2),
-        "sp_attack_yield" / BitsInteger(2),
-        "sp_defense_yield" / BitsInteger(2),
-        Padding(4),  # Remaining 4 bits
-    ),
-    # Items (4 bytes)
+    # EV yields or item flags (2 bytes)
+    "ev_yields" / Int16ul,
+    # Items (4 bytes) - may be differently formatted in this ROM
     "item1" / Int16ul,
     "item2" / Int16ul,
-    # Gender ratio (1 byte)
+    # Gender, egg cycles, growth rate (3 bytes)
     "gender_ratio" / Int8ul,
-    # Egg cycles (1 byte)
     "egg_cycles" / Int8ul,
-    # Base friendship (1 byte)
     "base_friendship" / Int8ul,
-    # Growth rate (1 byte)
+    # Growth and egg info (3 bytes)
     "growth_rate" / Int8ul,
-    # Egg groups (2 bytes)
     "egg_group1" / Int8ul,
     "egg_group2" / Int8ul,
     # Abilities (2 bytes)
     "ability1" / Int8ul,
     "ability2" / Int8ul,
-    # Run chance (1 byte)
-    "run_chance" / Int8ul,
-    # Color and flip (1 byte with bit field)
-    "color_flip" / BitStruct("color" / BitsInteger(7), "flip" / Flag),
-    # TM data (18 bytes total)
-    Padding(2),  # padding halfword
-    "tm_data1" / Int32ul,
-    "tm_data2" / Int32ul,
-    "tm_data3" / Int32ul,
-    "tm_data4" / Int32ul,
+    # Additional data (2 bytes)
+    "additional1" / Int8ul,
+    "additional2" / Int8ul
 )
 
 
@@ -162,9 +145,89 @@ def read_pokemon_names(base_path):
     return names
 
 
-def find_replacements(mon, mondata, bstrmin, bstrmax):
-    """Find suitable replacement Pokemon within BST range, excluding special Pokemon."""
+def read_blacklist(base_path="."):
+    """Read Pokemon blacklist from file. Results are cached.
+    
+    The blacklist file can contain Pokemon names or IDs.
+    Lines starting with # are ignored as comments.
+    
+    Args:
+        base_path: Base directory path for the blacklist file
+        
+    Returns:
+        set: Set of Pokemon IDs to exclude from randomization
+    """
+    global _blacklist_cache
+    
+    # Return cached data if available
+    if _blacklist_cache is not None:
+        return _blacklist_cache
+    
+    blacklist = set()
+    blacklist_path = f"{base_path}/data/blacklist.txt"
+    
+    try:
+        # Load Pokemon names to convert name entries to IDs
+        names = read_pokemon_names(base_path)
+        name_to_id = {name.lower(): i for i, name in enumerate(names)}
+        
+        # Read and process blacklist file
+        if os.path.exists(blacklist_path):
+            with open(blacklist_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    # Remove comments
+                    line = line.split('#', 1)[0].strip()
+                    if not line:
+                        continue
+                        
+                    # Try to parse as ID first
+                    try:
+                        pokemon_id = int(line)
+                        blacklist.add(pokemon_id)
+                    except ValueError:
+                        # Not an ID, try as name
+                        name = line.lower()
+                        if name in name_to_id:
+                            blacklist.add(name_to_id[name])
+                        else:
+                            print(f"Warning: Unknown Pokémon in blacklist: {line}")
+            
+            print(f"Loaded {len(blacklist)} Pokémon from blacklist")
+        else:
+            print(f"No blacklist file found at {blacklist_path}, using empty blacklist")
+    except Exception as e:
+        print(f"Error reading blacklist: {e}")
+    
+    # Cache the results
+    _blacklist_cache = blacklist
+    return blacklist
+
+def find_replacements(mon, mondata, bstrmin, bstrmax, base_path="."):
+    """Find suitable replacement Pokemon within BST range, excluding special and blacklisted Pokemon.
+    
+    Args:
+        mon: Pokemon to find replacements for
+        mondata: All Pokemon data
+        bstrmin: Minimum BST ratio (e.g., 0.9 for 90%)
+        bstrmax: Maximum BST ratio (e.g., 1.1 for 110%)
+        base_path: Base directory path for the blacklist file
+        
+    Returns:
+        list: Indices of suitable replacement Pokemon
+    """
     bstmin = mon.bst * bstrmin
     bstmax = mon.bst * bstrmax
-    # Return indices of suitable replacements, excluding special Pokemon
-    return [i for i, r in enumerate(mondata) if bstmin <= r.bst <= bstmax and i not in SPECIAL_POKEMON]
+    
+    # Get blacklisted Pokemon
+    blacklist = read_blacklist(base_path)
+    
+    # Combine SPECIAL_POKEMON and blacklist for exclusions
+    excluded = SPECIAL_POKEMON.union(blacklist)
+    
+    # Return indices of suitable replacements, excluding:
+    # 1. Special and blacklisted Pokemon
+    # 2. Pokemon with placeholder names ("-----")
+    return [i for i, r in enumerate(mondata) 
+            if bstmin <= r.bst <= bstmax 
+            and i not in excluded
+            and r.name != "-----"]

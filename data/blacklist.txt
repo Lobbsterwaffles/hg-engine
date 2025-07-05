@@ -1,0 +1,505 @@
+# Pokemon Blacklist for Trainer Randomizer
+# Format: One Pokemon per line, can be name or ID number
+# Comments start with # and are ignored
+# Examples:
+#
+# Arceus
+# Mew
+# 493  # Arceus by ID
+# 150  # Mewtwo by ID
+
+# ==========================================================================
+# IMPORTANT: PLACEHOLDER POKEMON (ALTERNATE FORMS)
+# ==========================================================================
+# These are Pokémon with '-----' as their name in the ROM
+# They are likely incomplete alternate forms or special variants
+# Excluding them prevents them from being chosen during randomization
+# Total: 366 placeholder Pokémon
+#
+# Add your other blacklisted Pokemon below the placeholders section
+alcremie_filler_1
+alcremie_filler_2
+arctovish
+arrokuda
+avalugg_hisuian
+avalugg_lord
+bad_egg
+barraskewda
+bellibolt
+brambleghast
+bramblin
+brute_bonnet
+calyrex_ice_rider
+calyrex_shadow_rider
+cosmoem
+cosmog
+cramorant_gorging
+cramorant_gulping
+deoxys_attack
+deoxys_defense
+deoxys_speed
+dialga_origin
+dolliv
+dondozo
+dracozolt
+egg
+eiscue
+eiscue_noice_face
+eternatus_eternamax
+fezandipiti
+flittle
+flutter_mane
+gimmighoul_roaming
+giratina_origin
+greninja_ash
+greninja_battle_bond
+iron_boulder
+iron_bundle
+iron_crown
+iron_hands
+iron_jugulis
+iron_leaves
+iron_moth
+iron_treads
+lokix
+lurantis_large
+magearna_original
+minior_core_blue
+minior_core_green
+minior_core_indigo
+minior_core_orange
+minior_core_red
+minior_core_violet
+minior_core_yellow
+morpeko
+morpeko_hangry
+munkidori
+naclstack
+necrozma
+necrozma_dawn_wings
+necrozma_dusk_mane
+necrozma_ultra_dawn_wings
+necrozma_ultra_dusk_mane
+oinkologne
+oinkologne_female
+orthworm
+Ogerpon
+palkia_origin
+pikachu_alola_cap
+pikachu_belle
+pikachu_cosplay
+pikachu_hoenn_cap
+pikachu_kalos_cap
+pikachu_libre
+pikachu_original_cap
+pikachu_partner_cap
+pikachu_ph_d
+pikachu_pop_star
+pikachu_rock_star
+pikachu_sinnoh_cap
+pikachu_unova_cap
+pikachu_world_cap
+pincurchin
+poltchageist
+poltchageist_masterpiece
+polteageist
+polteageist_antique
+revavroom_caph
+revavroom_navi
+revavroom_ruchbah
+revavroom_schedar
+revavroom_segin
+rotom_fan
+rotom_frost
+rotom_heat
+rotom_mow
+rotom_wash
+sandygast
+sandy_shocks
+shaymin_sky
+sinistcha
+sinistcha_masterpiece
+squawkabilly
+squawkabilly_blue_plumage
+squawkabilly_white_plumage
+squawkabilly_yellow_plumage
+tauros_aqua
+tauros_blaze
+tauros_combat
+terapagos
+thievul
+wishiwashi_school
+wormadam_sandy
+wormadam_trashy
+wo_chien
+zacian_crowned
+zamazenta_crowned
+zarude
+zarude_dada
+
+0  # Placeholder Pok�mon
+496  # Placeholder Pok�mon
+497  # Placeholder Pok�mon
+498  # Placeholder Pok�mon
+499  # Placeholder Pok�mon
+500  # Placeholder Pok�mon
+501  # Placeholder Pok�mon
+502  # Placeholder Pok�mon
+503  # Placeholder Pok�mon
+504  # Placeholder Pok�mon
+505  # Placeholder Pok�mon
+506  # Placeholder Pok�mon
+507  # Placeholder Pok�mon
+508  # Placeholder Pok�mon
+509  # Placeholder Pok�mon
+510  # Placeholder Pok�mon
+511  # Placeholder Pok�mon
+512  # Placeholder Pok�mon
+513  # Placeholder Pok�mon
+514  # Placeholder Pok�mon
+515  # Placeholder Pok�mon
+516  # Placeholder Pok�mon
+517  # Placeholder Pok�mon
+518  # Placeholder Pok�mon
+519  # Placeholder Pok�mon
+520  # Placeholder Pok�mon
+521  # Placeholder Pok�mon
+522  # Placeholder Pok�mon
+523  # Placeholder Pok�mon
+524  # Placeholder Pok�mon
+525  # Placeholder Pok�mon
+526  # Placeholder Pok�mon
+527  # Placeholder Pok�mon
+528  # Placeholder Pok�mon
+529  # Placeholder Pok�mon
+530  # Placeholder Pok�mon
+531  # Placeholder Pok�mon
+532  # Placeholder Pok�mon
+533  # Placeholder Pok�mon
+534  # Placeholder Pok�mon
+535  # Placeholder Pok�mon
+536  # Placeholder Pok�mon
+537  # Placeholder Pok�mon
+538  # Placeholder Pok�mon
+539  # Placeholder Pok�mon
+540  # Placeholder Pok�mon
+541  # Placeholder Pok�mon
+542  # Placeholder Pok�mon
+543  # Placeholder Pok�mon
+1076  # Placeholder Pok�mon
+1077  # Placeholder Pok�mon
+1078  # Placeholder Pok�mon
+1079  # Placeholder Pok�mon
+1080  # Placeholder Pok�mon
+1081  # Placeholder Pok�mon
+1082  # Placeholder Pok�mon
+1083  # Placeholder Pok�mon
+1084  # Placeholder Pok�mon
+1085  # Placeholder Pok�mon
+1086  # Placeholder Pok�mon
+1087  # Placeholder Pok�mon
+1088  # Placeholder Pok�mon
+1089  # Placeholder Pok�mon
+1090  # Placeholder Pok�mon
+1091  # Placeholder Pok�mon
+1092  # Placeholder Pok�mon
+1093  # Placeholder Pok�mon
+1094  # Placeholder Pok�mon
+1095  # Placeholder Pok�mon
+1096  # Placeholder Pok�mon
+1097  # Placeholder Pok�mon
+1098  # Placeholder Pok�mon
+1099  # Placeholder Pok�mon
+1100  # Placeholder Pok�mon
+1101  # Placeholder Pok�mon
+1102  # Placeholder Pok�mon
+1103  # Placeholder Pok�mon
+1104  # Placeholder Pok�mon
+1105  # Placeholder Pok�mon
+1106  # Placeholder Pok�mon
+1107  # Placeholder Pok�mon
+1108  # Placeholder Pok�mon
+1109  # Placeholder Pok�mon
+1110  # Placeholder Pok�mon
+1111  # Placeholder Pok�mon
+1112  # Placeholder Pok�mon
+1113  # Placeholder Pok�mon
+1114  # Placeholder Pok�mon
+1115  # Placeholder Pok�mon
+1116  # Placeholder Pok�mon
+1117  # Placeholder Pok�mon
+1118  # Placeholder Pok�mon
+1119  # Placeholder Pok�mon
+1120  # Placeholder Pok�mon
+1121  # Placeholder Pok�mon
+1122  # Placeholder Pok�mon
+1123  # Placeholder Pok�mon
+1124  # Placeholder Pok�mon
+1125  # Placeholder Pok�mon
+1126  # Placeholder Pok�mon
+1127  # Placeholder Pok�mon
+1128  # Placeholder Pok�mon
+1129  # Placeholder Pok�mon
+1130  # Placeholder Pok�mon
+1131  # Placeholder Pok�mon
+1132  # Placeholder Pok�mon
+1133  # Placeholder Pok�mon
+1134  # Placeholder Pok�mon
+1135  # Placeholder Pok�mon
+1136  # Placeholder Pok�mon
+1137  # Placeholder Pok�mon
+1138  # Placeholder Pok�mon
+1139  # Placeholder Pok�mon
+1140  # Placeholder Pok�mon
+1141  # Placeholder Pok�mon
+1142  # Placeholder Pok�mon
+1143  # Placeholder Pok�mon
+1144  # Placeholder Pok�mon
+1145  # Placeholder Pok�mon
+1146  # Placeholder Pok�mon
+1147  # Placeholder Pok�mon
+1148  # Placeholder Pok�mon
+1149  # Placeholder Pok�mon
+1150  # Placeholder Pok�mon
+1151  # Placeholder Pok�mon
+1152  # Placeholder Pok�mon
+1153  # Placeholder Pok�mon
+1154  # Placeholder Pok�mon
+1155  # Placeholder Pok�mon
+1156  # Placeholder Pok�mon
+1157  # Placeholder Pok�mon
+1158  # Placeholder Pok�mon
+1159  # Placeholder Pok�mon
+1160  # Placeholder Pok�mon
+1161  # Placeholder Pok�mon
+1162  # Placeholder Pok�mon
+1163  # Placeholder Pok�mon
+1164  # Placeholder Pok�mon
+1165  # Placeholder Pok�mon
+1166  # Placeholder Pok�mon
+1167  # Placeholder Pok�mon
+1168  # Placeholder Pok�mon
+1169  # Placeholder Pok�mon
+1170  # Placeholder Pok�mon
+1171  # Placeholder Pok�mon
+1172  # Placeholder Pok�mon
+1173  # Placeholder Pok�mon
+1174  # Placeholder Pok�mon
+1175  # Placeholder Pok�mon
+1176  # Placeholder Pok�mon
+1177  # Placeholder Pok�mon
+1178  # Placeholder Pok�mon
+1179  # Placeholder Pok�mon
+1180  # Placeholder Pok�mon
+1181  # Placeholder Pok�mon
+1182  # Placeholder Pok�mon
+1183  # Placeholder Pok�mon
+1184  # Placeholder Pok�mon
+1185  # Placeholder Pok�mon
+1186  # Placeholder Pok�mon
+1187  # Placeholder Pok�mon
+1188  # Placeholder Pok�mon
+1189  # Placeholder Pok�mon
+1190  # Placeholder Pok�mon
+1191  # Placeholder Pok�mon
+1192  # Placeholder Pok�mon
+1193  # Placeholder Pok�mon
+1194  # Placeholder Pok�mon
+1195  # Placeholder Pok�mon
+1196  # Placeholder Pok�mon
+1197  # Placeholder Pok�mon
+1198  # Placeholder Pok�mon
+1199  # Placeholder Pok�mon
+1200  # Placeholder Pok�mon
+1201  # Placeholder Pok�mon
+1202  # Placeholder Pok�mon
+1203  # Placeholder Pok�mon
+1204  # Placeholder Pok�mon
+1205  # Placeholder Pok�mon
+1206  # Placeholder Pok�mon
+1207  # Placeholder Pok�mon
+1208  # Placeholder Pok�mon
+1209  # Placeholder Pok�mon
+1210  # Placeholder Pok�mon
+1211  # Placeholder Pok�mon
+1212  # Placeholder Pok�mon
+1213  # Placeholder Pok�mon
+1214  # Placeholder Pok�mon
+1215  # Placeholder Pok�mon
+1216  # Placeholder Pok�mon
+1217  # Placeholder Pok�mon
+1218  # Placeholder Pok�mon
+1219  # Placeholder Pok�mon
+1220  # Placeholder Pok�mon
+1221  # Placeholder Pok�mon
+1222  # Placeholder Pok�mon
+1223  # Placeholder Pok�mon
+1224  # Placeholder Pok�mon
+1225  # Placeholder Pok�mon
+1226  # Placeholder Pok�mon
+1227  # Placeholder Pok�mon
+1228  # Placeholder Pok�mon
+1229  # Placeholder Pok�mon
+1230  # Placeholder Pok�mon
+1231  # Placeholder Pok�mon
+1232  # Placeholder Pok�mon
+1233  # Placeholder Pok�mon
+1234  # Placeholder Pok�mon
+1235  # Placeholder Pok�mon
+1236  # Placeholder Pok�mon
+1237  # Placeholder Pok�mon
+1238  # Placeholder Pok�mon
+1239  # Placeholder Pok�mon
+1240  # Placeholder Pok�mon
+1241  # Placeholder Pok�mon
+1242  # Placeholder Pok�mon
+1243  # Placeholder Pok�mon
+1244  # Placeholder Pok�mon
+1245  # Placeholder Pok�mon
+1246  # Placeholder Pok�mon
+1247  # Placeholder Pok�mon
+1248  # Placeholder Pok�mon
+1249  # Placeholder Pok�mon
+1250  # Placeholder Pok�mon
+1251  # Placeholder Pok�mon
+1252  # Placeholder Pok�mon
+1253  # Placeholder Pok�mon
+1254  # Placeholder Pok�mon
+1255  # Placeholder Pok�mon
+1256  # Placeholder Pok�mon
+1257  # Placeholder Pok�mon
+1258  # Placeholder Pok�mon
+1259  # Placeholder Pok�mon
+1260  # Placeholder Pok�mon
+1261  # Placeholder Pok�mon
+1262  # Placeholder Pok�mon
+1263  # Placeholder Pok�mon
+1264  # Placeholder Pok�mon
+1265  # Placeholder Pok�mon
+1266  # Placeholder Pok�mon
+1267  # Placeholder Pok�mon
+1268  # Placeholder Pok�mon
+1269  # Placeholder Pok�mon
+1270  # Placeholder Pok�mon
+1271  # Placeholder Pok�mon
+1272  # Placeholder Pok�mon
+1273  # Placeholder Pok�mon
+1274  # Placeholder Pok�mon
+1275  # Placeholder Pok�mon
+1276  # Placeholder Pok�mon
+1277  # Placeholder Pok�mon
+1278  # Placeholder Pok�mon
+1279  # Placeholder Pok�mon
+1280  # Placeholder Pok�mon
+1281  # Placeholder Pok�mon
+1282  # Placeholder Pok�mon
+1283  # Placeholder Pok�mon
+1284  # Placeholder Pok�mon
+1285  # Placeholder Pok�mon
+1286  # Placeholder Pok�mon
+1287  # Placeholder Pok�mon
+1288  # Placeholder Pok�mon
+1289  # Placeholder Pok�mon
+1290  # Placeholder Pok�mon
+1291  # Placeholder Pok�mon
+1292  # Placeholder Pok�mon
+1293  # Placeholder Pok�mon
+1294  # Placeholder Pok�mon
+1295  # Placeholder Pok�mon
+1296  # Placeholder Pok�mon
+1297  # Placeholder Pok�mon
+1298  # Placeholder Pok�mon
+1299  # Placeholder Pok�mon
+1300  # Placeholder Pok�mon
+1301  # Placeholder Pok�mon
+1302  # Placeholder Pok�mon
+1303  # Placeholder Pok�mon
+1304  # Placeholder Pok�mon
+1305  # Placeholder Pok�mon
+1306  # Placeholder Pok�mon
+1307  # Placeholder Pok�mon
+1308  # Placeholder Pok�mon
+1309  # Placeholder Pok�mon
+1310  # Placeholder Pok�mon
+1311  # Placeholder Pok�mon
+1312  # Placeholder Pok�mon
+1313  # Placeholder Pok�mon
+1314  # Placeholder Pok�mon
+1315  # Placeholder Pok�mon
+1316  # Placeholder Pok�mon
+1317  # Placeholder Pok�mon
+1318  # Placeholder Pok�mon
+1319  # Placeholder Pok�mon
+1320  # Placeholder Pok�mon
+1321  # Placeholder Pok�mon
+1322  # Placeholder Pok�mon
+1323  # Placeholder Pok�mon
+1324  # Placeholder Pok�mon
+1325  # Placeholder Pok�mon
+1326  # Placeholder Pok�mon
+1327  # Placeholder Pok�mon
+1328  # Placeholder Pok�mon
+1329  # Placeholder Pok�mon
+1330  # Placeholder Pok�mon
+1331  # Placeholder Pok�mon
+1332  # Placeholder Pok�mon
+1333  # Placeholder Pok�mon
+1334  # Placeholder Pok�mon
+1335  # Placeholder Pok�mon
+1336  # Placeholder Pok�mon
+1337  # Placeholder Pok�mon
+1338  # Placeholder Pok�mon
+1339  # Placeholder Pok�mon
+1340  # Placeholder Pok�mon
+1341  # Placeholder Pok�mon
+1342  # Placeholder Pok�mon
+1343  # Placeholder Pok�mon
+1344  # Placeholder Pok�mon
+1345  # Placeholder Pok�mon
+1346  # Placeholder Pok�mon
+1347  # Placeholder Pok�mon
+1348  # Placeholder Pok�mon
+1349  # Placeholder Pok�mon
+1350  # Placeholder Pok�mon
+1351  # Placeholder Pok�mon
+1352  # Placeholder Pok�mon
+1353  # Placeholder Pok�mon
+1354  # Placeholder Pok�mon
+1355  # Placeholder Pok�mon
+1356  # Placeholder Pok�mon
+1357  # Placeholder Pok�mon
+1358  # Placeholder Pok�mon
+1359  # Placeholder Pok�mon
+1360  # Placeholder Pok�mon
+1361  # Placeholder Pok�mon
+1362  # Placeholder Pok�mon
+1363  # Placeholder Pok�mon
+1364  # Placeholder Pok�mon
+1365  # Placeholder Pok�mon
+1366  # Placeholder Pok�mon
+1367  # Placeholder Pok�mon
+1368  # Placeholder Pok�mon
+1369  # Placeholder Pok�mon
+1370  # Placeholder Pok�mon
+1371  # Placeholder Pok�mon
+1372  # Placeholder Pok�mon
+1373  # Placeholder Pok�mon
+1374  # Placeholder Pok�mon
+1375  # Placeholder Pok�mon
+1376  # Placeholder Pok�mon
+1377  # Placeholder Pok�mon
+1378  # Placeholder Pok�mon
+1379  # Placeholder Pok�mon
+1380  # Placeholder Pok�mon
+1381  # Placeholder Pok�mon
+1382  # Placeholder Pok�mon
+1383  # Placeholder Pok�mon
+1384  # Placeholder Pok�mon
+1385  # Placeholder Pok�mon
+1386  # Placeholder Pok�mon
+1387  # Placeholder Pok�mon
+1388  # Placeholder Pok�mon
+1389  # Placeholder Pok�mon
+1390  # Placeholder Pok�mon
+1391  # Placeholder Pok�mon
+1392  # Placeholder Pok�mon
