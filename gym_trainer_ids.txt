@@ -1,0 +1,117 @@
+GYM TRAINER ID MAPPING
+===================
+
+
+Violet City:
+  Falkner: 712
+  Abe: 50
+  Rod: 29
+
+Azalea Town:
+  Bugsy: 713
+  Al: 68
+  Benny: 67
+  Amy & Mimi: 387
+
+Goldenrod City:
+  Victoria: 5
+  Samantha: 70
+  Carrie: 22
+  Cathy: 71
+  Whitney: 714
+
+Ecruteak City:
+  Georgina: 494
+  Grace: 89
+  Edith: 493
+  Martha: 46
+  Morty: 715
+
+Cianwood City:
+  Yoshi: 156
+  Lao: 157
+  Lung: 159
+  Nob: 251
+  Chuck: 718
+
+Olivine City:
+  Jasmine: 717
+
+Mahogany Town:
+  Pryce: 716
+  Diana: 480
+  Patton: 483
+  Deandre: 482
+  Jill: 481
+  Gerardo: 484
+
+Blackthorn City:
+  Paulo: 110
+  Lola: 117
+  Cody: 112
+  Fran: 119
+  Mike: 111
+  Clair: 734
+
+Pewter City:
+  Jerry: 308
+  Edwin: 685
+  Brock: 720
+
+Cerulean City:
+  Parker: 676
+  Eddie: 677
+  Diana: 297
+  Joy: 678
+  Briana: 298
+  Misty: 721
+
+Vermillion City:
+  Horton: 396
+  Vincent: 232
+  Gregory: 337
+  Lt. Surge: 722
+
+Celadon City:
+  Jo & Zoe: 416
+  Michelle: 356
+  Tanya: 336
+  Julia: 346
+  Erika: 723
+
+Fuchsia City:
+  Cindy: 83
+  Barry: 84
+  Alice: 183
+  Linda: 136
+  Janine: 724
+
+Saffron City:
+  Rebecca: 368
+  Jared: 415
+  Darcy: 369
+  Franklin: 230
+  Sabrina: 725
+
+Seafoam Islands:
+  Lowell: 692
+  Daniel: 694
+  Cary: 689
+  Linden: 693
+  Waldo: 690
+  Merle: 691
+  Blaine: 726
+
+Viridian City:
+  Arabella: 681
+  Salma: 683
+  Bonita: 682
+  Elan & Ida: 684
+  Blue: 727
+
+Elite Four:
+  Will: 702
+  Koga: 703
+  Bruno: 704
+  Karen: 705
+  Lance: 733

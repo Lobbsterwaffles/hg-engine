@@ -1,0 +1,82 @@
+{
+    "Violet City": {
+        "type": "Flying",
+        "leader": "Falkner",
+        "trainers": ["Bird Keeper Rod", "Bird Keeper Abe"]
+    },
+    "Azalea Town": {
+        "type": "Bug",
+        "leader": "Bugsy",
+        "trainers": ["Twins Amy & May", "Bug Catcher Josh", "Bug Catcher Arnie"]
+    },
+    "Goldenrod City": {
+        "type": "Normal",
+        "leader": "Whitney",
+        "trainers": ["Lass Carrie", "Beauty Victoria", "Beauty Samantha"]
+    },
+    "Ecruteak City": {
+        "type": "Ghost",
+        "leader": "Morty",
+        "trainers": ["Medium Martha", "Medium Grace", "Sage Jeffrey", "Sage Ping"]
+    },
+    "Cianwood City": {
+        "type": "Fighting",
+        "leader": "Chuck",
+        "trainers": ["Black Belt Yoshi", "Black Belt Lao", "Black Belt Nob"]
+    },
+    "Olivine City": {
+        "type": "Steel",
+        "leader": "Jasmine",
+        "trainers": ["Gentleman Preston", "Sailor Huey"]
+    },
+    "Mahogany Town": {
+        "type": "Ice",
+        "leader": "Pryce",
+        "trainers": ["Boarder Ronald", "Skier Roxanne", "Boarder Brad", "Boarder Douglas"]
+    },
+    "Blackthorn City": {
+        "type": "Dragon",
+        "leader": "Clair",
+        "trainers": ["Ace Trainer Lola", "Ace Trainer Cody", "Ace Trainer Fran", "Ace Trainer Jake"]
+    },
+    "Pewter City": {
+        "type": "Rock",
+        "leader": "Brock",
+        "trainers": ["Camper Jerry", "Young Couple Gia & Jes"]
+    },
+    "Cerulean City": {
+        "type": "Water",
+        "leader": "Misty",
+        "trainers": ["Swimmer Luis", "Picnicker Diana", "Young Couple Lea & Jed"]
+    },
+    "Vermilion City": {
+        "type": "Electric",
+        "leader": "Lt. Surge",
+        "trainers": ["Gentleman Gregory", "Sailor Huey", "Engineer Bernie"]
+    },
+    "Celadon City": {
+        "type": "Grass",
+        "leader": "Erika",
+        "trainers": ["Lass Michelle", "Beauty Tamia", "Picnicker Tanya", "Aroma Lady Mary"]
+    },
+    "Fuchsia City": {
+        "type": "Poison",
+        "leader": "Janine",
+        "trainers": ["Juggler Kirk", "Juggler Shawn", "Tamer Edgar", "Tamer Phil"]
+    },
+    "Saffron City": {
+        "type": "Psychic",
+        "leader": "Sabrina",
+        "trainers": ["Psychic Franklin", "Medium Rebecca", "Medium Doris", "Psychic Jared"]
+    },
+    "Cinnabar Island": {
+        "type": "Fire",
+        "leader": "Blaine",
+        "trainers": ["Super Nerd Zeke", "Super Nerd Derek", "Burglar Quinn", "Burglar Simon"]
+    },
+    "Viridian City": {
+        "type": "Ground",
+        "leader": "Blue",
+        "trainers": ["Ace Trainer Arabella", "Ace Trainer Cybil", "Ace Trainer Rodney", "Ace Trainer George"]
+    }
+}
