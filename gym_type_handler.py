@@ -166,13 +166,14 @@ def get_pokemon_by_type(type_name, mondata, excluded_pokemon=None, secondary_typ
 def select_themed_replacement(original_mon, mondata, type_name, excluded_pokemon=None, bst_range=0.2):
     """
     Select a replacement Pokémon of the specified type with similar BST.
+    Gradually expands BST range if no suitable match is found initially.
     
     Args:
         original_mon: The original Pokémon data
         mondata: List of all Pokémon data
         type_name: Type to use for replacement
         excluded_pokemon: Set of Pokémon IDs to exclude
-        bst_range: The acceptable BST range as a percentage (e.g., 0.2 for ±20%)
+        bst_range: The initial acceptable BST range as a percentage (e.g., 0.2 for ±20%)
         
     Returns:
         ID of a suitable replacement Pokémon, or None if none found
@@ -190,20 +191,39 @@ def select_themed_replacement(original_mon, mondata, type_name, excluded_pokemon
     if not primary_type_pokemon:
         return None
         
-    # Calculate BST range
+    # Calculate target BST (Base Stat Total - the sum of all stats)
     target_bst = original_mon.bst
-    min_bst = target_bst * (1 - bst_range)
-    max_bst = target_bst * (1 + bst_range)
     
-    # Find Pokémon within BST range
-    in_range_pokemon = [
+    # Try with gradually increasing BST ranges
+    # Start with the provided bst_range and increase if needed
+    for current_range in [bst_range, 0.3, 0.4, 0.5, 0.6]:  # 20%, 30%, 40%, 50%, 60%
+        # Calculate minimum and maximum BST for this range
+        min_bst = target_bst * (1 - current_range)
+        max_bst = target_bst * (1 + current_range)
+        
+        # Find Pokémon within current BST range
+        in_range_pokemon = [
+            i for i in primary_type_pokemon
+            if min_bst <= mondata[i].bst <= max_bst
+        ]
+        
+        # If we found matches in this range, choose one
+        if in_range_pokemon:
+            return random.choice(in_range_pokemon)
+    
+    # Hard cap for absolute max BST difference (don't exceed 100% increase)
+    # This prevents extremely strong Pokémon from being selected
+    hard_max_bst = target_bst * 2.0
+    
+    # Final fallback: find Pokémon under the hard cap
+    capped_pokemon = [
         i for i in primary_type_pokemon
-        if min_bst <= mondata[i].bst <= max_bst
+        if mondata[i].bst <= hard_max_bst
     ]
     
-    # If no Pokémon in BST range, use any of the correct type
-    if not in_range_pokemon:
+    if capped_pokemon:
+        # Use type-matched Pokémon under the hard cap
+        return random.choice(capped_pokemon)
+    else:
+        # Absolute last resort: any Pokémon of the right type
         return random.choice(primary_type_pokemon)
-    
-    # Otherwise, choose from type + BST range
-    return random.choice(in_range_pokemon)

@@ -324,54 +324,35 @@ def set_trainer_team_size(rom, trainer_id, target_size):
             levels = [p.level for p in pokemon_list]
             avg_level = sum(levels) / len(levels) if levels else 30
             
-            # Find the trainer's ace (highest level Pokémon)
-            ace_index = 0
-            max_level = 0
-            for i, poke in enumerate(pokemon_list):
-                if poke.level > max_level:
-                    max_level = poke.level
-                    ace_index = i
-            
-            # Add new Pokémon by duplicating existing ones (except the ace)
+            # Add new Pokémon
             for _ in range(target_size - current_size):
-                # Create a list of Pokémon we can duplicate (exclude the ace)
-                duplicate_candidates = []
-                for i, poke in enumerate(pokemon_list):
-                    if i != ace_index:  # Don't duplicate the ace
-                        duplicate_candidates.append(poke)
-                
-                # If we somehow have no candidates (only one Pokémon in team), use it anyway
-                if not duplicate_candidates and pokemon_list:
-                    duplicate_candidates = [pokemon_list[0]]
-                
-                # Select a random Pokémon to duplicate
-                if duplicate_candidates:
-                    pokemon_to_duplicate = random.choice(duplicate_candidates)
-                    species_id = pokemon_to_duplicate.species
-                    
-                    # Slightly adjust the level (±2)
-                    new_level = pokemon_to_duplicate.level + random.randint(-2, 2)
-                    if new_level < 1:
-                        new_level = 1
-                        
-                    # Use the same moves if available
-                    moves = None
-                    if has_moves and hasattr(pokemon_to_duplicate, 'moves'):
-                        moves = pokemon_to_duplicate.moves.copy()
-                        # Slightly shuffle the moves for variety
-                        if random.random() > 0.5:  # 50% chance to shuffle
-                            random.shuffle(moves)
+                # Choose a species
+                if preferred_type and preferred_type in COMMON_POKEMON:
+                    # Use the trainer's preferred type
+                    species_id = random.choice(COMMON_POKEMON[preferred_type])
                 else:
-                    # Fallback in case there are no existing Pokémon to duplicate
-                    print(f"Warning: No Pokémon to duplicate for trainer {trainer_id}, adding random Pokémon")
-                    species_id = random.randint(1, 649)  # Random species ID
-                    new_level = int(avg_level)
-                    
-                    # Create basic moves if needed
-                    moves = None
-                    if has_moves:
-                        move_options = [33, 45, 98, 28, 39, 31, 43]  # Basic moves
-                        moves = [random.choice(move_options) for _ in range(3)] + [0]
+                    # No preference, pick a random type
+                    random_type = random.choice(list(COMMON_POKEMON.keys()))
+                    species_id = random.choice(COMMON_POKEMON[random_type])
+                
+                # Calculate level - slightly randomized around the average
+                new_level = int(avg_level + random.randint(-2, 2))
+                if new_level < 1:
+                    new_level = 1
+                
+                # Create moves if trainer has Pokémon with moves
+                moves = None
+                if has_moves:
+                    # Some basic move IDs (Tackle, Growl, Quick Attack, etc.)
+                    move_options = [33, 45, 98, 28, 39, 31, 43]
+                    moves = [
+                        random.choice(move_options),
+                        random.choice(move_options),
+                        random.choice(move_options),
+                        0   # Empty move
+                    ]
+                    # Randomize a bit to avoid all having the same moves
+                    random.shuffle(moves)
                 
                 # Add the Pokémon
                 add_pokemon_to_trainer(rom, trainer_id, species_id, new_level, moves)

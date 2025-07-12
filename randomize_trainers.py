@@ -4,6 +4,8 @@ import os
 import re
 import argparse
 import sys
+import json
+from datetime import datetime
 
 import ndspy.rom
 import ndspy.narc
@@ -25,359 +27,91 @@ from pokemon_shared import (
 # Import move reader to use move data
 from Move_reader import read_moves
 
-# Import team size adjustment functions
-from randomizer_functions import max_team_size_bosses
+# Team size adjustments will be handled by boss_team_adjuster.py
 
-# Import special Pokemon handlers
-from special_pokemon_handler import apply_special_pokemon
+# Special Pokemon handlers will be called separately
+
+# Import trainer data parsing functions
+from trainer_data_parser import (
+    read_trainer_names,
+    read_trainer_data,
+    map_gym_trainer_names_to_ids,
+    rebuild_trainer_data,
+    update_trainer_poke_count_field,
+    GYM_TRAINERS,
+    GYM_TRAINER_OVERRIDES,
+    GYM_TRAINER_IDS,
+    DEBUG_TRAINER_PARSING
+)
 
 # Direct parsing approach for hge.nds
 # Based on the ROM analysis, we need a different approach
 
-# Pokémon entry structure (each Pokémon is 8 bytes) - Fixed alignment
-trainer_pokemon_struct = Struct(
-    "ivs" / Int8ul,             # 1 byte - IVs
-    "abilityslot" / Int8ul,     # 1 byte - Ability slot
-    "level" / Int16ul,          # 2 bytes - Level (halfword)
-    "species" / Int16ul,        # 2 bytes - Species ID (halfword)
-    "ballseal" / Int16ul,       # 2 bytes - Ball seal (halfword, not byte!)
-)
+# Data structures and parsing functions are now imported from trainer_data_parser.py
 
-# Pokémon with moves structure (20 bytes total)
-trainer_pokemon_moves_struct = Struct(
-    "ivs" / Int8ul,             # 1 byte - IVs
-    "abilityslot" / Int8ul,     # 1 byte - Ability slot
-    "level" / Int16ul,          # 2 bytes - Level (halfword)
-    "species" / Int16ul,        # 2 bytes - Species ID (halfword)
-    "item" / Int16ul,           # 2 bytes - Held item
-    "move1" / Int16ul,          # 2 bytes - Move 1
-    "move2" / Int16ul,          # 2 bytes - Move 2
-    "move3" / Int16ul,          # 2 bytes - Move 3
-    "move4" / Int16ul,          # 2 bytes - Move 4
-    "ballseal" / Int16ul,       # 2 bytes - Ball seal (halfword)
-)
+# map_gym_trainer_names_to_ids function moved to trainer_data_parser.py
 
-# In hge.nds, trainers seem to be stored without the standard header
-# We'll directly parse the Pokémon entries instead of relying on nummons
+# read_trainer_names function moved to trainer_data_parser.py
 
-# These functions are now imported from pokemon_shared.py
-
-# Debug switch - set to True to enable detailed hex debugging
-DEBUG_TRAINER_PARSING = False
-
-# Move ID constants
-SPLASH_MOVE_ID = 150  # Move ID for Splash
-BASE_TRAINER_NARC_PATH = "a/0/5/6"
-
-# Gym trainer data organized by location
-GYM_TRAINERS = {
-    "Violet City": ["Falkner", "Abe", "Rod"],
-    "Azalea Town": ["Bugsy", "Al", "Benny", "Amy & Mimi"],
-    "Goldenrod City": ["Victoria", "Samantha", "Carrie", "Cathy", "Whitney"],
-    "Ecruteak City": ["Georgina", "Grace", "Edith", "Martha", "Morty"],
-    "Cianwood City": ["Yoshi", "Lao", "Lung", "Nob", "Chuck"],
-    "Olivine City": ["Jasmine"],
-    "Mahogany Town": ["Pryce", "Diana", "Patton", "Deandre", "Jill", "Gerardo"],
-    "Blackthorn City": ["Paulo", "Lola", "Cody", "Fran", "Mike", "Clair"],
-    "Pewter City": ["Jerry", "Edwin", "Brock"],
-    "Cerulean City": ["Parker", "Eddie", "Diana", "Joy", "Briana", "Misty"],
-    "Vermillion City": ["Horton", "Vincent", "Gregory", "Lt. Surge"],
-    "Celadon City": ["Jo & Zoe", "Michelle", "Tanya", "Julia", "Erika"],
-    "Fuchsia City": ["Cindy", "Barry", "Alice", "Linda", "Janine"],
-    "Saffron City": ["Rebecca", "Jared", "Darcy", "Franklin", "Sabrina"],
-    "Seafoam Islands": ["Lowell", "Daniel", "Cary", "Linden", "Waldo", "Merle", "Blaine"],
-    "Viridian City": ["Arabella", "Salma", "Bonita", "Elan & Ida", "Blue"],
-    "Elite Four": ["Will", "Koga", "Bruno", "Karen", "Lance"]
-}
-
-# Override dictionary for duplicate trainer names
-# Format: (location, trainer_name): trainer_id
-GYM_TRAINER_OVERRIDES = {
-    ("Mahogany Town", "Diana"): 480,  # Diana in Mahogany Town
-    ("Cerulean City", "Diana"): 297,  # Diana in Cerulean City
-    # Add more overrides here as needed
-}
-
-# Dictionary to store gym trainer name to ID mapping
-GYM_TRAINER_IDS = {}
-
-def map_gym_trainer_names_to_ids(trainer_names):
-    """
-    Create a mapping from gym trainer names to their numeric IDs.
-    
-    Args:
-        trainer_names: Dictionary mapping trainer IDs to names (from read_trainer_names)
-        
-    Returns:
-        Dictionary mapping gym locations to lists of (trainer_name, trainer_id) tuples
-        
-    Raises:
-        ValueError: If any gym trainer name cannot be matched to a trainer ID
-    """
-    # Create a reverse mapping from names to IDs
-    name_to_id = {}
-    for trainer_id, name in trainer_names.items():
-        name_to_id[name] = trainer_id
-    
-    # Create a mapping for gym trainers
-    gym_trainer_ids = {}
-    missing_trainers = []
-    
-    # Track duplicate trainer names
-    all_trainer_locations = {}  # Maps trainer_name to list of locations where it appears
-    
-    # First pass: gather all occurrences of each trainer name
-    for location, trainers in GYM_TRAINERS.items():
-        for trainer_name in trainers:
-            if trainer_name not in all_trainer_locations:
-                all_trainer_locations[trainer_name] = []
-            all_trainer_locations[trainer_name].append(location)
-    
-    # Find duplicate trainer names (appear in more than one location)
-    duplicate_trainers = []
-    for trainer_name, locations in all_trainer_locations.items():
-        if len(locations) > 1:
-            duplicate_trainers.append((trainer_name, locations))
-    
-    # If we found duplicates that aren't in the override dictionary, warn the user
-    unhandled_duplicates = []
-    for trainer_name, locations in duplicate_trainers:
-        has_override = all((location, trainer_name) in GYM_TRAINER_OVERRIDES 
-                          for location in locations)
-        if not has_override:
-            unhandled_duplicates.append((trainer_name, locations))
-    
-    if unhandled_duplicates:
-        error_msg = "Found duplicate trainer names without overrides:\n"
-        for trainer_name, locations in unhandled_duplicates:
-            error_msg += f"  - {trainer_name} appears in: {', '.join(locations)}\n"
-        error_msg += "\nPlease add overrides for these trainers in the GYM_TRAINER_OVERRIDES dictionary."
-        raise ValueError(error_msg)
-    
-    # Second pass: map trainer names to IDs using overrides where applicable
-    for location, trainers in GYM_TRAINERS.items():
-        gym_trainer_ids[location] = []
-        for trainer_name in trainers:
-            # Check if there's an override for this trainer
-            if (location, trainer_name) in GYM_TRAINER_OVERRIDES:
-                # Use the override ID
-                trainer_id = GYM_TRAINER_OVERRIDES[(location, trainer_name)]
-            else:
-                # Try to find an exact match
-                trainer_id = name_to_id.get(trainer_name)
-                
-                # If no exact match, try case-insensitive match
-                if trainer_id is None:
-                    for name, id in name_to_id.items():
-                        if name.lower() == trainer_name.lower():
-                            trainer_id = id
-                            break
-                
-                # If still no match, try partial match (for names like "Lt. Surge" vs "LtSurge")
-                if trainer_id is None:
-                    for name, id in name_to_id.items():
-                        # Remove spaces and punctuation for comparison
-                        clean_name = ''.join(c for c in name if c.isalnum()).lower()
-                        clean_trainer_name = ''.join(c for c in trainer_name if c.isalnum()).lower()
-                        
-                        if clean_name == clean_trainer_name or \
-                           clean_name in clean_trainer_name or \
-                           clean_trainer_name in clean_name:
-                            trainer_id = id
-                            break
-            
-            # If we still couldn't find a match, add to the list of missing trainers
-            if trainer_id is None:
-                missing_trainers.append((location, trainer_name))
-            
-            gym_trainer_ids[location].append((trainer_name, trainer_id))
-    
-    # If any trainers couldn't be found, raise an error
-    if missing_trainers:
-        error_msg = "Could not find the following gym trainers in the ROM:\n"
-        for location, trainer in missing_trainers:
-            error_msg += f"  - {trainer} (in {location})\n"
-        error_msg += "\nPlease check the trainer names and make sure they match the names in the ROM."
-        raise ValueError(error_msg)
-    
-    # Update the global dictionary
-    global GYM_TRAINER_IDS
-    GYM_TRAINER_IDS = gym_trainer_ids
-    
-    return gym_trainer_ids
-
-def read_trainer_names(base_path):
-    """Read trainer names if available"""
-    trainer_names = {}
-    try:
-        # Read trainer names from the assembly file using regex
-        trainer_file = os.path.join(base_path, "armips/data/trainers/trainers.s")
-        with open(trainer_file, "r", encoding="utf-8") as f:
-            pattern = r"trainerdata\s+(\d+),\s+\"([^\"]+)\""
-            for line in f:
-                match = re.search(pattern, line)
-                if match:
-                    idx = int(match.group(1))
-                    name = match.group(2)
-                    trainer_names[idx] = name
-        return trainer_names
-    except FileNotFoundError:
-        # If file doesn't exist, return empty dict
-        return {}
-
-def read_trainer_data(rom):
-    """Read all trainer data from ROM"""
-    narc_file_id = rom.filenames.idOf("a/0/5/6")
-    trainer_narc = rom.files[narc_file_id]
-    trainer_narc_data = ndspy.narc.NARC(trainer_narc)
-    
-    # Load the trainers.s file to get the expected number of Pokémon for each trainer
-    trainer_pokemon_counts = {}
-    try:
-        with open("armips/data/trainers/trainers.s", "r", encoding="utf-8") as f:
-            current_trainer = None
-            for line in f:
-                # Look for trainerdata lines to get trainer ID
-                if "trainerdata" in line and "," in line:
-                    try:
-                        trainer_id = int(line.split("trainerdata")[1].split(",")[0].strip())
-                        current_trainer = trainer_id
-                    except:
-                        pass
-                # Look for nummons to get the number of Pokémon
-                elif current_trainer is not None and "nummons" in line:
-                    try:
-                        num = int(line.split("nummons")[1].strip())
-                        trainer_pokemon_counts[current_trainer] = num
-                    except:
-                        pass
-        print(f"Loaded Pokémon counts for {len(trainer_pokemon_counts)} trainers from trainers.s")
-    except Exception as e:
-        print(f"Error loading trainer.s file: {e}")
-        print("Will try to auto-detect Pokémon count from binary data")
-    
-    trainers = []
-    for i, data in enumerate(trainer_narc_data.files):
-        # Create a Container object to store trainer data
-        from construct import Container
-        trainer = Container()
-        
-        # For HG Engine, we need to parse the data differently
-        # Each trainer entry seems to be just a list of Pokémon
-        
-        # First, set some default values
-        trainer.trainerdata = 0  # Assume standard type
-        trainer.trainerclass = 0
-        trainer.battletype = 0
-        trainer.nummons = 0
-        trainer.items = [0, 0, 0, 0]
-        trainer.ai_flags = 0
-        trainer.padding = 0
-        trainer.pokemon = []
-        
-        # Get the expected number of Pokémon for this trainer
-        expected_pokemon = trainer_pokemon_counts.get(i, 0)
-        
-        # Detect if this trainer has Pokémon with moves based on data length
-        # Each Pokémon with moves takes 20 bytes, without moves takes 8 bytes
-        has_moves = False
-        pokemon_size = 8  # Default size without moves
-        
-        if len(data) == 0:
-            # Empty trainer, skip
-            trainers.append((i, trainer))
-            continue
-        
-        # Determine format based on expected Pokemon count and data size
-        # NOTE: Pokemon with moves = 18 bytes, without moves = 8 bytes
-        if expected_pokemon > 0:
-            # Check if the data size matches expected count with moves (18 bytes each)
-            if len(data) == expected_pokemon * 18:
-                has_moves = True
-                pokemon_size = 18
-            # Check if data size matches expected count without moves (8 bytes each)
-            elif len(data) == expected_pokemon * 8:
-                has_moves = False
-                pokemon_size = 8
-            # If data doesn't match exactly, prefer moves format if closer to expected*18
-            else:
-                diff_with_moves = abs(len(data) - (expected_pokemon * 18))
-                diff_without_moves = abs(len(data) - (expected_pokemon * 8))
-                if diff_with_moves <= diff_without_moves:
-                    has_moves = True
-                    pokemon_size = 18
-                else:
-                    has_moves = False
-                    pokemon_size = 8
-        else:
-            # Fallback: try to detect based on data length divisibility
-            if len(data) % 18 == 0 and len(data) > 0:
-                has_moves = True
-                pokemon_size = 18
-            elif len(data) % 8 == 0 and len(data) > 0:
-                has_moves = False
-                pokemon_size = 8
-            else:
-                # Default to no moves if unclear
-                has_moves = False
-                pokemon_size = 8
-        
-        # Calculate number of Pokémon based on data length and detected format
-        num_pokemon = len(data) // pokemon_size
-        trainer.nummons = num_pokemon
-        
-        # Debug: Print hex data for all trainers to check alignment
-        if DEBUG_TRAINER_PARSING:
-            print(f"\n=== TRAINER {i} DEBUG ===")
-            print(f"Data length: {len(data)} bytes")
-            print(f"Expected Pokemon: {expected_pokemon}")
-            print(f"Has moves: {has_moves}, Pokemon size: {pokemon_size}")
-            print(f"Calculated num_pokemon: {num_pokemon}")
-            # Print hex data in 8-byte chunks with decimal values
-            for chunk_start in range(0, len(data), 8):  # Print all data
-                chunk = data[chunk_start:chunk_start+8]
-                hex_str = ' '.join(f'{b:02X}({b:3d})' for b in chunk)
-                print(f"Offset {chunk_start:02X}: {hex_str}")
-            print("========================\n")
-        
-        # Now parse each Pokémon entry
-        for j in range(num_pokemon):
-            offset = j * pokemon_size
-            
-            # Parse the Pokémon data
-            if has_moves:
-                # Pokémon with moves (18 bytes)
-                pokemon_data = data[offset:offset+pokemon_size]
-                pokemon = trainer_pokemon_moves_struct.parse(pokemon_data)
-            else:
-                # Standard Pokémon (8 bytes)
-                pokemon_data = data[offset:offset+pokemon_size]
-                pokemon = trainer_pokemon_struct.parse(pokemon_data)
-            
-            # Debug: Print parsed data for all trainers
-            if DEBUG_TRAINER_PARSING:
-                if has_moves:
-                    print(f"Pokemon {j}: IVs={pokemon.ivs}, Ability={pokemon.abilityslot}, Level={pokemon.level}, Species={pokemon.species}, Item={pokemon.item}, Moves=[{pokemon.move1},{pokemon.move2},{pokemon.move3},{pokemon.move4}], Ballseal={pokemon.ballseal}")
-                else:
-                    print(f"Pokemon {j}: IVs={pokemon.ivs}, Ability={pokemon.abilityslot}, Level={pokemon.level}, Species={pokemon.species}, Ballseal={pokemon.ballseal}")
-            
-            # Add to trainer's team
-            trainer.pokemon.append(pokemon)
-        
-        # If we found Pokémon, flag this trainer as having moves if needed
-        if has_moves and len(trainer.pokemon) > 0:
-            trainer.trainerdata = 2  # Set flag for having moves
-        
-        trainers.append((i, trainer))
-        if DEBUG_TRAINER_PARSING:
-            print(f"Trainer {i}: Parsed {len(trainer.pokemon)} Pokémon" + (" with moves" if has_moves else ""))
-    
-    print(f"Total trainers processed: {len(trainers)}")
-    return trainers, trainer_narc_data
+# read_trainer_data function moved to trainer_data_parser.py
 
 # find_replacements is now imported from pokemon_shared.py
 
-def randomize_trainer_pokemon(trainer_id, trainer, mondata, trainer_name, log_function=None, base_path=".", bst_mode="bst", gym_types=None, use_gym_types=False, use_pivots=False, use_fulcrums=False, use_mimics=False):
+def save_temp_data(rom_path, gym_types=None, settings=None):
+    """Save temporary data for other scripts to use
+    
+    Args:
+        rom_path (str): Path to the ROM file
+        gym_types (dict): Gym type assignments {trainer_id: type}
+        settings (dict): Randomization settings used
+    """
+    temp_data = {
+        "timestamp": datetime.now().isoformat(),
+        "rom_path": rom_path
+    }
+    
+    if gym_types:
+        temp_data["gym_type_assignments"] = gym_types
+    
+    if settings:
+        temp_data["randomization_settings"] = settings
+    
+    # Save temp data file alongside the ROM
+    temp_file = rom_path.replace('.nds', '_temp_data.json')
+    with open(temp_file, 'w', encoding='utf-8') as f:
+        json.dump(temp_data, f, indent=2)
+    
+    return temp_file
+
+def load_temp_data(rom_path):
+    """Load temporary data saved by previous scripts
+    
+    Args:
+        rom_path (str): Path to the ROM file
+        
+    Returns:
+        dict: Temporary data or empty dict if not found
+    """
+    temp_file = rom_path.replace('.nds', '_temp_data.json')
+    try:
+        with open(temp_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+def cleanup_temp_data(rom_path):
+    """Clean up temporary data file
+    
+    Args:
+        rom_path (str): Path to the ROM file
+    """
+    temp_file = rom_path.replace('.nds', '_temp_data.json')
+    try:
+        os.remove(temp_file)
+    except FileNotFoundError:
+        pass
+
+def randomize_trainer_pokemon(trainer_id, trainer, mondata, trainer_name, log_function=None, base_path=".", bst_mode="bst", gym_types=None, use_gym_types=False):
     """Randomize a trainer's Pokémon based on selected mode
     
     Args:
@@ -526,29 +260,9 @@ def randomize_trainer_pokemon(trainer_id, trainer, mondata, trainer_name, log_fu
                 log_message += f"\n{' '*53}{move_info}"
             log_function(log_message)
 
-    # Apply special Pokémon (pivots, fulcrums, mimics) if enabled
-    if any([use_pivots, use_fulcrums, use_mimics]) and gym_type:
-        # Convert gym type format from "Fire" to "TYPE_FIRE" format for special Pokémon handlers
-        special_gym_type = f"TYPE_{gym_type.upper()}" if gym_type else None
-        
-        # Log what type we're using for special Pokémon
-        if log_function:
-            log_function(f"\nApplying special Pokémon for gym type: {gym_type} (as {special_gym_type})")
-            
-        new_pokemon = apply_special_pokemon(
-            trainer.pokemon, special_gym_type, mondata, base_path,
-            use_pivots, use_fulcrums, use_mimics
-        )
-        if log_function:
-            if use_pivots:
-                log_function(f"    Added pivot Pokémon for {trainer_name} (Gym type: {gym_type})")
-            if use_fulcrums:
-                log_function(f"    Added fulcrum Pokémon for {trainer_name} (Gym type: {gym_type})")
-            if use_mimics:
-                log_function(f"    Added mimic Pokémon for {trainer_name} (Gym type: {gym_type})")
+    # Special Pokemon handling will be done separately
 
-    # Return the updated Pokémon list
-    return trainer.pokemon
+    # Function modifies trainer.pokemon in place, no return needed
 
 def replace_moves_with_splash(trainer):
     """Replace all moves of a trainer's Pokémon with Splash"""
@@ -560,16 +274,16 @@ def replace_moves_with_splash(trainer):
     if not hasattr(trainer.pokemon[0], 'move1'):
         return trainer
     
-    # Replace all moves with Splash
+    # Replace all moves with Splash (move ID 150)
     for pokemon in trainer.pokemon:
-        pokemon.move1 = SPLASH_MOVE_ID
-        pokemon.move2 = SPLASH_MOVE_ID
-        pokemon.move3 = SPLASH_MOVE_ID
-        pokemon.move4 = SPLASH_MOVE_ID
+        pokemon.move1 = 150  # Splash move ID
+        pokemon.move2 = 150
+        pokemon.move3 = 150
+        pokemon.move4 = 150
         
     return trainer
 
-def randomize_trainers(rom, log_function=None, progress_callback=None, replace_moves=False, base_path=".", bst_mode="bst", use_gym_types=False, use_pivots=False, use_fulcrums=False, use_mimics=False, seed=None):
+def randomize_trainers(rom, log_function=None, progress_callback=None, replace_moves=False, base_path=".", bst_mode="bst", use_gym_types=False, seed=None):
     """Randomize all trainers' Pokémon based on selected mode
     
     Args:
@@ -670,7 +384,7 @@ def randomize_trainers(rom, log_function=None, progress_callback=None, replace_m
             log_function(f"Replaced all moves with Splash for {trainer_name}")
         else:
             # Randomize this trainer's Pokémon - pass gym type info if we're using type-themed gyms
-            trainer.pokemon = randomize_trainer_pokemon(trainer_id, trainer, mondata, trainer_name, log_function, base_path, bst_mode, gym_types, use_gym_types, use_pivots, use_fulcrums, use_mimics)
+            randomize_trainer_pokemon(trainer_id, trainer, mondata, trainer_name, log_function, base_path, bst_mode, gym_types, use_gym_types)
         
         # Rebuild trainer data and save it back to the NARC
         try:
@@ -678,32 +392,23 @@ def randomize_trainers(rom, log_function=None, progress_callback=None, replace_m
             if trainer.nummons == 0 or not hasattr(trainer, 'pokemon') or len(trainer.pokemon) == 0:
                 print(f"Skipping trainer {trainer_id} with no Pokémon")
                 continue
-                            
-            # Create a new empty byte array for the rebuilt data
-            rebuilt_data = bytearray()
             
-            # Check if trainer has Pokémon with moves
-            has_moves = hasattr(trainer, 'trainerdata') and trainer.trainerdata & 2
-            # Also check the first Pokémon (more reliable)
-            if len(trainer.pokemon) > 0 and hasattr(trainer.pokemon[0], 'move1'):
-                has_moves = True
-                
-            # Add each Pokémon to the data
-            for pokemon in trainer.pokemon:
-                if has_moves:
-                    # Pokémon with moves
-                    pokemon_data = trainer_pokemon_moves_struct.build(pokemon)
-                else:
-                    # Standard Pokémon
-                    pokemon_data = trainer_pokemon_struct.build(pokemon)
-                    
-                # Add the Pokémon data to the rebuilt data
-                rebuilt_data.extend(pokemon_data)
-                
+            # Use the rebuild_trainer_data function from trainer_data_parser.py
+            rebuilt_data = rebuild_trainer_data(trainer)
+            
             # Save the rebuilt data back to the NARC
             trainer_narc_data.files[trainer_id] = bytes(rebuilt_data)
-            print(f"Successfully rebuilt trainer {trainer_id} with {len(trainer.pokemon)} Pokémon" + 
-                  (" with moves" if has_moves else ""))
+            
+            # Update the poke_count field to match the actual Pokemon count
+            # This ensures synchronization after randomization
+            update_trainer_poke_count_field(rom, trainer_id, len(trainer.pokemon))
+            
+            # Check if trainer has moves for logging
+            has_moves = len(trainer.pokemon) > 0 and hasattr(trainer.pokemon[0], 'move1')
+            if DEBUG_TRAINER_PARSING:
+                print(f"Successfully rebuilt trainer {trainer_id} with {len(trainer.pokemon)} Pokémon" + 
+                      (" with moves" if has_moves else ""))
+                print(f"Updated poke_count field to {len(trainer.pokemon)} for consistency")
             
         except Exception as e:
             print(f"Error rebuilding trainer {trainer_id}: {e}")
@@ -727,6 +432,41 @@ def randomize_trainers(rom, log_function=None, progress_callback=None, replace_m
     except Exception as e:
         print(f"Error saving trainer data to ROM: {e}")
     
+    # Save temporary data for other scripts to use
+    if use_gym_types and gym_types:
+        # Import our new gym type data utility
+        from gym_type_data import save_gym_type_data
+        
+        # Convert gym_types structure to simple trainer_id: type mapping
+        gym_assignments = {}
+        for location, gym_info in gym_types.items():
+            gym_type = gym_info.get('type')
+            for trainer_name, trainer_id in gym_trainer_ids.get(location, []):
+                if trainer_id is not None:
+                    gym_assignments[str(trainer_id)] = {
+                        "trainer_name": trainer_name,
+                        "gym_location": location,
+                        "assigned_type": gym_type,
+                        "is_leader": trainer_name in gym_info.get('leader', '')
+                    }
+        
+        # Save gym type assignments using our dedicated utility
+        gym_types_file = save_gym_type_data(rom.filename if hasattr(rom, 'filename') else 'unknown', 
+                                         gym_assignments)
+        print(f"Saved gym type assignments to {gym_types_file} for special Pokémon handler")
+        
+        # Also save other settings in the regular temp data
+        settings = {
+            "bst_mode": bst_mode,
+            "use_gym_types": use_gym_types,
+            "replace_moves": replace_moves,
+            "seed": seed
+        }
+        
+        temp_file = save_temp_data(rom.filename if hasattr(rom, 'filename') else 'unknown', 
+                                 None, settings)  # Don't include gym assignments here
+        print(f"Saved temporary data to {temp_file} for other scripts")
+    
     # Return the trainers list so it can be further modified if needed
     return trainers
 
@@ -742,17 +482,9 @@ def main():
                       help="BST randomization mode: 'bst' (select Pokémon with similar stats) or 'random' (completely random)")
     parser.add_argument("--type-themed-gyms", action="store_true", 
                        help="Enable type-themed gyms (gym leaders and trainers use Pokémon matching their gym's type)")
-    parser.add_argument("--max-boss-teams", action="store_true", help="Give all boss trainers full teams")
-    parser.add_argument("--boss-team-size", type=int, default=6, help="Set the team size for boss trainers (default: 6)")
+    # Boss team size adjustments will be handled by boss_team_adjuster.py
     
-    # Special Pokémon options
-    special_group = parser.add_argument_group("Special Pokémon Options")
-    special_group.add_argument("--pivots", action="store_true", 
-                            help="Add pivot Pokémon that defend against a gym's type weaknesses")
-    special_group.add_argument("--fulcrums", action="store_true", 
-                            help="Add fulcrum Pokémon that offensively counter a gym's weaknesses")
-    special_group.add_argument("--mimics", action="store_true", 
-                            help="Add mimic Pokémon that thematically fit a gym's type without being that type")
+    # Special Pokémon options will be handled by a separate script
     
     args = parser.parse_args()
     
@@ -802,33 +534,9 @@ def main():
     # Randomize trainers
     trainers = randomize_trainers(rom, log_function=log_function, replace_moves=args.splash, 
                                base_path=base_path, bst_mode=args.bst_mode, use_gym_types=args.type_themed_gyms,
-                               use_pivots=args.pivots, use_fulcrums=args.fulcrums, use_mimics=args.mimics,
                                seed=args.seed)
     
-    # If max-boss-teams is enabled, adjust boss team sizes after randomization
-    if args.max_boss_teams:
-        message = f"Setting boss trainers to have {args.boss_team_size} Pokémon..."
-        print(message)
-        if log_function:
-            log_function(message)
-            
-        trainers = max_team_size_bosses(trainers, target_size=args.boss_team_size, log_function=log_function)
-        
-        # Update trainer poke_count values in the ROM
-        from randomizer_functions import update_trainer_poke_count
-        for trainer_id, trainer in trainers:
-            update_trainer_poke_count(rom, trainer_id, len(trainer.pokemon))
-            
-        # Need to rebuild and save the Pokémon data
-        narc_file_id = rom.filenames.idOf("a/0/5/6")
-        trainer_narc_data = ndspy.narc.NARC(rom.files[narc_file_id])
-        
-        for trainer_id, trainer in trainers:
-            if hasattr(trainer, 'pokemon') and trainer.pokemon:
-                data = rebuild_trainer_data(trainer)
-                trainer_narc_data.files[trainer_id] = data
-                
-        rom.files[narc_file_id] = trainer_narc_data.save()
+    # Boss team size adjustments will be handled by boss_team_adjuster.py separately
     
     # Save the ROM with a descriptive name
     output_name = "_random"
@@ -840,16 +548,9 @@ def main():
         output_name += "_typegyms"
     if args.bst_mode == "random":
         output_name += "_truerandom"
-    if args.max_boss_teams:
-        output_name += f"_bosses{args.boss_team_size}"
+    # Boss team indicators will be added by boss_team_adjuster.py
     
-    # Add special Pokémon indicators to filename
-    if args.pivots:
-        output_name += "_pivots"
-    if args.fulcrums:
-        output_name += "_fulcrums"
-    if args.mimics:
-        output_name += "_mimics"
+    # Special Pokémon indicators will be added by separate script
         
     output_path = rom_path.replace(".nds", f"{output_name}.nds")
     rom.saveToFile(output_path)

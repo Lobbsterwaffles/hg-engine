@@ -15,50 +15,10 @@ TYPES = [
     'TYPE_DARK', 'TYPE_STEEL', 'TYPE_FAIRY'
 ]
 
-# Caches for the special Pokémon data
-_pivot_cache = {}
-_fulcrum_cache = {}
-_mimic_cache = {}
-_bst_cache = {}  # Cache for BST values
-
-# Function to get BST for a species
-def get_bst_for_species(species_id, mondata):
-    """Get the Base Stat Total (BST) for a Pokémon species
-    
-    Args:
-        species_id (int): The species ID to look up
-        mondata (list): List of Pokémon data dictionaries
-        
-    Returns:
-        int: The BST value, or 500 as a fallback if not found
-    """
-    global _bst_cache
-    
-    # If we have it in the cache, return it
-    if species_id in _bst_cache:
-        return _bst_cache[species_id]
-        
-    # Try to find in mondata
-    if species_id < len(mondata):
-        mon = mondata[species_id]
-        # Typically stats are stored as base_hp, base_attack, etc.
-        stats = [
-            mon.get('base_hp', 0),
-            mon.get('base_attack', 0),
-            mon.get('base_defense', 0),
-            mon.get('base_spatk', 0),
-            mon.get('base_spdef', 0), 
-            mon.get('base_speed', 0)
-        ]
-        
-        # Calculate sum only if we have valid stats
-        if all(isinstance(stat, int) for stat in stats):
-            bst = sum(stats)
-            _bst_cache[species_id] = bst
-            return bst
-    
-    # Default fallback - a reasonable average BST
-    return 500
+# Cache for loaded special Pokémon data
+_pivot_cache = None
+_fulcrum_cache = None
+_mimic_cache = None
 
 
 def read_pivot_data(base_path: str) -> Dict[str, List[str]]:
@@ -174,16 +134,14 @@ def read_mimic_data(base_path: str) -> Dict[str, List[str]]:
     return _mimic_cache
 
 
-def get_pivot_pokemon(gym_type, mondata, base_path=".", used_ids=None, target_bst=None, bst_data=None):
-    """Get a suitable pivot Pokémon for the given gym type with a BST within 10% of the target
+def get_pivot_pokemon(gym_type, mondata, base_path=".", used_ids=None):
+    """Get a suitable pivot Pokémon for the given gym type
     
     Args:
         gym_type (str): The gym type to get a pivot for
         mondata (list): List of Pokémon data dictionaries
         base_path (str): Base path for loading data files
         used_ids (list): List of Pokémon IDs already used, to avoid duplicates
-        target_bst (int): Target BST value to match within 10%
-        bst_data (dict): Dictionary mapping species IDs to their BST values
     
     Returns:
         int: ID of selected pivot Pokémon, or None if no suitable pivot found
@@ -206,9 +164,6 @@ def get_pivot_pokemon(gym_type, mondata, base_path=".", used_ids=None, target_bs
         search_types.append(gym_type)
         search_types.append(f'TYPE_{gym_type}')  # also try with the TYPE_ prefix
     
-    # If we have a target BST and BST data, we'll collect all candidates and choose the best match
-    all_candidates = []
-    
     # Try each search type to find matching Pokémon
     for type_key in search_types:
         if type_key in _pivot_cache:
@@ -217,7 +172,10 @@ def get_pivot_pokemon(gym_type, mondata, base_path=".", used_ids=None, target_bs
             if not species_list:
                 continue
                 
-            # Find all species IDs that aren't in used_ids
+            # Randomize the list
+            random.shuffle(species_list)
+            
+            # Find the first species ID that's not in used_ids
             for species_name in species_list:
                 # Most species are in format "SPECIES_PIKACHU"
                 species_name_no_prefix = species_name.replace('SPECIES_', '')
@@ -237,36 +195,8 @@ def get_pivot_pokemon(gym_type, mondata, base_path=".", used_ids=None, target_bs
                         continue
                         
                     if name.upper() == species_name_no_prefix:
-                        # If we have BST data, add to candidates list
-                        if target_bst and bst_data and species_id in bst_data:
-                            all_candidates.append((species_id, name, bst_data[species_id]))
-                        else:
-                            # If no BST data, just return the first match as before
-                            print(f"Selected pivot Pokémon for {gym_type}: {name} (ID: {species_id})")
-                            return species_id
-    
-    # If we have candidates and BST data, find the best BST match
-    if all_candidates and target_bst:
-        # Calculate BST range (within 10% of target)
-        min_bst = target_bst * 0.9
-        max_bst = target_bst * 1.1
-        
-        # Filter candidates within BST range
-        valid_candidates = [(sid, name, bst) for sid, name, bst in all_candidates 
-                            if min_bst <= bst <= max_bst]
-        
-        if valid_candidates:
-            # Choose a random candidate from those in the valid BST range
-            species_id, name, bst = random.choice(valid_candidates)
-            print(f"Selected pivot Pokémon for {gym_type}: {name} (ID: {species_id}, BST: {bst}, Target BST: {target_bst})")
-            return species_id
-        
-        # If no BST matches, sort by BST difference and take the closest match
-        if all_candidates:
-            all_candidates.sort(key=lambda x: abs(x[2] - target_bst))
-            species_id, name, bst = all_candidates[0]  # Get closest match
-            print(f"Selected pivot Pokémon for {gym_type} (closest BST match): {name} (ID: {species_id}, BST: {bst}, Target BST: {target_bst})")
-            return species_id
+                        print(f"Selected pivot Pokémon for {gym_type}: {name} (ID: {species_id})")
+                        return species_id
     
     print(f"Could not find any valid pivot Pokémon for {gym_type}")
     return None
@@ -494,30 +424,12 @@ def apply_special_pokemon(trainer_pokemon, gym_type: str, mondata, base_path: st
     # Try to add a pivot Pokémon (requires 5+ Pokémon)
     if use_pivots and indices_to_replace and team_size >= 5:
         print(f"\nTeam size {team_size} meets pivot requirement (5+)")
-        
-        # Pick the index we'll replace
-        idx = indices_to_replace.pop(0)
-        
-        # Get the BST of the Pokémon being replaced
-        species_to_replace = result[idx]['species']
-        target_bst = get_bst_for_species(species_to_replace, mondata)
-        
-        # Create a BST data dictionary for all Pokémon
-        bst_data = {}
-        for species_id in range(len(mondata)):
-            bst_data[species_id] = get_bst_for_species(species_id, mondata)
-        
-        print(f"Finding pivot Pokémon to replace species ID {species_to_replace} with BST {target_bst}")
-        
-        # Get a pivot Pokémon with similar BST
-        pivot_id = get_pivot_pokemon(gym_type, mondata, base_path, used_ids, target_bst, bst_data)
-        
+        pivot_id = get_pivot_pokemon(gym_type, mondata, base_path, used_ids)
         if pivot_id and pivot_id not in used_ids:
+            idx = indices_to_replace.pop(0)
             result[idx]['species'] = pivot_id
             used_ids.add(pivot_id)
-            pivot_bst = get_bst_for_species(pivot_id, mondata)
-            bst_diff = ((pivot_bst - target_bst) / target_bst) * 100
-            print(f"Added pivot Pokémon (ID: {pivot_id}, BST: {pivot_bst}) to team position {idx} (BST diff: {bst_diff:.1f}%)")
+            print(f"Added pivot Pokémon (ID: {pivot_id}) to team position {idx}")
         else:
             print(f"Could not add a pivot Pokémon for {gym_type} (none found or already used)")
     else:
