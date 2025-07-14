@@ -12,7 +12,75 @@ import ndspy.narc
 import os
 import re
 import random
-from construct import Struct, Int8ul, Int16ul, Array, Padding
+import enum
+from construct import Struct, Int8ul, Int16ul, Array, Padding, Computed, this, Enum, FlagsEnum
+
+
+# Pokemon type enum
+class TypeEnum(enum.IntEnum):
+    NORMAL = 0
+    FIGHTING = 1
+    FLYING = 2
+    POISON = 3
+    GROUND = 4
+    ROCK = 5
+    BUG = 6
+    GHOST = 7
+    STEEL = 8
+    MYSTERY = 9
+    FAIRY = 9  # Same as MYSTERY in older games
+    FIRE = 10
+    WATER = 11
+    GRASS = 12
+    ELECTRIC = 13
+    PSYCHIC = 14
+    ICE = 15
+    DRAGON = 16
+    DARK = 17
+
+
+# Physical/Special/Status split enum
+class SplitEnum(enum.IntEnum):
+    PHYSICAL = 0
+    SPECIAL = 1
+    STATUS = 2
+
+
+# Contest type enum
+class ContestEnum(enum.IntEnum):
+    COOL = 0
+    BEAUTY = 1
+    CUTE = 2
+    SMART = 3
+    TOUGH = 4
+
+
+# Move flags enum
+class MoveFlagsEnum(enum.IntFlag):
+    CONTACT = 0x01
+    PROTECT = 0x02
+    MAGIC_COAT = 0x04
+    SNATCH = 0x08
+    MIRROR_MOVE = 0x10
+    KINGS_ROCK = 0x20
+    KEEP_HP_BAR = 0x40
+    HIDE_SHADOW = 0x80
+
+
+# Range/Target enum
+class TargetEnum(enum.IntEnum):
+    SINGLE_TARGET = 0
+    SINGLE_TARGET_SPECIAL = 1
+    RANDOM_OPPONENT = 2
+    ADJACENT_OPPONENTS = 4
+    ALL_ADJACENT = 8
+    USER = 16
+    USER_SIDE = 32
+    FIELD = 64
+    OPPONENT_SIDE = 128
+    ALLY = 256
+    SINGLE_TARGET_USER_SIDE = 512
+    FRONT = 1024
 
 
 class Extractor(ABC):
@@ -149,84 +217,6 @@ SPECIAL_POKEMON = {
     385, 386, 483, 484, 487, 488, 489, 490, 491, 492, 493, 494
 }
 
-# Type constants
-TYPE_NORMAL = 0
-TYPE_FIGHTING = 1
-TYPE_FLYING = 2
-TYPE_POISON = 3
-TYPE_GROUND = 4
-TYPE_ROCK = 5
-TYPE_BUG = 6
-TYPE_GHOST = 7
-TYPE_STEEL = 8
-TYPE_MYSTERY = 9
-TYPE_FAIRY = 9
-TYPE_FIRE = 10
-TYPE_WATER = 11
-TYPE_GRASS = 12
-TYPE_ELECTRIC = 13
-TYPE_PSYCHIC = 14
-TYPE_ICE = 15
-TYPE_DRAGON = 16
-TYPE_DARK = 17
-
-TYPE_NAMES = {
-    0: "Normal", 1: "Fighting", 2: "Flying", 3: "Poison", 4: "Ground", 5: "Rock",
-    6: "Bug", 7: "Ghost", 8: "Steel", 9: "Fairy", 10: "Fire", 11: "Water",
-    12: "Grass", 13: "Electric", 14: "Psychic", 15: "Ice", 16: "Dragon", 17: "Dark"
-}
-
-# Physical/Special Split constants
-SPLIT_PHYSICAL = 0
-SPLIT_SPECIAL = 1
-SPLIT_STATUS = 2
-
-SPLIT_NAMES = {0: "Physical", 1: "Special", 2: "Status"}
-
-# Contest type constants
-CONTEST_COOL = 0
-CONTEST_BEAUTY = 1
-CONTEST_CUTE = 2
-CONTEST_SMART = 3
-CONTEST_TOUGH = 4
-
-CONTEST_NAMES = {0: "Cool", 1: "Beauty", 2: "Cute", 3: "Smart", 4: "Tough"}
-
-# Move flag constants
-FLAG_CONTACT = 0x01
-FLAG_PROTECT = 0x02
-FLAG_MAGIC_COAT = 0x04
-FLAG_SNATCH = 0x08
-FLAG_MIRROR_MOVE = 0x10
-FLAG_KINGS_ROCK = 0x20
-FLAG_KEEP_HP_BAR = 0x40
-FLAG_HIDE_SHADOW = 0x80
-
-FLAG_NAMES = {
-    0x01: "Contact", 0x02: "Protect", 0x04: "Magic Coat", 0x08: "Snatch",
-    0x10: "Mirror Move", 0x20: "King's Rock", 0x40: "Keep HP Bar", 0x80: "Hide Shadow"
-}
-
-# Range/Target constants
-RANGE_SINGLE_TARGET = 0
-RANGE_SINGLE_TARGET_SPECIAL = 1
-RANGE_RANDOM_OPPONENT = 2
-RANGE_ADJACENT_OPPONENTS = 4
-RANGE_ALL_ADJACENT = 8
-RANGE_USER = 16
-RANGE_USER_SIDE = 32
-RANGE_FIELD = 64
-RANGE_OPPONENT_SIDE = 128
-RANGE_ALLY = 256
-RANGE_SINGLE_TARGET_USER_SIDE = 512
-RANGE_FRONT = 1024
-
-RANGE_NAMES = {
-    0: "Single Target", 1: "Single Target Special", 2: "Random Opponent",
-    4: "Adjacent Opponents", 8: "All Adjacent", 16: "User", 32: "User Side",
-    64: "Field", 128: "Opponent Side", 256: "Ally", 512: "Single Target User Side",
-    1024: "Front"
-}
 
 
 class NameTableReader(Step):
@@ -261,45 +251,30 @@ class MoveDataExtractor(ExtractorStep):
         # Define move data structure (16 bytes total)
         self.move_struct = Struct(
             "battle_effect" / Int16ul,    # 2 bytes
-            "pss" / Int8ul,               # 1 byte (physical/special/status split)
+            "pss" / Enum(Int8ul, SplitEnum),               # 1 byte (physical/special/status split)
             "base_power" / Int8ul,        # 1 byte
-            "type" / Int8ul,              # 1 byte
+            "type" / Enum(Int8ul, TypeEnum),              # 1 byte
             "accuracy" / Int8ul,          # 1 byte
             "pp" / Int8ul,                # 1 byte  
             "effect_chance" / Int8ul,     # 1 byte
-            "target" / Int16ul,           # 2 bytes
+            "target" / Enum(Int16ul, TargetEnum),           # 2 bytes
             "priority" / Int8ul,          # 1 byte (unsigned for now)
-            "flags" / Int8ul,             # 1 byte
+            "flags" / FlagsEnum(Int8ul, MoveFlagsEnum),             # 1 byte
             "appeal" / Int8ul,            # 1 byte
-            "contest_type" / Int8ul,      # 1 byte
+            "contest_type" / Enum(Int8ul, ContestEnum),      # 1 byte
             Padding(2)                    # 2 bytes (terminatedata)
         )
         
         super().__init__(context)
         self.data = self.load_narc()
         
-        # Enrich with names and readable fields
+        # Enrich with names and IDs
         move_names_step = context.get(LoadMoveNamesStep)
         for i, move in enumerate(self.data):
             if i not in move_names_step.by_id:
                 raise KeyError(f"No move name found for ID {i}")
             move.name = move_names_step.by_id[i]
             move.move_id = i
-            
-            # Add readable type name
-            move.type_name = TYPE_NAMES.get(move.type, f"Unknown({move.type})")
-            
-            # Add readable split name
-            move.split_name = SPLIT_NAMES.get(move.pss, f"Unknown({move.pss})")
-            
-            # Add readable contest type name
-            move.contest_name = CONTEST_NAMES.get(move.contest_type, f"Unknown({move.contest_type})")
-            
-            # Add readable target name
-            move.target_name = RANGE_NAMES.get(move.target, f"Unknown({move.target})")
-            
-            # Parse flags into list of flag names
-            move.flag_names = [name for flag, name in FLAG_NAMES.items() if move.flags & flag]
     
     def get_narc_path(self):
         return "a/0/1/1"  # Move data NARC
@@ -358,8 +333,8 @@ class MondataExtractor(ExtractorStep):
             "sp_attack" / Int8ul,
             "sp_defense" / Int8ul,
             # Types (2 bytes)
-            "type1" / Int8ul,
-            "type2" / Int8ul,
+            "type1" / Enum(Int8ul, TypeEnum),
+            "type2" / Enum(Int8ul, TypeEnum),
             # Catch rate (1 byte)
             "catch_rate" / Int8ul,
             # Base experience (1 byte)
@@ -382,7 +357,9 @@ class MondataExtractor(ExtractorStep):
             "ability2" / Int8ul,
             # Additional data (2 bytes)
             "additional1" / Int8ul,
-            "additional2" / Int8ul
+            "additional2" / Int8ul,
+            # Computed fields
+            "bst" / Computed(lambda ctx: ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense)
         )
         
         super().__init__(context)
@@ -402,10 +379,7 @@ class MondataExtractor(ExtractorStep):
         return "a/0/0/2"
     
     def parse_file(self, file_data, index):
-        mon = self.mondata_struct.parse(file_data)
-        # Add calculated BST field
-        mon.bst = mon.hp + mon.attack + mon.defense + mon.speed + mon.sp_attack + mon.sp_defense
-        return mon
+        return self.mondata_struct.parse(file_data)
     
     def serialize_file(self, data, index):
         return self.mondata_struct.build(data)
@@ -577,7 +551,7 @@ class RandomizeEncountersStep(Step):
 if __name__ == "__main__":
     
     # Load ROM
-    with open("rom.nds", "rb") as f:
+    with open("hgeLanceCanary.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
@@ -603,8 +577,8 @@ if __name__ == "__main__":
     print("\nFirst 10 moves:")
     for i in range(min(10, len(moves.data))):
         move = moves.data[i]
-        flags_str = ", ".join(move.flag_names) if move.flag_names else "None"
-        print(f"  {i:3}: {move.name:15} | {move.base_power:3} BP | {move.type_name:8} | {move.split_name:8} | Acc: {move.accuracy:3} | PP: {move.pp:2} | Flags: {flags_str}")
+        flags_str = ", ".join(str(flag) for flag in move.flags) if move.flags else "None"
+        print(f"  {i:3}: {move.name:15} | {move.base_power:3} BP | {move.type:8} | {move.pss:8} | Acc: {move.accuracy:3} | PP: {move.pp:2} | Flags: {flags_str}")
     print("\n=== ENCOUNTER DATA BEFORE RANDOMIZATION ===\n")
     
     def print_encounter_slots(encounter, mondata):
