@@ -271,10 +271,13 @@ class MoveDataExtractor(ExtractorStep):
         # Enrich with names and IDs
         move_names_step = context.get(LoadMoveNamesStep)
         for i, move in enumerate(self.data):
-            if i not in move_names_step.by_id:
-                raise KeyError(f"No move name found for ID {i}")
-            move.name = move_names_step.by_id[i]
             move.move_id = i
+            if i not in move_names_step.by_id:
+                # i > NUM_OF_CANONICAL_MOVES
+                move.name = None
+            else:
+                move.name = move_names_step.by_id[i]
+
     
     def get_narc_path(self):
         return "a/0/1/1"  # Move data NARC
@@ -517,6 +520,7 @@ class RandomizeEncountersStep(Step):
             replacements = mondata.find_replacements(mon, 1 - self.bst_factor, 1 + self.bst_factor)
             # Filter out already used replacements
             # replacements = [r for r in replacements if r not in self.global_replacements.values()]
+
             
             if not replacements:
                 raise RuntimeError(f"No suitable replacements found for Pokemon {pokemon_id} ({mon.name}) with BST {mon.bst}")
@@ -577,8 +581,8 @@ if __name__ == "__main__":
     print("\nFirst 10 moves:")
     for i in range(min(10, len(moves.data))):
         move = moves.data[i]
-        flags_str = ", ".join(str(flag) for flag in move.flags) if move.flags else "None"
-        print(f"  {i:3}: {move.name:15} | {move.base_power:3} BP | {move.type:8} | {move.pss:8} | Acc: {move.accuracy:3} | PP: {move.pp:2} | Flags: {flags_str}")
+        # flags_str = ", ".join(str(flag) for flag in move.flags) if move.flags else "None"
+        print(f"  {i:3}: {move.name:15} | {move.base_power:3} BP | {move.type:8} | {move.pss:8} | Acc: {move.accuracy:3} | PP: {move.pp:2} | Flags: {repr(move.flags)}")
     print("\n=== ENCOUNTER DATA BEFORE RANDOMIZATION ===\n")
     
     def print_encounter_slots(encounter, mondata):
