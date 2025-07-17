@@ -7,95 +7,86 @@ processing steps.
 """
 
 from abc import ABC, abstractmethod
+from typing import List
 import ndspy.rom
 import ndspy.narc
 import os
 import re
 import random
-import enum
 from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum
 
-
-# Pokemon type enum
-class TypeEnum(enum.IntEnum):
-    NORMAL = 0
-    FIGHTING = 1
-    FLYING = 2
-    POISON = 3
-    GROUND = 4
-    ROCK = 5
-    BUG = 6
-    GHOST = 7
-    STEEL = 8
-    MYSTERY = 9
-    FAIRY = 9  # Same as MYSTERY in older games
-    FIRE = 10
-    WATER = 11
-    GRASS = 12
-    ELECTRIC = 13
-    PSYCHIC = 14
-    ICE = 15
-    DRAGON = 16
-    DARK = 17
+from enums import (
+    TypeEnum,
+    SplitEnum,
+    ContestEnum,
+    MoveFlagsEnum,
+    TargetEnum,
+    TrainerDataTypeEnum,
+    BattleTypeEnum
+)
 
 
-# Physical/Special/Status split enum
-class SplitEnum(enum.IntEnum):
-    PHYSICAL = 0
-    SPECIAL = 1
-    STATUS = 2
+class Filter(ABC):
+    @abstractmethod
+    def filter_all(self, context, original, candidates: List) -> List:
+        pass
 
+class SimpleFilter(Filter):
+    @abstractmethod
+    def check(self, context, original, candidate) -> bool:
+        pass
+    
+    def filter_all(self, context, original, candidates: List) -> List:
+        return [c for c in candidates if self.check(context, original, c)]
 
-# Contest type enum
-class ContestEnum(enum.IntEnum):
-    COOL = 0
-    BEAUTY = 1
-    CUTE = 2
-    SMART = 3
-    TOUGH = 4
+class BstWithinFactor(SimpleFilter):
+    """Filter Pokemon within a BST factor of the original."""
+    def __init__(self, factor: float):
+        self.factor = factor
+    
+    def check(self, context, original, candidate) -> bool:
+        return abs(candidate.bst - original.bst) <= original.bst * self.factor
 
+class InTypeList(SimpleFilter):
+    """Filter Pokemon that are in a specific type list."""
+    def __init__(self, type_ids: List[int]):
+        self.type_ids = set(type_ids)
+    
+    def check(self, context, original, candidate) -> bool:
+        return candidate.pokemon_id in self.type_ids
 
-# Move flags enum
-class MoveFlagsEnum(enum.IntFlag):
-    CONTACT = 0x01
-    PROTECT = 0x02
-    MAGIC_COAT = 0x04
-    SNATCH = 0x08
-    MIRROR_MOVE = 0x10
-    KINGS_ROCK = 0x20
-    KEEP_HP_BAR = 0x40
-    HIDE_SHADOW = 0x80
+class NotInSet(SimpleFilter):
+    """Filter out specific IDs."""
+    def __init__(self, excluded: set):
+        self.excluded = excluded
+    
+    def check(self, context, original, candidate) -> bool:
+        return candidate.pokemon_id not in self.excluded
 
+class Tiered(Filter):
+    """Try filters in order until one produces results."""
+    def __init__(self, filters: List[Filter]):
+        self.filters = filters
+    
+    def filter_all(self, context, original, candidates: List) -> List:
+        for f in self.filters:
+            filtered = f.filter_all(context, original, candidates)
+            if filtered:
+                return filtered
+        return []
 
-# Range/Target enum
-class TargetEnum(enum.IntEnum):
-    SINGLE_TARGET = 0
-    SINGLE_TARGET_SPECIAL = 1
-    RANDOM_OPPONENT = 2
-    ADJACENT_OPPONENTS = 4
-    ALL_ADJACENT = 8
-    USER = 16
-    USER_SIDE = 32
-    FIELD = 64
-    OPPONENT_SIDE = 128
-    ALLY = 256
-    SINGLE_TARGET_USER_SIDE = 512
-    FRONT = 1024
-
-
-# Trainer data type enum
-class TrainerDataTypeEnum(enum.IntFlag):
-    NOTHING = 0
-    MOVES = 1
-    ITEMS = 2
-
-
-# Battle type enum
-class BattleTypeEnum(enum.IntEnum):
-    SINGLE_BATTLE = 0
-    DOUBLE_BATTLE = 1
-    TRIPLE_BATTLE = 2
-    ROTATION_BATTLE = 3
+class AllFilters(Filter):
+    """Combine multiple filters with AND logic."""
+    def __init__(self, filters: List[Filter]):
+        self.filters = filters
+    
+    def filter_all(self, context, original, candidates: List) -> List:
+        result = candidates
+        for f in self.filters:
+            result = f.filter_all(context, original, result)
+            if not result:
+                break
+        return result
 
 
 class Extractor(ABC):
@@ -168,11 +159,10 @@ class Step(ABC):
         pass
 
 
-class RandomizationContext:
-    """Manages ROM data, pipeline execution, and shared objects."""
+class ObjectRegistry:
+    """Mixin for managing singleton object instances with circular dependency detection."""
     
-    def __init__(self, rom):
-        self.rom = rom
+    def __init__(self):
         self._objects = {}
         self._creating = set()
     
@@ -202,6 +192,70 @@ class RandomizationContext:
         if step_class in self._objects:
             raise RuntimeError(f"Step {step_class.__name__} already registered")
         self._objects[step_class] = step
+
+
+class RandomizationContext(ObjectRegistry):
+    """Manages ROM data, pipeline execution, and shared objects."""
+    
+    def __init__(self, rom, verbosity=0):
+        super().__init__()
+        self.rom = rom
+        self.verbosity = verbosity
+    
+    def decide(self, path, original, candidates, filter):
+        """Make a decision by filtering candidates and selecting one.
+        
+        This is the central decision point that handles filtering, logging,
+        and fallback behavior in a type-agnostic way.
+        
+        Args:
+            path: Decision path as list for logging (e.g. ["trainers", "Falkner", "team", 2, "species"])
+            original: Original item being replaced (any type)
+            candidates: List of all possible replacements (any type)
+            filter: Filter to apply
+            
+        Returns:
+            Selected candidate, or original if no valid candidates
+        """
+        path_str = "/" + "/".join(str(p) for p in path)
+        
+        # Log what we're trying to do
+        if self.verbosity >= 3:
+            print(f"{path_str:50} {len(candidates)} candidates")
+        
+        # Log full candidate set if very verbose
+        if self.verbosity >= 5:
+            print(f"{path_str:50}   All candidates:")
+            for c in candidates:
+                print(f"{path_str:50}     - {c}")
+        
+        # Apply the filter
+        filtered = filter.filter_all(self, original, candidates)
+        
+        # Log filter results
+        if self.verbosity >= 3:
+            print(f"{path_str:50} {len(filtered)} candidates")
+        
+        if self.verbosity >= 5:
+            print(f"{path_str:50} Filtered candidates:")
+            for c in filtered:
+                print(f"{path_str:50}     - {c}")
+        
+        # Handle no valid candidates
+        if not filtered:
+            if self.verbosity >= 1:
+                print(f"{path_str:50} [WARNING] No valid candidates, keeping original")
+            return original
+        
+        # Select from filtered candidates
+        selected = random.choice(filtered)
+        
+        # Log the decision
+        if self.verbosity >= 2:
+            sn = selected.name if hasattr(selected, "name") else repr(selected)
+            print(f"{path_str:50} -> {sn}")
+        
+        return selected
     
     def run_pipeline(self, steps, log_function=None, progress_callback=None):
         """Run all pipeline steps in order."""
@@ -692,62 +746,46 @@ class EncounterExtractor(ExtractorStep):
 
 
 class RandomizeEncountersStep(Step):
-    """Step that randomizes encounter data using global replacement mapping."""
     
     def __init__(self, bst_factor=0.15):
         self.bst_factor = bst_factor
-        self.global_replacements = {}
+        self.replacements = {}
     
     def run(self, context):
-        mondata = context.get(MondataExtractor)
-        encounters = context.get(EncounterExtractor)
-        blacklist = context.get(LoadBlacklistStep)
+        self.mondata = context.get(MondataExtractor)
+        self.encounters = context.get(EncounterExtractor)
+        self.blacklist = context.get(LoadBlacklistStep)
+        self.context = context
         
-        # Create a global mapping of Pokemon to their replacements
-        # This ensures that the same Pokemon species is always replaced by the same species
-        self.global_replacements = {}
-        
-        # For each Pokemon, determine its replacement once
-        for pokemon_id in range(1, len(mondata.data)):
-            # Skip special Pokemon
-            if pokemon_id in SPECIAL_POKEMON or pokemon_id in blacklist.by_id:
-                self.global_replacements[pokemon_id] = pokemon_id
-                continue
-                
-            mon = mondata.data[pokemon_id]
-            replacements = mondata.find_replacements(mon, 1 - self.bst_factor, 1 + self.bst_factor)
-            # Filter out already used replacements
-            # replacements = [r for r in replacements if r not in self.global_replacements.values()]
-
-            
-            if not replacements:
-                raise RuntimeError(f"No suitable replacements found for Pokemon {pokemon_id} ({mon.name}) with BST {mon.bst}")
-                
-            self.global_replacements[pokemon_id] = random.choice(replacements)
-        
-        # Randomize each encounter location
-        for i, encounter in enumerate(encounters.data):
-            self._randomize_encounter(encounter, i, mondata.data)
+        for i, encounter in enumerate(self.encounters.data):
+            self._randomize_encounter(encounter, i)
     
-    def _randomize_encounter(self, encounter, location_id, mondata):
-        """Randomize a single encounter location."""
-        # Randomize morning, day, and night encounter slots
-        self._randomize_slot_list(encounter.morning, mondata)
-        self._randomize_slot_list(encounter.day, mondata)
-        self._randomize_slot_list(encounter.night, mondata)
+    def _randomize_encounter(self, encounter, location_id):
+        self._randomize_slot_list(encounter.morning)
+        self._randomize_slot_list(encounter.day)
+        self._randomize_slot_list(encounter.night)
     
-    def _randomize_slot_list(self, slot_list, mondata):
-        """Randomize a list of Pokemon encounter slots."""
+    def _randomize_slot_list(self, slot_list):
         for i, species_id in enumerate(slot_list):
-            if species_id == 0:  # Empty slot
+            if species_id == 0:
                 continue
-                
-            if species_id not in self.global_replacements:
-                raise KeyError(f"No replacement mapping found for Pokemon species {species_id}")
-                
-            # Get replacement from global mapping
-            replacement_id = self.global_replacements[species_id]
-            slot_list[i] = replacement_id
+            
+            if species_id not in self.replacements:
+                if species_id in SPECIAL_POKEMON or species_id in self.blacklist.by_id:
+                    self.replacements[species_id] = species_id
+                else:
+                    mon = self.mondata.data[species_id]
+                    
+                    new_species = self.context.decide(
+                        path=["encounters", mon.name],
+                        original=mon,
+                        candidates=list(self.mondata.data),
+                        filter=AllFilters([NotInSet(SPECIAL_POKEMON | self.blacklist.by_id), BstWithinFactor(self.bst_factor)])
+                    )
+                    
+                    self.replacements[species_id] = new_species.pokemon_id
+            
+            slot_list[i] = self.replacements[species_id]
 
 
 if __name__ == "__main__":
@@ -757,7 +795,7 @@ if __name__ == "__main__":
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
-    ctx = RandomizationContext(rom)
+    ctx = RandomizationContext(rom, verbosity=3)
     
     # Load data but don't randomize yet
     ctx.run_pipeline([
