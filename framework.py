@@ -65,6 +65,15 @@ class NotInSet(SimpleFilter):
     def check(self, context, original, candidate) -> bool:
         return candidate.pokemon_id not in self.excluded
 
+class TypeMatches(SimpleFilter):
+    """Filter Pokemon that have type1 or type2 matching any of the specified types."""
+    def __init__(self, type_ids: List[int]):
+        self.type_ids = set(type_ids)
+    
+    def check(self, context, original, candidate) -> bool:
+        return (candidate.type1 in self.type_ids or 
+                candidate.type2 in self.type_ids)
+
 class Tiered(Filter):
     """Try filters in order until one produces results."""
     def __init__(self, filters: List[Filter]):
@@ -253,7 +262,8 @@ class RandomizationContext(ObjectRegistry):
         # Log the decision
         if self.verbosity >= 2:
             sn = selected.name if hasattr(selected, "name") else repr(selected)
-            print(f"{path_str:50} -> {sn}")
+            on = original.name if hasattr(original, "name") else repr(original)
+            print(f"{path_str:50} {on:20} -> {sn:20}")
         
         return selected
     
@@ -381,16 +391,12 @@ class TrainerTeamExtractor(ExtractorStep):
         mondata_extractor = context.get(MondataExtractor)
         move_extractor = context.get(MoveDataExtractor)
 
-        def c_species(ctx):
-            return self.context.get(MondataExtractor).data[ctx.species_id]
-        
         self.trainer_pokemon_basic = Struct(
             "ivs" / Int8ul,
             "abilityslot" / Int8ul,
             "level" / Int16ul,
             "species_id" / Int16ul,
-            "ballseal" / Int16ul,
-            "species" / Computed(c_species)
+            "ballseal" / Int16ul
         )
         
         self.trainer_pokemon_items = Struct(
@@ -399,8 +405,7 @@ class TrainerTeamExtractor(ExtractorStep):
             "level" / Int16ul,
             "species_id" / Int16ul,
             "item" / Int16ul,
-            "ballseal" / Int16ul,
-            "species" / Computed(c_species)
+            "ballseal" / Int16ul
         )
         
         self.trainer_pokemon_moves = Struct(
@@ -409,8 +414,7 @@ class TrainerTeamExtractor(ExtractorStep):
             "level" / Int16ul,
             "species_id" / Int16ul,
             "moves" / Array(4, Int16ul),
-            "ballseal" / Int16ul,
-            "species" / Computed(c_species)
+            "ballseal" / Int16ul
         )
         
         self.trainer_pokemon_full = Struct(
@@ -420,8 +424,7 @@ class TrainerTeamExtractor(ExtractorStep):
             "species_id" / Int16ul,
             "item" / Int16ul,
             "moves" / Array(4, Int16ul),
-            "ballseal" / Int16ul,
-            "species" / Computed(c_species)
+            "ballseal" / Int16ul
         )
         
         self.format_map = {
@@ -700,8 +703,8 @@ class EncounterExtractor(ExtractorStep):
 
 class RandomizeEncountersStep(Step):
     
-    def __init__(self, bst_factor=0.15):
-        self.bst_factor = bst_factor
+    def __init__(self, filter):
+        self.filter = filter
         self.replacements = {}
     
     def run(self, context):
@@ -733,7 +736,7 @@ class RandomizeEncountersStep(Step):
                         path=["encounters", mon.name],
                         original=mon,
                         candidates=list(self.mondata.data),
-                        filter=AllFilters([NotInSet(SPECIAL_POKEMON | self.blacklist.by_id), BstWithinFactor(self.bst_factor)])
+                        filter=self.filter
                     )
                     
                     self.replacements[species_id] = new_species.pokemon_id
@@ -748,13 +751,10 @@ class IndexTrainers(Step):
     def run(self, context):
         trainers = ctx.get(TrainerCombinedExtractor)
         for t in trainers.data:
-            if t.info.name == "Diana":
-                print(t.info)
             if t.info.name not in self.data:
                 self.data[t.info.name] = []
             self.data[t.info.name].append((t.info.trainerclass, t.info.trainer_id))
         context.register_step(self)
-        print("Indexed trainers")
 
     def find(self, name_or_tuple):
         if isinstance(name_or_tuple, tuple):
@@ -764,11 +764,9 @@ class IndexTrainers(Step):
 
     def _find(self, cls, name):
         rs = [tid for (tc, tid) in self.data[name] if cls is None or cls == tc]
-        if name == "Diana":
-            print(f"{cls} {name} => {repr(rs)}")
-        if len(rs) != 1:
-            # raise RuntimeError(f"Cannot find unique trainer {name}, class {cls} - {repr(rs)}")
-            print(f"Cannot find unique trainer {name}, class {cls} - {repr(rs)}")
+        #if len(rs) != 1:
+        #  This is fine
+        #  print(f"Cannot find unique trainer {name}, class {cls} - {repr(rs)}")
         return rs[0] if len(rs) > 0 else None
 
 class ExpandTrainerTeamsStep(Step):
@@ -819,15 +817,19 @@ class IdentifyGymTrainers(Step):
         from collections import Counter
         type_counts = Counter()
         
+        mondata = self.context.get(MondataExtractor)
+        
         for trainer in trainers:
             for pokemon in trainer.team:
-                type_counts[pokemon.species.type1] += 1
-                if pokemon.species.type2 != pokemon.species.type1:
-                    type_counts[pokemon.species.type2] += 1
+                species = mondata.data[pokemon.species_id]
+                type_counts[species.type1] += 1
+                if species.type2 != species.type1:
+                    type_counts[species.type2] += 1
         
         return type_counts.most_common(1)[0][0] if type_counts else None
 
     def run(self, context):
+        self.context = context
         trainers = context.get(TrainerCombinedExtractor)
         index = context.get(IndexTrainers)
         
@@ -862,79 +864,127 @@ class IdentifyGymTrainers(Step):
         context.register_step(self)
 
 
-def print_trainer_teams(trainers, title="Trainer Teams", max_trainers=None):
-    """Print trainer teams in a nice indented format."""
-    print(f"\n=== {title} ===")
+class RandomizeGymsStep(Step):
+    """Step to randomize gym trainer teams while maintaining type themes."""
     
-    num_to_show = len(trainers.data) if max_trainers is None else min(max_trainers, len(trainers.data))
+    def __init__(self, filter):
+        self.filter = filter
     
-    for i, trainer in enumerate(trainers.data[:num_to_show]):
-        ace_marker = f" (ace: {trainer.ace_index})" if trainer.ace_index is not None else ""
-        print(f"{i:3d}: {trainer.info.name} ({trainer.info.nummons} Pokemon){ace_marker}")
+    def run(self, context):
+        gyms = context.get(IdentifyGymTrainers)
+        mondata = context.get(MondataExtractor)
         
-        for j, pokemon in enumerate(trainer.team):
-            marker = " ★" if j == trainer.ace_index else "  "
-            print(f"     {j}{marker} Lv{pokemon.level:2d} {pokemon.species.name}")
+        for gym_name, gym in gyms.data.items():
+            if gym.type is not None:
+                self._randomize_gym_teams(context, gym, mondata)
     
-    if max_trainers is not None and len(trainers.data) > max_trainers:
-        print(f"     ... and {len(trainers.data) - max_trainers} more trainers")
-    print()
+    def _randomize_gym_teams(self, context, gym, mondata):
+        """Randomize all trainer teams in a gym while maintaining type theme."""
+        # Create type filter for this gym's theme
+        theme_filter = TypeMatches([gym.type])
+        
+        # Combine theme filter with user-provided filter
+        combined_filter = AllFilters([theme_filter, self.filter])
+        
+        for trainer in gym.trainers:
+            self._randomize_trainer_team(context, trainer, mondata, combined_filter)
+    
+    def _randomize_trainer_team(self, context, trainer, mondata, filter):
+        """Randomize a single trainer's team."""
+        for i, pokemon in enumerate(trainer.team):
+            original_species = mondata.data[pokemon.species_id]
+            
+            new_species = context.decide(
+                path=["gyms", trainer.info.name, "team", i, "species"],
+                original=original_species,
+                candidates=list(mondata.data),
+                filter=filter
+            )
+            
+            # Update the Pokemon's species_id
+            pokemon.species_id = new_species.pokemon_id
 
 
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description="Test ExpandTrainerTeamsStep")
+    parser = argparse.ArgumentParser(description="Test RandomizeGymsStep")
     parser.add_argument("--quiet", action="store_true", help="Run in quiet mode (no output)")
+    parser.add_argument("--bst-factor", type=float, default=0.15, help="BST factor for filtering (default: 0.15)")
     args = parser.parse_args()
     
     # Load ROM
     with open("hgeLanceCanary.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
-    if not args.quiet:
-        print("=== INITIAL LOAD AND EXPANSION ===")
-    
     # Create context and load data
-    ctx = RandomizationContext(rom, verbosity=0 if args.quiet else 1)
+    ctx = RandomizationContext(rom, verbosity=0 if args.quiet else 2)
     
-    # Load basic data
+    # Load all required data
     ctx.run_pipeline([
         LoadPokemonNamesStep("."),
         LoadMoveNamesStep(),
         LoadTrainerNamesStep("."),
+        LoadEncounterNamesStep("."),
+        LoadBlacklistStep(),
+        IndexTrainers(),
+        IdentifyGymTrainers(),
     ])
     
-    # Get trainer data
-    trainers = ctx.get(TrainerCombinedExtractor)
+    # Get initial gym data
+    gyms = ctx.get(IdentifyGymTrainers)
     if not args.quiet:
-        print(f"Loaded {len(trainers.data)} trainers")
+        print(f"Identified {len(gyms.data)} gyms")
+        for gym_name, gym in gyms.data.items():
+            print(f"  {gym_name}: {len(gym.trainers)} trainers, type: {gym.type}")
     
-    # Print teams before expansion (first 20 only for readability)
+    # Show gym teams before randomization
     if not args.quiet:
-        print_trainer_teams(trainers, "BEFORE Team Expansion", max_trainers=20)
+        print("\n=== GYM TEAMS BEFORE RANDOMIZATION ===")
+        for gym_name, gym in gyms.data.items():
+            print(f"\n{gym_name} ({gym.type}):")
+            for trainer in gym.trainers:
+                print(f"  {trainer.info.name}:")
+                for i, pokemon in enumerate(trainer.team):
+                    species = ctx.get(MondataExtractor).data[pokemon.species_id]
+                    print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
     
-    # Run team expansion
-    if not args.quiet:
-        print("Running ExpandTrainerTeamsStep...")
-    ctx.run_pipeline([ExpandTrainerTeamsStep(6)])
+    # Create filter combining BST and blacklist constraints
+    blacklist = ctx.get(LoadBlacklistStep)
+    gym_filter = AllFilters([
+        NotInSet(SPECIAL_POKEMON | blacklist.by_id),
+        BstWithinFactor(args.bst_factor)
+    ])
     
-    # Print teams after expansion (first 20 only)
+    # Run gym randomization
     if not args.quiet:
-        print_trainer_teams(trainers, "AFTER Team Expansion", max_trainers=20)
+        print(f"\n=== RUNNING GYM RANDOMIZATION (BST factor: {args.bst_factor}) ===")
+    ctx.run_pipeline([RandomizeGymsStep(gym_filter)])
+    
+    # Show gym teams after randomization
+    if not args.quiet:
+        print("\n=== GYM TEAMS AFTER RANDOMIZATION ===")
+        for gym_name, gym in gyms.data.items():
+            print(f"\n{gym_name} ({gym.type}):")
+            for trainer in gym.trainers:
+                print(f"  {trainer.info.name}:")
+                for i, pokemon in enumerate(trainer.team):
+                    species = ctx.get(MondataExtractor).data[pokemon.species_id]
+                    print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
     
     # Write changes back to ROM
     if not args.quiet:
-        print("Writing changes back to ROM...")
+        print("\nWriting changes back to ROM...")
     ctx.write_all()
     
-    # Save modified ROM to a new file
-    modified_rom_path = "hgeLanceCanary_expanded.nds"
+    # Save modified ROM
+    modified_rom_path = "hgeLanceCanary_gym_randomized.nds"
     with open(modified_rom_path, "wb") as f:
         f.write(rom.save())
     if not args.quiet:
         print(f"Saved modified ROM to {modified_rom_path}")
     
+    # Reload test - verify changes persisted
     if not args.quiet:
         print("\n=== RELOAD TEST - Reading back from saved ROM ===")
     
@@ -947,27 +997,24 @@ if __name__ == "__main__":
     # Load data from the modified ROM
     ctx2.run_pipeline([
         LoadPokemonNamesStep("."),
-        LoadMoveNamesStep(),
+        LoadMoveNamesStep(), 
         LoadTrainerNamesStep("."),
+        LoadEncounterNamesStep("."),
+        LoadBlacklistStep(),
+        IndexTrainers(),
+        IdentifyGymTrainers(),
     ])
     
-    trainers2 = ctx2.get(TrainerCombinedExtractor)
+    gyms2 = ctx2.get(IdentifyGymTrainers)
+    
     if not args.quiet:
-        print(f"Reloaded {len(trainers2.data)} trainers from saved ROM")
-        # Print ALL trainer data to verify persistence
-        print_trainer_teams(trainers2, "RELOADED FROM SAVED ROM - ALL TRAINERS")
+        print("\n=== GYM TEAMS AFTER RELOAD ===")
+        for gym_name, gym in gyms2.data.items():
+            print(f"\n{gym_name} ({gym.type}):")
+            for trainer in gym.trainers:
+                print(f"  {trainer.info.name}:")
+                for i, pokemon in enumerate(trainer.team):
+                    species = ctx2.get(MondataExtractor).data[pokemon.species_id]
+                    print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
     else:
-        # Basic validation in quiet mode
-        try:
-            expanded_count = sum(1 for trainer in trainers2.data if len(trainer.team) == 6)
-            total_count = len(trainers2.data)
-            print(f"Test completed successfully - {expanded_count}/{total_count} trainers have 6 Pokemon")
-        except Exception as e:
-            print(f"Error during validation: {e}")
-            # Debug the first trainer's team
-            if trainers2.data:
-                first_team = trainers2.data[0].team
-                print(f"First team type: {type(first_team)}")
-                if hasattr(first_team, '__len__') and len(first_team) > 0:
-                    print(f"First pokemon type: {type(first_team[0])}")
-            raise
+        print("Gym randomization completed successfully")
