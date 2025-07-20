@@ -23,7 +23,8 @@ from enums import (
     MoveFlagsEnum,
     TargetEnum,
     TrainerDataTypeEnum,
-    BattleTypeEnum
+    BattleTypeEnum,
+    TrainerClassEnum
 )
 
 
@@ -313,7 +314,6 @@ class LoadMoveNamesStep(NameTableReader):
     def __init__(self):
         super().__init__("build/rawtext/750.txt")
 
-
 class MoveDataExtractor(ExtractorStep):
     """Extractor for move data from ROM with full move structure."""
     
@@ -512,6 +512,7 @@ class TrainerDataExtractor(ExtractorStep):
             "aiflags" / Int32ul,           # 4 bytes
             "battletype" / Enum(Int8ul, BattleTypeEnum),  # 1 byte
             Padding(2),                    # 2 bytes padding
+            "trainer_id" / Computed(lambda ctx: ctx._.narc_index),
             "name" / Computed(lambda ctx: trainer_names_step.by_id[ctx._.narc_index])
         )
         
@@ -683,6 +684,7 @@ class LoadEncounterNamesStep(Step):
         context.register_step(self)
 
 
+
 class EncounterExtractor(ExtractorStep):
     """Extractor for encounter data from ROM."""
     
@@ -784,6 +786,75 @@ class RandomizeEncountersStep(Step):
             slot_list[i] = self.replacements[species_id]
 
 
+class IndexTrainers(Step):
+    def __init__(self):
+        self.data = {}
+
+    def run(self, context):
+        trainers = ctx.get(TrainerCombinedExtractor)
+        for t in trainers.data:
+            if t.info.name == "Diana":
+                print(t.info)
+            if t.info.name not in self.data:
+                self.data[t.info.name] = []
+            self.data[t.info.name].append((t.info.trainerclass, t.info.trainer_id))
+        context.register_step(self)
+        print("Indexed trainers")
+
+    def find(self, name_or_tuple):
+        if isinstance(name_or_tuple, tuple):
+            (cls, name) = name_or_tuple
+            return self._find(cls, name)
+        return self._find(None, name_or_tuple)
+
+    def _find(self, cls, name):
+        rs = [tid for (tc, tid) in self.data[name] if cls is None or cls == tc]
+        if name == "Diana":
+            print(f"{cls} {name} => {repr(rs)}")
+        if len(rs) != 1:
+            # raise RuntimeError(f"Cannot find unique trainer {name}, class {cls} - {repr(rs)}")
+            print(f"Cannot find unique trainer {name}, class {cls} - {repr(rs)}")
+        return rs[0] if len(rs) > 0 else None
+
+class IdentifyGymTrainers(Step):
+    def __init__(self):
+        pass
+
+    def run(self, context):
+        trainers = ctx.get(TrainerCombinedExtractor)
+        index = ctx.get(IndexTrainers)
+        data = {
+            "Violet City": ["Falkner", "Abe", "Rod"],
+            "Azalea Town": ["Bugsy", "Al", "Benny", "Amy & Mimi"],
+            "Goldenrod City": ["Victoria", "Samantha", "Carrie", "Cathy", "Whitney"],
+            "Ecruteak City": ["Georgina", "Grace", "Edith", "Martha", "Morty"],
+            "Cianwood City": ["Yoshi", "Lao", "Lung", "Nob", "Chuck"],
+            "Olivine City": ["Jasmine"],
+            "Mahogany Town": ["Pryce", (TrainerClassEnum.SKIER, "Diana"), "Patton", "Deandre", "Jill", "Gerardo"],
+            "Blackthorn City": ["Paulo", "Lola", "Cody", "Fran", "Mike", "Clair"],
+            "Pewter City": ["Jerry", "Edwin", "Brock"],
+            "Cerulean City": ["Parker", "Eddie", (TrainerClassEnum.SWIMMER_F, "Diana"), "Joy", "Briana", "Misty"],
+            "Vermillion City": ["Horton", "Vincent", "Gregory", "Lt. Surge"],
+            "Celadon City": ["Jo & Zoe", "Michelle", "Tanya", "Julia", "Erika"],
+            "Fuchsia City": ["Cindy", "Barry", "Alice", "Linda", "Janine"],
+            "Saffron City": ["Rebecca", "Jared", "Darcy", "Franklin", "Sabrina"],
+            "Seafoam Islands": ["Lowell", "Daniel", "Cary", "Linden", "Waldo", "Merle", "Blaine"],
+            "Viridian City": ["Arabella", "Salma", "Bonita", "Elan & Ida", "Blue"],
+            "Elite Four": ["Will", "Koga", "Bruno", "Karen", "Lance"]
+        }
+        found = {
+            g: [index.find(t) for t in ts]
+            for (g, ts) in data.items()
+        }
+        for (g, ts) in found.items():
+            print(g)
+            for tid in ts:
+                t = trainers.data[tid]
+                print(f"  {t.info.name}")
+                for m in t.team.pokemon:
+                    print(f"    lv {m.level} {m.species.name} [{m.species.type1} {m.species.type2}]")
+        context.register_step(self)
+
 if __name__ == "__main__":
     
     # Load ROM
@@ -799,7 +870,9 @@ if __name__ == "__main__":
         LoadMoveNamesStep(),
         LoadBlacklistStep(),
         LoadEncounterNamesStep("."),
-        LoadTrainerNamesStep(".")
+        LoadTrainerNamesStep("."),
+        IndexTrainers(),
+        IdentifyGymTrainers()
     ])
     
     # Get encounter data BEFORE randomization
@@ -812,7 +885,10 @@ if __name__ == "__main__":
     print(f"Loaded {len(moves.data)} moves")
     print(f"Loaded {len(trainers.data)} trainers")
     
-    # Print first 10 trainers with details
+    print(ctx.get(IdentifyGymTrainers))
+
+    sys.exit()
+
     for i in range(len(trainers.data)):
         trainer = trainers.data[i]
         #team_info = f"{trainer.info.nummons} Pokemon ({trainer.info.trainermontype})"
@@ -820,7 +896,7 @@ if __name__ == "__main__":
         print(i, trainer.info.name, trainer.info.nummons, [f"lv {m.level} {m.species.name}" for m in trainer.team.pokemon])
         # print(f"  {i:3}: {trainer.info.name:20} | {team_info} | Pokemon: {pokemon_names}")
     
-    sys.exit()
+
 
     # Print first 10 moves with details
     print("\nFirst 10 moves:")
