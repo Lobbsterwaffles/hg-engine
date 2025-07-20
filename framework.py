@@ -17,14 +17,14 @@ import sys
 from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy
 
 from enums import (
-    TypeEnum,
-    SplitEnum,
-    ContestEnum,
-    MoveFlagsEnum,
-    TargetEnum,
-    TrainerDataTypeEnum,
-    BattleTypeEnum,
-    TrainerClassEnum
+    Type,
+    Split,
+    Contest,
+    MoveFlags,
+    Target,
+    TrainerDataType,
+    BattleType,
+    TrainerClass
 )
 
 
@@ -140,14 +140,12 @@ class ExtractorStep(Extractor):
         return narc_data
     
     def load_narc(self):
-        """Helper: load from single NARC using parse methods."""
         narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
         narc_file = self.rom.files[narc_file_id]
         narc_data = ndspy.narc.NARC(narc_file)
         return self.parse_narc(narc_data)
     
     def write_to_rom(self):
-        """Default: write to single NARC. Extra fields ignored by construct."""
         narc_data = self.serialize_narc(self.data)
         narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
         self.rom.files[narc_file_id] = narc_data.save()
@@ -281,9 +279,7 @@ class RandomizationContext(ObjectRegistry):
                 obj.write()
 
 
-# Pokemon data constants
 SPECIAL_POKEMON = {
-    # Legendaries and special Pokémon that should not be replaced
     150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384,
     385, 386, 483, 484, 487, 488, 489, 490, 491, 492, 493, 494
 }
@@ -294,11 +290,9 @@ class NameTableReader(Step):
     """Base class for reading name tables from text files."""
     
     def __init__(self, filename):
-        # Load names from file
         with open(filename, "r", encoding="utf-8") as f:
             names_list = [line.strip() for line in f.readlines()]
         
-        # Create bidirectional mapping
         self.by_id = {i: name for i, name in enumerate(names_list)}
         self.by_name = {name: i for i, name in self.by_id.items()}
     
@@ -318,24 +312,22 @@ class MoveDataExtractor(ExtractorStep):
     """Extractor for move data from ROM with full move structure."""
     
     def __init__(self, context):
-        # Get dependencies first
         move_names_step = context.get(LoadMoveNamesStep)
         
-        # Define move data structure (16 bytes total)
         self.move_struct = Struct(
-            "battle_effect" / Int16ul,    # 2 bytes
-            "pss" / Enum(Int8ul, SplitEnum),               # 1 byte (physical/special/status split)
-            "base_power" / Int8ul,        # 1 byte
-            "type" / Enum(Int8ul, TypeEnum),              # 1 byte
-            "accuracy" / Int8ul,          # 1 byte
-            "pp" / Int8ul,                # 1 byte  
-            "effect_chance" / Int8ul,     # 1 byte
-            "target" / Enum(Int16ul, TargetEnum),           # 2 bytes
-            "priority" / Int8ul,          # 1 byte (unsigned for now)
-            "flags" / FlagsEnum(Int8ul, MoveFlagsEnum),             # 1 byte
-            "appeal" / Int8ul,            # 1 byte
-            "contest_type" / Enum(Int8ul, ContestEnum),      # 1 byte
-            Padding(2),                   # 2 bytes (terminatedata)
+            "battle_effect" / Int16ul,
+            "pss" / Enum(Int8ul, Split),
+            "base_power" / Int8ul,
+            "type" / Enum(Int8ul, Type),
+            "accuracy" / Int8ul,
+            "pp" / Int8ul,
+            "effect_chance" / Int8ul,
+            "target" / Enum(Int16ul, Target),
+            "priority" / Int8ul,
+            "flags" / FlagsEnum(Int8ul, MoveFlags),
+            "appeal" / Int8ul,
+            "contest_type" / Enum(Int8ul, Contest),
+            Padding(2),
             "move_id" / Computed(lambda ctx: ctx._.narc_index),
             "name" / Computed(lambda ctx: move_names_step.by_id.get(ctx._.narc_index, None))
         )
@@ -351,11 +343,9 @@ class MoveDataExtractor(ExtractorStep):
         return self.move_struct
     
     def parse_file(self, file_data, file_index):
-        """Parse a single move file into move data."""
         return self.move_struct.parse(file_data, narc_index=file_index)
     
     def serialize_file(self, data):
-        """Serialize move data back to binary format."""
         return self.move_struct.build(data)
 
 class LoadTrainerNamesStep(Step):
@@ -366,7 +356,6 @@ class LoadTrainerNamesStep(Step):
         self.by_id = {}
         self.by_name = {}
         
-        # Parse trainer names from assembly source file
         trainer_file = os.path.join(base_path, "armips", "data", "trainers", "trainers.s")
         try:
             with open(trainer_file, "r", encoding="utf-8") as f:
@@ -379,7 +368,6 @@ class LoadTrainerNamesStep(Step):
                         self.by_id[trainer_id] = name
                         self.by_name[name] = trainer_id
         except FileNotFoundError:
-            # If file doesn't exist, use empty mappings
             pass
     
     def run(self, context):
@@ -390,61 +378,57 @@ class TrainerTeamExtractor(ExtractorStep):
     """Extractor for trainer team data from ROM."""
     
     def __init__(self, context):
-        # Get dependencies first so we can close over them in computed fields
         mondata_extractor = context.get(MondataExtractor)
         move_extractor = context.get(MoveDataExtractor)
 
         def c_species(ctx):
             return mondata_extractor.data[ctx.species_id]
         
-        # Define 4 Pokemon data formats based on trainer flags
         self.trainer_pokemon_basic = Struct(
-            "ivs" / Int8ul,             # 1 byte - IVs
-            "abilityslot" / Int8ul,     # 1 byte - Ability slot
-            "level" / Int16ul,          # 2 bytes - Level
-            "species_id" / Int16ul,     # 2 bytes - Species ID
-            "ballseal" / Int16ul,       # 2 bytes - Ball seal
+            "ivs" / Int8ul,
+            "abilityslot" / Int8ul,
+            "level" / Int16ul,
+            "species_id" / Int16ul,
+            "ballseal" / Int16ul,
             "species" / Computed(c_species)
         )
         
         self.trainer_pokemon_items = Struct(
-            "ivs" / Int8ul,             # 1 byte - IVs
-            "abilityslot" / Int8ul,     # 1 byte - Ability slot
-            "level" / Int16ul,          # 2 bytes - Level
-            "species_id" / Int16ul,     # 2 bytes - Species ID
-            "item" / Int16ul,           # 2 bytes - Held item
-            "ballseal" / Int16ul,       # 2 bytes - Ball seal
+            "ivs" / Int8ul,
+            "abilityslot" / Int8ul,
+            "level" / Int16ul,
+            "species_id" / Int16ul,
+            "item" / Int16ul,
+            "ballseal" / Int16ul,
             "species" / Computed(c_species)
         )
         
         self.trainer_pokemon_moves = Struct(
-            "ivs" / Int8ul,             # 1 byte - IVs
-            "abilityslot" / Int8ul,     # 1 byte - Ability slot
-            "level" / Int16ul,          # 2 bytes - Level
-            "species_id" / Int16ul,     # 2 bytes - Species ID
-            "moves" / Array(4, Int16ul), # 8 bytes - Move IDs
-            "ballseal" / Int16ul,       # 2 bytes - Ball seal
+            "ivs" / Int8ul,
+            "abilityslot" / Int8ul,
+            "level" / Int16ul,
+            "species_id" / Int16ul,
+            "moves" / Array(4, Int16ul),
+            "ballseal" / Int16ul,
             "species" / Computed(c_species)
         )
         
         self.trainer_pokemon_full = Struct(
-            "ivs" / Int8ul,             # 1 byte - IVs
-            "abilityslot" / Int8ul,     # 1 byte - Ability slot
-            "level" / Int16ul,          # 2 bytes - Level
-            "species_id" / Int16ul,     # 2 bytes - Species ID
-            "item" / Int16ul,           # 2 bytes - Held item
-            "moves" / Array(4, Int16ul), # 8 bytes - Move IDs
-            "ballseal" / Int16ul,       # 2 bytes - Ball seal
+            "ivs" / Int8ul,
+            "abilityslot" / Int8ul,
+            "level" / Int16ul,
+            "species_id" / Int16ul,
+            "item" / Int16ul,
+            "moves" / Array(4, Int16ul),
+            "ballseal" / Int16ul,
             "species" / Computed(c_species)
         )
         
-        # Create format lookup table using bytestring keys
-        from enums import TrainerDataTypeEnum
         self.format_map = {
-            bytes([TrainerDataTypeEnum.NOTHING]): self.trainer_pokemon_basic,
-            bytes([TrainerDataTypeEnum.MOVES]): self.trainer_pokemon_moves,
-            bytes([TrainerDataTypeEnum.ITEMS]): self.trainer_pokemon_items,
-            bytes([TrainerDataTypeEnum.MOVES | TrainerDataTypeEnum.ITEMS]): self.trainer_pokemon_full,
+            bytes([TrainerDataType.NOTHING]): self.trainer_pokemon_basic,
+            bytes([TrainerDataType.MOVES]): self.trainer_pokemon_moves,
+            bytes([TrainerDataType.ITEMS]): self.trainer_pokemon_items,
+            bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS]): self.trainer_pokemon_full,
         }
         
         super().__init__(context)
@@ -454,19 +438,15 @@ class TrainerTeamExtractor(ExtractorStep):
         return "a/0/5/6"  # Trainer team data NARC
     
     def parse_file(self, file_data, index):
-        """Parse trainer team data using trainer data flags to determine format."""
         if len(file_data) == 0:
             return {"pokemon": [], "has_moves": False}
         
-        # Get trainer data to determine format
         trainer_data_extractor = self.context.get(TrainerDataExtractor)
         trainer_data = trainer_data_extractor.data[index]
         
-        # Get Pokemon struct based on trainer flags
         flags_bytes = trainer_data.trainermontype.data
         pokemon_struct = self.format_map[flags_bytes]
         
-        # Parse pokemon data using construct Array
         pokemon_list = Array(trainer_data.nummons, pokemon_struct).parse(file_data)
         
         from construct import Container
@@ -477,19 +457,15 @@ class TrainerTeamExtractor(ExtractorStep):
         return trainer
     
     def serialize_file(self, data, index):
-        """Serialize trainer team data back to binary format."""
         if not data.pokemon:
             return b''
         
-        # Get trainer data to determine format
         trainer_data_extractor = self.context.get(TrainerDataExtractor)
         trainer_data = trainer_data_extractor.data[index]
         
-        # Get Pokemon struct based on trainer flags
         flags_bytes = trainer_data.trainermontype.data
         pokemon_struct = self.format_map[flags_bytes]
         
-        # Serialize pokemon data using construct Array
         return Array(trainer_data.nummons, pokemon_struct).build(data.pokemon)
 
 
@@ -497,21 +473,19 @@ class TrainerDataExtractor(ExtractorStep):
     """Extractor for trainer data from ROM."""
     
     def __init__(self, context):
-        # Get dependencies first
         trainer_names_step = context.get(LoadTrainerNamesStep)
         
-        # Define trainer data structure (20 bytes total) - corrected order from assembly
         self.trainer_data_struct = Struct(
-            "trainermontype" / RawCopy(FlagsEnum(Int8ul, TrainerDataTypeEnum)),  # 1 byte
-            "trainerclass" / Int16ul,      # 2 bytes
-            "nummons" / Int8ul,            # 1 byte
-            "item1" / Int16ul,             # 2 bytes
-            "item2" / Int16ul,             # 2 bytes
-            "item3" / Int16ul,             # 2 bytes
-            "item4" / Int16ul,             # 2 bytes
-            "aiflags" / Int32ul,           # 4 bytes
-            "battletype" / Enum(Int8ul, BattleTypeEnum),  # 1 byte
-            Padding(2),                    # 2 bytes padding
+            "trainermontype" / RawCopy(FlagsEnum(Int8ul, TrainerDataType)),
+            "trainerclass" / Int16ul,
+            "nummons" / Int8ul,
+            "item1" / Int16ul,
+            "item2" / Int16ul,
+            "item3" / Int16ul,
+            "item4" / Int16ul,
+            "aiflags" / Int32ul,
+            "battletype" / Enum(Int8ul, BattleType),
+            Padding(2),
             "trainer_id" / Computed(lambda ctx: ctx._.narc_index),
             "name" / Computed(lambda ctx: trainer_names_step.by_id[ctx._.narc_index])
         )
@@ -523,12 +497,10 @@ class TrainerDataExtractor(ExtractorStep):
         return "a/0/5/5"  # Trainer data NARC
     
     def parse_file(self, file_data, index):
-        """Parse trainer data and add index for team linking."""
         trainer = self.trainer_data_struct.parse(file_data, narc_index=index)
         return trainer
     
     def serialize_file(self, data, index):
-        """Serialize trainer data back to binary format."""
         return self.trainer_data_struct.build(data)
 
 
@@ -555,22 +527,16 @@ class LoadBlacklistStep(Step):
     """Step that creates Pokemon blacklist with hardcoded data."""
     
     def __init__(self):
-        # Explicit blacklist by name
         self.by_name = {
             "Bad Egg"
         }
-        self.by_id = set()  # Will be populated in run()
+        self.by_id = set()
                         
     def run(self, context):
-        # Resolve any name-based blacklist entries
         names_step = context.get(LoadPokemonNamesStep)
-        
-        # Add Pokemon with "-----" names
         for pokemon_id, name in names_step.by_id.items():
             if name == "-----":
                 self.by_id.add(pokemon_id)
-        
-        # Add Pokemon from explicit blacklist
         for name in self.by_name:
             self.by_id.add(names_step.by_name[name])
         
@@ -581,45 +547,32 @@ class MondataExtractor(ExtractorStep):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
     def __init__(self, context):
-        # Get dependencies first
         pokemon_names_step = context.get(LoadPokemonNamesStep)
         
-        # Define Pokemon mondata structure (26 bytes total)
         self.mondata_struct = Struct(
-            # Base stats (6 bytes)
             "hp" / Int8ul,
             "attack" / Int8ul, 
             "defense" / Int8ul,
             "speed" / Int8ul,
             "sp_attack" / Int8ul,
             "sp_defense" / Int8ul,
-            # Types (2 bytes)
-            "type1" / Enum(Int8ul, TypeEnum),
-            "type2" / Enum(Int8ul, TypeEnum),
-            # Catch rate (1 byte)
+            "type1" / Enum(Int8ul, Type),
+            "type2" / Enum(Int8ul, Type),
             "catch_rate" / Int8ul,
-            # Base experience (1 byte)
             "base_exp" / Int8ul,
-            # EV yields (2 bytes)
             "ev_yields" / Int16ul,
-            # Items (4 bytes)
             "item1" / Int16ul,
             "item2" / Int16ul,
-            # Gender, egg cycles, friendship (3 bytes)
             "gender_ratio" / Int8ul,
             "egg_cycles" / Int8ul,
             "base_friendship" / Int8ul,
-            # Growth and egg info (3 bytes)
             "growth_rate" / Int8ul,
             "egg_group1" / Int8ul,
             "egg_group2" / Int8ul,
-            # Abilities (2 bytes)
             "ability1" / Int8ul,
             "ability2" / Int8ul,
-            # Additional data (2 bytes)
             "additional1" / Int8ul,
             "additional2" / Int8ul,
-            # Computed fields
             "bst" / Computed(lambda ctx: ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense),
             "name" / Computed(lambda ctx: pokemon_names_step.by_id[ctx._.narc_index]),
             "pokemon_id" / Computed(lambda ctx: ctx._.narc_index)
@@ -627,7 +580,6 @@ class MondataExtractor(ExtractorStep):
         
         super().__init__(context)
         
-        # Load ROM data
         self.data = self.load_narc()
     
     def get_narc_path(self):
@@ -669,11 +621,9 @@ class LoadEncounterNamesStep(Step):
     def __init__(self, base_path="."):
         self.base_path = base_path
         self.location_names = {}
-        # Parse encounter names from assembly source file
         encounter_file = os.path.join("armips", "data", "encounters.s")
         with open(encounter_file, "r", encoding="utf-8") as f:
             for line in f:
-                # Look for pattern: encounterdata <number> ... // <n>
                 match = re.search(r"encounterdata\s+(\d+).*//\s+(.*)", line)
                 if match:
                     encounter_id = int(match.group(1))
@@ -689,17 +639,14 @@ class EncounterExtractor(ExtractorStep):
     """Extractor for encounter data from ROM."""
     
     def __init__(self, context):
-        # Get dependencies first
         location_names_step = context.get(LoadEncounterNamesStep)
         
-        # Define encounter slot structure
         EncounterSlot = Struct(
             "species" / Int16ul,
             "minlevel" / Int8ul,
             "maxlevel" / Int8ul,
         )
         
-        # Define complete encounter structure from ROM analysis
         self.encounter_struct = Struct(
             "walkrate" / Int8ul,
             "surfrate" / Int8ul,
@@ -729,7 +676,6 @@ class EncounterExtractor(ExtractorStep):
         
         super().__init__(context)
         
-        # Load ROM data
         self.data = self.load_narc()
     
     def get_narc_path(self):
@@ -830,10 +776,10 @@ class IdentifyGymTrainers(Step):
             "Ecruteak City": ["Georgina", "Grace", "Edith", "Martha", "Morty"],
             "Cianwood City": ["Yoshi", "Lao", "Lung", "Nob", "Chuck"],
             "Olivine City": ["Jasmine"],
-            "Mahogany Town": ["Pryce", (TrainerClassEnum.SKIER, "Diana"), "Patton", "Deandre", "Jill", "Gerardo"],
+            "Mahogany Town": ["Pryce", (TrainerClass.SKIER, "Diana"), "Patton", "Deandre", "Jill", "Gerardo"],
             "Blackthorn City": ["Paulo", "Lola", "Cody", "Fran", "Mike", "Clair"],
             "Pewter City": ["Jerry", "Edwin", "Brock"],
-            "Cerulean City": ["Parker", "Eddie", (TrainerClassEnum.SWIMMER_F, "Diana"), "Joy", "Briana", "Misty"],
+            "Cerulean City": ["Parker", "Eddie", (TrainerClass.SWIMMER_F, "Diana"), "Joy", "Briana", "Misty"],
             "Vermillion City": ["Horton", "Vincent", "Gregory", "Lt. Surge"],
             "Celadon City": ["Jo & Zoe", "Michelle", "Tanya", "Julia", "Erika"],
             "Fuchsia City": ["Cindy", "Barry", "Alice", "Linda", "Janine"],
@@ -907,7 +853,6 @@ if __name__ == "__main__":
     print("\n=== ENCOUNTER DATA BEFORE RANDOMIZATION ===\n")
     
     def print_encounter_slots(encounter, mondata):
-        """Helper to print encounter slot details"""
         print(f"  Morning: {[f'{slot}:{mondata.data[slot].name}' if slot > 0 else 'Empty' for slot in encounter.morning[:5]]}")
         print(f"  Day:     {[f'{slot}:{mondata.data[slot].name}' if slot > 0 else 'Empty' for slot in encounter.day[:5]]}")
         print(f"  Night:   {[f'{slot}:{mondata.data[slot].name}' if slot > 0 else 'Empty' for slot in encounter.night[:5]]}")

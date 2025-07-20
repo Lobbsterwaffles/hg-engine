@@ -1,7 +1,6 @@
-## cf. armips/include/constants.s
 import enum
 
-class TypeEnum(enum.IntEnum):
+class Type(enum.IntEnum):
     NORMAL = 0
     FIGHTING = 1
     FLYING = 2
@@ -12,7 +11,7 @@ class TypeEnum(enum.IntEnum):
     GHOST = 7
     STEEL = 8
     MYSTERY = 9
-    FAIRY = 9  # Same as MYSTERY in older games
+    FAIRY = 9
     FIRE = 10
     WATER = 11
     GRASS = 12
@@ -22,19 +21,19 @@ class TypeEnum(enum.IntEnum):
     DRAGON = 16
     DARK = 17
 
-class SplitEnum(enum.IntEnum):
+class Split(enum.IntEnum):
     PHYSICAL = 0
     SPECIAL = 1
     STATUS = 2
 
-class ContestEnum(enum.IntEnum):
+class Contest(enum.IntEnum):
     COOL = 0
     BEAUTY = 1
     CUTE = 2
     SMART = 3
     TOUGH = 4
 
-class MoveFlagsEnum(enum.IntFlag):
+class MoveFlags(enum.IntFlag):
     CONTACT = 0x01
     PROTECT = 0x02
     MAGIC_COAT = 0x04
@@ -44,7 +43,7 @@ class MoveFlagsEnum(enum.IntFlag):
     KEEP_HP_BAR = 0x40
     HIDE_SHADOW = 0x80
 
-class TargetEnum(enum.IntEnum):
+class Target(enum.IntEnum):
     SINGLE_TARGET = 0
     SINGLE_TARGET_SPECIAL = 1
     RANDOM_OPPONENT = 2
@@ -58,7 +57,7 @@ class TargetEnum(enum.IntEnum):
     SINGLE_TARGET_USER_SIDE = 512
     FRONT = 1024
 
-class TrainerDataTypeEnum(enum.IntFlag):
+class TrainerDataType(enum.IntFlag):
     NOTHING = 0x00
     MOVES = 0x01
     ITEMS = 0x02
@@ -69,13 +68,13 @@ class TrainerDataTypeEnum(enum.IntFlag):
     SHINY_LOCK = 0x40
     ADDITIONAL_FLAGS = 0x80
 
-class BattleTypeEnum(enum.IntEnum):
+class BattleType(enum.IntEnum):
     SINGLE_BATTLE = 0
     DOUBLE_BATTLE = 1
     TRIPLE_BATTLE = 2
     ROTATION_BATTLE = 3
 
-class TrainerClassEnum(enum.IntEnum):
+class TrainerClass(enum.IntEnum):
     PKMN_TRAINER_ETHAN = 0
     PKMN_TRAINER_LYRA = 1
     YOUNGSTER = 2
