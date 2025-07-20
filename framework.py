@@ -14,7 +14,7 @@ import os
 import re
 import random
 import sys
-from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy
+from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container
 
 from enums import (
     Type,
@@ -345,8 +345,8 @@ class MoveDataExtractor(ExtractorStep):
     def parse_file(self, file_data, file_index):
         return self.move_struct.parse(file_data, narc_index=file_index)
     
-    def serialize_file(self, data):
-        return self.move_struct.build(data)
+    def serialize_file(self, data, index):
+        return self.move_struct.build(data, narc_index=index)
 
 class LoadTrainerNamesStep(Step):
     """Step that loads trainer names from assembly source."""
@@ -382,7 +382,7 @@ class TrainerTeamExtractor(ExtractorStep):
         move_extractor = context.get(MoveDataExtractor)
 
         def c_species(ctx):
-            return mondata_extractor.data[ctx.species_id]
+            return self.context.get(MondataExtractor).data[ctx.species_id]
         
         self.trainer_pokemon_basic = Struct(
             "ivs" / Int8ul,
@@ -439,7 +439,7 @@ class TrainerTeamExtractor(ExtractorStep):
     
     def parse_file(self, file_data, index):
         if len(file_data) == 0:
-            return {"pokemon": [], "has_moves": False}
+            return []
         
         trainer_data_extractor = self.context.get(TrainerDataExtractor)
         trainer_data = trainer_data_extractor.data[index]
@@ -447,17 +447,10 @@ class TrainerTeamExtractor(ExtractorStep):
         flags_bytes = trainer_data.trainermontype.data
         pokemon_struct = self.format_map[flags_bytes]
         
-        pokemon_list = Array(trainer_data.nummons, pokemon_struct).parse(file_data)
-        
-        from construct import Container
-        trainer = Container()
-        trainer.pokemon = pokemon_list
-        trainer.num_pokemon = trainer_data.nummons
-        
-        return trainer
+        return Array(trainer_data.nummons, pokemon_struct).parse(file_data)
     
     def serialize_file(self, data, index):
-        if not data.pokemon:
+        if not data:
             return b''
         
         trainer_data_extractor = self.context.get(TrainerDataExtractor)
@@ -466,7 +459,7 @@ class TrainerTeamExtractor(ExtractorStep):
         flags_bytes = trainer_data.trainermontype.data
         pokemon_struct = self.format_map[flags_bytes]
         
-        return Array(trainer_data.nummons, pokemon_struct).build(data.pokemon)
+        return Array(trainer_data.nummons, pokemon_struct).build(data)
 
 
 class TrainerDataExtractor(ExtractorStep):
@@ -501,13 +494,29 @@ class TrainerDataExtractor(ExtractorStep):
         return trainer
     
     def serialize_file(self, data, index):
-        return self.trainer_data_struct.build(data)
+        return self.trainer_data_struct.build(data, narc_index=index)
 
 
 class TrainerInfo:
     def __init__(self, trainer_data, team_data):
         self.info = trainer_data
         self.team = team_data
+        self.ace_index = self._compute_ace_index()
+    
+    def _compute_ace_index(self):
+        """Compute the index of the ace Pokemon (unique highest level Pokemon)."""
+        if not self.team:
+            return None
+        
+        # Find the highest level
+        max_level = max(pokemon.level for pokemon in self.team)
+        
+        # Find all Pokemon at max level
+        max_level_indices = [i for i, pokemon in enumerate(self.team) 
+                           if pokemon.level == max_level]
+        
+        # Only return ace index if exactly one Pokemon has the highest level
+        return max_level_indices[0] if len(max_level_indices) == 1 else None
 
 
 class TrainerCombinedExtractor(Extractor):
@@ -589,7 +598,7 @@ class MondataExtractor(ExtractorStep):
         return self.mondata_struct.parse(file_data, narc_index=index)
     
     def serialize_file(self, data, index):
-        return self.mondata_struct.build(data)
+        return self.mondata_struct.build(data, narc_index=index)
     
     def find_replacements(self, mon, bstrmin=0.9, bstrmax=1.1):
         """Find suitable replacement Pokemon within BST range."""
@@ -686,7 +695,7 @@ class EncounterExtractor(ExtractorStep):
         return encounter
     
     def serialize_file(self, data, index):
-        return self.encounter_struct.build(data)
+        return self.encounter_struct.build(data, narc_index=index)
 
 
 class RandomizeEncountersStep(Step):
@@ -762,14 +771,67 @@ class IndexTrainers(Step):
             print(f"Cannot find unique trainer {name}, class {cls} - {repr(rs)}")
         return rs[0] if len(rs) > 0 else None
 
+class ExpandTrainerTeamsStep(Step):
+    """Step to expand trainer teams to a specified size by duplicating the first Pokemon."""
+    
+    def __init__(self, target_size=6):
+        if not (1 <= target_size <= 6):
+            raise ValueError("Target team size must be between 1 and 6 inclusive")
+        self.target_size = target_size
+    
+    def run(self, context):
+        trainer_data_extractor = context.get(TrainerDataExtractor)
+        trainer_team_extractor = context.get(TrainerTeamExtractor)
+        
+        for i in range(len(trainer_data_extractor.data)):
+            self._expand_trainer_team(trainer_data_extractor.data[i], trainer_team_extractor.data[i])
+    
+    def _expand_trainer_team(self, trainer_data, team_data):
+        """Expand a single trainer's team to target size."""
+        current_size = len(team_data)
+        
+        # Skip if already at or above target size, or if team is empty
+        if current_size >= self.target_size or current_size == 0:
+            return
+        
+        # Create copies of the first Pokemon to fill remaining slots
+        template_pokemon = team_data[0]
+        
+        for _ in range(self.target_size - current_size):
+            new_pokemon = Container(template_pokemon)
+            team_data.append(new_pokemon)
+        
+        # Update the trainer data's nummons field
+        trainer_data.nummons = self.target_size
+
+
 class IdentifyGymTrainers(Step):
+    class Gym:
+        def __init__(self, name, trainers, gym_type=None):
+            self.name = name
+            self.trainers = trainers
+            self.type = gym_type
+    
     def __init__(self):
-        pass
+        self.data = {}
+    
+    def _detect_gym_type(self, trainers):
+        from collections import Counter
+        type_counts = Counter()
+        
+        for trainer in trainers:
+            for pokemon in trainer.team:
+                type_counts[pokemon.species.type1] += 1
+                if pokemon.species.type2 != pokemon.species.type1:
+                    type_counts[pokemon.species.type2] += 1
+        
+        return type_counts.most_common(1)[0][0] if type_counts else None
 
     def run(self, context):
-        trainers = ctx.get(TrainerCombinedExtractor)
-        index = ctx.get(IndexTrainers)
-        data = {
+        trainers = context.get(TrainerCombinedExtractor)
+        index = context.get(IndexTrainers)
+        
+        gym_definitions = {
             "Violet City": ["Falkner", "Abe", "Rod"],
             "Azalea Town": ["Bugsy", "Al", "Benny", "Amy & Mimi"],
             "Goldenrod City": ["Victoria", "Samantha", "Carrie", "Cathy", "Whitney"],
@@ -788,90 +850,124 @@ class IdentifyGymTrainers(Step):
             "Viridian City": ["Arabella", "Salma", "Bonita", "Elan & Ida", "Blue"],
             "Elite Four": ["Will", "Koga", "Bruno", "Karen", "Lance"]
         }
-        found = {
-            g: [index.find(t) for t in ts]
-            for (g, ts) in data.items()
-        }
-        for (g, ts) in found.items():
-            print(g)
-            for tid in ts:
-                t = trainers.data[tid]
-                print(f"  {t.info.name}")
-                for m in t.team.pokemon:
-                    print(f"    lv {m.level} {m.species.name} [{m.species.type1} {m.species.type2}]")
+        
+        for gym_name, trainer_specs in gym_definitions.items():
+            trainer_ids = [index.find(spec) for spec in trainer_specs]
+            trainer_ids = [tid for tid in trainer_ids if tid is not None]
+            gym_trainers = [trainers.data[tid] for tid in trainer_ids]
+            
+            gym_type = self._detect_gym_type(gym_trainers)
+            self.data[gym_name] = self.Gym(gym_name, gym_trainers, gym_type)
+        
         context.register_step(self)
 
+
+def print_trainer_teams(trainers, title="Trainer Teams", max_trainers=None):
+    """Print trainer teams in a nice indented format."""
+    print(f"\n=== {title} ===")
+    
+    num_to_show = len(trainers.data) if max_trainers is None else min(max_trainers, len(trainers.data))
+    
+    for i, trainer in enumerate(trainers.data[:num_to_show]):
+        ace_marker = f" (ace: {trainer.ace_index})" if trainer.ace_index is not None else ""
+        print(f"{i:3d}: {trainer.info.name} ({trainer.info.nummons} Pokemon){ace_marker}")
+        
+        for j, pokemon in enumerate(trainer.team):
+            marker = " ★" if j == trainer.ace_index else "  "
+            print(f"     {j}{marker} Lv{pokemon.level:2d} {pokemon.species.name}")
+    
+    if max_trainers is not None and len(trainers.data) > max_trainers:
+        print(f"     ... and {len(trainers.data) - max_trainers} more trainers")
+    print()
+
+
 if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Test ExpandTrainerTeamsStep")
+    parser.add_argument("--quiet", action="store_true", help="Run in quiet mode (no output)")
+    args = parser.parse_args()
     
     # Load ROM
     with open("hgeLanceCanary.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
-    # Create context and load data
-    ctx = RandomizationContext(rom, verbosity=3)
+    if not args.quiet:
+        print("=== INITIAL LOAD AND EXPANSION ===")
     
-    # Load data but don't randomize yet
+    # Create context and load data
+    ctx = RandomizationContext(rom, verbosity=0 if args.quiet else 1)
+    
+    # Load basic data
     ctx.run_pipeline([
         LoadPokemonNamesStep("."),
         LoadMoveNamesStep(),
-        LoadBlacklistStep(),
-        LoadEncounterNamesStep("."),
         LoadTrainerNamesStep("."),
-        IndexTrainers(),
-        IdentifyGymTrainers()
     ])
     
-    # Get encounter data BEFORE randomization
-    mondata = ctx.get(MondataExtractor)
-    encounters = ctx.get(EncounterExtractor)
-    moves = ctx.get(MoveDataExtractor)
+    # Get trainer data
     trainers = ctx.get(TrainerCombinedExtractor)
-    print(f"Loaded {len(mondata.data)} Pokemon")
-    print(f"Loaded {len(encounters.data)} encounter locations")
-    print(f"Loaded {len(moves.data)} moves")
-    print(f"Loaded {len(trainers.data)} trainers")
+    if not args.quiet:
+        print(f"Loaded {len(trainers.data)} trainers")
     
-    print(ctx.get(IdentifyGymTrainers))
-
-    sys.exit()
-
-    for i in range(len(trainers.data)):
-        trainer = trainers.data[i]
-        #team_info = f"{trainer.info.nummons} Pokemon ({trainer.info.trainermontype})"
-        pokemon_names = [p.species.name for p in trainer.team.pokemon]
-        print(i, trainer.info.name, trainer.info.nummons, [f"lv {m.level} {m.species.name}" for m in trainer.team.pokemon])
-        # print(f"  {i:3}: {trainer.info.name:20} | {team_info} | Pokemon: {pokemon_names}")
+    # Print teams before expansion (first 20 only for readability)
+    if not args.quiet:
+        print_trainer_teams(trainers, "BEFORE Team Expansion", max_trainers=20)
     
-
-
-    # Print first 10 moves with details
-    print("\nFirst 10 moves:")
-    for i in range(min(10, len(moves.data))):
-        move = moves.data[i]
-        # flags_str = ", ".join(str(flag) for flag in move.flags) if move.flags else "None"
-        print(f"  {i:3}: {move.name:15} | {move.base_power:3} BP | {move.type:8} | {move.pss:8} | Acc: {move.accuracy:3} | PP: {move.pp:2} | Flags: {repr(move.flags)}")
-    print("\n=== ENCOUNTER DATA BEFORE RANDOMIZATION ===\n")
+    # Run team expansion
+    if not args.quiet:
+        print("Running ExpandTrainerTeamsStep...")
+    ctx.run_pipeline([ExpandTrainerTeamsStep(6)])
     
-    def print_encounter_slots(encounter, mondata):
-        print(f"  Morning: {[f'{slot}:{mondata.data[slot].name}' if slot > 0 else 'Empty' for slot in encounter.morning[:5]]}")
-        print(f"  Day:     {[f'{slot}:{mondata.data[slot].name}' if slot > 0 else 'Empty' for slot in encounter.day[:5]]}")
-        print(f"  Night:   {[f'{slot}:{mondata.data[slot].name}' if slot > 0 else 'Empty' for slot in encounter.night[:5]]}")
+    # Print teams after expansion (first 20 only)
+    if not args.quiet:
+        print_trainer_teams(trainers, "AFTER Team Expansion", max_trainers=20)
     
-    # Show first 5 encounters before randomization
-    for i in range(min(5, len(encounters.data))):
-        encounter = encounters.data[i]
-        print(f"{i:3d}: {encounter.location_name}")
-        print_encounter_slots(encounter, mondata)
-        print()
+    # Write changes back to ROM
+    if not args.quiet:
+        print("Writing changes back to ROM...")
+    ctx.write_all()
     
-    # Now run randomization
-    print("\n=== RUNNING RANDOMIZATION ===\n")
-    ctx.run_pipeline([RandomizeEncountersStep()])
+    # Save modified ROM to a new file
+    modified_rom_path = "hgeLanceCanary_expanded.nds"
+    with open(modified_rom_path, "wb") as f:
+        f.write(rom.save())
+    if not args.quiet:
+        print(f"Saved modified ROM to {modified_rom_path}")
     
-    # Show same encounters after randomization
-    print("\n=== ENCOUNTER DATA AFTER RANDOMIZATION ===\n")
-    for i in range(min(5, len(encounters.data))):
-        encounter = encounters.data[i]
-        print(f"{i:3d}: {encounter.location_name}")
-        print_encounter_slots(encounter, mondata)
-        print()
+    if not args.quiet:
+        print("\n=== RELOAD TEST - Reading back from saved ROM ===")
+    
+    # Load the modified ROM and create new context
+    with open(modified_rom_path, "rb") as f:
+        rom2 = ndspy.rom.NintendoDSRom(f.read())
+    
+    ctx2 = RandomizationContext(rom2, verbosity=0 if args.quiet else 1)
+    
+    # Load data from the modified ROM
+    ctx2.run_pipeline([
+        LoadPokemonNamesStep("."),
+        LoadMoveNamesStep(),
+        LoadTrainerNamesStep("."),
+    ])
+    
+    trainers2 = ctx2.get(TrainerCombinedExtractor)
+    if not args.quiet:
+        print(f"Reloaded {len(trainers2.data)} trainers from saved ROM")
+        # Print ALL trainer data to verify persistence
+        print_trainer_teams(trainers2, "RELOADED FROM SAVED ROM - ALL TRAINERS")
+    else:
+        # Basic validation in quiet mode
+        try:
+            expanded_count = sum(1 for trainer in trainers2.data if len(trainer.team) == 6)
+            total_count = len(trainers2.data)
+            print(f"Test completed successfully - {expanded_count}/{total_count} trainers have 6 Pokemon")
+        except Exception as e:
+            print(f"Error during validation: {e}")
+            # Debug the first trainer's team
+            if trainers2.data:
+                first_team = trainers2.data[0].team
+                print(f"First team type: {type(first_team)}")
+                if hasattr(first_team, '__len__') and len(first_team) > 0:
+                    print(f"First pokemon type: {type(first_team[0])}")
+            raise
