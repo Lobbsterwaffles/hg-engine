@@ -15,7 +15,7 @@ import os
 import re
 import random
 import sys
-from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container
+from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container, GreedyRange, StopIf, Check
 
 from enums import (
     Type,
@@ -401,6 +401,32 @@ class Moves(ExtractorStep):
     def serialize_file(self, data, index):
         return self.move_struct.build(data, narc_index=index)
 
+
+class Learnsets(ExtractorStep):
+    def __init__(self, context):
+        moves = context.get(MoveDataExtractor).data
+
+        self.struct = GreedyRange(Struct(
+            "move_id" / Int16ul,
+            "level" / Int16ul,
+            Check(lambda ctx: ctx.move_id != 0xffff),
+            "move" / Computed(lambda ctx: moves[ctx.move_id] if ctx.move_id < len(moves) else None),
+        ))
+        
+        super().__init__(context)
+        
+        self.data = self.load_narc()
+    
+    def get_narc_path(self):
+        return "a/0/3/3"
+    
+    def parse_file(self, file_data, index):
+        return self.struct.parse(file_data, narc_index=index)
+    
+    def serialize_file(self, data, index):
+        return self.struct.build(data, narc_index=index)
+
+
 class LoadTrainerNamesStep(Step):
     """Step that loads trainer names from assembly source."""
     
@@ -661,7 +687,6 @@ class Mons(ExtractorStep):
         
         return candidates
 
-
 class LoadEncounterNamesStep(Step):
     """Step that loads encounter location names from assembly source."""
     
@@ -889,8 +914,7 @@ class IdentifyGymTrainers(Step):
         
         for gym_name, trainer_specs in gym_definitions.items():
             trainer_ids = [index.find(spec) for spec in trainer_specs]
-            trainer_ids = [tid for tid in trainer_ids if tid is not None]
-            gym_trainers = [trainers.data[tid] for tid in trainer_ids]
+            gym_trainers = [trainers.data[tid] for tid in trainer_ids if tid is not None]
             
             gym_type = self._detect_gym_type(gym_trainers)
             self.data[gym_name] = self.Gym(gym_name, gym_trainers, gym_type)
@@ -913,8 +937,6 @@ class RandomizeGymTypesStep(Step):
 
 
 class RandomizeGymsStep(Step):
-    """Step to randomize gym trainer teams while maintaining type themes."""
-    
     def __init__(self, filter):
         self.filter = filter
     
@@ -927,29 +949,19 @@ class RandomizeGymsStep(Step):
                 self._randomize_gym_teams(context, gym, mondata)
     
     def _randomize_gym_teams(self, context, gym, mondata):
-        """Randomize all trainer teams in a gym while maintaining type theme."""
-        # Create type filter for this gym's theme
-        theme_filter = TypeMatches([int(gym.type)])
-        
-        # Combine theme filter with user-provided filter
-        combined_filter = AllFilters([theme_filter, self.filter])
-        
+        filter = AllFilters([self.filter, TypeMatches([int(gym.type)])])
         for trainer in gym.trainers:
-            self._randomize_trainer_team(context, trainer, mondata, combined_filter)
-    
+            self._randomize_trainer_team(context, trainer, mondata, filter)
+
     def _randomize_trainer_team(self, context, trainer, mondata, filter):
         """Randomize a single trainer's team."""
         for i, pokemon in enumerate(trainer.team):
-            original_species = mondata.data[pokemon.species_id]
-            
             new_species = context.decide(
-                path=["gyms", trainer.info.name, "team", i, "species"],
-                original=original_species,
+                path=["trainer", trainer.info.name, "team", i, "species"],
+                original=mondata.data[pokemon.species_id],
                 candidates=list(mondata.data),
                 filter=filter
             )
-            
-            # Update the Pokemon's species_id
             pokemon.species_id = new_species.pokemon_id
 
 
@@ -980,41 +992,7 @@ class MakePivots(Step):
             ]
         ]
         
-
         
-
-
-if __name__ == "__main__":
-    path = "data/pivots.txt"
-    current_type = None
-    r = {}
-    def u(t1, t2 = None):
-        if current_type not in r:
-            r[current_type] = []
-        r[current_type].append((t1, t2 or t1))
-
-    with open(path, "r", encoding="utf-8") as f:
-        for line in f:
-            if m := re.fullmatch(r'#.*\s*', line):
-                continue
-            elif m := re.fullmatch(r'\[TYPE_([A-Z]*)\]\s*', line):
-                current_type = Type[m.group(1)]
-            elif m := re.fullmatch(r'TYPE_([A-Z]*)\s*', line):
-                u(Type[m.group(1)])
-            elif m := re.fullmatch(r'TYPE_([A-Z]*)\s*[,/]\s*TYPE_([A-Z]*)\s*', line):
-                u(Type[m.group(1)], Type[m.group(2)])
-            elif "" != line.strip():
-                print("??", repr(line))
-
-    for (t, ts) in r.items():
-        print(f"Type.{Type(t).name}: [")
-        for (t1, t2) in ts:
-            print(f"  (Type.{t1.name}, Type.{t2.name}),")
-        print("],")
-        
-    sys.exit(0)
-
-
 if __name__ == "__main__":
     import argparse
     
@@ -1044,6 +1022,7 @@ if __name__ == "__main__":
         LoadBlacklistStep(),
         IndexTrainers(),
         IdentifyGymTrainers(),
+        
     ])
 
 
@@ -1055,9 +1034,20 @@ if __name__ == "__main__":
     ])
 
 
+    # print(ctx.get(Learnsets).data[0])
+    # print(ctx.get(Learnsets).data[1])
+
+    # for (i, ls) in enumerate(ctx.get(Learnsets).data):
+    #     if i == 0:
+    #         continue
+    #     if i > 10:
+    #         break
+    #     print(i, ctx.get(MondataExtractor).data[i].name)
+    #     print([(e.level, e.move.name) for e in ls])
+        
+    # sys.exit(0)
 
 
-    sys.exit(0)
 
     # Get initial gym data
     gyms = ctx.get(IdentifyGymTrainers)
