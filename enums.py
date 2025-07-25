@@ -10,7 +10,6 @@ class Type(enum.IntEnum):
     BUG = 6
     GHOST = 7
     STEEL = 8
-    MYSTERY = 9
     FAIRY = 9
     FIRE = 10
     WATER = 11
