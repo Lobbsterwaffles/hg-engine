@@ -361,7 +361,7 @@ class LoadAbilityNames(NameTableReader):
     def __init__(self):
         super().__init__("data/text/720.txt")
 
-class MoveDataExtractor(ExtractorStep):
+class Moves(ExtractorStep):
     """Extractor for move data from ROM with full move structure."""
     
     def __init__(self, context):
@@ -427,12 +427,12 @@ class LoadTrainerNamesStep(Step):
         context.register_step(self)
 
 
-class TrainerTeamExtractor(ExtractorStep):
+class TrainerTeam(ExtractorStep):
     """Extractor for trainer team data from ROM."""
     
     def __init__(self, context):
-        mondata_extractor = context.get(MondataExtractor)
-        move_extractor = context.get(MoveDataExtractor)
+        mondata_extractor = context.get(Mons)
+        move_extractor = context.get(Moves)
 
         self.trainer_pokemon_basic = Struct(
             "ivs" / Int8ul,
@@ -487,7 +487,7 @@ class TrainerTeamExtractor(ExtractorStep):
         if len(file_data) == 0:
             return []
         
-        trainer_data_extractor = self.context.get(TrainerDataExtractor)
+        trainer_data_extractor = self.context.get(TrainerData)
         trainer_data = trainer_data_extractor.data[index]
         
         flags_bytes = trainer_data.trainermontype.data
@@ -499,7 +499,7 @@ class TrainerTeamExtractor(ExtractorStep):
         if not data:
             return b''
         
-        trainer_data_extractor = self.context.get(TrainerDataExtractor)
+        trainer_data_extractor = self.context.get(TrainerData)
         trainer_data = trainer_data_extractor.data[index]
         
         flags_bytes = trainer_data.trainermontype.data
@@ -508,7 +508,7 @@ class TrainerTeamExtractor(ExtractorStep):
         return Array(trainer_data.nummons, pokemon_struct).build(data)
 
 
-class TrainerDataExtractor(ExtractorStep):
+class TrainerData(ExtractorStep):
     """Extractor for trainer data from ROM."""
     
     def __init__(self, context):
@@ -555,12 +555,12 @@ class TrainerInfo:
         imaxlvl = [i for i, pokemon in enumerate(self.team) if pokemon.level == maxlvl]
         return imaxlvl[0] if len(imaxlvl) == 1 else None
 
-class TrainerCombinedExtractor(Extractor):
+class Trainers(Extractor):
     def __init__(self, context):
         super().__init__(context)
         
-        trainer_data_extractor = context.get(TrainerDataExtractor)
-        trainer_team_extractor = context.get(TrainerTeamExtractor)
+        trainer_data_extractor = context.get(TrainerData)
+        trainer_team_extractor = context.get(TrainerTeam)
         
         self.data = [
             TrainerInfo(trainer_data_extractor.data[i], trainer_team_extractor.data[i])
@@ -590,7 +590,7 @@ class LoadBlacklistStep(Step):
         context.register_step(self)
 
 
-class MondataExtractor(ExtractorStep):
+class Mons(ExtractorStep):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
     def __init__(self, context):
@@ -682,7 +682,7 @@ class LoadEncounterNamesStep(Step):
 
 
 
-class EncounterExtractor(ExtractorStep):
+class Encounters(ExtractorStep):
     """Extractor for encounter data from ROM."""
     
     def __init__(self, context):
@@ -743,8 +743,8 @@ class RandomizeEncountersStep(Step):
         self.replacements = {}
     
     def run(self, context):
-        self.mondata = context.get(MondataExtractor)
-        self.encounters = context.get(EncounterExtractor)
+        self.mondata = context.get(Mons)
+        self.encounters = context.get(Encounters)
         self.blacklist = context.get(LoadBlacklistStep)
         self.context = context
         
@@ -784,7 +784,7 @@ class IndexTrainers(Step):
         self.data = {}
 
     def run(self, context):
-        trainers = ctx.get(TrainerCombinedExtractor)
+        trainers = ctx.get(Trainers)
         for t in trainers.data:
             if t.info.name not in self.data:
                 self.data[t.info.name] = []
@@ -813,8 +813,8 @@ class ExpandTrainerTeamsStep(Step):
         self.target_size = target_size
     
     def run(self, context):
-        trainer_data_extractor = context.get(TrainerDataExtractor)
-        trainer_team_extractor = context.get(TrainerTeamExtractor)
+        trainer_data_extractor = context.get(TrainerData)
+        trainer_team_extractor = context.get(TrainerTeam)
         
         for i in range(len(trainer_data_extractor.data)):
             self._expand_trainer_team(trainer_data_extractor.data[i], trainer_team_extractor.data[i])
@@ -851,7 +851,7 @@ class IdentifyGymTrainers(Step):
     def _detect_gym_type(self, trainers):
         type_counts = Counter()
         
-        mondata = self.context.get(MondataExtractor)
+        mondata = self.context.get(Mons)
         
         for trainer in trainers:
             for pokemon in trainer.team:
@@ -864,7 +864,7 @@ class IdentifyGymTrainers(Step):
 
     def run(self, context):
         self.context = context
-        trainers = context.get(TrainerCombinedExtractor)
+        trainers = context.get(Trainers)
         index = context.get(IndexTrainers)
         
         gym_definitions = {
@@ -920,7 +920,7 @@ class RandomizeGymsStep(Step):
     
     def run(self, context):
         gyms = context.get(IdentifyGymTrainers)
-        mondata = context.get(MondataExtractor)
+        mondata = context.get(Mons)
         
         for gym_name, gym in gyms.data.items():
             if gym.type is not None:
@@ -962,7 +962,7 @@ class MakePivots(Step):
 
 
     def make_pivots(self, context):
-        mondata = context.get(MondataExtractor)
+        mondata = context.get(Mons)
         abilities = context.get(LoadAbilityNames)
         type_data = {
             Type.NORMAL: [
@@ -1050,7 +1050,7 @@ if __name__ == "__main__":
     levitate_id = ctx.get(LoadAbilityNames).get_by_name('Levitate')
     print([
         m.name
-        for m in ctx.get(MondataExtractor).data
+        for m in ctx.get(Mons).data
         if levitate_id in [m.ability1, m.ability2]
     ])
 
@@ -1074,7 +1074,7 @@ if __name__ == "__main__":
             for trainer in gym.trainers:
                 print(f"  {trainer.info.name}:")
                 for i, pokemon in enumerate(trainer.team):
-                    species = ctx.get(MondataExtractor).data[pokemon.species_id]
+                    species = ctx.get(Mons).data[pokemon.species_id]
                     print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
     
     # Create filter combining BST and blacklist constraints
@@ -1100,7 +1100,7 @@ if __name__ == "__main__":
             for trainer in gym.trainers:
                 print(f"  {trainer.info.name}:")
                 for i, pokemon in enumerate(trainer.team):
-                    species = ctx.get(MondataExtractor).data[pokemon.species_id]
+                    species = ctx.get(Mons).data[pokemon.species_id]
                     print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
     
     # Write changes back to ROM
