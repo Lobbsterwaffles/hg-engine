@@ -1,4 +1,10 @@
+from dataclasses import dataclass
 from enums import Type
+
+
+@dataclass
+class HasAbility:
+    ability_name: str
 
 pivots_type_data = {
     Type.NORMAL: [
@@ -59,6 +65,7 @@ pivots_type_data = {
         (Type.DRAGON, Type.GROUND),
         (Type.GHOST, Type.GHOST),
         (Type.FLYING, Type.GROUND),
+        HasAbility("Levitate"),
     ],
     Type.ICE: [
         (Type.WATER, Type.FIGHTING),

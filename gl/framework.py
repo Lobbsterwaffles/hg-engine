@@ -27,6 +27,8 @@ from enums import (
     BattleType,
     TrainerClass
 )
+from pivots import pivots_type_data, HasAbility
+from fulcrums import fulcrums_type_data
 
 
 class Filter(ABC):
@@ -116,12 +118,6 @@ class Extractor(ABC):
         pass
 
 
-class WritableMixin:
-    """Mixin that enables ROM writeback - assumes write_to_rom() exists"""
-    def write(self):
-        self.write_to_rom()
-
-
 class ExtractorStep(Extractor):
     """Extractor that provides NARC parsing infrastructure"""
     
@@ -166,6 +162,11 @@ class ExtractorStep(Extractor):
         narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
         self.rom.files[narc_file_id] = narc_data.save()
 
+
+class Writeback:
+    """Mixin that enables ROM writeback for ExtractorStep"""
+    def write(self):
+        self.write_to_rom()
 
 class Step(ABC):
     """Base class for pipeline steps that run in order."""
@@ -424,8 +425,7 @@ class LoadTrainerNamesStep(Extractor):
             pass
 
 
-class TrainerTeam(ExtractorStep, WritableMixin):
-    """Extractor for trainer team data from ROM."""
+class TrainerTeam(ExtractorStep, Writeback):
     
     def __init__(self, context):
         mondata_extractor = context.get(Mons)
@@ -469,36 +469,28 @@ class TrainerTeam(ExtractorStep, WritableMixin):
         self.data = self.load_narc()
     
     def get_narc_path(self):
-        return "a/0/5/6"  # Trainer team data NARC
+        return "a/0/5/6"
     
     def parse_file(self, file_data, index):
         if len(file_data) == 0:
             return []
         
-        trainer_data_extractor = self.context.get(TrainerData)
-        trainer_data = trainer_data_extractor.data[index]
+        trainer = self.context.get(TrainerData).data[index]
+        struct = self.format_map[trainer.trainermontype.data]
         
-        flags_bytes = trainer_data.trainermontype.data
-        pokemon_struct = self.format_map[flags_bytes]
-        
-        return Array(trainer_data.nummons, pokemon_struct).parse(file_data)
+        return Array(trainer.nummons, struct).parse(file_data)
     
     def serialize_file(self, data, index):
         if not data:
             return b''
         
-        trainer_data_extractor = self.context.get(TrainerData)
-        trainer_data = trainer_data_extractor.data[index]
+        trainer = self.context.get(TrainerData).data[index]
+        struct = self.format_map[trainer.trainermontype.data]
         
-        flags_bytes = trainer_data.trainermontype.data
-        pokemon_struct = self.format_map[flags_bytes]
-        
-        return Array(trainer_data.nummons, pokemon_struct).build(data)
+        return Array(trainer.nummons, struct).build(data)
 
 
-class TrainerData(ExtractorStep, WritableMixin):
-    """Extractor for trainer data from ROM."""
-    
+class TrainerData(ExtractorStep, Writeback):
     def __init__(self, context):
         trainer_names_step = context.get(LoadTrainerNamesStep)
         
@@ -521,11 +513,10 @@ class TrainerData(ExtractorStep, WritableMixin):
         self.data = self.load_narc()
     
     def get_narc_path(self):
-        return "a/0/5/5"  # Trainer data NARC
+        return "a/0/5/5"
     
     def parse_file(self, file_data, index):
-        trainer = self.trainer_data_struct.parse(file_data, narc_index=index)
-        return trainer
+        return self.trainer_data_struct.parse(file_data, narc_index=index)
     
     def serialize_file(self, data, index):
         return self.trainer_data_struct.build(data, narc_index=index)
@@ -664,7 +655,7 @@ class LoadEncounterNamesStep(Extractor):
 
 
 
-class Encounters(ExtractorStep, WritableMixin):
+class Encounters(ExtractorStep, Writeback):
     """Extractor for encounter data from ROM."""
     
     def __init__(self, context):
@@ -920,21 +911,52 @@ class RandomizeGymsStep(Step):
             pokemon.species_id = new_species.pokemon_id
 
 
-class Pivots(Extractor):
+class ReadTypeMapping(Extractor):
+    # set in subclass
+    type_data = None
+    
     def __init__(self, context):
         super().__init__(context)
-        from pivots import pivots_type_data
-        
-        mons = context.get(Mons)
-        self.data = {}
-        
-        for (t,ts) in pivots_type_data.items():
-            self.data[t] = []
-            for (t1, t2) in ts:
-                self.data[t].extend([
-                    pokemon for pokemon in mons.data
-                    if {int(pokemon.type1), int(pokemon.type2)} == {int(t1),int(t2)}
-                ])
+        self.mons = context.get(Mons)
+        self.ability_names = context.get(LoadAbilityNames)
+        self.typeset_to_mons = self._build_index()
+        self.data = self._process_data()
+    
+    def _build_index(self):
+        typeset_to_mons = {}
+        for pokemon in self.mons.data:
+            typeset = frozenset({int(pokemon.type1), int(pokemon.type2)})
+            if typeset not in typeset_to_mons:
+                typeset_to_mons[typeset] = []
+            typeset_to_mons[typeset].append(pokemon)
+        return typeset_to_mons
+    
+    def _process_data(self):
+        data = {}
+        for (t, ts) in self.type_data.items():
+            data[t] = []
+            for entry in ts:
+                data[t].extend(self._handle_entry(entry))
+        return data
+    
+    def _handle_entry(self, entry):
+        if isinstance(entry, tuple):
+            typeset = frozenset({int(t) for t in entry})
+            return self.typeset_to_mons.get(typeset, [])
+        elif isinstance(entry, HasAbility):
+            ability_id = self.ability_names.get_by_name(entry.ability_name)
+            return [
+                pokemon for pokemon in self.mons.data
+                if ability_id in [pokemon.ability1, pokemon.ability2]
+            ]
+
+
+class Pivots(ReadTypeMapping):
+    type_data = pivots_type_data
+
+
+class Fulcrums(ReadTypeMapping):
+    type_data = fulcrums_type_data
         
         
 if __name__ == "__main__":
@@ -955,46 +977,6 @@ if __name__ == "__main__":
     
     # Create context and load data
     ctx = RandomizationContext(rom, verbosity=0 if args.quiet else 2)
-    
-    # Data providers are now loaded on-demand via context.get()
-    # Only need to run actual pipeline steps here
-
-
-    # Test the Pivots extractor
-    pivots = ctx.get(Pivots)
-    
-    # Show some sample pivot data
-    print("=== PIVOT DATA TEST ===")
-    for attack_type in list(Type):
-        matching_pokemon = pivots.data.get(attack_type, [])
-        print(f"{attack_type.name}: {len(matching_pokemon)} Pokemon")
-        if matching_pokemon:
-            print(f"  Examples: {[p.name for p in matching_pokemon[:3]]}")
-
-    sys.exit(0)
-    
-    levitate_id = ctx.get(LoadAbilityNames).get_by_name('Levitate')
-    print([
-        m.name
-        for m in ctx.get(Mons).data
-        if levitate_id in [m.ability1, m.ability2]
-    ])
-
-
-    # print(ctx.get(Learnsets).data[0])
-    # print(ctx.get(Learnsets).data[1])
-
-    # for (i, ls) in enumerate(ctx.get(Learnsets).data):
-    #     if i == 0:
-    #         continue
-    #     if i > 10:
-    #         break
-    #     print(i, ctx.get(MondataExtractor).data[i].name)
-    #     print([(e.level, e.move.name) for e in ls])
-        
-    # sys.exit(0)
-
-
 
     # Get initial gym data
     gyms = ctx.get(IdentifyGymTrainers)
