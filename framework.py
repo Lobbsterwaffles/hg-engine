@@ -50,14 +50,6 @@ class BstWithinFactor(SimpleFilter):
     def check(self, context, original, candidate) -> bool:
         return abs(candidate.bst - original.bst) <= original.bst * self.factor
 
-class InTypeList(SimpleFilter):
-    """Filter Pokemon that are in a specific type list."""
-    def __init__(self, type_ids: List[int]):
-        self.type_ids = set(type_ids)
-    
-    def check(self, context, original, candidate) -> bool:
-        return candidate.pokemon_id in self.type_ids
-
 class NotInSet(SimpleFilter):
     """Filter out specific IDs."""
     def __init__(self, excluded: set):
@@ -72,16 +64,12 @@ class TypeMatches(SimpleFilter):
         self.type_ids = set(type_ids)
     
     def check(self, context, original, candidate) -> bool:
-        # print("TMC", self.type_ids, candidate.type1, candidate.type2)
-        # import pdb
-        # pdb.set_trace()
         return (int(candidate.type1) in self.type_ids or int(candidate.type2) in self.type_ids)
 
     def __repr__(self):
         s = ","
         return f"TypeMatches({s.join([repr(Type(t)) for t in self.type_ids])})"
     
-
 class Tiered(Filter):
     """Try filters in order until one produces results."""
     def __init__(self, filters: List[Filter]):
@@ -111,7 +99,6 @@ class AllFilters(Filter):
         s = ","
         return f"AllFilters({s.join([repr(f) for f in self.filters])})"
 
-
 class NoFilter(Filter):
     """Filter that passes all candidates unchanged."""
     def filter_all(self, context, original, candidates: List) -> List:
@@ -119,8 +106,7 @@ class NoFilter(Filter):
 
 
 class Extractor(ABC):
-    """Base class for context-managed ROM data extractors."""
-    
+    """Base class for all context-managed objects."""
     def __init__(self, context):
         self.context = context
         self.rom = context.rom
@@ -130,11 +116,14 @@ class Extractor(ABC):
         pass
 
 
-class ExtractorStep(Extractor):
-    """Extractor that can write data back to ROM."""
-    
+class WritableMixin:
+    """Mixin that enables ROM writeback - assumes write_to_rom() exists"""
     def write(self):
         self.write_to_rom()
+
+
+class ExtractorStep(Extractor):
+    """Extractor that provides NARC parsing infrastructure"""
     
     @abstractmethod
     def write_to_rom(self):
@@ -181,8 +170,9 @@ class ExtractorStep(Extractor):
 class Step(ABC):
     """Base class for pipeline steps that run in order."""
     
+    @abstractmethod
     def run(self, context):
-        """Execute this step. Default is no-op."""
+        """Execute this step."""
         pass
 
 
@@ -194,31 +184,21 @@ class ObjectRegistry:
         self._creating = set()
     
     def get(self, obj_class):
-        """Get object instance (extractor or step), creating if needed."""
+        """Get object instance, creating if needed."""
         if obj_class in self._objects:
             return self._objects[obj_class]
         
         if obj_class in self._creating:
             raise RuntimeError(f"Circular dependency detected: {obj_class.__name__}")
         
-        if issubclass(obj_class, Extractor):
-            self._creating.add(obj_class)
-            try:
-                obj = obj_class(self)
-                self.register_step(obj)
-            finally:
-                self._creating.remove(obj_class)
-        else:
-            raise ValueError(f"Step {obj_class.__name__} not found. Make sure it runs before being accessed.")
+        self._creating.add(obj_class)
+        try:
+            obj = obj_class(self)
+            self._objects[obj_class] = obj
+        finally:
+            self._creating.remove(obj_class)
         
         return self._objects[obj_class]
-    
-    def register_step(self, step):
-        """Register step instance by its class. Throws if already present."""
-        step_class = type(step)
-        if step_class in self._objects:
-            raise RuntimeError(f"Step {step_class.__name__} already registered")
-        self._objects[step_class] = step
 
 
 class RandomizationContext(ObjectRegistry):
@@ -301,13 +281,12 @@ class RandomizationContext(ObjectRegistry):
                 progress_callback(progress_percent)
     
     def write_all(self, log_function=None):
-        """Write all loaded extractors back to ROM."""
+        """Write all loaded objects back to ROM."""
         if log_function:
             log_function("Writing all data to ROM...")
         
         for obj in self._objects.values():
-            if isinstance(obj, Extractor):
-                obj.write()
+            obj.write()
 
 
 SPECIAL_POKEMON = {
@@ -317,11 +296,13 @@ SPECIAL_POKEMON = {
 
 
 
-class NameTableReader(Step):
+class NameTableReader(Extractor):
     """Base class for reading name tables from text files."""
+    filename = None  # Must be set by subclasses
     
-    def __init__(self, filename):
-        with open(filename, "r", encoding="utf-8") as f:
+    def __init__(self, context):
+        super().__init__(context)
+        with open(self.filename, "r", encoding="utf-8") as f:
             names_list = [line.strip() for line in f.readlines()]
 
         self.id_to_name = {}
@@ -344,27 +325,22 @@ class NameTableReader(Step):
 
     def get_all_by_name(self, n):
         return self.name_to_ids[n]
-    
-    def run(self, context):
-        context.register_step(self)
 
 
 class LoadPokemonNamesStep(NameTableReader):
-    def __init__(self, base_path="."):
-        super().__init__("build/rawtext/237.txt")
+    filename = "build/rawtext/237.txt"
         
 class LoadMoveNamesStep(NameTableReader):
-    def __init__(self):
-        super().__init__("build/rawtext/750.txt")
+    filename = "build/rawtext/750.txt"
 
 class LoadAbilityNames(NameTableReader):
-    def __init__(self):
-        super().__init__("data/text/720.txt")
+    filename = "data/text/720.txt"
 
 class Moves(ExtractorStep):
     """Extractor for move data from ROM with full move structure."""
     
     def __init__(self, context):
+        super().__init__(context)
         move_names_step = context.get(LoadMoveNamesStep)
         
         self.move_struct = Struct(
@@ -384,8 +360,7 @@ class Moves(ExtractorStep):
             "move_id" / Computed(lambda ctx: ctx._.narc_index),
             "name" / Computed(lambda ctx: move_names_step.id_to_name.get(ctx._.narc_index, None))
         )
-        
-        super().__init__(context)
+
         self.data = self.load_narc()
 
     
@@ -404,6 +379,7 @@ class Moves(ExtractorStep):
 
 class Learnsets(ExtractorStep):
     def __init__(self, context):
+        super().__init__(context)
         moves = context.get(MoveDataExtractor).data
 
         self.struct = GreedyRange(Struct(
@@ -412,8 +388,6 @@ class Learnsets(ExtractorStep):
             Check(lambda ctx: ctx.move_id != 0xffff),
             "move" / Computed(lambda ctx: moves[ctx.move_id] if ctx.move_id < len(moves) else None),
         ))
-        
-        super().__init__(context)
         
         self.data = self.load_narc()
     
@@ -427,15 +401,15 @@ class Learnsets(ExtractorStep):
         return self.struct.build(data, narc_index=index)
 
 
-class LoadTrainerNamesStep(Step):
-    """Step that loads trainer names from assembly source."""
+class LoadTrainerNamesStep(Extractor):
+    """Extractor that loads trainer names from assembly source."""
     
-    def __init__(self, base_path="."):
-        self.base_path = base_path
+    def __init__(self, context):
+        super().__init__(context)
         self.by_id = {}
         self.by_name = {}
         
-        trainer_file = os.path.join(base_path, "armips", "data", "trainers", "trainers.s")
+        trainer_file = os.path.join("armips", "data", "trainers", "trainers.s")
         try:
             with open(trainer_file, "r", encoding="utf-8") as f:
                 pattern = r"trainerdata\s+(\d+),\s+\"([^\"]+)\""
@@ -448,49 +422,37 @@ class LoadTrainerNamesStep(Step):
                         self.by_name[name] = trainer_id
         except FileNotFoundError:
             pass
-    
-    def run(self, context):
-        context.register_step(self)
 
 
-class TrainerTeam(ExtractorStep):
+class TrainerTeam(ExtractorStep, WritableMixin):
     """Extractor for trainer team data from ROM."""
     
     def __init__(self, context):
         mondata_extractor = context.get(Mons)
         move_extractor = context.get(Moves)
 
-        self.trainer_pokemon_basic = Struct(
+        self.struct_common = Struct(
             "ivs" / Int8ul,
             "abilityslot" / Int8ul,
             "level" / Int16ul,
             "species_id" / Int16ul,
+        )
+        
+        self.trainer_pokemon_basic = self.struct_common + Struct(
             "ballseal" / Int16ul
         )
         
-        self.trainer_pokemon_items = Struct(
-            "ivs" / Int8ul,
-            "abilityslot" / Int8ul,
-            "level" / Int16ul,
-            "species_id" / Int16ul,
+        self.struct_items = self.struct_common + Struct(
             "item" / Int16ul,
             "ballseal" / Int16ul
         )
         
-        self.trainer_pokemon_moves = Struct(
-            "ivs" / Int8ul,
-            "abilityslot" / Int8ul,
-            "level" / Int16ul,
-            "species_id" / Int16ul,
+        self.struct_moves = self.struct_common + Struct(
             "moves" / Array(4, Int16ul),
             "ballseal" / Int16ul
         )
         
-        self.trainer_pokemon_full = Struct(
-            "ivs" / Int8ul,
-            "abilityslot" / Int8ul,
-            "level" / Int16ul,
-            "species_id" / Int16ul,
+        self.struct_movesitems = self.struct_common + Struct(
             "item" / Int16ul,
             "moves" / Array(4, Int16ul),
             "ballseal" / Int16ul
@@ -498,9 +460,9 @@ class TrainerTeam(ExtractorStep):
         
         self.format_map = {
             bytes([TrainerDataType.NOTHING]): self.trainer_pokemon_basic,
-            bytes([TrainerDataType.MOVES]): self.trainer_pokemon_moves,
-            bytes([TrainerDataType.ITEMS]): self.trainer_pokemon_items,
-            bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS]): self.trainer_pokemon_full,
+            bytes([TrainerDataType.MOVES]): self.struct_moves,
+            bytes([TrainerDataType.ITEMS]): self.struct_items,
+            bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS]): self.struct_movesitems,
         }
         
         super().__init__(context)
@@ -534,7 +496,7 @@ class TrainerTeam(ExtractorStep):
         return Array(trainer_data.nummons, pokemon_struct).build(data)
 
 
-class TrainerData(ExtractorStep):
+class TrainerData(ExtractorStep, WritableMixin):
     """Extractor for trainer data from ROM."""
     
     def __init__(self, context):
@@ -594,14 +556,14 @@ class Trainers(Extractor):
         ]
 
 
-class LoadBlacklistStep(Step):
-    """Step that creates Pokemon blacklist with hardcoded data."""
+class LoadBlacklistStep(Extractor):
+    """Extractor that creates Pokemon blacklist with hardcoded data."""
     
-    def __init__(self):
-        self.by_id = set()
-                        
-    def run(self, context):
+    def __init__(self, context):
+        super().__init__(context)
         names_step = context.get(LoadPokemonNamesStep)
+        
+        self.by_id = set()
         
         fixed = [
             "Bad Egg"
@@ -612,8 +574,6 @@ class LoadBlacklistStep(Step):
 
         for fid in names_step.get_all_by_name("-----"):
             self.by_id.add(fid)
-        
-        context.register_step(self)
 
 
 class Mons(ExtractorStep):
@@ -687,11 +647,11 @@ class Mons(ExtractorStep):
         
         return candidates
 
-class LoadEncounterNamesStep(Step):
-    """Step that loads encounter location names from assembly source."""
+class LoadEncounterNamesStep(Extractor):
+    """Extractor that loads encounter location names from assembly source."""
     
-    def __init__(self, base_path="."):
-        self.base_path = base_path
+    def __init__(self, context):
+        super().__init__(context)
         self.location_names = {}
         encounter_file = os.path.join("armips", "data", "encounters.s")
         with open(encounter_file, "r", encoding="utf-8") as f:
@@ -701,13 +661,10 @@ class LoadEncounterNamesStep(Step):
                     encounter_id = int(match.group(1))
                     encounter_name = match.group(2).strip()
                     self.location_names[encounter_id] = encounter_name
-        
-    def run(self, context):
-        context.register_step(self)
 
 
 
-class Encounters(ExtractorStep):
+class Encounters(ExtractorStep, WritableMixin):
     """Extractor for encounter data from ROM."""
     
     def __init__(self, context):
@@ -804,17 +761,17 @@ class RandomizeEncountersStep(Step):
             slot_list[i] = self.replacements[species_id]
 
 
-class IndexTrainers(Step):
-    def __init__(self):
+class IndexTrainers(Extractor):
+    "Store mapping of name to trainer_id.  Queryable using `find`, by name or (trainerclass, name)"
+    def __init__(self, context):
+        super().__init__(context)
         self.data = {}
 
-    def run(self, context):
-        trainers = ctx.get(Trainers)
+        trainers = context.get(Trainers)
         for t in trainers.data:
             if t.info.name not in self.data:
                 self.data[t.info.name] = []
             self.data[t.info.name].append((t.info.trainerclass, t.info.trainer_id))
-        context.register_step(self)
 
     def find(self, name_or_tuple):
         if isinstance(name_or_tuple, tuple):
@@ -830,7 +787,7 @@ class IndexTrainers(Step):
         return rs[0] if len(rs) > 0 else None
 
 class ExpandTrainerTeamsStep(Step):
-    """Step to expand trainer teams to a specified size by duplicating the first Pokemon."""
+    """expand trainer teams to a specified size by duplicating the first Pokemon."""
     
     def __init__(self, target_size=6):
         if not (1 <= target_size <= 6):
@@ -863,32 +820,17 @@ class ExpandTrainerTeamsStep(Step):
         trainer_data.nummons = self.target_size
 
 
-class IdentifyGymTrainers(Step):
+class IdentifyGymTrainers(Extractor):
     class Gym:
         def __init__(self, name, trainers, gym_type=None):
             self.name = name
             self.trainers = trainers
             self.type = gym_type
     
-    def __init__(self):
+    def __init__(self, context):
+        super().__init__(context)
         self.data = {}
-    
-    def _detect_gym_type(self, trainers):
-        type_counts = Counter()
         
-        mondata = self.context.get(Mons)
-        
-        for trainer in trainers:
-            for pokemon in trainer.team:
-                species = mondata.data[pokemon.species_id]
-                type_counts[Type(int(species.type1))] += 1
-                if species.type2 != species.type1:
-                    type_counts[Type(int(species.type2))] += 1
-        
-        return type_counts.most_common(1)[0][0] if type_counts else None
-
-    def run(self, context):
-        self.context = context
         trainers = context.get(Trainers)
         index = context.get(IndexTrainers)
         
@@ -918,11 +860,24 @@ class IdentifyGymTrainers(Step):
             
             gym_type = self._detect_gym_type(gym_trainers)
             self.data[gym_name] = self.Gym(gym_name, gym_trainers, gym_type)
+    
+    def _detect_gym_type(self, trainers):
+        type_counts = Counter()
         
-        context.register_step(self)
+        mondata = self.context.get(Mons)
+        
+        for trainer in trainers:
+            for pokemon in trainer.team:
+                species = mondata.data[pokemon.species_id]
+                type_counts[Type(int(species.type1))] += 1
+                if species.type2 != species.type1:
+                    type_counts[Type(int(species.type2))] += 1
+        
+        return type_counts.most_common(1)[0][0] if type_counts else None
 
 
 class RandomizeGymTypesStep(Step):
+    
     def run(self, context):
         gyms = context.get(IdentifyGymTrainers)
         
@@ -970,8 +925,8 @@ class MakePivots(Step):
         self.pivots = {}
 
     def run(self, context):
-        context.register_step(self)
-
+        # This step doesn't actually do anything in run()
+        pass
 
     def make_pivots(self, context):
         mondata = context.get(Mons)
@@ -1012,18 +967,8 @@ if __name__ == "__main__":
     # Create context and load data
     ctx = RandomizationContext(rom, verbosity=0 if args.quiet else 2)
     
-    # Load all required data
-    ctx.run_pipeline([
-        LoadPokemonNamesStep("."),
-        LoadMoveNamesStep(),
-        LoadTrainerNamesStep("."),
-        LoadEncounterNamesStep("."),
-        LoadAbilityNames(),
-        LoadBlacklistStep(),
-        IndexTrainers(),
-        IdentifyGymTrainers(),
-        
-    ])
+    # Data providers are now loaded on-demand via context.get()
+    # Only need to run actual pipeline steps here
 
 
     levitate_id = ctx.get(LoadAbilityNames).get_by_name('Levitate')
@@ -1115,17 +1060,8 @@ if __name__ == "__main__":
     
     ctx2 = RandomizationContext(rom2, verbosity=0 if args.quiet else 1)
     
-    # Load data from the modified ROM
-    ctx2.run_pipeline([
-        LoadPokemonNamesStep("."),
-        LoadMoveNamesStep(), 
-        LoadTrainerNamesStep("."),
-        LoadEncounterNamesStep("."),
-        LoadAbilityNames(),
-        LoadBlacklistStep(),
-        IndexTrainers(),
-        IdentifyGymTrainers(),
-    ])
+    # Data providers are now loaded on-demand via context.get()
+    # No pipeline steps needed for reload test
     
     gyms2 = ctx2.get(IdentifyGymTrainers)
     
