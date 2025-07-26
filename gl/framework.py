@@ -920,32 +920,21 @@ class RandomizeGymsStep(Step):
             pokemon.species_id = new_species.pokemon_id
 
 
-class MakePivots(Step):
-    def __init__(self):
-        self.pivots = {}
-
-    def run(self, context):
-        # This step doesn't actually do anything in run()
-        pass
-
-    def make_pivots(self, context):
-        mondata = context.get(Mons)
-        abilities = context.get(LoadAbilityNames)
-        type_data = {
-            Type.NORMAL: [
-                Type.GHOST
-
-            ]
-        }
-
-
-        self.pivots[Type.NORMAL] = [
-            m
-            for m in mondata.data
-            if set(m.type1, m.type2) in [
-                    set([])
-            ]
-        ]
+class Pivots(Extractor):
+    def __init__(self, context):
+        super().__init__(context)
+        from pivots import pivots_type_data
+        
+        mons = context.get(Mons)
+        self.data = {}
+        
+        for (t,ts) in pivots_type_data.items():
+            self.data[t] = []
+            for (t1, t2) in ts:
+                self.data[t].extend([
+                    pokemon for pokemon in mons.data
+                    if {int(pokemon.type1), int(pokemon.type2)} == {int(t1),int(t2)}
+                ])
         
         
 if __name__ == "__main__":
@@ -971,6 +960,19 @@ if __name__ == "__main__":
     # Only need to run actual pipeline steps here
 
 
+    # Test the Pivots extractor
+    pivots = ctx.get(Pivots)
+    
+    # Show some sample pivot data
+    print("=== PIVOT DATA TEST ===")
+    for attack_type in list(Type):
+        matching_pokemon = pivots.data.get(attack_type, [])
+        print(f"{attack_type.name}: {len(matching_pokemon)} Pokemon")
+        if matching_pokemon:
+            print(f"  Examples: {[p.name for p in matching_pokemon[:3]]}")
+
+    sys.exit(0)
+    
     levitate_id = ctx.get(LoadAbilityNames).get_by_name('Levitate')
     print([
         m.name
