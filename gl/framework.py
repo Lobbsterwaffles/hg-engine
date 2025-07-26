@@ -118,7 +118,7 @@ class Extractor(ABC):
         pass
 
 
-class ExtractorStep(Extractor):
+class NarcExtractor(Extractor):
     """Extractor that provides NARC parsing infrastructure"""
     
     @abstractmethod
@@ -164,7 +164,7 @@ class ExtractorStep(Extractor):
 
 
 class Writeback:
-    """Mixin that enables ROM writeback for ExtractorStep"""
+    """Mixin that enables ROM writeback for NarcExtractor"""
     def write(self):
         self.write_to_rom()
 
@@ -337,7 +337,7 @@ class LoadMoveNamesStep(NameTableReader):
 class LoadAbilityNames(NameTableReader):
     filename = "data/text/720.txt"
 
-class Moves(ExtractorStep):
+class Moves(NarcExtractor):
     """Extractor for move data from ROM with full move structure."""
     
     def __init__(self, context):
@@ -378,7 +378,7 @@ class Moves(ExtractorStep):
         return self.move_struct.build(data, narc_index=index)
 
 
-class Learnsets(ExtractorStep):
+class Learnsets(NarcExtractor):
     def __init__(self, context):
         super().__init__(context)
         moves = context.get(MoveDataExtractor).data
@@ -425,7 +425,7 @@ class LoadTrainerNamesStep(Extractor):
             pass
 
 
-class TrainerTeam(ExtractorStep, Writeback):
+class TrainerTeam(NarcExtractor, Writeback):
     
     def __init__(self, context):
         mondata_extractor = context.get(Mons)
@@ -490,7 +490,7 @@ class TrainerTeam(ExtractorStep, Writeback):
         return Array(trainer.nummons, struct).build(data)
 
 
-class TrainerData(ExtractorStep, Writeback):
+class TrainerData(NarcExtractor, Writeback):
     def __init__(self, context):
         trainer_names_step = context.get(LoadTrainerNamesStep)
         
@@ -567,7 +567,7 @@ class LoadBlacklistStep(Extractor):
             self.by_id.add(fid)
 
 
-class Mons(ExtractorStep):
+class Mons(NarcExtractor):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
     def __init__(self, context):
@@ -615,29 +615,6 @@ class Mons(ExtractorStep):
     def serialize_file(self, data, index):
         return self.mondata_struct.build(data, narc_index=index)
     
-    def find_replacements(self, mon, bstrmin=0.9, bstrmax=1.1):
-        """Find suitable replacement Pokemon within BST range."""
-        # Get blacklist - fail if not available
-        blacklist_step = self.context.get(LoadBlacklistStep)
-        blacklist = blacklist_step.by_id
-        
-        # Combine special Pokemon and blacklist
-        excluded = SPECIAL_POKEMON | blacklist
-        
-        # Find Pokemon within BST range
-        target_bst = mon.bst
-        min_bst = int(target_bst * bstrmin)
-        max_bst = int(target_bst * bstrmax)
-        
-        candidates = []
-        for i, candidate in enumerate(self.data):
-            if (i not in excluded and 
-                min_bst <= candidate.bst <= max_bst and 
-                i != mon.pokemon_id):
-                candidates.append(i)
-        
-        return candidates
-
 class LoadEncounterNamesStep(Extractor):
     """Extractor that loads encounter location names from assembly source."""
     
@@ -655,7 +632,7 @@ class LoadEncounterNamesStep(Extractor):
 
 
 
-class Encounters(ExtractorStep, Writeback):
+class Encounters(NarcExtractor, Writeback):
     """Extractor for encounter data from ROM."""
     
     def __init__(self, context):
@@ -782,33 +759,26 @@ class ExpandTrainerTeamsStep(Step):
     
     def __init__(self, target_size=6):
         if not (1 <= target_size <= 6):
-            raise ValueError("Target team size must be between 1 and 6 inclusive")
+            raise ValueError(f"bad size: {target_size}")
         self.target_size = target_size
     
     def run(self, context):
-        trainer_data_extractor = context.get(TrainerData)
-        trainer_team_extractor = context.get(TrainerTeam)
-        
-        for i in range(len(trainer_data_extractor.data)):
-            self._expand_trainer_team(trainer_data_extractor.data[i], trainer_team_extractor.data[i])
+        for t in context.get(Trainers).data:
+            self._expand_trainer_team(t)
     
-    def _expand_trainer_team(self, trainer_data, team_data):
-        """Expand a single trainer's team to target size."""
-        current_size = len(team_data)
+    def _expand_trainer_team(self, trainer):
+        if trainer.info.nummons != len(trainer.team):
+            raise RuntimeError(f"team size mismatch! {trainer.info.trainer_id}")
+
+        current_size = len(trainer.team)
         
-        # Skip if already at or above target size, or if team is empty
         if current_size >= self.target_size or current_size == 0:
             return
         
-        # Create copies of the first Pokemon to fill remaining slots
-        template_pokemon = team_data[0]
-        
         for _ in range(self.target_size - current_size):
-            new_pokemon = Container(template_pokemon)
-            team_data.append(new_pokemon)
+            trainer.team.append(Container(trainer.team[0]))
         
-        # Update the trainer data's nummons field
-        trainer_data.nummons = self.target_size
+        trainer.info.nummons = len(trainer.team)
 
 
 class IdentifyGymTrainers(Extractor):
@@ -1007,6 +977,7 @@ if __name__ == "__main__":
     if not args.quiet:
         print(f"\n=== RUNNING GYM RANDOMIZATION (BST factor: {args.bst_factor}) ===")
     ctx.run_pipeline([
+        ExpandTrainerTeamsStep(),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter)
     ])
