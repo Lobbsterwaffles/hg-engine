@@ -282,10 +282,6 @@ class RandomizationContext(ObjectRegistry):
                 progress_callback(progress_percent)
     
     def write_all(self, log_function=None):
-        """Write all loaded objects back to ROM."""
-        if log_function:
-            log_function("Writing all data to ROM...")
-        
         for obj in self._objects.values():
             obj.write()
 
@@ -1001,36 +997,11 @@ if __name__ == "__main__":
     # Save modified ROM
     modified_rom_path = "hgeLanceCanary_gym_randomized.nds"
     with open(modified_rom_path, "wb") as f:
-        f.write(rom.save())
-    if not args.quiet:
-        print(f"Saved modified ROM to {modified_rom_path}")
-    
-    # Reload test - verify changes persisted
-    if not args.quiet:
-        print("\n=== RELOAD TEST - Reading back from saved ROM ===")
-    
-    # Load the modified ROM and create new context
-    with open(modified_rom_path, "rb") as f:
-        rom2 = ndspy.rom.NintendoDSRom(f.read())
-    
-    ctx2 = RandomizationContext(rom2, verbosity=0 if args.quiet else 1)
-    
-    # Data providers are now loaded on-demand via context.get()
-    # No pipeline steps needed for reload test
-    
-    gyms2 = ctx2.get(IdentifyGymTrainers)
-    
-    if False:
-        print("\n=== GYM TEAMS AFTER RELOAD ===")
-        for gym_name, gym in gyms2.data.items():
-            print(f"\n{gym_name} ({gym.type}):")
-            for trainer in gym.trainers:
-                print(f"  {trainer.info.name}:")
-                for i, pokemon in enumerate(trainer.team):
-                    species = ctx2.get(MondataExtractor).data[pokemon.species_id]
-                    print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
-    else:
-        print("Gym randomization completed successfully")
+        s = rom.save()
+        print(f"Writing {len(s)} bytes to {repr(modified_rom_path)} ...")
+        f.write(s)
 
+    print("Done")
+    
 
         
