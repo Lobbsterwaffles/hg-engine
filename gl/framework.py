@@ -23,6 +23,33 @@ from pivots import pivots_type_data, HasAbility
 from fulcrums import fulcrums_type_data
 
 
+class PathHierMap:
+    class Node:
+        def __init__(self, value=None):
+            self.value = value
+            self.children = {}
+    
+    def __init__(self, mappings):
+        self.root = self.Node()
+        for path_list, value in mappings:
+            node = self.root
+            for element in path_list:
+                if element not in node.children:
+                    node.children[element] = self.Node()
+                node = node.children[element]
+            node.value = value
+    
+    def get(self, path):
+        def go(node, path, best):
+            best = best if node.value is None else node.value
+            if not path or path[0] not in node.children:
+                return best
+            return go(node.children[path[0]], path[1:], best)
+        
+        path_lower = [str(e).lower() for e in path]
+        return go(self.root, path_lower, None)
+
+
 class Filter(ABC):
     @abstractmethod
     def filter_all(self, context, original, candidates: List) -> List:
@@ -194,34 +221,35 @@ class ObjectRegistry:
 class RandomizationContext(ObjectRegistry):
     """Manages ROM data, pipeline execution, and shared objects."""
     
-    def __init__(self, rom, verbosity=0):
+    def __init__(self, rom, verbosity=0, verbosity_overrides=None):
         super().__init__()
         self.rom = rom
-        self.verbosity = verbosity
+        self.verbosity_map = PathHierMap(verbosity_overrides or [([], verbosity)])
     
     def decide(self, path, original, candidates, filter):
         path_str = "/" + "/".join(str(p) for p in path)
+        verbosity = self.verbosity_map.get(path) or 0
         
-        if self.verbosity >= 3:
+        if verbosity >= 3:
             print(f"{path_str:50} {len(candidates)} candidates")
         
-        if self.verbosity >= 5:
+        if verbosity >= 5:
             print(f"{path_str:50}   All candidates:")
             for c in candidates:
                 print(f"{path_str:50}     - {c}")
         
         filtered = filter.filter_all(self, original, candidates)
         
-        if self.verbosity >= 3:
+        if verbosity >= 3:
             print(f"{path_str:50} {len(filtered)} candidates")
         
-        if self.verbosity >= 5:
+        if verbosity >= 5:
             print(f"{path_str:50} Filtered candidates:")
             for c in filtered:
                 print(f"{path_str:50}     - {c}")
         
         if not filtered:
-            if self.verbosity >= 1:
+            if verbosity >= 1:
                 on = original.name if hasattr(original, "name") else repr(original)
                 print(f"{path_str:50} [WARNING] No valid candidates, keeping original: {on}")
                 print(f"{path_str:50}           Filter: {repr(filter)}")
@@ -230,7 +258,7 @@ class RandomizationContext(ObjectRegistry):
         
         selected = random.choice(filtered)
         
-        if self.verbosity >= 2:
+        if verbosity >= 2:
             sn = selected.name if hasattr(selected, "name") else repr(selected)
             on = original.name if hasattr(original, "name") else repr(original)
             print(f"{path_str:50} {on:20} -> {sn:20}")
@@ -887,7 +915,22 @@ class Pivots(ReadTypeMapping):
 
 class Fulcrums(ReadTypeMapping):
     type_data = fulcrums_type_data
-        
+
+
+def parse_verbosity_overrides(verbosity_args):
+    """Parse -v arguments into list of (path_list, level) tuples."""
+    overrides = []
+    for arg in verbosity_args:
+        if '=' in arg:
+            path_str, level = arg.split('=', 1)
+            path_list = [p.lower() for p in path_str.split('/') if p]
+            overrides.append((path_list, int(level)))
+        else:
+            # Global verbosity - empty path prefix
+            overrides.append(([], int(arg)))
+    return overrides
+
+
         
 if __name__ == "__main__":
     import argparse
@@ -896,17 +939,23 @@ if __name__ == "__main__":
     parser.add_argument("--quiet", action="store_true", help="Run in quiet mode (no output)")
     parser.add_argument("--bst-factor", type=float, default=0.15, help="BST factor for filtering (default: 0.15)")
     parser.add_argument("--seed", type=int, help="rng seed")
+    parser.add_argument("-v", action="append", dest="verbosity", 
+                       help="Verbosity: level (global) or path=level (path-specific)")
     args = parser.parse_args()
 
     if args.seed is not None:
         random.seed(int(args.seed))
+    
+    # Parse verbosity overrides
+    vbase = 0 if args.quiet else 2
+    verbosity_overrides = [([], vbase)] + parse_verbosity_overrides(args.verbosity or [])
     
     # Load ROM
     with open("hgeLanceCanary.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
-    ctx = RandomizationContext(rom, verbosity=0 if args.quiet else 2)
+    ctx = RandomizationContext(rom, verbosity_overrides=verbosity_overrides)
 
     blacklist = ctx.get(LoadBlacklistStep)
     gym_filter = AllFilters([
