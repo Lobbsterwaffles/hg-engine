@@ -280,10 +280,6 @@ class RandomizationContext(ObjectRegistry):
             obj.write()
 
 
-SPECIAL_POKEMON = {
-    150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384,
-    385, 386, 483, 484, 487, 488, 489, 490, 491, 492, 493, 494
-}
 
 
 
@@ -535,27 +531,201 @@ class Trainers(Extractor):
         ]
 
 
-class LoadBlacklistStep(Extractor):
-    """Extractor that creates Pokemon blacklist with hardcoded data."""
+
+class PokemonListBase(Extractor):
+    """Base class for categorized Pokémon lists."""
+    
+    # This should be overridden by subclasses
+    pokemon_names = []
     
     def __init__(self, context):
         super().__init__(context)
-        names_step = context.get(LoadPokemonNamesStep)
-        
+        self.names_step = context.get(LoadPokemonNamesStep)
         self.by_id = set()
         
-        fixed = [
-            "Bad Egg",
-            "Mewtwo",
-            
-            
-        ]
+        # Add all Pokémon in the list
+        for name in self.pokemon_names:
+            self.by_id.add(self.names_step.get_by_name(name))
 
-        for name in fixed:
-            self.by_id.add(names_step.get_by_name(name))
 
-        for fid in names_step.get_all_by_name("-----"):
+class InvalidPokemon(PokemonListBase):
+    """Handles invalid Pokémon entries (marked with dashes)."""
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        # Add any dashes (invalid Pokémon)
+        for fid in self.names_step.get_all_by_name("-----"):
             self.by_id.add(fid)
+            
+
+class RestrictedPokemon(PokemonListBase):
+    """Restricted legendary Pokémon that should be limited in randomization."""
+    
+    pokemon_names = [
+        "Mewtwo",
+        "Lugia",
+        "Ho-oh", 
+        "Kyogre",
+        "Groudon",
+        "Rayquaza",
+        "Dialga",
+        "Palkia",
+        "Giratina",
+        "Reshiram",
+        "Zekrom",
+        "Kyurem",
+        "Cosmog",
+        "Cosmoem",
+        "Solgaleo",
+        "Lunala",
+        "Necrozma",
+        "Zacian",
+        "Zamazenta",
+        "Eternatus",
+        "Calyrex",
+        "Koraidon",
+        "Miraidon",
+        "Terapagos",
+        "Xerneas",
+        "Yveltal",
+        "Zygarde",
+        "Arceus"
+    ]
+
+
+class SubLegendaryPokemon(PokemonListBase):
+    """Sub-legendary Pokémon that are strong but not as restricted."""
+    
+    pokemon_names = [
+        "Articuno",
+        "Zapdos",
+        "Moltres",
+        "Raikou",
+        "Entei",
+        "Suicune",
+        "Regirock",
+        "Regice",
+        "Registeel",
+        "Regigigas",
+        "Latios",
+        "Latias",
+        "Uxie",
+        "Mesprit",
+        "Azelf",
+        "Heatran",
+        "Cresselia",
+        "Cobalion",
+        "Terrakion",
+        "Virizion",
+        "Tornadus",
+        "Thundurus",
+        "Landorus",
+        "Type: Null",
+        "Silvally",
+        "Tapu Koko",
+        "Tapu Lele",
+        "Tapu Bulu",
+        "Tapu Fini",
+        "Urshifu",
+        "Kubfu",
+        "Regieleki",
+        "Regidrago",
+        "Glastrier",
+        "Spectrier",
+        "Enamorus",
+        "Wo-Chien",
+        "Chien-Pao",
+        "Ting-Lu",
+        "Chi-Yu",
+        "Okidogi",
+        "Munkidori",
+        "Fezanditi",
+        "Ogerpon",
+
+    ]
+
+
+class MythicalPokemon(PokemonListBase):
+    """Mythical Pokémon that are typically event-exclusive."""
+    
+    pokemon_names = [
+        "Mew",
+        "Celebi",
+        "Jirachi",
+        "Deoxys",
+        "Phione",
+        "Manaphy",
+        "Darkrai",
+        "Shaymin",
+        "Victini",
+        "Genesect",
+        "Keldeo",
+        "Meloetta",
+        "Diancie",
+        "Hoopa",
+        "Volcanion",
+        "Magearna",
+        "Marshadow",
+        "Meltan",
+        "Melmetal",
+        "Zarude",
+        "Pecharunt"
+    ]
+
+
+class UltraBeastPokemon(PokemonListBase):
+    """Ultra Beast Pokémon from other dimensions."""
+    
+    pokemon_names = [
+        "Nihilego",
+        "Buzzwole",
+        "Pheromosa",
+        "Xurkitree",
+        "Celesteela",
+        "Kartana",
+        "Guzzlord",
+        "Poipole",
+        "Naganadel",
+        "Stakataka",
+        "Blacefalon"
+    ]
+
+
+class ParadoxPokemon(PokemonListBase):
+    """Paradox Pokémon from the past or future."""
+    
+    pokemon_names = [
+        "Great Tusk",
+        "ScreamTail",
+        "BruteBonet",
+        "FluttrMane",
+        "SlithrWing",
+        "SandyShock",
+        "IronTreads",
+        "IronBundle",
+        "Iron Hands",
+        "Iron Neck",
+        "Iron Moth",
+        "IronThorns",
+        "RoarinMoon",
+        "Iron Valor",
+        "WalkngWake",
+        "IronLeaves",
+        "GouginFire",
+        "RagingBolt",
+        "IronBolder",
+        "Iron Crown"
+    ]
+
+
+class LoadBlacklistStep(PokemonListBase):
+    """Extractor that creates Pokémon blacklist with hardcoded data."""
+    
+    pokemon_names = [
+        "Bad Egg",
+        "Mewtwo"
+    ]
 
 
 class Mons(NarcExtractor):
@@ -803,8 +973,12 @@ class IdentifyGymTrainers(Extractor):
             "Saffron City": ["Rebecca", "Jared", "Darcy", "Franklin", "Sabrina"],
             "Seafoam Islands": ["Lowell", "Daniel", "Cary", "Linden", "Waldo", "Merle", "Blaine"],
             "Viridian City": ["Arabella", "Salma", "Bonita", "Elan & Ida", "Blue"],
-            "Elite Four": ["Will", "Koga", "Bruno", "Karen", "Lance"] 
-            #need to separate E4 into 4 separate "gyms" and then handle Champion differently so there is variety in endgame
+            "Will": ["Will",],
+            "Koga": ["Koga",],
+            "Bruno": ["Bruno",],
+            "Karen": ["Karen",],
+            "Lance": ["Lance",],
+            
             #champion should be separate entity that we can modify without touching "gyms", as should rival fights
             
         }
@@ -836,14 +1010,53 @@ class RandomizeGymTypesStep(Step):
     def run(self, context):
         gyms = context.get(IdentifyGymTrainers)
         
+        # Count how many times each type has been used
+        type_usage = {t: 0 for t in Type}
+        
+        # First pass: Count number of gyms with types for planning
+        total_gyms_with_types = sum(1 for gym in gyms.data.values() if gym.type is not None)
+        
+        # Calculate how many of each type we need to ensure all types are used at least once
+        num_types = len(Type)
+        min_usage_per_type = 1
+        
+        if total_gyms_with_types < num_types:
+            # Not enough gyms to use each type once
+            raise ValueError(f"Cannot satisfy type distribution requirements: Only {total_gyms_with_types} gyms available, but {num_types} types exist.")
+        
+        # Randomize gyms in a way that ensures type distribution constraints
         for gym_name, gym in gyms.data.items():
             if gym.type is not None:
+                # Create a filter that respects our type distribution rules
+                valid_types = []
+                
+                # First priority: Types that haven't been used the minimum number of times yet
+                unused_types = [t for t in Type if type_usage[t] < min_usage_per_type]
+                if unused_types:
+                    valid_types = unused_types
+                else:
+                    # Second priority: Types that haven't been used twice yet
+                    valid_types = [t for t in Type if type_usage[t] < 2]
+                    
+                    # If we've used all types twice already, we can't meet the requirement
+                    if not valid_types:
+                        raise ValueError(f"Cannot satisfy type distribution requirements: All types used twice already at gym {gym_name}.")
+                
+                # Make sure we have valid types to choose from
+                if not valid_types:
+                    raise ValueError(f"No valid types available for gym {gym_name}.")
+                    
+                # Choose a type from our valid options
+                original_type = gym.type
                 gym.type = context.decide(
                     path=["gyms", gym_name, "type"],
-                    original=gym.type,
-                    candidates=list(Type),
+                    original=original_type,
+                    candidates=valid_types,
                     filter=NoFilter()
                 )
+                
+                # Update our type usage counter
+                type_usage[gym.type] += 1
 
 
 class RandomizeGymsStep(Step):
@@ -921,6 +1134,10 @@ class Pivots(ReadTypeMapping):
 class Fulcrums(ReadTypeMapping):
     type_data = fulcrums_type_data
 
+#add class for champion only
+#add class for rival fights
+#add class for red
+#####################################################################################################
 
 def parse_verbosity_overrides(verbosity_args):
     """Parse -v arguments into list of (path_list, level) tuples."""
@@ -941,11 +1158,18 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description="Test RandomizeGymsStep")
-    parser.add_argument("--quiet", action="store_true", help="Run in quiet mode (no output)")
     parser.add_argument("--bst-factor", type=float, default=0.15, help="BST factor for filtering (default: 0.15)")
-    parser.add_argument("--seed", type=int, help="rng seed")
-    parser.add_argument("-v", action="append", dest="verbosity", 
+    parser.add_argument("--quiet", "-q", action="store_true", help="Don't output details")
+    parser.add_argument("--seed", "-s", type=str, help="Random seed")
+    parser.add_argument("--verbosity", "-v", action="append", type=str, 
                        help="Verbosity: level (global) or path=level (path-specific)")
+    
+    # Options to control filtering of special Pokémon categories
+    parser.add_argument("--allow-restricted", action="store_true", help="Allow restricted legendary Pokémon")
+    parser.add_argument("--allow-mythical", action="store_true", help="Allow mythical Pokémon")
+    parser.add_argument("--allow-ultra-beasts", action="store_true", help="Allow Ultra Beast Pokémon")
+    parser.add_argument("--allow-paradox", action="store_true", help="Allow Paradox Pokémon")
+    parser.add_argument("--allow-sublegendary", action="store_true", help="Allow SubLegendary Pokémon")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -962,12 +1186,24 @@ if __name__ == "__main__":
     # Create context and load data
     ctx = RandomizationContext(rom, verbosity_overrides=verbosity_overrides)
 
-    blacklist = ctx.get(LoadBlacklistStep)
-    gym_filter = AllFilters([
-        NotInSet(SPECIAL_POKEMON | blacklist.by_id),
-        BstWithinFactor(args.bst_factor)
-    ])
-    
+    gym_filter = AllFilters(
+        [NotInSet(ctx.get(LoadBlacklistStep).by_id),
+        NotInSet(ctx.get(InvalidPokemon).by_id)] +
+        
+        ([] if args.allow_restricted else [NotInSet(ctx.get(RestrictedPokemon).by_id)]) +
+        
+        ([] if args.allow_mythical else [NotInSet(ctx.get(MythicalPokemon).by_id)]) +
+        
+        ([] if args.allow_ultra_beasts else [NotInSet(ctx.get(UltraBeastPokemon).by_id)]) +
+        
+        ([] if args.allow_paradox else [NotInSet(ctx.get(ParadoxPokemon).by_id)]) +
+        
+        ([] if args.allow_sublegendary else [NotInSet(ctx.get(SubLegendaryPokemon).by_id)]) +
+        
+        [BstWithinFactor(args.bst_factor)]
+    )
+
+
     # Run randomization pipeline
     ctx.run_pipeline([
         ExpandTrainerTeamsStep(),
