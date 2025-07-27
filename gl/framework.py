@@ -412,7 +412,7 @@ class LoadTrainerNamesStep(Extractor):
             pass
 
 
-class TrainerTeam(NarcExtractor, Writeback):
+class TrainerTeam(Writeback,NarcExtractor ):
     
     def __init__(self, context):
         mondata_extractor = context.get(Mons)
@@ -473,11 +473,12 @@ class TrainerTeam(NarcExtractor, Writeback):
         
         trainer = self.context.get(TrainerData).data[index]
         struct = self.format_map[trainer.trainermontype.data]
-        
+       
+
         return Array(trainer.nummons, struct).build(data)
 
 
-class TrainerData(NarcExtractor, Writeback):
+class TrainerData(Writeback, NarcExtractor):
     def __init__(self, context):
         trainer_names_step = context.get(LoadTrainerNamesStep)
         
@@ -544,7 +545,10 @@ class LoadBlacklistStep(Extractor):
         self.by_id = set()
         
         fixed = [
-            "Bad Egg"
+            "Bad Egg",
+            "Mewtwo",
+            
+            
         ]
 
         for name in fixed:
@@ -619,7 +623,7 @@ class LoadEncounterNamesStep(Extractor):
 
 
 
-class Encounters(NarcExtractor, Writeback):
+class Encounters(Writeback,NarcExtractor):
     """Extractor for encounter data from ROM."""
     
     def __init__(self, context):
@@ -799,7 +803,10 @@ class IdentifyGymTrainers(Extractor):
             "Saffron City": ["Rebecca", "Jared", "Darcy", "Franklin", "Sabrina"],
             "Seafoam Islands": ["Lowell", "Daniel", "Cary", "Linden", "Waldo", "Merle", "Blaine"],
             "Viridian City": ["Arabella", "Salma", "Bonita", "Elan & Ida", "Blue"],
-            "Elite Four": ["Will", "Koga", "Bruno", "Karen", "Lance"]
+            "Elite Four": ["Will", "Koga", "Bruno", "Karen", "Lance"] 
+            #need to separate E4 into 4 separate "gyms" and then handle Champion differently so there is variety in endgame
+            #champion should be separate entity that we can modify without touching "gyms", as should rival fights
+            
         }
         
         for gym_name, trainer_specs in gym_definitions.items():
@@ -949,7 +956,7 @@ if __name__ == "__main__":
     verbosity_overrides = [([], vbase)] + parse_verbosity_overrides(args.verbosity or [])
     
     # Load ROM
-    with open("hgeLanceCanary.nds", "rb") as f:
+    with open("LanceCanarynoexp.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
@@ -961,7 +968,7 @@ if __name__ == "__main__":
         BstWithinFactor(args.bst_factor)
     ])
     
-    # Run gym randomization
+    # Run randomization pipeline
     ctx.run_pipeline([
         ExpandTrainerTeamsStep(),
         RandomizeGymTypesStep(),

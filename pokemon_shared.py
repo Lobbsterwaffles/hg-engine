@@ -137,9 +137,35 @@ def read_pokemon_names(base_path):
     if _pokemon_names_cache is not None:
         return _pokemon_names_cache
     
-    # Load and cache the data
-    with open("build/rawtext/237.txt", "r", encoding="utf-8") as f:
-        names = [line.strip() for line in f.readlines()]
+    # Define paths to try
+    paths_to_try = [
+        os.path.join(base_path, "build/rawtext/237.txt"),  # With base path
+        "build/rawtext/237.txt",                          # Original path
+        os.path.join(base_path, "data/pokemon_names.txt")   # Alternative path
+    ]
+    
+    names = None
+    used_path = None
+    
+    # Try each path until we find a valid file
+    for path in paths_to_try:
+        try:
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    names = [line.strip() for line in f.readlines()]
+                used_path = path
+                print(f"Successfully loaded {len(names)} Pokémon names from {path}")
+                break
+        except Exception as e:
+            print(f"Warning: Could not read Pokémon names from {path}: {e}")
+    
+    # If no file was found, create a basic set of names
+    if names is None:
+        print("Warning: No Pokémon name file found. Creating basic names.")
+        names = ["-----"]
+        # Add basic placeholder names for Pokémon 1-493 (Gen 1-4)
+        for i in range(1, 494):
+            names.append(f"SPECIES_{i}")
     
     _pokemon_names_cache = names
     return names

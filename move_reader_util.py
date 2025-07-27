@@ -354,8 +354,8 @@ def check_move_in_learnset(species_name, move_name, level, levelup_data, egg_mov
     
     Args:
         species_name: Species name (e.g., "SPECIES_FERALIGATR")
-        move_name: Move name (e.g., "MOVE_HYDRO_PUMP")
-        level: Pokémon's current level
+        move_name: Move name (e.g., "MOVE_HYDRO_PUMP" or "Hydro Pump")
+        level: Current Pokémon level
         levelup_data: Level-up learnset data
         egg_moves_data: Egg moves data
         tm_learnset_data: TM learnset data
@@ -365,175 +365,265 @@ def check_move_in_learnset(species_name, move_name, level, levelup_data, egg_mov
     """
     import logging
     
-    # Check level-up moves first
-    if species_name in levelup_data:
-        try:
-            for learn_move_name, learn_level in levelup_data[species_name]:
-                if learn_move_name == move_name and learn_level <= level:
-                    logging.debug(f"{move_name} found in level-up learnset for {species_name} at level {learn_level}")
-                    return True
-        except Exception as e:
-            logging.error(f"Error checking level-up learnset for {species_name}: {e}")
-    else:
-        logging.debug(f"{species_name} not found in level-up learnset data")
+    # First, let's create two versions of the move name for comparison:
+    # 1. The MOVE_NAME_FORMAT version (e.g., MOVE_FLAMETHROWER)
+    # 2. The Name Format version (e.g., Flamethrower)
+    
+    # Create the MOVE_FORMAT version
+    move_format_version = move_name
+    if not move_name.startswith("MOVE_"):
+        move_format_version = "MOVE_" + move_name.replace(" ", "_").upper()
+    
+    # Create the Name Format version
+    name_format_version = move_name
+    if move_name.startswith("MOVE_"):
+        name_format_version = move_name[5:].replace("_", " ").title()
+    
+    logging.debug(f"Checking if {move_name} is in learnset for {species_name}")
+    logging.debug(f"Comparing with formats: {move_format_version} and {name_format_version}")
+    
+    # Try several variations of the species name to find it in levelup data
+    species_variations = [species_name]
+    
+    # Add SPECIES_ prefix version if not already present
+    if not species_name.startswith("SPECIES_"):
+        species_variations.append("SPECIES_" + species_name.replace(" ", "_").upper())
+    
+    # Handle special characters in species names
+    # Try replacing apostrophes and spaces with different formats
+    for variant in list(species_variations):  # Create a copy to iterate over
+        if "'" in variant:
+            # Try both with and without apostrophe
+            species_variations.append(variant.replace("'", ""))
+            # Try with D instead of 'D for Farfetch'd -> FarfetchD
+            if "'D" in variant.upper():
+                species_variations.append(variant.upper().replace("'D", "D"))
+        
+        # Try with hyphen for special cases
+        if "-" in variant:
+            species_variations.append(variant.replace("-", "_"))
+        
+        # Handle Mr. Mime special case
+        if "MR." in variant.upper() or "MR_" in variant.upper():
+            species_variations.append(variant.upper().replace("MR.", "MR").replace("MR_", "MR"))
+    
+    # Check each species variant in the levelup data
+    species_found = False
+    for variant in species_variations:
+        if variant in levelup_data:
+            species_name = variant  # Use the variant that worked
+            species_found = True
+            break
+    
+    if not species_found:
+        logging.debug(f"{species_name} not found in level-up learnset data. Tried variations: {species_variations}")
+        return False
+        
+    # Check level-up learnset
+    for learn_move_name, learn_level in levelup_data[species_name]:
+        # We need to normalize the learnset move name for comparison
+        normalized_learn_move = learn_move_name
+        name_format_learn_move = learn_move_name
+        
+        if learn_move_name.startswith("MOVE_"):
+            name_format_learn_move = learn_move_name[5:].replace("_", " ").title()
+        else:
+            normalized_learn_move = "MOVE_" + learn_move_name.replace(" ", "_").upper()
+            
+        # Now compare both formats
+        if ((move_format_version == normalized_learn_move or 
+             name_format_version == name_format_learn_move) and 
+            learn_level <= level):
+            logging.debug(f"{move_name} found in level-up learnset for {species_name} at level {learn_level}")
+            return True
     
     # Check egg moves
-    if species_name in egg_moves_data:
-        try:
-            if move_name in egg_moves_data[species_name]:
+    if egg_moves_data and species_name in egg_moves_data:
+        for egg_move in egg_moves_data[species_name]:
+            # Normalize egg move name for comparison
+            normalized_egg_move = egg_move
+            name_format_egg_move = egg_move
+            
+            if egg_move.startswith("MOVE_"):
+                name_format_egg_move = egg_move[5:].replace("_", " ").title()
+            else:
+                normalized_egg_move = "MOVE_" + egg_move.replace(" ", "_").upper()
+                
+            # Compare both formats
+            if (move_format_version == normalized_egg_move or 
+                name_format_version == name_format_egg_move):
                 logging.debug(f"{move_name} found in egg moves for {species_name}")
                 return True
-        except Exception as e:
-            logging.error(f"Error checking egg moves for {species_name}: {e}")
-    else:
-        logging.debug(f"{species_name} not found in egg moves data")
     
     # Check TM learnset
-    if species_name in tm_learnset_data:
-        try:
-            if move_name in tm_learnset_data[species_name]:
+    if tm_learnset_data and species_name in tm_learnset_data:
+        for tm_move in tm_learnset_data[species_name]:
+            # Normalize TM move name for comparison
+            normalized_tm_move = tm_move
+            name_format_tm_move = tm_move
+            
+            if tm_move.startswith("MOVE_"):
+                name_format_tm_move = tm_move[5:].replace("_", " ").title()
+            else:
+                normalized_tm_move = "MOVE_" + tm_move.replace(" ", "_").upper()
+                
+            # Compare both formats
+            if (move_format_version == normalized_tm_move or 
+                name_format_version == name_format_tm_move):
                 logging.debug(f"{move_name} found in TM learnset for {species_name}")
                 return True
-        except Exception as e:
-            logging.error(f"Error checking TM learnset for {species_name}: {e}")
-    else:
-        logging.debug(f"{species_name} not found in TM learnset data")
-    
+                
+    # Move not found in any learnset
     logging.debug(f"{move_name} not found in any learnset for {species_name}")
     return False
 
-def find_suitable_moves(species_name, pokemon_type1, pokemon_type2, level, attacker_type,
-                   move_data, levelup_data, egg_moves_data, tm_learnset_data, blacklist, whitelist):
+def find_suitable_moves(moves_data, pokemon_species, pokemon_types, pokemon_stats, level=50,
+                      levelup_data=None, egg_moves_data=None, tm_learnset_data=None,
+                      move_blacklist=None, move_whitelist=None):
     """
-    Find suitable STAB (Same Type Attack Bonus) moves for a Pokémon.
+    Find suitable moves for a Pokémon based on its species, types, and stats.
     
     Args:
-        species_name: Species name (e.g., "SPECIES_FERALIGATR")
-        pokemon_type1: Pokémon's primary type
-        pokemon_type2: Pokémon's secondary type (if dual-typed)
-        level: Pokémon's current level
-        attacker_type: "Physical", "Special", or "Mixed"
-        move_data: Dictionary of move data
-        levelup_data, egg_moves_data, tm_learnset_data: Learnset data
-        blacklist, whitelist: Move blacklist and whitelist sets
-    
+        moves_data: List of move data objects
+        pokemon_species: Species name (e.g., "SPECIES_CHARIZARD")
+        pokemon_types: List of Pokémon's types
+        pokemon_stats: Dictionary of Pokémon's stats
+        level: Pokémon's level
+        levelup_data: Level-up learnset data
+        egg_moves_data: Egg moves data
+        tm_learnset_data: TM learnset data
+        move_blacklist: List of moves to exclude
+        move_whitelist: List of moves to prioritize
+        
     Returns:
-        List of up to 4 move names (e.g., ["MOVE_Tackle", "MOVE_WaterGun", ...])
+        List of suitable moves, prioritized by type and stat relevance
     """
-    import logging
-    
-    # Lists to store primary and secondary type moves
-    primary_type_moves = []
-    secondary_type_moves = []
-    other_damaging_moves = []  # Non-STAB damaging moves as a backup
-    
-    logging.info(f"Finding moves for {species_name} - Type1: {pokemon_type1}, Type2: {pokemon_type2}, Level: {level}")
-    logging.info(f"Attacker type: {attacker_type}")
-    
-    # Process each move to find suitable ones
-    for move_id, move in enumerate(move_data):
-        # Skip missing moves
-        if move is None:
-            continue
-            
-        # Get move properties
-        move_name = move.name if hasattr(move, 'name') else ''
-        move_type = move.type if hasattr(move, 'type') else 0
-        move_power = move.power if hasattr(move, 'power') else 0
-        move_accuracy = move.accuracy if hasattr(move, 'accuracy') else 0
-        move_category = move.category if hasattr(move, 'category') else 0
+    if move_blacklist is None:
+        move_blacklist = []
         
-        # Skip moves without names
-        if not move_name:
-            continue
-            
-        # Skip blacklisted moves
-        if move_name in blacklist:
-            logging.debug(f"{move_name} - SKIPPED: in blacklist")
-            continue
-            
-        # Check if it's a damaging move (not status)
-        if move_category == 0:  # STATUS
-            logging.debug(f"{move_name} - SKIPPED: status move")
-            continue
-            
-        # Check power range (min 50, max 110)
-        if move_power < 50:
-            logging.debug(f"{move_name} - SKIPPED: power too low ({move_power})")
-            continue
-        if move_power > 110:
-            logging.debug(f"{move_name} - SKIPPED: power too high ({move_power})")
-            continue
-            
-        # Check accuracy (≥80% or 0 which means always hits)
-        if 0 < move_accuracy < 80:  
-            logging.debug(f"{move_name} - SKIPPED: accuracy too low ({move_accuracy})")
-            continue
-            
-        # Check if move category matches attacker type
-        if attacker_type == "Physical" and move_category != 1:  # PHYSICAL
-            logging.debug(f"{move_name} - SKIPPED: not physical move for physical attacker")
-            continue
-        if attacker_type == "Special" and move_category != 2:  # SPECIAL
-            logging.debug(f"{move_name} - SKIPPED: not special move for special attacker")
-            continue
-        # Mixed attackers can use either type
+    if move_whitelist is None:
+        move_whitelist = []
+    
+    # Normalize the species name for learnset lookup
+    normalized_species = pokemon_species
+    if not pokemon_species.startswith("SPECIES_"):
+        normalized_species = "SPECIES_" + pokemon_species.replace(" ", "_").upper()
+        logging.debug(f"Normalized species name: {pokemon_species} -> {normalized_species}")
+    
+    # After normalization, pokemon_species should be the normalized version for consistency
+    pokemon_species = normalized_species
+    
+    # Verify this species exists in the levelup data
+    # This check is redundant with the one in move_handler.py, but provides a safety net
+    if levelup_data and pokemon_species not in levelup_data:
+        logging.error(f"ERROR: Species {pokemon_species} not found in levelup data!")
+        # We don't raise an error here because move_handler.py should have caught this already
         
-        # Always include whitelisted moves that pass above checks
-        if move_name in whitelist:
-            logging.info(f"{move_name} - INCLUDED: in whitelist")
-            if move_type == pokemon_type1:
-                primary_type_moves.append(move_name)
-            elif move_type == pokemon_type2 and pokemon_type2 != pokemon_type1:
-                secondary_type_moves.append(move_name)
-            else:
-                other_damaging_moves.append(move_name)
-            continue
-            
-        # Check if move is in learnset
-        if not check_move_in_learnset(species_name, move_name, level, 
-                                     levelup_data, egg_moves_data, tm_learnset_data):
-            logging.debug(f"{move_name} - SKIPPED: not in learnset")
-            continue
-            
-        # Move passed all checks - categorize it by type
-        if move_type == pokemon_type1:
-            logging.info(f"{move_name} - INCLUDED: primary type STAB move")
-            primary_type_moves.append(move_name)
-        elif move_type == pokemon_type2 and pokemon_type2 != pokemon_type1:
-            logging.info(f"{move_name} - INCLUDED: secondary type STAB move")
-            secondary_type_moves.append(move_name)
+    primary_type = pokemon_types[0] if pokemon_types else None
+    secondary_type = pokemon_types[1] if len(pokemon_types) > 1 else None
+    
+    # Determine attacking stat dominance
+    phys_atk = pokemon_stats.get('attack', 0)
+    spec_atk = pokemon_stats.get('sp_attack', 0)
+    physical_attacker = phys_atk > spec_atk
+    
+    primary_stab_moves = []
+    secondary_stab_moves = []
+    other_damaging_moves = []
+    
+    logging.debug(f"Finding suitable moves for {pokemon_species} (types: {pokemon_types}, level: {level})")
+    
+    # Check if pokemon_species is in the learnset data
+    if levelup_data:
+        if pokemon_species in levelup_data:
+            logging.debug(f"Found {pokemon_species} in levelup data with {len(levelup_data[pokemon_species])} moves")
         else:
-            logging.debug(f"{move_name} - INCLUDED: non-STAB damaging move (backup)")
-            other_damaging_moves.append(move_name)
+            logging.warning(f"WARNING: {pokemon_species} not found in levelup data")
+            
+    if egg_moves_data and pokemon_species not in egg_moves_data:
+        logging.debug(f"{pokemon_species} not found in egg moves data")
     
-    # Now select up to 4 moves with priority
-    final_moves = []
+    if tm_learnset_data and pokemon_species not in tm_learnset_data:
+        logging.debug(f"{pokemon_species} not found in TM learnset data")
     
-    # Priority 1: Primary type moves (up to 2)
-    if primary_type_moves:
-        logging.info(f"Primary type moves found: {len(primary_type_moves)}")
-        final_moves.extend(primary_type_moves[:2])
+    # Log available move counts for debugging
+    move_counts = {}
+    if levelup_data and pokemon_species in levelup_data:
+        move_counts['levelup'] = len(levelup_data[pokemon_species])
+    if egg_moves_data and pokemon_species in egg_moves_data:
+        move_counts['egg'] = len(egg_moves_data[pokemon_species])
+    if tm_learnset_data and pokemon_species in tm_learnset_data:
+        move_counts['tm'] = len(tm_learnset_data[pokemon_species])
+    logging.debug(f"Available moves for {pokemon_species}: {move_counts}")
     
-    # Priority 2: Secondary type moves
-    if len(final_moves) < 4 and secondary_type_moves:
-        logging.info(f"Secondary type moves found: {len(secondary_type_moves)}")
-        remaining = 4 - len(final_moves)
-        final_moves.extend(secondary_type_moves[:remaining])
+    # Process at most 650 moves to avoid performance issues with large move lists
+    for move_id, move in enumerate(moves_data[:650]):
+        if not move:
+            continue
+            
+        try:
+            move_name = move.name if hasattr(move, 'name') else move.get('name')
+            move_type = move.type if hasattr(move, 'type') else move.get('type')
+            move_power = move.power if hasattr(move, 'power') else move.get('power')
+            move_accuracy = move.accuracy if hasattr(move, 'accuracy') else move.get('accuracy')
+            move_category = move.category if hasattr(move, 'category') else move.get('category')
+            
+            # Skip blacklisted moves
+            if move_name in move_blacklist:
+                logging.debug(f"Skipping {move_name} (blacklisted)")
+                continue
+            
+            # Skip moves with no power (status moves)
+            if move_power == 0:
+                logging.debug(f"Skipping {move_name} (no power)")
+                continue
+            
+            # Skip moves with low accuracy
+            if move_accuracy < 80 and move_accuracy != 0:  # 0 accuracy means it doesn't miss
+                logging.debug(f"Skipping {move_name} (low accuracy: {move_accuracy})")
+                continue
+                
+            # Skip moves that don't match the Pokémon's attacking stat dominance
+            if (physical_attacker and move_category != 0) or (not physical_attacker and move_category != 1):
+                logging.debug(f"Skipping {move_name} (category mismatch: {move_category})")
+                continue
+            
+            # Verify the move is in the Pokémon's learnset
+            if levelup_data and egg_moves_data and tm_learnset_data:
+                if not check_move_in_learnset(pokemon_species, move_name, level, levelup_data, egg_moves_data, tm_learnset_data):
+                    logging.debug(f"Skipping {move_name} (not in learnset for {pokemon_species})")
+                    continue
+            
+            # Categorize moves by type
+            if move_type == primary_type:
+                logging.debug(f"Adding {move_name} to primary STAB moves (type: {move_type}, power: {move_power})")
+                primary_stab_moves.append((move_id, move_power))
+            elif move_type == secondary_type:
+                logging.debug(f"Adding {move_name} to secondary STAB moves (type: {move_type}, power: {move_power})")
+                secondary_stab_moves.append((move_id, move_power))
+            else:
+                logging.debug(f"Adding {move_name} to other damaging moves (type: {move_type}, power: {move_power})")
+                other_damaging_moves.append((move_id, move_power))
+                
+        except Exception as e:
+            logging.error(f"Error processing move {move_id}: {e}")
     
-    # Priority 3: Other damaging moves
-    if len(final_moves) < 4 and other_damaging_moves:
-        logging.info(f"Other damaging moves found: {len(other_damaging_moves)}")
-        remaining = 4 - len(final_moves)
-        final_moves.extend(other_damaging_moves[:remaining])
+    # Sort moves by power in descending order
+    primary_stab_moves.sort(key=lambda x: x[1], reverse=True)
+    secondary_stab_moves.sort(key=lambda x: x[1], reverse=True)
+    other_damaging_moves.sort(key=lambda x: x[1], reverse=True)
     
-    # If we have no moves at all, add Tackle as fallback
-    if not final_moves:
-        logging.warning(f"No suitable moves found for {species_name}, using Tackle/Pound as fallback")
-        final_moves.append("MOVE_Tackle")
+    # Prioritize moves by type
+    prioritized_moves = [move_id for move_id, _ in primary_stab_moves + secondary_stab_moves + other_damaging_moves]
     
-    # Make sure we return at most 4 moves
-    final_moves = final_moves[:4]
+    # Apply whitelist priority
+    for move_id, move in enumerate(moves_data[:650]):
+        if not move:
+            continue
+            
+        move_name = move.name if hasattr(move, 'name') else move.get('name')
+        if move_name in move_whitelist and move_id not in prioritized_moves:
+            prioritized_moves.append(move_id)
     
-    logging.info(f"Final moves selected for {species_name}: {final_moves}")
-    return final_moves
+    logging.debug(f"Found {len(prioritized_moves)} suitable moves for {pokemon_species}")
+    return prioritized_moves

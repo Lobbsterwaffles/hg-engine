@@ -123,6 +123,30 @@ def randomization_pipeline(rom_path, **options):
     
     # Note: Special Pokémon handling is now done by the boss team adjuster in Step 2
     
+    # Step 3: Apply smart moves to Pokémon with level filtering
+    if options.get('apply_smart_moves'):
+        moves_args = [current_rom]
+        
+        # Add level filtering options if specified
+        if options.get('min_move_level'):
+            moves_args.extend(['--min-level', str(options['min_move_level'])])
+        if options.get('max_move_level'):
+            moves_args.extend(['--max-level', str(options['max_move_level'])])
+        if options.get('log'):
+            moves_args.append('--log')
+            
+        if not run_script('apply_moves.py', moves_args,
+                         "Applying smart moves to Pokémon"):
+            return False
+            
+        # Update ROM path to include move handler suffix
+        base_name, ext = os.path.splitext(current_rom)
+        if options.get('min_move_level', 1) > 1 or options.get('max_move_level', 100) < 100:
+            level_range = f"{options.get('min_move_level', 1)}-{options.get('max_move_level', 100)}"
+            current_rom = f"{base_name}_moves{level_range}{ext}"
+        else:
+            current_rom = f"{base_name}_moves{ext}"
+    
     # Step 4: Clean up temporary data
     print(f"\n{'='*60}")
     print("CLEANUP: Removing temporary data files")
@@ -178,6 +202,15 @@ def main():
     special_group.add_argument("--mimics", action="store_true",
                               help="Add mimic Pokémon")
     
+    # Move handler options
+    moves_group = parser.add_argument_group("Smart Moves")
+    moves_group.add_argument("--apply-smart-moves", action="store_true",
+                             help="Apply smart moves to Pokémon")
+    moves_group.add_argument("--min-move-level", type=int,
+                             help="Minimum Pokémon level to apply moves to (default: 1)")
+    moves_group.add_argument("--max-move-level", type=int,
+                             help="Maximum Pokémon level to apply moves to (default: 100)")
+    
     args = parser.parse_args()
     
     # Convert args to options dict
@@ -193,7 +226,10 @@ def main():
         'special_pokemon': args.special_pokemon or args.pivots or args.fulcrums or args.mimics,
         'pivots': args.pivots,
         'fulcrums': args.fulcrums,
-        'mimics': args.mimics
+        'mimics': args.mimics,
+        'apply_smart_moves': args.apply_smart_moves,
+        'min_move_level': args.min_move_level,
+        'max_move_level': args.max_move_level
     }
     
     success = randomization_pipeline(args.rom_path, **options)
