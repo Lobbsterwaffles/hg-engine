@@ -1,11 +1,3 @@
-"""
-ROM data extraction and randomization framework.
-
-Provides a flexible, extensible system for reading, modifying, and writing 
-structured ROM data using context-managed extractor singletons and ordered 
-processing steps.
-"""
-
 from abc import ABC, abstractmethod
 from typing import List
 from collections import Counter
@@ -45,7 +37,6 @@ class SimpleFilter(Filter):
         return [c for c in candidates if self.check(context, original, c)]
 
 class BstWithinFactor(SimpleFilter):
-    """Filter Pokemon within a BST factor of the original."""
     def __init__(self, factor: float):
         self.factor = factor
     
@@ -53,7 +44,6 @@ class BstWithinFactor(SimpleFilter):
         return abs(candidate.bst - original.bst) <= original.bst * self.factor
 
 class NotInSet(SimpleFilter):
-    """Filter out specific IDs."""
     def __init__(self, excluded: set):
         self.excluded = excluded
     
@@ -185,7 +175,6 @@ class ObjectRegistry:
         self._creating = set()
     
     def get(self, obj_class):
-        """Get object instance, creating if needed."""
         if obj_class in self._objects:
             return self._objects[obj_class]
         
@@ -211,36 +200,18 @@ class RandomizationContext(ObjectRegistry):
         self.verbosity = verbosity
     
     def decide(self, path, original, candidates, filter):
-        """Make a decision by filtering candidates and selecting one.
-        
-        This is the central decision point that handles filtering, logging,
-        and fallback behavior in a type-agnostic way.
-        
-        Args:
-            path: Decision path as list for logging (e.g. ["trainers", "Falkner", "team", 2, "species"])
-            original: Original item being replaced (any type)
-            candidates: List of all possible replacements (any type)
-            filter: Filter to apply
-            
-        Returns:
-            Selected candidate, or original if no valid candidates
-        """
         path_str = "/" + "/".join(str(p) for p in path)
         
-        # Log what we're trying to do
         if self.verbosity >= 3:
             print(f"{path_str:50} {len(candidates)} candidates")
         
-        # Log full candidate set if very verbose
         if self.verbosity >= 5:
             print(f"{path_str:50}   All candidates:")
             for c in candidates:
                 print(f"{path_str:50}     - {c}")
         
-        # Apply the filter
         filtered = filter.filter_all(self, original, candidates)
         
-        # Log filter results
         if self.verbosity >= 3:
             print(f"{path_str:50} {len(filtered)} candidates")
         
@@ -249,7 +220,6 @@ class RandomizationContext(ObjectRegistry):
             for c in filtered:
                 print(f"{path_str:50}     - {c}")
         
-        # Handle no valid candidates
         if not filtered:
             if self.verbosity >= 1:
                 on = original.name if hasattr(original, "name") else repr(original)
@@ -258,10 +228,8 @@ class RandomizationContext(ObjectRegistry):
                 
             return original
         
-        # Select from filtered candidates
         selected = random.choice(filtered)
         
-        # Log the decision
         if self.verbosity >= 2:
             sn = selected.name if hasattr(selected, "name") else repr(selected)
             on = original.name if hasattr(original, "name") else repr(original)
@@ -334,8 +302,6 @@ class LoadAbilityNames(NameTableReader):
     filename = "data/text/720.txt"
 
 class Moves(NarcExtractor):
-    """Extractor for move data from ROM with full move structure."""
-    
     def __init__(self, context):
         super().__init__(context)
         move_names_step = context.get(LoadMoveNamesStep)
@@ -360,9 +326,8 @@ class Moves(NarcExtractor):
 
         self.data = self.load_narc()
 
-    
     def get_narc_path(self):
-        return "a/0/1/1"  # Move data NARC
+        return "a/0/1/1"
     
     def get_struct(self):
         return self.move_struct
@@ -866,7 +831,6 @@ class RandomizeGymsStep(Step):
             self._randomize_trainer_team(context, trainer, mondata, filter)
 
     def _randomize_trainer_team(self, context, trainer, mondata, filter):
-        """Randomize a single trainer's team."""
         for i, pokemon in enumerate(trainer.team):
             new_species = context.decide(
                 path=["trainer", trainer.info.name, "team", i, "species"],
@@ -944,25 +908,6 @@ if __name__ == "__main__":
     # Create context and load data
     ctx = RandomizationContext(rom, verbosity=0 if args.quiet else 2)
 
-    # Get initial gym data
-    gyms = ctx.get(IdentifyGymTrainers)
-    if not args.quiet:
-        print(f"Identified {len(gyms.data)} gyms")
-        for gym_name, gym in gyms.data.items():
-            print(f"  {gym_name}: {len(gym.trainers)} trainers, type: {gym.type}")
-    
-    # Show gym teams before randomization
-    if False:
-        print("\n=== GYM TEAMS BEFORE RANDOMIZATION ===")
-        for gym_name, gym in gyms.data.items():
-            print(f"\n{gym_name} ({gym.type}):")
-            for trainer in gym.trainers:
-                print(f"  {trainer.info.name}:")
-                for i, pokemon in enumerate(trainer.team):
-                    species = ctx.get(Mons).data[pokemon.species_id]
-                    print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
-    
-    # Create filter combining BST and blacklist constraints
     blacklist = ctx.get(LoadBlacklistStep)
     gym_filter = AllFilters([
         NotInSet(SPECIAL_POKEMON | blacklist.by_id),
@@ -970,28 +915,12 @@ if __name__ == "__main__":
     ])
     
     # Run gym randomization
-    if not args.quiet:
-        print(f"\n=== RUNNING GYM RANDOMIZATION (BST factor: {args.bst_factor}) ===")
     ctx.run_pipeline([
         ExpandTrainerTeamsStep(),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter)
     ])
     
-    # Show gym teams after randomization
-    if False:
-        print("\n=== GYM TEAMS AFTER RANDOMIZATION ===")
-        for gym_name, gym in gyms.data.items():
-            print(f"\n{gym_name} ({gym.type}):")
-            for trainer in gym.trainers:
-                print(f"  {trainer.info.name}:")
-                for i, pokemon in enumerate(trainer.team):
-                    species = ctx.get(Mons).data[pokemon.species_id]
-                    print(f"    {i}: Lv{pokemon.level} {species.name} ({species.type1}/{species.type2})")
-    
-    # Write changes back to ROM
-    if not args.quiet:
-        print("\nWriting changes back to ROM...")
     ctx.write_all()
     
     # Save modified ROM
