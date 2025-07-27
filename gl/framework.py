@@ -1,0 +1,983 @@
+from abc import ABC, abstractmethod
+from typing import List
+from collections import Counter
+import ndspy.rom
+import ndspy.narc
+import os
+import re
+import random
+import sys
+from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container, GreedyRange, StopIf, Check
+
+from enums import (
+    Type,
+    Split,
+    Contest,
+    MoveFlags,
+    Target,
+    TrainerDataType,
+    BattleType,
+    TrainerClass
+)
+from pivots import pivots_type_data, HasAbility
+from fulcrums import fulcrums_type_data
+
+
+class PathHierMap:
+    class Node:
+        def __init__(self, value=None):
+            self.value = value
+            self.children = {}
+    
+    def __init__(self, mappings):
+        self.root = self.Node()
+        for path_list, value in mappings:
+            node = self.root
+            for element in path_list:
+                if element not in node.children:
+                    node.children[element] = self.Node()
+                node = node.children[element]
+            node.value = value
+    
+    def get(self, path):
+        def go(node, path, best):
+            best = best if node.value is None else node.value
+            if not path or path[0] not in node.children:
+                return best
+            return go(node.children[path[0]], path[1:], best)
+        
+        path_lower = [str(e).lower() for e in path]
+        return go(self.root, path_lower, None)
+
+
+class Filter(ABC):
+    @abstractmethod
+    def filter_all(self, context, original, candidates: List) -> List:
+        pass
+
+class SimpleFilter(Filter):
+    @abstractmethod
+    def check(self, context, original, candidate) -> bool:
+        pass
+    
+    def filter_all(self, context, original, candidates: List) -> List:
+        return [c for c in candidates if self.check(context, original, c)]
+
+class BstWithinFactor(SimpleFilter):
+    def __init__(self, factor: float):
+        self.factor = factor
+    
+    def check(self, context, original, candidate) -> bool:
+        return abs(candidate.bst - original.bst) <= original.bst * self.factor
+
+    def __repr__(self):
+        return f"BstWithinFactor({self.factor})"
+
+class NotInSet(SimpleFilter):
+    def __init__(self, excluded: set):
+        self.excluded = excluded
+    
+    def check(self, context, original, candidate) -> bool:
+        return candidate.pokemon_id not in self.excluded
+
+class TypeMatches(SimpleFilter):
+    """Filter Pokemon that have type1 or type2 matching any of the specified types."""
+    def __init__(self, type_ids: List[int]):
+        self.type_ids = set(type_ids)
+    
+    def check(self, context, original, candidate) -> bool:
+        return (int(candidate.type1) in self.type_ids or int(candidate.type2) in self.type_ids)
+
+    def __repr__(self):
+        s = ","
+        return f"TypeMatches({s.join([str(Type(t)) for t in self.type_ids])})"
+    
+class Tiered(Filter):
+    """Try filters in order until one produces results."""
+    def __init__(self, filters: List[Filter]):
+        self.filters = filters
+    
+    def filter_all(self, context, original, candidates: List) -> List:
+        for f in self.filters:
+            filtered = f.filter_all(context, original, candidates)
+            if filtered:
+                return filtered
+        return []
+
+class AllFilters(Filter):
+    """Combine multiple filters with AND logic."""
+    def __init__(self, filters: List[Filter]):
+        self.filters = filters
+    
+    def filter_all(self, context, original, candidates: List) -> List:
+        result = candidates
+        for f in self.filters:
+            result = f.filter_all(context, original, result)
+            if not result:
+                break
+        return result
+
+    def __repr__(self):
+        s = ","
+        return f"AllFilters({s.join([repr(f) for f in self.filters])})"
+
+class NoFilter(Filter):
+    """Filter that passes all candidates unchanged."""
+    def filter_all(self, context, original, candidates: List) -> List:
+        return candidates
+
+
+class Extractor(ABC):
+    """Base class for all context-managed objects."""
+    def __init__(self, context):
+        self.context = context
+        self.rom = context.rom
+    
+    def write(self):
+        """Write any changes back to ROM. Default is no-op."""
+        pass
+
+
+class NarcExtractor(Extractor):
+    """Extractor that provides NARC parsing infrastructure"""
+    
+    @abstractmethod
+    def write_to_rom(self):
+        """Write data back to ROM."""
+        pass
+    
+    @abstractmethod
+    def get_narc_path(self):
+        """Return path to NARC file in ROM."""
+        pass
+    
+    @abstractmethod
+    def parse_file(self, file_data, index):
+        """Parse individual file from NARC."""
+        pass
+    
+    @abstractmethod
+    def serialize_file(self, data, index):
+        """Serialize individual file back to bytes."""
+        pass
+    
+    def parse_narc(self, narc_data):
+        """Parse all files in NARC."""
+        return [self.parse_file(file_data, i) for i, file_data in enumerate(narc_data.files)]
+    
+    def serialize_narc(self, data_list):
+        """Serialize data back to NARC."""
+        narc_data = ndspy.narc.NARC()
+        narc_data.files = [self.serialize_file(item, i) for i, item in enumerate(data_list)]
+        return narc_data
+    
+    def load_narc(self):
+        narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
+        narc_file = self.rom.files[narc_file_id]
+        narc_data = ndspy.narc.NARC(narc_file)
+        return self.parse_narc(narc_data)
+    
+    def write_to_rom(self):
+        narc_data = self.serialize_narc(self.data)
+        narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
+        self.rom.files[narc_file_id] = narc_data.save()
+
+
+class Writeback:
+    """Mixin that enables ROM writeback for NarcExtractor"""
+    def write(self):
+        self.write_to_rom()
+
+class Step(ABC):
+    """Base class for pipeline steps that run in order."""
+    
+    @abstractmethod
+    def run(self, context):
+        """Execute this step."""
+        pass
+
+
+class ObjectRegistry:
+    """Mixin for managing singleton object instances with circular dependency detection."""
+    
+    def __init__(self):
+        self._objects = {}
+        self._creating = set()
+    
+    def get(self, obj_class):
+        if obj_class in self._objects:
+            return self._objects[obj_class]
+        
+        if obj_class in self._creating:
+            raise RuntimeError(f"Circular dependency detected: {obj_class.__name__}")
+        
+        self._creating.add(obj_class)
+        try:
+            obj = obj_class(self)
+            self._objects[obj_class] = obj
+        finally:
+            self._creating.remove(obj_class)
+        
+        return self._objects[obj_class]
+
+
+class RandomizationContext(ObjectRegistry):
+    """Manages ROM data, pipeline execution, and shared objects."""
+    
+    def __init__(self, rom, verbosity=0, verbosity_overrides=None):
+        super().__init__()
+        self.rom = rom
+        self.verbosity_map = PathHierMap(verbosity_overrides or [([], verbosity)])
+    
+    def decide(self, path, original, candidates, filter):
+        def n(e):
+            return e.name if hasattr(e, "name") else repr(e)
+    
+        path_str = "/" + "/".join(str(p) for p in path)
+        verbosity = self.verbosity_map.get(path) or 0
+    
+        if verbosity >= 3:
+            print(f"{path_str:50} {len(candidates)} candidates")
+        
+        filtered = filter.filter_all(self, original, candidates)
+    
+        if verbosity >= 3:
+            print(f"{path_str:50} {len(filtered)} candidates")
+    
+        if verbosity >= 5:
+            print(f"{path_str:50} Filtered candidates:")
+            for c in filtered:
+                print(f"{path_str:50}     - {n(c)}")
+    
+        if not filtered:
+            if verbosity >= 1:
+                print(f"{path_str:50} [WARNING] No valid candidates, keeping original: {n(original)}")
+                print(f"{path_str:50}           Filter: {repr(filter)}")
+                
+            return original
+        
+        selected = random.choice(filtered)
+    
+        if verbosity >= 2:
+            print(f"{path_str:50} {n(original):20} -> {n(selected):20}")
+    
+        return selected
+    
+    def run_pipeline(self, steps, log_function=None, progress_callback=None):
+        """Run all pipeline steps in order."""
+        for i, step in enumerate(steps):
+            if log_function:
+                log_function(f"Running {step.__class__.__name__}...")
+            
+            step.run(self)
+            
+            if progress_callback:
+                progress_percent = int((i + 1) * 100 / len(steps))
+                progress_callback(progress_percent)
+    
+    def write_all(self, log_function=None):
+        for obj in self._objects.values():
+            obj.write()
+
+
+SPECIAL_POKEMON = {
+    150, 151, 243, 244, 245, 249, 250, 251, 377, 378, 379, 380, 381, 382, 383, 384,
+    385, 386, 483, 484, 487, 488, 489, 490, 491, 492, 493, 494
+}
+
+
+
+class NameTableReader(Extractor):
+    """Base class for reading name tables from text files."""
+    filename = None  # Must be set by subclasses
+    
+    def __init__(self, context):
+        super().__init__(context)
+        with open(self.filename, "r", encoding="utf-8") as f:
+            names_list = [line.strip() for line in f.readlines()]
+
+        self.id_to_name = {}
+        self.name_to_ids = {}
+
+        for i, name in enumerate(names_list):
+            self.id_to_name[i] = name
+            if name not in self.name_to_ids:
+                self.name_to_ids[name] = []
+            self.name_to_ids[name].append(i)
+
+    def get_by_id(self, i):
+        return self.id_to_name[i]
+
+    def get_by_name(self, n):
+        ns = self.get_all_by_name(n)
+        if len(ns) > 1:
+            print(f"!!! Use of duplicate name: {repr(n)} => {repr(ns)}")
+        return ns[0]
+
+    def get_all_by_name(self, n):
+        return self.name_to_ids[n]
+
+
+class LoadPokemonNamesStep(NameTableReader):
+    filename = "build/rawtext/237.txt"
+        
+class LoadMoveNamesStep(NameTableReader):
+    filename = "build/rawtext/750.txt"
+
+class LoadAbilityNames(NameTableReader):
+    filename = "data/text/720.txt"
+
+class Moves(NarcExtractor):
+    def __init__(self, context):
+        super().__init__(context)
+        move_names_step = context.get(LoadMoveNamesStep)
+        
+        self.move_struct = Struct(
+            "battle_effect" / Int16ul,
+            "pss" / Enum(Int8ul, Split),
+            "base_power" / Int8ul,
+            "type" / Enum(Int8ul, Type),
+            "accuracy" / Int8ul,
+            "pp" / Int8ul,
+            "effect_chance" / Int8ul,
+            "target" / Enum(Int16ul, Target),
+            "priority" / Int8ul,
+            "flags" / FlagsEnum(Int8ul, MoveFlags),
+            "appeal" / Int8ul,
+            "contest_type" / Enum(Int8ul, Contest),
+            Padding(2),
+            "move_id" / Computed(lambda ctx: ctx._.narc_index),
+            "name" / Computed(lambda ctx: move_names_step.id_to_name.get(ctx._.narc_index, None))
+        )
+
+        self.data = self.load_narc()
+
+    def get_narc_path(self):
+        return "a/0/1/1"
+    
+    def get_struct(self):
+        return self.move_struct
+    
+    def parse_file(self, file_data, file_index):
+        return self.move_struct.parse(file_data, narc_index=file_index)
+    
+    def serialize_file(self, data, index):
+        return self.move_struct.build(data, narc_index=index)
+
+
+class Learnsets(NarcExtractor):
+    def __init__(self, context):
+        super().__init__(context)
+        moves = context.get(MoveDataExtractor).data
+
+        self.struct = GreedyRange(Struct(
+            "move_id" / Int16ul,
+            "level" / Int16ul,
+            Check(lambda ctx: ctx.move_id != 0xffff),
+            "move" / Computed(lambda ctx: moves[ctx.move_id] if ctx.move_id < len(moves) else None),
+        ))
+        
+        self.data = self.load_narc()
+    
+    def get_narc_path(self):
+        return "a/0/3/3"
+    
+    def parse_file(self, file_data, index):
+        return self.struct.parse(file_data, narc_index=index)
+    
+    def serialize_file(self, data, index):
+        return self.struct.build(data, narc_index=index)
+
+
+class LoadTrainerNamesStep(Extractor):
+    """Extractor that loads trainer names from assembly source."""
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.by_id = {}
+        self.by_name = {}
+        
+        trainer_file = os.path.join("armips", "data", "trainers", "trainers.s")
+        try:
+            with open(trainer_file, "r", encoding="utf-8") as f:
+                pattern = r"trainerdata\s+(\d+),\s+\"([^\"]+)\""
+                for line in f:
+                    match = re.search(pattern, line)
+                    if match:
+                        trainer_id = int(match.group(1))
+                        name = match.group(2)
+                        self.by_id[trainer_id] = name
+                        self.by_name[name] = trainer_id
+        except FileNotFoundError:
+            pass
+
+
+class TrainerTeam(NarcExtractor, Writeback):
+    
+    def __init__(self, context):
+        mondata_extractor = context.get(Mons)
+        move_extractor = context.get(Moves)
+
+        self.struct_common = Struct(
+            "ivs" / Int8ul,
+            "abilityslot" / Int8ul,
+            "level" / Int16ul,
+            "species_id" / Int16ul,
+        )
+        
+        self.trainer_pokemon_basic = self.struct_common + Struct(
+            "ballseal" / Int16ul
+        )
+        
+        self.struct_items = self.struct_common + Struct(
+            "item" / Int16ul,
+            "ballseal" / Int16ul
+        )
+        
+        self.struct_moves = self.struct_common + Struct(
+            "moves" / Array(4, Int16ul),
+            "ballseal" / Int16ul
+        )
+        
+        self.struct_movesitems = self.struct_common + Struct(
+            "item" / Int16ul,
+            "moves" / Array(4, Int16ul),
+            "ballseal" / Int16ul
+        )
+        
+        self.format_map = {
+            bytes([TrainerDataType.NOTHING]): self.trainer_pokemon_basic,
+            bytes([TrainerDataType.MOVES]): self.struct_moves,
+            bytes([TrainerDataType.ITEMS]): self.struct_items,
+            bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS]): self.struct_movesitems,
+        }
+        
+        super().__init__(context)
+        self.data = self.load_narc()
+    
+    def get_narc_path(self):
+        return "a/0/5/6"
+    
+    def parse_file(self, file_data, index):
+        if len(file_data) == 0:
+            return []
+        
+        trainer = self.context.get(TrainerData).data[index]
+        struct = self.format_map[trainer.trainermontype.data]
+        
+        return Array(trainer.nummons, struct).parse(file_data)
+    
+    def serialize_file(self, data, index):
+        if not data:
+            return b''
+        
+        trainer = self.context.get(TrainerData).data[index]
+        struct = self.format_map[trainer.trainermontype.data]
+        
+        return Array(trainer.nummons, struct).build(data)
+
+
+class TrainerData(NarcExtractor, Writeback):
+    def __init__(self, context):
+        trainer_names_step = context.get(LoadTrainerNamesStep)
+        
+        self.trainer_data_struct = Struct(
+            "trainermontype" / RawCopy(FlagsEnum(Int8ul, TrainerDataType)),
+            "trainerclass" / Int16ul,
+            "nummons" / Int8ul,
+            "item1" / Int16ul,
+            "item2" / Int16ul,
+            "item3" / Int16ul,
+            "item4" / Int16ul,
+            "aiflags" / Int32ul,
+            "battletype" / Enum(Int8ul, BattleType),
+            Padding(2),
+            "trainer_id" / Computed(lambda ctx: ctx._.narc_index),
+            "name" / Computed(lambda ctx: trainer_names_step.by_id[ctx._.narc_index])
+        )
+        
+        super().__init__(context)
+        self.data = self.load_narc()
+    
+    def get_narc_path(self):
+        return "a/0/5/5"
+    
+    def parse_file(self, file_data, index):
+        return self.trainer_data_struct.parse(file_data, narc_index=index)
+    
+    def serialize_file(self, data, index):
+        return self.trainer_data_struct.build(data, narc_index=index)
+
+
+class TrainerInfo:
+    def __init__(self, trainer_data, team_data):
+        self.info = trainer_data
+        self.team = team_data
+        self.ace_index = self._compute_ace_index() if self.team else None
+        self.ace = self.team[self.ace_index] if self.ace_index else None
+    
+    def _compute_ace_index(self):
+        maxlvl = max(pokemon.level for pokemon in self.team)
+        imaxlvl = [i for i, pokemon in enumerate(self.team) if pokemon.level == maxlvl]
+        return imaxlvl[0] if len(imaxlvl) == 1 else None
+
+class Trainers(Extractor):
+    def __init__(self, context):
+        super().__init__(context)
+        
+        trainer_data_extractor = context.get(TrainerData)
+        trainer_team_extractor = context.get(TrainerTeam)
+        
+        self.data = [
+            TrainerInfo(trainer_data_extractor.data[i], trainer_team_extractor.data[i])
+            for i in range(len(trainer_data_extractor.data))
+        ]
+
+
+class LoadBlacklistStep(Extractor):
+    """Extractor that creates Pokemon blacklist with hardcoded data."""
+    
+    def __init__(self, context):
+        super().__init__(context)
+        names_step = context.get(LoadPokemonNamesStep)
+        
+        self.by_id = set()
+        
+        fixed = [
+            "Bad Egg"
+        ]
+
+        for name in fixed:
+            self.by_id.add(names_step.get_by_name(name))
+
+        for fid in names_step.get_all_by_name("-----"):
+            self.by_id.add(fid)
+
+
+class Mons(NarcExtractor):
+    """Extractor for Pokemon data from ROM with full mondata structure."""
+    
+    def __init__(self, context):
+        pokemon_names_step = context.get(LoadPokemonNamesStep)
+        
+        self.mondata_struct = Struct(
+            "hp" / Int8ul,
+            "attack" / Int8ul, 
+            "defense" / Int8ul,
+            "speed" / Int8ul,
+            "sp_attack" / Int8ul,
+            "sp_defense" / Int8ul,
+            "type1" / Enum(Int8ul, Type),
+            "type2" / Enum(Int8ul, Type),
+            "catch_rate" / Int8ul,
+            "base_exp" / Int8ul,
+            "ev_yields" / Int16ul,
+            "item1" / Int16ul,
+            "item2" / Int16ul,
+            "gender_ratio" / Int8ul,
+            "egg_cycles" / Int8ul,
+            "base_friendship" / Int8ul,
+            "growth_rate" / Int8ul,
+            "egg_group1" / Int8ul,
+            "egg_group2" / Int8ul,
+            "ability1" / Int8ul,
+            "ability2" / Int8ul,
+            "additional1" / Int8ul,
+            "additional2" / Int8ul,
+            "bst" / Computed(lambda ctx: ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense),
+            "name" / Computed(lambda ctx: pokemon_names_step.get_by_id(ctx._.narc_index)),
+            "pokemon_id" / Computed(lambda ctx: ctx._.narc_index)
+        )
+        
+        super().__init__(context)
+        
+        self.data = self.load_narc()
+    
+    def get_narc_path(self):
+        return "a/0/0/2"
+    
+    def parse_file(self, file_data, index):
+        return self.mondata_struct.parse(file_data, narc_index=index)
+    
+    def serialize_file(self, data, index):
+        return self.mondata_struct.build(data, narc_index=index)
+    
+class LoadEncounterNamesStep(Extractor):
+    """Extractor that loads encounter location names from assembly source."""
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.location_names = {}
+        encounter_file = os.path.join("armips", "data", "encounters.s")
+        with open(encounter_file, "r", encoding="utf-8") as f:
+            for line in f:
+                match = re.search(r"encounterdata\s+(\d+).*//\s+(.*)", line)
+                if match:
+                    encounter_id = int(match.group(1))
+                    encounter_name = match.group(2).strip()
+                    self.location_names[encounter_id] = encounter_name
+
+
+
+class Encounters(NarcExtractor, Writeback):
+    """Extractor for encounter data from ROM."""
+    
+    def __init__(self, context):
+        location_names_step = context.get(LoadEncounterNamesStep)
+        
+        EncounterSlot = Struct(
+            "species" / Int16ul,
+            "minlevel" / Int8ul,
+            "maxlevel" / Int8ul,
+        )
+        
+        self.encounter_struct = Struct(
+            "walkrate" / Int8ul,
+            "surfrate" / Int8ul,
+            "rocksmashrate" / Int8ul,
+            "oldrodrate" / Int8ul,
+            "goodrodrate" / Int8ul,
+            "superrodrate" / Int8ul,
+            Padding(2),
+            "walklevels" / Array(12, Int8ul),
+            "morning" / Array(12, Int16ul),
+            "day" / Array(12, Int16ul),
+            "night" / Array(12, Int16ul),
+            "hoenn" / Array(2, Int16ul),
+            "sinnoh" / Array(2, Int16ul),
+            "surf" / Array(5, EncounterSlot),
+            "rocksmash" / Array(2, EncounterSlot),
+            "oldrod" / Array(5, EncounterSlot),
+            "goodrod" / Array(5, EncounterSlot),
+            "superrod" / Array(5, EncounterSlot),
+            "swarm_grass" / Int16ul,
+            "swarm_surf" / Int16ul,
+            "swarm_goodrod" / Int16ul,
+            "swarm_superrod" / Int16ul,
+            "location_name" / Computed(lambda ctx: location_names_step.location_names[ctx._.narc_index]),
+            "location_id" / Computed(lambda ctx: ctx._.narc_index)
+        )
+        
+        super().__init__(context)
+        
+        self.data = self.load_narc()
+    
+    def get_narc_path(self):
+        return "a/0/3/7"
+    
+    def parse_file(self, file_data, index):
+        encounter = self.encounter_struct.parse(file_data, narc_index=index)
+        return encounter
+    
+    def serialize_file(self, data, index):
+        return self.encounter_struct.build(data, narc_index=index)
+
+
+class RandomizeEncountersStep(Step):
+    
+    def __init__(self, filter):
+        self.filter = filter
+        self.replacements = {}
+    
+    def run(self, context):
+        self.mondata = context.get(Mons)
+        self.encounters = context.get(Encounters)
+        self.blacklist = context.get(LoadBlacklistStep)
+        self.context = context
+        
+        for i, encounter in enumerate(self.encounters.data):
+            self._randomize_encounter(encounter, i)
+    
+    def _randomize_encounter(self, encounter, location_id):
+        self._randomize_slot_list(encounter.morning)
+        self._randomize_slot_list(encounter.day)
+        self._randomize_slot_list(encounter.night)
+    
+    def _randomize_slot_list(self, slot_list):
+        for i, species_id in enumerate(slot_list):
+            if species_id == 0:
+                continue
+            
+            if species_id not in self.replacements:
+                if species_id in SPECIAL_POKEMON or species_id in self.blacklist.by_id:
+                    self.replacements[species_id] = species_id
+                else:
+                    mon = self.mondata.data[species_id]
+                    
+                    new_species = self.context.decide(
+                        path=["encounters", mon.name],
+                        original=mon,
+                        candidates=list(self.mondata.data),
+                        filter=self.filter
+                    )
+                    
+                    self.replacements[species_id] = new_species.pokemon_id
+            
+            slot_list[i] = self.replacements[species_id]
+
+
+class IndexTrainers(Extractor):
+    "Store mapping of name to trainer_id.  Queryable using `find`, by name or (trainerclass, name)"
+    def __init__(self, context):
+        super().__init__(context)
+        self.data = {}
+
+        trainers = context.get(Trainers)
+        for t in trainers.data:
+            if t.info.name not in self.data:
+                self.data[t.info.name] = []
+            self.data[t.info.name].append((t.info.trainerclass, t.info.trainer_id))
+
+    def find(self, name_or_tuple):
+        if isinstance(name_or_tuple, tuple):
+            (cls, name) = name_or_tuple
+            return self._find(cls, name)
+        return self._find(None, name_or_tuple)
+
+    def _find(self, cls, name):
+        rs = [tid for (tc, tid) in self.data[name] if cls is None or cls == tc]
+        #if len(rs) != 1:
+        #  This is fine
+        #  print(f"Cannot find unique trainer {name}, class {cls} - {repr(rs)}")
+        return rs[0] if len(rs) > 0 else None
+
+class ExpandTrainerTeamsStep(Step):
+    """expand trainer teams to a specified size by duplicating the first Pokemon."""
+    
+    def __init__(self, target_size=6):
+        if not (1 <= target_size <= 6):
+            raise ValueError(f"bad size: {target_size}")
+        self.target_size = target_size
+    
+    def run(self, context):
+        for t in context.get(Trainers).data:
+            self._expand_trainer_team(t)
+    
+    def _expand_trainer_team(self, trainer):
+        if trainer.info.nummons != len(trainer.team):
+            raise RuntimeError(f"team size mismatch! {trainer.info.trainer_id}")
+
+        current_size = len(trainer.team)
+        
+        if current_size >= self.target_size or current_size == 0:
+            return
+        
+        for _ in range(self.target_size - current_size):
+            trainer.team.append(Container(trainer.team[0]))
+        
+        trainer.info.nummons = len(trainer.team)
+
+
+class IdentifyGymTrainers(Extractor):
+    class Gym:
+        def __init__(self, name, trainers, gym_type=None):
+            self.name = name
+            self.trainers = trainers
+            self.type = gym_type
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.data = {}
+        
+        trainers = context.get(Trainers)
+        index = context.get(IndexTrainers)
+        
+        gym_definitions = {
+            "Violet City": ["Falkner", "Abe", "Rod"],
+            "Azalea Town": ["Bugsy", "Al", "Benny", "Amy & Mimi"],
+            "Goldenrod City": ["Victoria", "Samantha", "Carrie", "Cathy", "Whitney"],
+            "Ecruteak City": ["Georgina", "Grace", "Edith", "Martha", "Morty"],
+            "Cianwood City": ["Yoshi", "Lao", "Lung", "Nob", "Chuck"],
+            "Olivine City": ["Jasmine"],
+            "Mahogany Town": ["Pryce", (TrainerClass.SKIER, "Diana"), "Patton", "Deandre", "Jill", "Gerardo"],
+            "Blackthorn City": ["Paulo", "Lola", "Cody", "Fran", "Mike", "Clair"],
+            "Pewter City": ["Jerry", "Edwin", "Brock"],
+            "Cerulean City": ["Parker", "Eddie", (TrainerClass.SWIMMER_F, "Diana"), "Joy", "Briana", "Misty"],
+            "Vermillion City": ["Horton", "Vincent", "Gregory", "Lt. Surge"],
+            "Celadon City": ["Jo & Zoe", "Michelle", "Tanya", "Julia", "Erika"],
+            "Fuchsia City": ["Cindy", "Barry", "Alice", "Linda", "Janine"],
+            "Saffron City": ["Rebecca", "Jared", "Darcy", "Franklin", "Sabrina"],
+            "Seafoam Islands": ["Lowell", "Daniel", "Cary", "Linden", "Waldo", "Merle", "Blaine"],
+            "Viridian City": ["Arabella", "Salma", "Bonita", "Elan & Ida", "Blue"],
+            "Elite Four": ["Will", "Koga", "Bruno", "Karen", "Lance"]
+        }
+        
+        for gym_name, trainer_specs in gym_definitions.items():
+            trainer_ids = [index.find(spec) for spec in trainer_specs]
+            gym_trainers = [trainers.data[tid] for tid in trainer_ids if tid is not None]
+            
+            gym_type = self._detect_gym_type(gym_trainers)
+            self.data[gym_name] = self.Gym(gym_name, gym_trainers, gym_type)
+    
+    def _detect_gym_type(self, trainers):
+        type_counts = Counter()
+        
+        mondata = self.context.get(Mons)
+        
+        for trainer in trainers:
+            for pokemon in trainer.team:
+                species = mondata.data[pokemon.species_id]
+                type_counts[Type(int(species.type1))] += 1
+                if species.type2 != species.type1:
+                    type_counts[Type(int(species.type2))] += 1
+        
+        return type_counts.most_common(1)[0][0] if type_counts else None
+
+
+class RandomizeGymTypesStep(Step):
+    
+    def run(self, context):
+        gyms = context.get(IdentifyGymTrainers)
+        
+        for gym_name, gym in gyms.data.items():
+            if gym.type is not None:
+                gym.type = context.decide(
+                    path=["gyms", gym_name, "type"],
+                    original=gym.type,
+                    candidates=list(Type),
+                    filter=NoFilter()
+                )
+
+
+class RandomizeGymsStep(Step):
+    def __init__(self, filter):
+        self.filter = filter
+    
+    def run(self, context):
+        gyms = context.get(IdentifyGymTrainers)
+        mondata = context.get(Mons)
+        
+        for gym_name, gym in gyms.data.items():
+            if gym.type is not None:
+                self._randomize_gym_teams(context, gym, mondata)
+    
+    def _randomize_gym_teams(self, context, gym, mondata):
+        filter = AllFilters([self.filter, TypeMatches([int(gym.type)])])
+        for trainer in gym.trainers:
+            self._randomize_trainer_team(context, trainer, mondata, filter)
+
+    def _randomize_trainer_team(self, context, trainer, mondata, filter):
+        for i, pokemon in enumerate(trainer.team):
+            new_species = context.decide(
+                path=["trainer", trainer.info.name, "team", i, "species"],
+                original=mondata.data[pokemon.species_id],
+                candidates=list(mondata.data),
+                filter=filter
+            )
+            pokemon.species_id = new_species.pokemon_id
+
+
+class ReadTypeMapping(Extractor):
+    # set in subclass
+    type_data = None
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.mons = context.get(Mons)
+        self.ability_names = context.get(LoadAbilityNames)
+        self.typeset_to_mons = self._build_index()
+        self.data = self._process_data()
+    
+    def _build_index(self):
+        typeset_to_mons = {}
+        for pokemon in self.mons.data:
+            typeset = frozenset({int(pokemon.type1), int(pokemon.type2)})
+            if typeset not in typeset_to_mons:
+                typeset_to_mons[typeset] = []
+            typeset_to_mons[typeset].append(pokemon)
+        return typeset_to_mons
+    
+    def _process_data(self):
+        data = {}
+        for (t, ts) in self.type_data.items():
+            data[t] = []
+            for entry in ts:
+                data[t].extend(self._handle_entry(entry))
+        return data
+    
+    def _handle_entry(self, entry):
+        if isinstance(entry, tuple):
+            typeset = frozenset({int(t) for t in entry})
+            return self.typeset_to_mons.get(typeset, [])
+        elif isinstance(entry, HasAbility):
+            ability_id = self.ability_names.get_by_name(entry.ability_name)
+            return [
+                pokemon for pokemon in self.mons.data
+                if ability_id in [pokemon.ability1, pokemon.ability2]
+            ]
+
+
+class Pivots(ReadTypeMapping):
+    type_data = pivots_type_data
+
+
+class Fulcrums(ReadTypeMapping):
+    type_data = fulcrums_type_data
+
+
+def parse_verbosity_overrides(verbosity_args):
+    """Parse -v arguments into list of (path_list, level) tuples."""
+    overrides = []
+    for arg in verbosity_args:
+        if '=' in arg:
+            path_str, level = arg.split('=', 1)
+            path_list = [p.lower() for p in path_str.split('/') if p]
+            overrides.append((path_list, int(level)))
+        else:
+            # Global verbosity - empty path prefix
+            overrides.append(([], int(arg)))
+    return overrides
+
+
+        
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Test RandomizeGymsStep")
+    parser.add_argument("--quiet", action="store_true", help="Run in quiet mode (no output)")
+    parser.add_argument("--bst-factor", type=float, default=0.15, help="BST factor for filtering (default: 0.15)")
+    parser.add_argument("--seed", type=int, help="rng seed")
+    parser.add_argument("-v", action="append", dest="verbosity", 
+                       help="Verbosity: level (global) or path=level (path-specific)")
+    args = parser.parse_args()
+
+    if args.seed is not None:
+        random.seed(int(args.seed))
+    
+    # Parse verbosity overrides
+    vbase = 0 if args.quiet else 2
+    verbosity_overrides = [([], vbase)] + parse_verbosity_overrides(args.verbosity or [])
+    
+    # Load ROM
+    with open("hgeLanceCanary.nds", "rb") as f:
+        rom = ndspy.rom.NintendoDSRom(f.read())
+    
+    # Create context and load data
+    ctx = RandomizationContext(rom, verbosity_overrides=verbosity_overrides)
+
+    blacklist = ctx.get(LoadBlacklistStep)
+    gym_filter = AllFilters([
+        NotInSet(SPECIAL_POKEMON | blacklist.by_id),
+        BstWithinFactor(args.bst_factor)
+    ])
+    
+    # Run gym randomization
+    ctx.run_pipeline([
+        ExpandTrainerTeamsStep(),
+        RandomizeGymTypesStep(),
+        RandomizeGymsStep(gym_filter)
+    ])
+    
+    ctx.write_all()
+    
+    # Save modified ROM
+    modified_rom_path = "hgeLanceCanary_gym_randomized.nds"
+    with open(modified_rom_path, "wb") as f:
+        s = rom.save()
+        print(f"Writing {len(s)} bytes to {repr(modified_rom_path)} ...")
+        f.write(s)
+
+    print("Done")
+    
+
+        
