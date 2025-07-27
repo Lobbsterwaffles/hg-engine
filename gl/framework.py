@@ -70,6 +70,9 @@ class BstWithinFactor(SimpleFilter):
     def check(self, context, original, candidate) -> bool:
         return abs(candidate.bst - original.bst) <= original.bst * self.factor
 
+    def __repr__(self):
+        return f"BstWithinFactor({self.factor})"
+
 class NotInSet(SimpleFilter):
     def __init__(self, excluded: set):
         self.excluded = excluded
@@ -87,7 +90,7 @@ class TypeMatches(SimpleFilter):
 
     def __repr__(self):
         s = ","
-        return f"TypeMatches({s.join([repr(Type(t)) for t in self.type_ids])})"
+        return f"TypeMatches({s.join([str(Type(t)) for t in self.type_ids])})"
     
 class Tiered(Filter):
     """Try filters in order until one produces results."""
