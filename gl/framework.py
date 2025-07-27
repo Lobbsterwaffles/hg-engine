@@ -227,42 +227,37 @@ class RandomizationContext(ObjectRegistry):
         self.verbosity_map = PathHierMap(verbosity_overrides or [([], verbosity)])
     
     def decide(self, path, original, candidates, filter):
+        def n(e):
+            return e.name if hasattr(e, "name") else repr(e)
+    
         path_str = "/" + "/".join(str(p) for p in path)
         verbosity = self.verbosity_map.get(path) or 0
-        
+    
         if verbosity >= 3:
             print(f"{path_str:50} {len(candidates)} candidates")
         
-        if verbosity >= 5:
-            print(f"{path_str:50}   All candidates:")
-            for c in candidates:
-                print(f"{path_str:50}     - {c}")
-        
         filtered = filter.filter_all(self, original, candidates)
-        
+    
         if verbosity >= 3:
             print(f"{path_str:50} {len(filtered)} candidates")
-        
+    
         if verbosity >= 5:
             print(f"{path_str:50} Filtered candidates:")
             for c in filtered:
-                print(f"{path_str:50}     - {c}")
-        
+                print(f"{path_str:50}     - {n(c)}")
+    
         if not filtered:
             if verbosity >= 1:
-                on = original.name if hasattr(original, "name") else repr(original)
-                print(f"{path_str:50} [WARNING] No valid candidates, keeping original: {on}")
+                print(f"{path_str:50} [WARNING] No valid candidates, keeping original: {n(original)}")
                 print(f"{path_str:50}           Filter: {repr(filter)}")
                 
             return original
         
         selected = random.choice(filtered)
-        
+    
         if verbosity >= 2:
-            sn = selected.name if hasattr(selected, "name") else repr(selected)
-            on = original.name if hasattr(original, "name") else repr(original)
-            print(f"{path_str:50} {on:20} -> {sn:20}")
-        
+            print(f"{path_str:50} {n(original):20} -> {n(selected):20}")
+    
         return selected
     
     def run_pipeline(self, steps, log_function=None, progress_callback=None):
