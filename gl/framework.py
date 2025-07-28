@@ -855,8 +855,9 @@ class Encounters(Writeback,NarcExtractor):
 
 class RandomizeEncountersStep(Step):
     
-    def __init__(self, filter):
+    def __init__(self, filter, independent_by_area=False):
         self.filter = filter
+        self.independent_by_area = independent_by_area
         self.replacements = {}
     
     def run(self, context):
@@ -869,31 +870,40 @@ class RandomizeEncountersStep(Step):
             self._randomize_encounter(encounter, i)
     
     def _randomize_encounter(self, encounter, location_id):
-        self._randomize_slot_list(encounter.morning)
-        self._randomize_slot_list(encounter.day)
-        self._randomize_slot_list(encounter.night)
+        self._randomize_slot_list(encounter.morning, location_id)
+        self._randomize_slot_list(encounter.day, location_id)
+        self._randomize_slot_list(encounter.night, location_id)
     
-    def _randomize_slot_list(self, slot_list):
+    def _randomize_slot_list(self, slot_list, location_id):
         for i, species_id in enumerate(slot_list):
             if species_id == 0:
                 continue
             
-            if species_id not in self.replacements:
-                if species_id in SPECIAL_POKEMON or species_id in self.blacklist.by_id:
-                    self.replacements[species_id] = species_id
-                else:
-                    mon = self.mondata.data[species_id]
-                    
-                    new_species = self.context.decide(
-                        path=["encounters", mon.name],
-                        original=mon,
-                        candidates=list(self.mondata.data),
-                        filter=self.filter
-                    )
-                    
-                    self.replacements[species_id] = new_species.pokemon_id
+            # Create replacement key based on whether we want area independence
+            if self.independent_by_area:
+                replacement_key = (species_id, location_id)
+            else:
+                replacement_key = species_id
             
-            slot_list[i] = self.replacements[species_id]
+            if replacement_key not in self.replacements:
+                mon = self.mondata.data[species_id]
+                
+                # Use location-specific path for area-independent replacements
+                if self.independent_by_area:
+                    path = ["encounters", f"area_{location_id}", mon.name]
+                else:
+                    path = ["encounters", mon.name]
+                
+                new_species = self.context.decide(
+                    path=path,
+                    original=mon,
+                    candidates=list(self.mondata.data),
+                    filter=self.filter
+                )
+                
+                self.replacements[replacement_key] = new_species.pokemon_id
+            
+            slot_list[i] = self.replacements[replacement_key]
 
 
 class IndexTrainers(Extractor):
@@ -1176,6 +1186,7 @@ if __name__ == "__main__":
     parser.add_argument("--allow-ultra-beasts", action="store_true", help="Allow Ultra Beast Pokémon")
     parser.add_argument("--allow-paradox", action="store_true", help="Allow Paradox Pokémon")
     parser.add_argument("--allow-sublegendary", action="store_true", help="Allow SubLegendary Pokémon")
+    parser.add_argument("--independent-encounters", action="store_true", help="Make encounter replacements independent by area")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -1192,7 +1203,8 @@ if __name__ == "__main__":
     # Create context and load data
     ctx = RandomizationContext(rom, verbosity_overrides=verbosity_overrides)
 
-    gym_filter = AllFilters(
+    # Create filters for both gym and encounter randomization
+    legendary_filters = (
         [NotInSet(ctx.get(LoadBlacklistStep).by_id),
         NotInSet(ctx.get(InvalidPokemon).by_id)] +
         
@@ -1204,17 +1216,19 @@ if __name__ == "__main__":
         
         ([] if args.allow_paradox else [NotInSet(ctx.get(ParadoxPokemon).by_id)]) +
         
-        ([] if args.allow_sublegendary else [NotInSet(ctx.get(SubLegendaryPokemon).by_id)]) +
-        
-        [BstWithinFactor(args.bst_factor)]
+        ([] if args.allow_sublegendary else [NotInSet(ctx.get(SubLegendaryPokemon).by_id)])
     )
+    
+    gym_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
+    encounter_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
 
 
     # Run randomization pipeline
     ctx.run_pipeline([
         ExpandTrainerTeamsStep(),
         RandomizeGymTypesStep(),
-        RandomizeGymsStep(gym_filter)
+        RandomizeGymsStep(gym_filter),
+        RandomizeEncountersStep(encounter_filter, args.independent_encounters)
     ])
     
     ctx.write_all()
