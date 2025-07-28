@@ -68,6 +68,11 @@ class BstWithinFactor(SimpleFilter):
         self.factor = factor
     
     def check(self, context, original, candidate) -> bool:
+        # For low-BST Pokémon (348 or below), allow all Pokémon with BST 348 or below
+        if original.bst <= 348:
+            return candidate.bst <= 348
+        
+        # For higher-BST Pokémon (349 and above), use the factor-based filtering
         return abs(candidate.bst - original.bst) <= original.bst * self.factor
 
     def __repr__(self):
@@ -670,7 +675,8 @@ class MythicalPokemon(PokemonListBase):
         "Meltan",
         "Melmetal",
         "Zarude",
-        "Pecharunt"
+        "Pecharunt",
+        "Zeraora"
     ]
 
 
