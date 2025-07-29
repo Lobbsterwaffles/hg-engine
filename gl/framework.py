@@ -1079,9 +1079,9 @@ class IdentifyBosses(Extractor):
             "Team Rocket Executives": ["Archer", "Ariana", "Petrel", "Proton"],
             "Giovanni": ["Giovanni"],
             "Red": ["Red"],
-            "Rival Silver": ["Silver"],  # Main rival battles
-            "Champion Lance (Final)": ["Lance"],  # Final champion battle
-            "Elite Four": ["Will", "Koga", "Bruno", "Karen"],  # Elite Four rematches
+            "Rival": ["Silver"],  # Main rival battles
+            "Champion": ["Lance"],  # Final champion battle
+            "Elite Four": ["Will", "Koga", "Bruno", "Karen"],  # Elite Four 
             
             
            
