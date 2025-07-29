@@ -737,6 +737,15 @@ class LoadBlacklistStep(PokemonListBase):
 class Mons(NarcExtractor):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
+    # BST overrides for Pokemon whose power level is not accurately represented by raw BST
+    BST_OVERRIDES = {
+        "Wishiwashi": 550, 
+        "Shedinja": 400,    
+        "Slaking": 550,     
+        "Regigigas": 580,   
+        "Archeops": 550,    
+    }
+    
     def __init__(self, context):
         pokemon_names_step = context.get(LoadPokemonNamesStep)
         
@@ -764,7 +773,7 @@ class Mons(NarcExtractor):
             "ability2" / Int8ul,
             "additional1" / Int8ul,
             "additional2" / Int8ul,
-            "bst" / Computed(lambda ctx: ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense),
+            "bst" / Computed(lambda ctx: self._get_adjusted_bst(ctx)),
             "name" / Computed(lambda ctx: pokemon_names_step.get_by_id(ctx._.narc_index)),
             "pokemon_id" / Computed(lambda ctx: ctx._.narc_index)
         )
@@ -773,6 +782,19 @@ class Mons(NarcExtractor):
         
         self.data = self.load_narc()
     
+    def _get_adjusted_bst(self, ctx):
+        """Get adjusted BST for Pokemon, applying overrides for special cases."""
+        # Get the Pokemon name
+        pokemon_names_step = self.context.get(LoadPokemonNamesStep)
+        pokemon_name = pokemon_names_step.get_by_id(ctx._.narc_index)
+        
+        # Check if this Pokemon has a BST override
+        if pokemon_name in self.BST_OVERRIDES:
+            return self.BST_OVERRIDES[pokemon_name]
+        
+        # Default: return raw BST calculation
+        return ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense
+
     def get_narc_path(self):
         return "a/0/0/2"
     
@@ -934,14 +956,31 @@ class IndexTrainers(Extractor):
 class ExpandTrainerTeamsStep(Step):
     """expand trainer teams to a specified size by duplicating the first Pokemon."""
     
-    def __init__(self, target_size=6):
+    def __init__(self, target_size=6, bosses_only=False):
         if not (1 <= target_size <= 6):
             raise ValueError(f"bad size: {target_size}")
         self.target_size = target_size
+        self.bosses_only = bosses_only
     
     def run(self, context):
-        for t in context.get(Trainers).data:
-            self._expand_trainer_team(t)
+        if self.bosses_only:
+            # Only expand teams for trainers designated as bosses
+            bosses = context.get(IdentifyBosses)
+            boss_trainer_ids = set()
+            
+            # Collect all trainer IDs from all boss categories
+            for boss_category in bosses.data.values():
+                for trainer in boss_category.trainers:
+                    boss_trainer_ids.add(trainer.info.trainer_id)
+            
+            # Only expand teams for boss trainers
+            for t in context.get(Trainers).data:
+                if t.info.trainer_id in boss_trainer_ids:
+                    self._expand_trainer_team(t)
+        else:
+            # Original behavior: expand all trainer teams
+            for t in context.get(Trainers).data:
+                self._expand_trainer_team(t)
     
     def _expand_trainer_team(self, trainer):
         if trainer.info.nummons != len(trainer.team):
@@ -1019,6 +1058,40 @@ class IdentifyGymTrainers(Extractor):
                     type_counts[Type(int(species.type2))] += 1
         
         return type_counts.most_common(1)[0][0] if type_counts else None
+
+
+class IdentifyBosses(Extractor):
+    class Boss:
+        def __init__(self, name, trainers):
+            self.name = name
+            self.trainers = trainers
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.data = {}
+        
+        trainers = context.get(Trainers)
+        index = context.get(IndexTrainers)
+        
+        # Editable list of boss trainers - these are significant battles separate from gyms
+        boss_definitions = {
+            "Gym leaders" : ["Falkner", "Bugsy", "Whitney", "Morty", "Chuck", "Jasmine", "Pryce", "Clair", "Brock", "Misty", "Sabrina", "Blaine", "Janine", "Lt. Surge", "Erika", "Blue",],
+            "Team Rocket Executives": ["Archer", "Ariana", "Petrel", "Proton"],
+            "Giovanni": ["Giovanni"],
+            "Red": ["Red"],
+            "Rival Silver": ["Silver"],  # Main rival battles
+            "Champion Lance (Final)": ["Lance"],  # Final champion battle
+            "Elite Four": ["Will", "Koga", "Bruno", "Karen"],  # Elite Four rematches
+            
+            
+           
+        }
+        
+        for boss_name, trainer_specs in boss_definitions.items():
+            trainer_ids = [index.find(spec) for spec in trainer_specs]
+            boss_trainers = [trainers.data[tid] for tid in trainer_ids if tid is not None]
+            
+            self.data[boss_name] = self.Boss(boss_name, boss_trainers)
 
 
 class RandomizeGymTypesStep(Step):
@@ -1187,6 +1260,7 @@ if __name__ == "__main__":
     parser.add_argument("--allow-paradox", action="store_true", help="Allow Paradox Pokémon")
     parser.add_argument("--allow-sublegendary", action="store_true", help="Allow SubLegendary Pokémon")
     parser.add_argument("--independent-encounters", action="store_true", help="Make encounter replacements independent by area")
+    parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -1225,7 +1299,7 @@ if __name__ == "__main__":
 
     # Run randomization pipeline
     ctx.run_pipeline([
-        ExpandTrainerTeamsStep(),
+        ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters)
