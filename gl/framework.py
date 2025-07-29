@@ -875,6 +875,50 @@ class Encounters(Writeback,NarcExtractor):
         return self.encounter_struct.build(data, narc_index=index)
 
 
+class WildMult(Step):
+    """Apply a multiplier to wild Pokémon levels in encounters."""
+    
+    def __init__(self, multiplier=1.0):
+        self.multiplier = multiplier
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
+    def run(self, context):
+        encounters = context.get(Encounters)
+        
+        for encounter in encounters.data:
+            # Apply multiplier to walklevels (grass encounters)
+            if hasattr(encounter, 'walklevels'):
+                for i in range(len(encounter.walklevels)):
+                    # Apply multiplier and round to nearest integer (0.5 rounds up)
+                    new_level = max(1, self._round_half_up(encounter.walklevels[i] * self.multiplier))
+                    # Cap level at 100 (typical Pokémon level cap)
+                    encounter.walklevels[i] = min(100, new_level)
+            
+            # Apply multiplier to encounter slots that have minlevel and maxlevel
+            encounter_types = ['surf', 'rocksmash', 'oldrod', 'goodrod', 'superrod']
+            
+            for encounter_type in encounter_types:
+                if hasattr(encounter, encounter_type):
+                    slots = getattr(encounter, encounter_type)
+                    for slot in slots:
+                        if hasattr(slot, 'minlevel') and hasattr(slot, 'maxlevel'):
+                            # Apply multiplier and round to nearest integer (0.5 rounds up)
+                            slot.minlevel = max(1, self._round_half_up(slot.minlevel * self.multiplier))
+                            slot.maxlevel = max(1, self._round_half_up(slot.maxlevel * self.multiplier))
+                            
+                            # Ensure maxlevel is at least as high as minlevel
+                            if slot.maxlevel < slot.minlevel:
+                                slot.maxlevel = slot.minlevel
+                            
+                            # Cap levels at 100 (typical Pokémon level cap)
+                            slot.minlevel = min(100, slot.minlevel)
+                            slot.maxlevel = min(100, slot.maxlevel)
+
+
 class RandomizeEncountersStep(Step):
     
     def __init__(self, filter, independent_by_area=False):
@@ -1261,6 +1305,7 @@ if __name__ == "__main__":
     parser.add_argument("--allow-sublegendary", action="store_true", help="Allow SubLegendary Pokémon")
     parser.add_argument("--independent-encounters", action="store_true", help="Make encounter replacements independent by area")
     parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
+    parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -1300,6 +1345,7 @@ if __name__ == "__main__":
     # Run randomization pipeline
     ctx.run_pipeline([
         ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
+        WildMult(multiplier=args.wild_level_mult),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters)
