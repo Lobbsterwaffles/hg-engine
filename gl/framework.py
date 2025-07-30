@@ -1069,7 +1069,7 @@ class IndexTrainers(Extractor):
         return rs[0] if len(rs) > 0 else None
 
 class ExpandTrainerTeamsStep(Step):
-    """expand trainer teams to a specified size by duplicating the first Pokemon."""
+    """expand trainer teams to a specified size by adding Pokemon with similar BST to team average."""
     
     def __init__(self, target_size=6, bosses_only=False):
         if not (1 <= target_size <= 6):
@@ -1091,13 +1091,13 @@ class ExpandTrainerTeamsStep(Step):
             # Only expand teams for boss trainers
             for t in context.get(Trainers).data:
                 if t.info.trainer_id in boss_trainer_ids:
-                    self._expand_trainer_team(t)
+                    self._expand_trainer_team(context, t)
         else:
             # Original behavior: expand all trainer teams
             for t in context.get(Trainers).data:
-                self._expand_trainer_team(t)
+                self._expand_trainer_team(context, t)
     
-    def _expand_trainer_team(self, trainer):
+    def _expand_trainer_team(self, context, trainer):
         if trainer.info.nummons != len(trainer.team):
             raise RuntimeError(f"team size mismatch! {trainer.info.trainer_id}")
 
@@ -1106,8 +1106,36 @@ class ExpandTrainerTeamsStep(Step):
         if current_size >= self.target_size or current_size == 0:
             return
         
+        # Calculate average BST of existing team
+        mondata = context.get(Mons)
+        total_bst = 0
+        for pokemon in trainer.team:
+            species = mondata.data[pokemon.species_id]
+            total_bst += species.bst
+        
+        average_bst = total_bst / current_size
+        
+        # Find a Pokemon with BST closest to the average
+        best_pokemon = None
+        best_bst_diff = float('inf')
+        
+        for species in mondata.data:
+            bst_diff = abs(species.bst - average_bst)
+            if bst_diff < best_bst_diff:
+                best_bst_diff = bst_diff
+                best_pokemon = species
+        
+        if best_pokemon is None:
+            # Fallback to duplicating first Pokemon if no suitable match found
+            template_pokemon = trainer.team[0]
+        else:
+            # Create a template Pokemon based on the first Pokemon but with the new species
+            template_pokemon = Container(trainer.team[0])
+            template_pokemon.species_id = best_pokemon.pokemon_id
+        
+        # Fill remaining slots with the selected Pokemon
         for _ in range(self.target_size - current_size):
-            trainer.team.append(Container(trainer.team[0]))
+            trainer.team.append(Container(template_pokemon))
         
         trainer.info.nummons = len(trainer.team)
 
