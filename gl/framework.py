@@ -536,6 +536,77 @@ class Trainers(Extractor):
         ]
 
 
+class TrainerMult(Step):
+    """Apply a multiplier to trainer Pokémon levels with special logic for bosses and aces."""
+    
+    def __init__(self, multiplier=1.0):
+        self.multiplier = multiplier
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
+    def run(self, context):
+        trainers = context.get(Trainers)
+        bosses = context.get(IdentifyBosses)
+        
+        # Create a set of boss trainer IDs for quick lookup
+        boss_trainer_ids = set()
+        for boss_category in bosses.data.values():
+            for trainer in boss_category.trainers:
+                boss_trainer_ids.add(trainer.info.trainer_id)
+        
+        for trainer in trainers.data:
+            if trainer.info.trainer_id in boss_trainer_ids:
+                self._apply_boss_multiplier(trainer)
+            else:
+                self._apply_regular_multiplier(trainer)
+    
+    def _apply_boss_multiplier(self, trainer):
+        """Apply special boss multiplier logic with ace-based level scaling."""
+        if not trainer.team:
+            return
+        
+        if trainer.ace_index is not None:
+            # Boss has an ace - apply special scaling
+            # First, multiply the ace's level
+            ace_pokemon = trainer.team[trainer.ace_index]
+            new_ace_level = max(1, self._round_half_up(ace_pokemon.level * self.multiplier))
+            new_ace_level = min(100, new_ace_level)  # Cap at 100
+            ace_pokemon.level = new_ace_level
+            
+            # Special case: if ace is level 100, set all other Pokémon to level 100
+            if new_ace_level == 100:
+                for i, pokemon in enumerate(trainer.team):
+                    if i != trainer.ace_index:
+                        pokemon.level = 100
+            else:
+                # Normal case: set other Pokémon levels based on ace level
+                for i, pokemon in enumerate(trainer.team):
+                    if i == trainer.ace_index:
+                        continue  # Skip the ace, already handled
+                    
+                    # Determine level based on slot position
+                    if i in [1, 2]:  # Slots 2 & 3 (0-indexed: 1, 2)
+                        target_level = max(1, new_ace_level - 1)
+                    else:  # Slots 4-6 (0-indexed: 3, 4, 5)
+                        target_level = max(1, new_ace_level - 2)
+                    
+                    pokemon.level = min(100, target_level)  # Cap at 100
+        else:
+            # Boss has no ace (tied levels) - multiply all Pokémon by multiplier
+            self._apply_regular_multiplier(trainer)
+    
+    def _apply_regular_multiplier(self, trainer):
+        """Apply regular multiplier to all Pokémon in the team."""
+        if not trainer.team:
+            return
+        
+        for pokemon in trainer.team:
+            new_level = max(1, self._round_half_up(pokemon.level * self.multiplier))
+            pokemon.level = min(100, new_level)  # Cap at 100
+
 
 class PokemonListBase(Extractor):
     """Base class for categorized Pokémon lists."""
@@ -565,7 +636,7 @@ class InvalidPokemon(PokemonListBase):
             
 
 class RestrictedPokemon(PokemonListBase):
-    """Restricted legendary Pokémon that should be limited in randomization."""
+    """Restricted legendary Pokémon, aka Cover Legendaries."""
     
     pokemon_names = [
         "Mewtwo",
@@ -600,7 +671,7 @@ class RestrictedPokemon(PokemonListBase):
 
 
 class SubLegendaryPokemon(PokemonListBase):
-    """Sub-legendary Pokémon that are strong but not as restricted."""
+    """Sub-legendary Pokémon, aka non-cover, non-ultra beast, non-mythical, non-paradox legendaries."""
     
     pokemon_names = [
         "Articuno",
@@ -652,7 +723,7 @@ class SubLegendaryPokemon(PokemonListBase):
 
 
 class MythicalPokemon(PokemonListBase):
-    """Mythical Pokémon that are typically event-exclusive."""
+    """Mythical Pokémon ft Dark Void"""
     
     pokemon_names = [
         "Mew",
@@ -681,7 +752,7 @@ class MythicalPokemon(PokemonListBase):
 
 
 class UltraBeastPokemon(PokemonListBase):
-    """Ultra Beast Pokémon from other dimensions."""
+    """Ultra Beasts aka more than half of my Hear-me-out cake."""
     
     pokemon_names = [
         "Nihilego",
@@ -699,7 +770,7 @@ class UltraBeastPokemon(PokemonListBase):
 
 
 class ParadoxPokemon(PokemonListBase):
-    """Paradox Pokémon from the past or future."""
+    """Paradox Pokémon"""
     
     pokemon_names = [
         "Great Tusk",
@@ -1306,6 +1377,7 @@ if __name__ == "__main__":
     parser.add_argument("--independent-encounters", action="store_true", help="Make encounter replacements independent by area")
     parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
     parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
+    parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -1316,7 +1388,7 @@ if __name__ == "__main__":
     verbosity_overrides = [([], vbase)] + parse_verbosity_overrides(args.verbosity or [])
     
     # Load ROM
-    with open("LanceCanarynoexp.nds", "rb") as f:
+    with open("recompiletest.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
@@ -1346,6 +1418,7 @@ if __name__ == "__main__":
     ctx.run_pipeline([
         ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
         WildMult(multiplier=args.wild_level_mult),
+        TrainerMult(multiplier=args.trainer_level_mult),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters)
