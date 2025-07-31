@@ -909,6 +909,38 @@ class StarterExtractor(Extractor):
         self.rom.arm9 = bytes(arm9_data)
 
 
+class EvolutionData(NarcExtractor):
+    
+    def __init__(self, context):
+        mons = context.get(Mons)
+        
+        EvolutionEntry = Struct(
+            "method" / Int16ul,
+            "parameter" / Int16ul, 
+            "target_species" / Int16ul,
+            "target" / Computed(lambda ctx: mons.data[ctx.target_species] if ctx.target_species > 0 and ctx.target_species < len(mons.data) else None)
+        )
+        
+        self.evolution_struct = Struct(
+            "evolutions" / Array(9, EvolutionEntry),
+            "species_id" / Computed(lambda ctx: ctx._.narc_index),
+            "species" / Computed(lambda ctx: mons.data[ctx._.narc_index] if ctx._.narc_index < len(mons.data) else None),
+            "valid_evolutions" / Computed(lambda ctx: [evo for evo in ctx.evolutions if evo.method != 0])
+        )
+        
+        super().__init__(context)
+        self.data = self.load_narc()
+    
+    def get_narc_path(self):
+        return "a/0/3/4"
+    
+    def parse_file(self, file_data, index):
+        return self.evolution_struct.parse(file_data, narc_index=index)
+    
+    def serialize_file(self, data, index):
+        return self.evolution_struct.build(data, narc_index=index)
+
+
 class RandomizeStartersStep(Step):
     """Randomization step that randomizes starter Pokemon choices."""
     
