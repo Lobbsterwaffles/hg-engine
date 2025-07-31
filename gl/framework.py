@@ -1350,6 +1350,103 @@ class IdentifyBosses(Extractor):
             self.data[boss_name] = self.Boss(boss_name, boss_trainers)
 
 
+class IdentifyTier(Extractor):
+    """Assigns trainers to game progression tiers based on their highest level Pokémon.
+    
+    Tiers are defined by specific trainer ace levels:
+    - EarlyGame: Level 1 to Whitney's ace level
+    - MidGame: Whitney's ace level to Jasmine's ace level  
+    - LateGame: Jasmine's ace level to Will's ace level
+    - EndGame: Will's ace level to Level 100
+    """
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.data = {}  # trainer_id -> tier_name
+        
+        trainers = context.get(Trainers)
+        index = context.get(IndexTrainers)
+        
+        # Find the lowest ace levels for tier boundary trainers
+        whitney_ace_level = self._find_lowest_ace_level(trainers, index, "Whitney")
+        jasmine_ace_level = self._find_lowest_ace_level(trainers, index, "Jasmine")
+        will_ace_level = self._find_lowest_ace_level(trainers, index, "Will")
+        
+        # Define tier boundaries
+        self.tier_boundaries = {
+            "EarlyGame": (1, whitney_ace_level),
+            "MidGame": (whitney_ace_level, jasmine_ace_level),
+            "LateGame": (jasmine_ace_level, will_ace_level),
+            "EndGame": (will_ace_level, 100)
+        }
+        
+        # Assign each trainer to a tier
+        for trainer in trainers.data:
+            highest_level = self._get_highest_level(trainer)
+            tier = self._determine_tier(highest_level)
+            self.data[trainer.info.trainer_id] = tier
+            print(f"{trainer.info.name}: {tier}{highest_level}")
+    
+    
+    def _find_lowest_ace_level(self, trainers, index, trainer_name):
+        """Find the lowest ace level among all instances of a trainer."""
+        trainer_ids = []
+        
+        # Handle potential multiple instances of the trainer
+        if trainer_name in index.data:
+            for trainer_class, trainer_id in index.data[trainer_name]:
+                trainer_ids.append(trainer_id)
+        
+        if not trainer_ids:
+            # Fallback values if trainer not found
+            fallback_levels = {"Whitney": 20, "Jasmine": 35, "Will": 50}
+            return fallback_levels.get(trainer_name, 50)
+        
+        lowest_ace_level = float('inf')
+        
+        for trainer_id in trainer_ids:
+            trainer = trainers.data[trainer_id]
+            if trainer.ace_index is not None:
+                ace_level = trainer.team[trainer.ace_index].level
+                lowest_ace_level = min(lowest_ace_level, ace_level)
+            else:
+                # If no ace, use highest level in team
+                highest_level = self._get_highest_level(trainer)
+                lowest_ace_level = min(lowest_ace_level, highest_level)
+        
+        return int(lowest_ace_level) if lowest_ace_level != float('inf') else 50
+    
+    def _get_highest_level(self, trainer):
+        """Get the highest level Pokémon in a trainer's team."""
+        if not trainer.team:
+            return 1
+        return max(pokemon.level for pokemon in trainer.team)
+    
+    def _determine_tier(self, level):
+        """Determine which tier a level falls into."""
+        for tier_name, (min_level, max_level) in self.tier_boundaries.items():
+            if min_level <= level < max_level:
+                return tier_name
+        
+        # Handle edge case for level 100
+        if level >= self.tier_boundaries["EndGame"][0]:
+            return "EndGame"
+        
+        return "EarlyGame"  # Default fallback
+    
+    def get_tier_for_trainer(self, trainer_id):
+        """Get the tier for a specific trainer ID."""
+        return self.data.get(trainer_id, "EarlyGame")
+    
+    def get_trainers_by_tier(self, tier_name):
+        """Get all trainer IDs in a specific tier."""
+        return [tid for tid, tier in self.data.items() if tier == tier_name]
+    
+    def get_tier_boundaries(self):
+        """Get the level boundaries for each tier."""
+        return self.tier_boundaries.copy()
+
+
 class RandomizeGymTypesStep(Step):
     
     def run(self, context):
@@ -1565,6 +1662,7 @@ if __name__ == "__main__":
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters)
     ]
+   
     
     # Add starter randomization if requested
     if args.randomize_starters:
@@ -1573,6 +1671,8 @@ if __name__ == "__main__":
     # Run randomization pipeline
     ctx.run_pipeline(pipeline_steps)
     
+    ctx.get(IdentifyTier).data
+
     ctx.write_all()
     
     # Save modified ROM
