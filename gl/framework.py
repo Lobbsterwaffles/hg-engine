@@ -97,7 +97,7 @@ class TypeMatches(SimpleFilter):
         s = ","
         return f"TypeMatches({s.join([str(Type(t)) for t in self.type_ids])})"
     
-class Tiered(Filter):
+class Stratified(Filter):
     """Try filters in order until one produces results."""
     def __init__(self, filters: List[Filter]):
         self.filters = filters
@@ -1521,6 +1521,40 @@ class RandomizeGymsStep(Step):
     def _randomize_trainer_team(self, context, trainer, mondata, filter):
         for i, pokemon in enumerate(trainer.team):
             new_species = context.decide(
+                path=["gymtrainer", trainer.info.name, "team", i, "species"],
+                original=mondata.data[pokemon.species_id],
+                candidates=list(mondata.data),
+                filter=filter
+            )
+            pokemon.species_id = new_species.pokemon_id
+
+
+class RandomizeNonGymTrainersStep(Step):
+    """Randomize all trainers except gym trainers."""
+    
+    def __init__(self, filter):
+        self.filter = filter
+    
+    def run(self, context):
+        trainers = context.get(Trainers)
+        gyms = context.get(IdentifyGymTrainers)
+        mondata = context.get(Mons)
+        
+        # Create a set of gym trainer IDs for exclusion
+        gym_trainer_ids = set()
+        for gym in gyms.data.values():
+            for trainer in gym.trainers:
+                gym_trainer_ids.add(trainer.info.trainer_id)
+        
+        # Randomize all non-gym trainers
+        for trainer in trainers.data:
+            if trainer.info.trainer_id not in gym_trainer_ids:
+                self._randomize_trainer_team(context, trainer, mondata, self.filter)
+    
+    def _randomize_trainer_team(self, context, trainer, mondata, filter):
+        """Randomize a trainer's team using the provided filter."""
+        for i, pokemon in enumerate(trainer.team):
+            new_species = context.decide(
                 path=["trainer", trainer.info.name, "team", i, "species"],
                 original=mondata.data[pokemon.species_id],
                 candidates=list(mondata.data),
@@ -1617,6 +1651,7 @@ if __name__ == "__main__":
     parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
     parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
     parser.add_argument("--randomize-starters", action="store_true", help="Randomize starter Pokémon")
+    parser.add_argument("--randomize-non-gym-trainers", action="store_true", help="Randomize all non-gym trainers (rivals, Team Rocket, etc.)")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -1662,6 +1697,12 @@ if __name__ == "__main__":
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters)
     ]
+    
+    # Add non-gym trainer randomization if requested
+    if args.randomize_non_gym_trainers:
+        # Use the same filter as gym trainers but without type restrictions
+        non_gym_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
+        pipeline_steps.insert(-1, RandomizeNonGymTrainersStep(non_gym_filter))  # Insert before encounters
    
     
     # Add starter randomization if requested
