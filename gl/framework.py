@@ -931,6 +931,27 @@ class EvolutionData(NarcExtractor):
         super().__init__(context)
         self.data = self.load_narc()
     
+    def get_evolution_paths(self, species_id):
+        def walk_evolution_tree(current_species_id, current_path):
+            current_pokemon = self.data[current_species_id]
+            current_path = current_path + [current_pokemon.species]
+            
+            if not current_pokemon.valid_evolutions:
+                return [current_path]
+            
+            all_paths = []
+            for evolution in current_pokemon.valid_evolutions:
+                if evolution.target and evolution.target.pokemon_id not in [p.pokemon_id for p in current_path]:
+                    paths = walk_evolution_tree(evolution.target.pokemon_id, current_path)
+                    all_paths.extend(paths)
+            
+            if not all_paths:
+                return [current_path]
+            
+            return all_paths
+        
+        return walk_evolution_tree(species_id, [])
+    
     def get_narc_path(self):
         return "a/0/3/4"
     
@@ -942,21 +963,29 @@ class EvolutionData(NarcExtractor):
 
 
 class RandomizeStartersStep(Step):
-    """Randomization step that randomizes starter Pokemon choices."""
     
-    def __init__(self, filter_obj=None):
-        self.filter = filter_obj
+    def __init__(self, filter=NoFilter()):
+        self.filter = filter
     
     def run(self, context):
-        """Execute starter randomization."""
         starter_extractor = context.get(StarterExtractor)
+        evolution_data = context.get(EvolutionData)
         
-        # TODO: Implement starter randomization logic
-        # For now, just log current starters
-        current_names = [s.name for s in starter_extractor.data.starters]
+        # Ultra slick list comprehension for 3-stage evolution candidates
+        candidates = [pokemon_data.species for pokemon_data in evolution_data.data 
+                     if pokemon_data.species and any(len(path) == 3 for path in evolution_data.get_evolution_paths(pokemon_data.species_id))]
         
-        if context.verbosity_map.get(['RandomizeStartersStep']) >= 1:
-            print(f"Current starters: {', '.join(current_names)}")
+        # Randomize each starter
+        for i in range(3):
+            original_starter = starter_extractor.data.starters[i]
+            new_starter = context.decide(
+                path=["starters", f"starter_{i}"],
+                original=original_starter,
+                candidates=candidates,
+                filter=self.filter
+            )
+            starter_extractor.data.starter_id[i] = new_starter.pokemon_id
+            
 
 
 class LoadEncounterNamesStep(Extractor):
@@ -1525,7 +1554,7 @@ if __name__ == "__main__":
     
     gym_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
     encounter_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
-
+    starter_filter = AllFilters(legendary_filters)
 
     # Build pipeline steps
     pipeline_steps = [
@@ -1539,7 +1568,7 @@ if __name__ == "__main__":
     
     # Add starter randomization if requested
     if args.randomize_starters:
-        pipeline_steps.append(RandomizeStartersStep())
+        pipeline_steps.append(RandomizeStartersStep(starter_filter))
     
     # Run randomization pipeline
     ctx.run_pipeline(pipeline_steps)
