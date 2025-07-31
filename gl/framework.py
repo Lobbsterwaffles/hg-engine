@@ -875,6 +875,58 @@ class Mons(NarcExtractor):
     def serialize_file(self, data, index):
         return self.mondata_struct.build(data, narc_index=index)
     
+class StarterExtractor(Extractor):
+    """Extractor for starter Pokemon data from ARM9 binary.
+    
+    Reads/writes the three starter species stored at address 0x02108514 in ARM9.
+    """
+    
+    def __init__(self, context):
+        super().__init__(context)
+        mons = context.get(Mons)
+        
+        # ARM9 is loaded at 0x02000000, starters are at 0x02108514
+        self.starter_offset = 0x108514
+        
+        # Define the structure for just the starter data (3 × 4-byte integers)
+        self.starter_struct = Struct(
+            "starter_id" / Array(3, Int32ul),
+            "starters" / Computed(lambda ctx: [mons.data[s] for s in ctx.starter_id])
+        )
+        
+        # Read starter data from the specific offset in ARM9
+        starter_bytes = self.rom.arm9[self.starter_offset:self.starter_offset + 12]
+        self.data = self.starter_struct.parse(starter_bytes)
+    
+    def write(self):
+        """Write starter data back to ARM9 binary."""
+        # Build just the starter data
+        starter_bytes = self.starter_struct.build(self.data)
+        
+        # Replace the 12 bytes at the starter offset in ARM9
+        arm9_data = bytearray(self.rom.arm9)
+        arm9_data[self.starter_offset:self.starter_offset + 12] = starter_bytes
+        self.rom.arm9 = bytes(arm9_data)
+
+
+class RandomizeStartersStep(Step):
+    """Randomization step that randomizes starter Pokemon choices."""
+    
+    def __init__(self, filter_obj=None):
+        self.filter = filter_obj
+    
+    def run(self, context):
+        """Execute starter randomization."""
+        starter_extractor = context.get(StarterExtractor)
+        
+        # TODO: Implement starter randomization logic
+        # For now, just log current starters
+        current_names = [s.name for s in starter_extractor.data.starters]
+        
+        if context.verbosity_map.get(['RandomizeStartersStep']) >= 1:
+            print(f"Current starters: {', '.join(current_names)}")
+
+
 class LoadEncounterNamesStep(Extractor):
     """Extractor that loads encounter location names from assembly source."""
     
@@ -1406,6 +1458,7 @@ if __name__ == "__main__":
     parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
     parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
     parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
+    parser.add_argument("--randomize-starters", action="store_true", help="Randomize starter Pokémon")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -1442,15 +1495,22 @@ if __name__ == "__main__":
     encounter_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
 
 
-    # Run randomization pipeline
-    ctx.run_pipeline([
+    # Build pipeline steps
+    pipeline_steps = [
         ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
         WildMult(multiplier=args.wild_level_mult),
         TrainerMult(multiplier=args.trainer_level_mult),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters)
-    ])
+    ]
+    
+    # Add starter randomization if requested
+    if args.randomize_starters:
+        pipeline_steps.append(RandomizeStartersStep())
+    
+    # Run randomization pipeline
+    ctx.run_pipeline(pipeline_steps)
     
     ctx.write_all()
     
