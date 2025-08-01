@@ -17,7 +17,9 @@ from enums import (
     Target,
     TrainerDataType,
     BattleType,
-    TrainerClass
+    TrainerClass,
+    EvolutionMethod,
+    EvoParam
 )
 from pivots import pivots_type_data, HasAbility
 from fulcrums import fulcrums_type_data
@@ -1360,29 +1362,43 @@ class IdentifyRivals(Extractor):
             self.name = name
             self.trainers = trainers
     
+    # Define starter group trainer IDs as class properties
+    @property
+    def chikorita_group_ids(self):
+        """Trainer IDs for rivals who originally had Chikorita-line starters (Starter slot 0)."""
+        return [1, 263, 264, 265, 285, 288, 489, 495, 735]
+    
+    @property
+    def cyndaquil_group_ids(self):
+        """Trainer IDs for rivals who originally had Cyndaquil-line starters (Starter slot 1)."""
+        return [2, 266, 267, 268, 286, 289, 490, 496, 736]
+    
+    @property
+    def totodile_group_ids(self):
+        """Trainer IDs for rivals who originally had Totodile-line starters (Starter slot 2)."""
+        return [3, 269, 270, 271, 272, 287, 491, 497, 737]
+    
+    @property
+    def all_rival_trainer_ids(self):
+        """All rival trainer IDs across all starter groups."""
+        return self.chikorita_group_ids + self.cyndaquil_group_ids + self.totodile_group_ids
+    
     def __init__(self, context):
         super().__init__(context)
         self.data = {}
         
         trainers = context.get(Trainers)
-        index = context.get(IndexTrainers)
         
-        # Define rival trainers - these are the main character rivals
-        rival_definitions = {
-            "Silver": ["Silver"],  # Main rival in Gold/Silver/Crystal
-        }
+        # Collect all rival trainers using the hardcoded IDs
+        rival_trainers = []
+        for trainer_id in self.all_rival_trainer_ids:
+            if trainer_id < len(trainers.data):
+                rival_trainers.append(trainers.data[trainer_id])
+            else:
+                print(f"Warning: Trainer ID {trainer_id} not found in trainers data")
         
-        for rival_name, trainer_specs in rival_definitions.items():
-            rival_trainers = []
-            
-            for spec in trainer_specs:
-                if spec in index.data:
-                    trainer_ids = [tid for (tc, tid) in index.data[spec]]
-                    for tid in trainer_ids:
-                        rival_trainers.append(trainers.data[tid])
-            
-            self.data[rival_name] = self.Rival(rival_name, rival_trainers)
-            print(f"Found {len(rival_trainers)} {rival_name} rival trainers")
+        self.data["Silver"] = self.Rival("Silver", rival_trainers)
+        print(f"Found {len(rival_trainers)} Silver rival trainers using hardcoded IDs")
     
     def get_rival_trainers(self, rival_name):
         """Get all trainer instances for a specific rival name."""
@@ -1403,6 +1419,29 @@ class IdentifyRivals(Extractor):
             for trainer in rival.trainers:
                 rival_ids.add(trainer.info.trainer_id)
         return rival_ids
+    
+    def get_trainers_by_starter_group(self, starter_slot, trainers_data):
+        """Get trainer objects for a specific starter group (0=Chikorita, 1=Cyndaquil, 2=Totodile)."""
+        group_ids = {
+            0: self.chikorita_group_ids,
+            1: self.cyndaquil_group_ids,
+            2: self.totodile_group_ids
+        }
+        
+        if starter_slot not in group_ids:
+            raise ValueError(f"Invalid starter slot {starter_slot}. Must be 0, 1, or 2.")
+        
+        group_trainers = []
+        for trainer_id in group_ids[starter_slot]:
+            if trainer_id < len(trainers_data):
+                group_trainers.append(trainers_data[trainer_id])
+        
+        return group_trainers
+    
+    def get_starter_group_name(self, starter_slot):
+        """Get the name of a starter group."""
+        group_names = {0: "Chikorita", 1: "Cyndaquil", 2: "Totodile"}
+        return group_names.get(starter_slot, "Unknown")
 
 
 class IdentifyTier(Extractor):
@@ -1626,30 +1665,33 @@ class RandomizeOrdinaryTrainersStep(Step):
             pokemon.species_id = new_species.pokemon_id
 
 
-class RandomizeRivals(Step):
-    """Randomize rival teams to match ROM starters with appropriate evolution logic."""
+class ConsistentRivalStarter(Step):
+    """Updates rival teams to use starters consistent with the player's randomized choice."""
     
     def run(self, context):
         starters = context.get(StarterExtractor)
         trainers = context.get(Trainers)
         evolution_data = context.get(EvolutionData)
         mons = context.get(Mons)
+        rivals = context.get(IdentifyRivals)
         
-        # Hardcoded rival battle groups based on original starter type
+        # Rival starter logic: rival gets the starter that's strong against the player's choice
+        # Traditional Pokemon rival logic:
+        # - Player chooses Grass (slot 0) → Rival gets Fire (slot 1)
+        # - Player chooses Fire (slot 1) → Rival gets Water (slot 2) 
+        # - Player chooses Water (slot 2) → Rival gets Grass (slot 0)
         rival_battle_groups = {
-            0: [1, 263, 264, 265, 285, 288, 489, 735],  # Chikorita group -> Starter slot 0
-            1: [2, 266, 267, 268, 286, 289, 490, 736],  # Cyndaquil group -> Starter slot 1
-            2: [3, 269, 270, 271, 272, 287, 491, 737],  # Totodile group -> Starter slot 2
+            0: (rivals.chikorita_group_ids, 2),  #I dont' know why this needs to be offset. I've searched and I just don't know.
+            1: (rivals.cyndaquil_group_ids, 0),  
+            2: (rivals.totodile_group_ids, 1),   
         }
         
-        # Level-based evolution methods
-        level_evolution_methods = {4, 8, 9, 10, 11, 12, 13, 14, 22, 23, 27, 28, 30}
         
         # Get the current starter Pokemon (use the updated starter_id values)
         current_starters = [mons.data[starter_id] for starter_id in starters.data.starter_id]
         
         # Print the new starters being used
-        print("\n=== RandomizeRivals: New Starter Assignments ===")
+        print("\n=== ConsistentRivalStarter: New Starter Assignments ===")
         print(f"Starter Slot 0 (Chikorita group): {current_starters[0].name}")
         print(f"Starter Slot 1 (Cyndaquil group): {current_starters[1].name}")
         print(f"Starter Slot 2 (Totodile group): {current_starters[2].name}")
@@ -1658,12 +1700,13 @@ class RandomizeRivals(Step):
         # Process all rival battle groups
         total_updated = 0
         
-        for starter_slot, trainer_ids in rival_battle_groups.items():
-            # Get the new starter Pokemon for this group
-            new_starter = current_starters[starter_slot]
+        for original_starter_slot, (trainer_ids, rival_starter_slot) in rival_battle_groups.items():
+            # Get the new starter Pokemon for the rival (the one that's strong against the original)
+            new_starter = current_starters[rival_starter_slot]
+            original_starter_name = ["Chikorita", "Cyndaquil", "Totodile"][original_starter_slot]
             group_updated = 0
             
-            print(f"\nProcessing starter slot {starter_slot} ({new_starter.name}) - {len(trainer_ids)} battles:")
+            print(f"\nProcessing {original_starter_name} group (gets {new_starter.name}) - {len(trainer_ids)} battles:")
             
             for trainer_id in trainer_ids:
                 if trainer_id < len(trainers.data):
@@ -1677,7 +1720,7 @@ class RandomizeRivals(Step):
                         
                         # Determine the appropriate evolution stage
                         final_species = self._get_evolved_form(
-                            new_starter, pokemon_level, evolution_data, level_evolution_methods
+                            new_starter, pokemon_level, evolution_data
                         )
                         
                         # Update the Pokemon
@@ -1706,7 +1749,7 @@ class RandomizeRivals(Step):
             # No ace, replace the last Pokemon in the party
             return trainer.team[-1]
     
-    def _get_evolved_form(self, base_starter, level, evolution_data, level_evolution_methods):
+    def _get_evolved_form(self, base_starter, level, evolution_data):
         """Get the appropriate evolved form based on level and evolution data."""
         
         current_species = base_starter
@@ -1739,7 +1782,7 @@ class RandomizeRivals(Step):
             # Check if we should evolve based on method and level
             should_evolve = False
             
-            if evolution_to_next.method in level_evolution_methods:
+            if EvolutionMethod(evolution_to_next.method).param_type == EvoParam.LEVEL:
                 # Level-based evolution: evolve if level >= parameter
                 if level >= evolution_to_next.parameter:
                     should_evolve = True
@@ -1846,7 +1889,7 @@ if __name__ == "__main__":
     parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
     parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
     parser.add_argument("--randomize-starters", action="store_true", help="Randomize starter Pokémon")
-    parser.add_argument("--randomize-rivals", action="store_true", help="Update rival teams to match ROM starters with appropriate evolution logic")
+    parser.add_argument("--consistent-rival-starters", action="store_true", help="Update rival teams to use starters consistent with the player's randomized choice")
     parser.add_argument("--randomize-ordinary-trainers", action="store_true", help="Randomize all ordinary trainers (rivals, Team Rocket, etc.)")
     args = parser.parse_args()
 
@@ -1898,15 +1941,15 @@ if __name__ == "__main__":
     if args.randomize_starters:
         pipeline_steps.append(RandomizeStartersStep(starter_filter))
    
-    # Add rival randomization if requested
-    if args.randomize_rivals:
-        pipeline_steps.append(RandomizeRivals())
+    # Add consistent rival starters if requested
+    if args.consistent_rival_starters:
+        pipeline_steps.append(ConsistentRivalStarter())
    
     # Add ordinary trainer randomization if requested
     if args.randomize_ordinary_trainers:
         # Use the same filter as gym trainers but without type restrictions
         ordinary_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
-        pipeline_steps.insert(-1, RandomizeOrdinaryTrainersStep(ordinary_filter))  # Insert before encounters
+        pipeline_steps.append(RandomizeOrdinaryTrainersStep(ordinary_filter))  
    
     
    

@@ -56,6 +56,63 @@ class Target(enum.IntEnum):
     SINGLE_TARGET_USER_SIDE = 512
     FRONT = 1024
 
+
+class EvoParam(enum.Enum):
+    """Enum to encode the meaning of evolution method parameters."""
+    LEVEL = "level"      # Parameter represents a level requirement
+    OTHER = "other"      # Parameter represents something else (item, move, etc.)
+
+
+class EvolutionMethod(enum.IntEnum):
+    """Evolution method constants from constants.s with parameter type information."""
+    
+    def __new__(cls, value, param_type=EvoParam.OTHER):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.param_type = param_type
+        return obj
+    
+    # Evolution methods with their parameter types
+    NONE = 0, EvoParam.OTHER
+    FRIENDSHIP = 1, EvoParam.OTHER
+    FRIENDSHIP_DAY = 2, EvoParam.OTHER
+    FRIENDSHIP_NIGHT = 3, EvoParam.OTHER
+    LEVEL = 4, EvoParam.LEVEL
+    TRADE = 5, EvoParam.OTHER
+    TRADE_ITEM = 6, EvoParam.OTHER
+    STONE = 7, EvoParam.OTHER
+    LEVEL_ATK_GT_DEF = 8, EvoParam.LEVEL
+    LEVEL_ATK_EQ_DEF = 9, EvoParam.LEVEL
+    LEVEL_ATK_LT_DEF = 10, EvoParam.LEVEL
+    LEVEL_PID_LO = 11, EvoParam.LEVEL
+    LEVEL_PID_HI = 12, EvoParam.LEVEL
+    LEVEL_NINJASK = 13, EvoParam.LEVEL
+    LEVEL_SHEDINJA = 14, EvoParam.LEVEL
+    BEAUTY = 15, EvoParam.OTHER
+    STONE_MALE = 16, EvoParam.OTHER
+    STONE_FEMALE = 17, EvoParam.OTHER
+    ITEM_DAY = 18, EvoParam.OTHER
+    ITEM_NIGHT = 19, EvoParam.OTHER
+    HAS_MOVE = 20, EvoParam.OTHER
+    OTHER_PARTY_MON = 21, EvoParam.OTHER
+    LEVEL_MALE = 22, EvoParam.LEVEL
+    LEVEL_FEMALE = 23, EvoParam.LEVEL
+    LEVEL_ELECTRIC_FIELD = 24, EvoParam.LEVEL
+    LEVEL_MOSSY_STONE = 25, EvoParam.LEVEL
+    LEVEL_ICY_STONE = 26, EvoParam.LEVEL
+    LEVEL_DAY = 27, EvoParam.LEVEL
+    LEVEL_NIGHT = 28, EvoParam.LEVEL
+    LEVEL_DUSK = 29, EvoParam.LEVEL
+    LEVEL_RAIN = 30, EvoParam.LEVEL
+    HAS_MOVE_TYPE = 31, EvoParam.OTHER
+    LEVEL_DARK_TYPE_MON_IN_PARTY = 32, EvoParam.LEVEL
+    TRADE_SPECIFIC_MON = 33, EvoParam.OTHER
+    LEVEL_NATURE_AMPED = 34, EvoParam.LEVEL
+    LEVEL_NATURE_LOW_KEY = 35, EvoParam.LEVEL
+    AMOUNT_OF_CRITICAL_HITS = 36, EvoParam.OTHER
+    HURT_IN_BATTLE_AMOUNT = 37, EvoParam.OTHER
+
+
 class TrainerDataType(enum.IntFlag):
     NOTHING = 0x00
     MOVES = 0x01
