@@ -1965,59 +1965,37 @@ if __name__ == "__main__":
     # Create context and load data
     ctx = RandomizationContext(rom, verbosity_overrides=verbosity_overrides)
 
-    # Create filters for both gym and encounter randomization
-    legendary_filters = (
-        [NotInSet(ctx.get(LoadBlacklistStep).by_id),
-        NotInSet(ctx.get(InvalidPokemon).by_id)] +
-        
-        ([] if args.allow_restricted else [NotInSet(ctx.get(RestrictedPokemon).by_id)]) +
-        
-        ([] if args.allow_mythical else [NotInSet(ctx.get(MythicalPokemon).by_id)]) +
-        
-        ([] if args.allow_ultra_beasts else [NotInSet(ctx.get(UltraBeastPokemon).by_id)]) +
-        
-        ([] if args.allow_paradox else [NotInSet(ctx.get(ParadoxPokemon).by_id)]) +
-        
-        ([] if args.allow_sublegendary else [NotInSet(ctx.get(SubLegendaryPokemon).by_id)])
-    )
+    # Create filters from options
+    legendary_filters = [
+        NotInSet(ctx.get(LoadBlacklistStep).by_id),
+        NotInSet(ctx.get(InvalidPokemon).by_id),
+        *([] if args.allow_restricted else [NotInSet(ctx.get(RestrictedPokemon).by_id)]),
+        *([] if args.allow_mythical else [NotInSet(ctx.get(MythicalPokemon).by_id)]),
+        *([] if args.allow_ultra_beasts else [NotInSet(ctx.get(UltraBeastPokemon).by_id)]),
+        *([] if args.allow_paradox else [NotInSet(ctx.get(ParadoxPokemon).by_id)]),
+        *([] if args.allow_sublegendary else [NotInSet(ctx.get(SubLegendaryPokemon).by_id)])
+    ]
     
     gym_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
     encounter_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
     starter_filter = AllFilters(legendary_filters)
+    trainer_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
 
-    # Build pipeline steps
-    pipeline_steps = [
+    # Do everything
+    ctx.run_pipeline([
         ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
         WildMult(multiplier=args.wild_level_mult),
         TrainerMult(multiplier=args.trainer_level_mult),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
-        RandomizeEncountersStep(encounter_filter, args.independent_encounters)
-    ]
+        RandomizeEncountersStep(encounter_filter, args.independent_encounters),
+        *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
+        *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
+        *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
+        ChangeTrainerDataTypeStep(),
+        SetTrainerMovesStep()
+    ])
     
-    # Add starter randomization if requested
-    if args.randomize_starters:
-        pipeline_steps.append(RandomizeStartersStep(starter_filter))
-   
-    # Add consistent rival starters if requested
-    if args.consistent_rival_starters:
-        pipeline_steps.append(ConsistentRivalStarter())
-   
-    # Add ordinary trainer randomization if requested
-    if args.randomize_ordinary_trainers:
-        # Use the same filter as gym trainers but without type restrictions
-        ordinary_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
-        pipeline_steps.append(RandomizeOrdinaryTrainersStep(ordinary_filter))  
-   
-    # Add trainer data type and moves steps
-    pipeline_steps.append(ChangeTrainerDataTypeStep())
-    pipeline_steps.append(SetTrainerMovesStep())
-    
-    # Run randomization pipeline
-    ctx.run_pipeline(pipeline_steps)
-    
-    ctx.get(IdentifyTier).data
-
     ctx.write_all()
     
     # Save modified ROM
