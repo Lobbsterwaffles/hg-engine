@@ -321,6 +321,7 @@ class NameTableReader(Extractor):
 
 class LoadPokemonNamesStep(NameTableReader):
     filename = "build/rawtext/237.txt"
+
         
 class LoadMoveNamesStep(NameTableReader):
     filename = "build/rawtext/750.txt"
@@ -1350,6 +1351,60 @@ class IdentifyBosses(Extractor):
             self.data[boss_name] = self.Boss(boss_name, boss_trainers)
 
 
+
+class IdentifyRivals(Extractor):
+    """Identifies rival trainers for special handling."""
+    
+    class Rival:
+        def __init__(self, name, trainers):
+            self.name = name
+            self.trainers = trainers
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.data = {}
+        
+        trainers = context.get(Trainers)
+        index = context.get(IndexTrainers)
+        
+        # Define rival trainers - these are the main character rivals
+        rival_definitions = {
+            "Silver": ["Silver"],  # Main rival in Gold/Silver/Crystal
+        }
+        
+        for rival_name, trainer_specs in rival_definitions.items():
+            rival_trainers = []
+            
+            for spec in trainer_specs:
+                if spec in index.data:
+                    trainer_ids = [tid for (tc, tid) in index.data[spec]]
+                    for tid in trainer_ids:
+                        rival_trainers.append(trainers.data[tid])
+            
+            self.data[rival_name] = self.Rival(rival_name, rival_trainers)
+            print(f"Found {len(rival_trainers)} {rival_name} rival trainers")
+    
+    def get_rival_trainers(self, rival_name):
+        """Get all trainer instances for a specific rival name."""
+        rival = self.data.get(rival_name)
+        return rival.trainers if rival else []
+    
+    def get_all_rival_trainers(self):
+        """Get all rival trainers as a flat list."""
+        all_rivals = []
+        for rival in self.data.values():
+            all_rivals.extend(rival.trainers)
+        return all_rivals
+    
+    def get_rival_trainer_ids(self):
+        """Get all rival trainer IDs as a set for quick lookup."""
+        rival_ids = set()
+        for rival in self.data.values():
+            for trainer in rival.trainers:
+                rival_ids.add(trainer.info.trainer_id)
+        return rival_ids
+
+
 class IdentifyTier(Extractor):
     """Assigns trainers to game progression tiers based on their highest level Pokémon.
     
@@ -1529,8 +1584,8 @@ class RandomizeGymsStep(Step):
             pokemon.species_id = new_species.pokemon_id
 
 
-class RandomizeNonGymTrainersStep(Step):
-    """Randomize all trainers except gym trainers."""
+class RandomizeOrdinaryTrainersStep(Step):
+    """Randomize all ordinary trainers (no gym leaders, rivals, E4, possibly Rocket Leaders if I ever get around to it)."""
     
     def __init__(self, filter):
         self.filter = filter
@@ -1538,17 +1593,25 @@ class RandomizeNonGymTrainersStep(Step):
     def run(self, context):
         trainers = context.get(Trainers)
         gyms = context.get(IdentifyGymTrainers)
+        rivals = context.get(IdentifyRivals)
         mondata = context.get(Mons)
         
-        # Create a set of gym trainer IDs for exclusion
-        gym_trainer_ids = set()
+        # Create a set of trainer IDs to exclude (gym trainers and rivals)
+        excluded_trainer_ids = set()
+        
+        # Add gym trainer IDs
         for gym in gyms.data.values():
             for trainer in gym.trainers:
-                gym_trainer_ids.add(trainer.info.trainer_id)
+                excluded_trainer_ids.add(trainer.info.trainer_id)
         
-        # Randomize all non-gym trainers
+        # Add rival trainer IDs
+        rival_ids = rivals.get_rival_trainer_ids()
+        excluded_trainer_ids.update(rival_ids)
+        print(f"Excluding {len(rival_ids)} rival trainer IDs: {sorted(rival_ids)}")
+        
+        # Randomize all ordinary trainers (excluding gyms and rivals)
         for trainer in trainers.data:
-            if trainer.info.trainer_id not in gym_trainer_ids:
+            if trainer.info.trainer_id not in excluded_trainer_ids:
                 self._randomize_trainer_team(context, trainer, mondata, self.filter)
     
     def _randomize_trainer_team(self, context, trainer, mondata, filter):
@@ -1561,6 +1624,138 @@ class RandomizeNonGymTrainersStep(Step):
                 filter=filter
             )
             pokemon.species_id = new_species.pokemon_id
+
+
+class RandomizeRivals(Step):
+    """Randomize rival teams to match ROM starters with appropriate evolution logic."""
+    
+    def run(self, context):
+        starters = context.get(StarterExtractor)
+        trainers = context.get(Trainers)
+        evolution_data = context.get(EvolutionData)
+        mons = context.get(Mons)
+        
+        # Hardcoded rival battle groups based on original starter type
+        rival_battle_groups = {
+            0: [1, 263, 264, 265, 285, 288, 489, 735],  # Chikorita group -> Starter slot 0
+            1: [2, 266, 267, 268, 286, 289, 490, 736],  # Cyndaquil group -> Starter slot 1
+            2: [3, 269, 270, 271, 272, 287, 491, 737],  # Totodile group -> Starter slot 2
+        }
+        
+        # Level-based evolution methods
+        level_evolution_methods = {4, 8, 9, 10, 11, 12, 13, 14, 22, 23, 27, 28, 30}
+        
+        # Get the current starter Pokemon (use the updated starter_id values)
+        current_starters = [mons.data[starter_id] for starter_id in starters.data.starter_id]
+        
+        # Print the new starters being used
+        print("\n=== RandomizeRivals: New Starter Assignments ===")
+        print(f"Starter Slot 0 (Chikorita group): {current_starters[0].name}")
+        print(f"Starter Slot 1 (Cyndaquil group): {current_starters[1].name}")
+        print(f"Starter Slot 2 (Totodile group): {current_starters[2].name}")
+        print("================================================\n")
+        
+        # Process all rival battle groups
+        total_updated = 0
+        
+        for starter_slot, trainer_ids in rival_battle_groups.items():
+            # Get the new starter Pokemon for this group
+            new_starter = current_starters[starter_slot]
+            group_updated = 0
+            
+            print(f"\nProcessing starter slot {starter_slot} ({new_starter.name}) - {len(trainer_ids)} battles:")
+            
+            for trainer_id in trainer_ids:
+                if trainer_id < len(trainers.data):
+                    trainer = trainers.data[trainer_id]
+                    
+                    # Determine which Pokemon to replace (ace, last, or only)
+                    target_pokemon = self._get_target_pokemon(trainer)
+                    
+                    if target_pokemon:
+                        pokemon_level = target_pokemon.level
+                        
+                        # Determine the appropriate evolution stage
+                        final_species = self._get_evolved_form(
+                            new_starter, pokemon_level, evolution_data, level_evolution_methods
+                        )
+                        
+                        # Update the Pokemon
+                        old_name = mons.data[target_pokemon.species_id].name
+                        target_pokemon.species_id = final_species.pokemon_id
+                        group_updated += 1
+                        total_updated += 1
+                        
+                        print(f"  ID {trainer_id}: {old_name} (Lv{pokemon_level}) -> {final_species.name}")
+                else:
+                    print(f"  ID {trainer_id}: Trainer not found (ID too high)")
+            
+            print(f"  Updated {group_updated}/{len(trainer_ids)} battles in this group")
+        
+        print(f"\nTotal: Updated {total_updated} rival starter Pokemon across all groups")
+    
+    def _get_target_pokemon(self, trainer):
+        """Get the target Pokemon to replace (ace, last, or only Pokemon)."""
+        if len(trainer.team) == 1:
+            # Only one Pokemon, replace it
+            return trainer.team[0]
+        elif trainer.ace:
+            # Has an ace, replace the ace
+            return trainer.ace
+        else:
+            # No ace, replace the last Pokemon in the party
+            return trainer.team[-1]
+    
+    def _get_evolved_form(self, base_starter, level, evolution_data, level_evolution_methods):
+        """Get the appropriate evolved form based on level and evolution data."""
+        
+        current_species = base_starter
+        evolution_path = evolution_data.get_evolution_paths(base_starter.pokemon_id)
+        
+        if not evolution_path or len(evolution_path[0]) == 1:
+            # No evolution path, return the base starter
+            return current_species
+        
+        full_path = evolution_path[0]  # Get the first (main) evolution path
+        
+        # Check each evolution in the path
+        for i in range(len(full_path) - 1):
+            current_pokemon_id = full_path[i].pokemon_id
+            next_pokemon = full_path[i + 1]
+            
+            # Get evolution data for current Pokemon
+            current_evo_data = evolution_data.data[current_pokemon_id]
+            
+            # Find the evolution that leads to the next Pokemon in the path
+            evolution_to_next = None
+            for evo in current_evo_data.valid_evolutions:
+                if evo.target and evo.target.pokemon_id == next_pokemon.pokemon_id:
+                    evolution_to_next = evo
+                    break
+            
+            if not evolution_to_next:
+                break
+            
+            # Check if we should evolve based on method and level
+            should_evolve = False
+            
+            if evolution_to_next.method in level_evolution_methods:
+                # Level-based evolution: evolve if level >= parameter
+                if level >= evolution_to_next.parameter:
+                    should_evolve = True
+            else:
+                # Non-level evolution: use fallback level ranges
+                if i == 0:  # First evolution (base -> stage 1)
+                    should_evolve = level >= 22
+                elif i == 1:  # Second evolution (stage 1 -> stage 2)
+                    should_evolve = level >= 36
+            
+            if should_evolve:
+                current_species = next_pokemon
+            else:
+                break
+        
+        return current_species
 
 
 class ReadTypeMapping(Extractor):
@@ -1651,7 +1846,8 @@ if __name__ == "__main__":
     parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
     parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
     parser.add_argument("--randomize-starters", action="store_true", help="Randomize starter Pokémon")
-    parser.add_argument("--randomize-non-gym-trainers", action="store_true", help="Randomize all non-gym trainers (rivals, Team Rocket, etc.)")
+    parser.add_argument("--randomize-rivals", action="store_true", help="Update rival teams to match ROM starters with appropriate evolution logic")
+    parser.add_argument("--randomize-ordinary-trainers", action="store_true", help="Randomize all ordinary trainers (rivals, Team Rocket, etc.)")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -1698,16 +1894,22 @@ if __name__ == "__main__":
         RandomizeEncountersStep(encounter_filter, args.independent_encounters)
     ]
     
-    # Add non-gym trainer randomization if requested
-    if args.randomize_non_gym_trainers:
-        # Use the same filter as gym trainers but without type restrictions
-        non_gym_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
-        pipeline_steps.insert(-1, RandomizeNonGymTrainersStep(non_gym_filter))  # Insert before encounters
-   
-    
     # Add starter randomization if requested
     if args.randomize_starters:
         pipeline_steps.append(RandomizeStartersStep(starter_filter))
+   
+    # Add rival randomization if requested
+    if args.randomize_rivals:
+        pipeline_steps.append(RandomizeRivals())
+   
+    # Add ordinary trainer randomization if requested
+    if args.randomize_ordinary_trainers:
+        # Use the same filter as gym trainers but without type restrictions
+        ordinary_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
+        pipeline_steps.insert(-1, RandomizeOrdinaryTrainersStep(ordinary_filter))  # Insert before encounters
+   
+    
+   
     
     # Run randomization pipeline
     ctx.run_pipeline(pipeline_steps)
