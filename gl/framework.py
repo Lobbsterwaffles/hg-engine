@@ -372,7 +372,7 @@ class Moves(NarcExtractor):
 class Learnsets(NarcExtractor):
     def __init__(self, context):
         super().__init__(context)
-        moves = context.get(MoveDataExtractor).data
+        moves = context.get(Moves).data
 
         self.struct = GreedyRange(Struct(
             "move_id" / Int16ul,
@@ -1256,6 +1256,68 @@ class ExpandTrainerTeamsStep(Step):
         trainer.info.nummons = len(trainer.team)
 
 
+class ChangeTrainerDataTypeStep(Step):
+    """Step to change all trainers' data type to MOVES and ITEMS."""
+    
+    def __init__(self):
+        pass
+    
+    def run(self, context):
+        trainer_data = context.get(TrainerData)
+        trainers = context.get(Trainers)
+        
+        # Change all trainers to MOVES and ITEMS and update their team data
+        for i, trainer in enumerate(trainer_data.data):
+            trainer.trainermontype.value = TrainerDataType.MOVES | TrainerDataType.ITEMS
+            trainer.trainermontype.data = bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS])
+            
+            # Update team data to include required fields
+            if i < len(trainers.data):
+                for pokemon in trainers.data[i].team:
+                    # Add item field if missing (default to 0 = no item)
+                    if not hasattr(pokemon, 'item'):
+                        pokemon.item = 0
+                    
+                    # Add moves array if missing (will be set by SetTrainerMovesStep)
+                    if not hasattr(pokemon, 'moves'):
+                        pokemon.moves = [0, 0, 0, 0]
+
+
+class SetTrainerMovesStep(Step):
+    """Step to set each trainer Pokemon's moves to the last four moves learned at their current level."""
+    
+    def __init__(self):
+        pass
+    
+    def run(self, context):
+        trainers = context.get(Trainers)
+        learnsets = context.get(Learnsets)
+        
+        for trainer in trainers.data:
+            for pokemon in trainer.team:
+                # Get the learnset for this Pokemon species
+                if pokemon.species_id < len(learnsets.data):
+                    learnset = learnsets.data[pokemon.species_id]
+                    
+                    # Find all moves this Pokemon can learn up to its current level
+                    available_moves = []
+                    for learn_entry in learnset:
+                        if learn_entry.level <= pokemon.level:
+                            available_moves.append(learn_entry.move_id)
+                    
+                    # Get the last four moves (or all available if less than 4)
+                    if available_moves:
+                        last_four_moves = available_moves[-4:]
+                        
+                        # Pad with 0 if we have fewer than 4 moves
+                        while len(last_four_moves) < 4:
+                            last_four_moves.insert(0, 0)
+                        
+                        # Set the moves if this Pokemon has a moves array
+                        if hasattr(pokemon, 'moves'):
+                            pokemon.moves = last_four_moves
+
+
 class IdentifyGymTrainers(Extractor):
     class Gym:
         def __init__(self, name, trainers, gym_type=None):
@@ -1676,12 +1738,8 @@ class ConsistentRivalStarter(Step):
         rivals = context.get(IdentifyRivals)
         
         # Rival starter logic: rival gets the starter that's strong against the player's choice
-        # Traditional Pokemon rival logic:
-        # - Player chooses Grass (slot 0) → Rival gets Fire (slot 1)
-        # - Player chooses Fire (slot 1) → Rival gets Water (slot 2) 
-        # - Player chooses Water (slot 2) → Rival gets Grass (slot 0)
         rival_battle_groups = {
-            0: (rivals.chikorita_group_ids, 2),  #I dont' know why this needs to be offset. I've searched and I just don't know.
+            0: (rivals.chikorita_group_ids, 2),  #I dont know why this needs to be offset. I've searched and I just don't know.
             1: (rivals.cyndaquil_group_ids, 0),  
             2: (rivals.totodile_group_ids, 1),   
         }
@@ -1951,8 +2009,9 @@ if __name__ == "__main__":
         ordinary_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
         pipeline_steps.append(RandomizeOrdinaryTrainersStep(ordinary_filter))  
    
-    
-   
+    # Add trainer data type and moves steps
+    pipeline_steps.append(ChangeTrainerDataTypeStep())
+    pipeline_steps.append(SetTrainerMovesStep())
     
     # Run randomization pipeline
     ctx.run_pipeline(pipeline_steps)
