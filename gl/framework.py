@@ -605,6 +605,45 @@ class Trainers(Extractor):
         ]
 
 
+class UpdateTrainerTeamDataStep(Step):
+    """Updates trainer Pokémon team data to include required fields for MOVES and ITEMS format.
+    
+    When trainers are changed to use MOVES and ITEMS format, their team data
+    must include the required fields (item, moves) to prevent serialization errors.
+    This step adds default values for missing fields.
+    """
+    
+    def run(self, context):
+        """Update trainer team data to match trainer types."""
+        trainers = context.get(Trainers)
+        updated_count = 0
+        
+        for trainer in trainers.data:
+            # Check if trainer uses MOVES and ITEMS format
+            trainer_type = trainer.info.trainermontype.data
+            uses_moves_items = (trainer_type == bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS]))
+            
+            if uses_moves_items and trainer.team:
+                # Update each Pokémon in the team to include required fields
+                for pokemon in trainer.team:
+                    updated = False
+                    
+                    # Add default item if missing
+                    if not hasattr(pokemon, 'item'):
+                        pokemon.item = 0  # No item (0 = no item in the game)
+                        updated = True
+                    
+                    # Add default moves if missing
+                    if not hasattr(pokemon, 'moves'):
+                        pokemon.moves = [0, 0, 0, 0]  # No moves (will be set by move selection)
+                        updated = True
+                    
+                    if updated:
+                        updated_count += 1
+        
+        return updated_count
+
+
 class TrainerMult(Step):
     """Apply a multiplier to trainer Pokémon levels with special logic for bosses and aces."""
     
@@ -685,7 +724,8 @@ class PokemonListBase(Extractor):
     
     def __init__(self, context):
         super().__init__(context)
-        self.names_step = context.get(LoadPokemonNamesStep)
+        pokemon_names_step = context.get(LoadPokemonNamesStep)
+        tm_hm_names = context.get(TMHMNamesExtractor)
         self.by_id = set()
         
         # Add all Pokémon in the list
@@ -888,6 +928,7 @@ class Mons(NarcExtractor):
     
     def __init__(self, context):
         pokemon_names_step = context.get(LoadPokemonNamesStep)
+        tm_hm_names = context.get(TMHMNamesExtractor)
         
         self.mondata_struct = Struct(
             "hp" / Int8ul,
@@ -950,6 +991,66 @@ class Mons(NarcExtractor):
     def serialize_file(self, data, index):
         return self.mondata_struct.build(data, narc_index=index)
     
+class TMHMNamesExtractor(Extractor):
+    """Extractor for TM/HM move names from ARM9 binary.
+    
+    Reads TM/HM move IDs from ARM9 at offset 0x1000CC and provides move names.
+    Each TM/HM is stored as a 2-byte move ID.
+    """
+    
+    def __init__(self, context):
+        super().__init__(context)
+        moves = context.get(Moves)
+        
+        # TM/HM move IDs are stored in ARM9 at offset 0x1000CC
+        # 92 TMs + 8 HMs = 100 total, each taking 2 bytes
+        self.tm_hm_offset = 0x1000CC
+        self.num_tms = 92
+        self.num_hms = 8
+        
+        # Read TM/HM move IDs from ARM9
+        tm_hm_bytes = self.rom.arm9[self.tm_hm_offset:self.tm_hm_offset + (self.num_tms + self.num_hms) * 2]
+        
+        # Parse as array of 16-bit move IDs
+        tm_hm_struct = Struct(
+            "move_ids" / Array(self.num_tms + self.num_hms, Int16ul)
+        )
+        
+        parsed_data = tm_hm_struct.parse(tm_hm_bytes)
+        
+        # Create TM and HM name arrays with None at index 0 for 1-based indexing
+        self.tm_names = [None]  # tm_names[1] = TM001 name
+        self.hm_names = [None]  # hm_names[1] = HM001 name
+        
+        # Fill TM names (indices 0-91 in move_ids)
+        for i in range(self.num_tms):
+            move_id = parsed_data.move_ids[i]
+            if move_id < len(moves.data):
+                self.tm_names.append(moves.data[move_id].name)
+            else:
+                self.tm_names.append(f"Unknown_Move_{move_id}")
+        
+        # Fill HM names (indices 92-99 in move_ids)
+        for i in range(self.num_hms):
+            move_id = parsed_data.move_ids[self.num_tms + i]
+            if move_id < len(moves.data):
+                self.hm_names.append(moves.data[move_id].name)
+            else:
+                self.hm_names.append(f"Unknown_Move_{move_id}")
+    
+    def get_tm_name(self, tm_number):
+        """Get the name of a TM by number (1-92)."""
+        if 1 <= tm_number <= len(self.tm_names) - 1:
+            return self.tm_names[tm_number]
+        return None
+    
+    def get_hm_name(self, hm_number):
+        """Get the name of an HM by number (1-8)."""
+        if 1 <= hm_number <= len(self.hm_names) - 1:
+            return self.hm_names[hm_number]
+        return None
+
+
 class StarterExtractor(Extractor):
     """Extractor for starter Pokemon data from ARM9 binary.
     
