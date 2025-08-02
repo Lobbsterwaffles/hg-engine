@@ -6,8 +6,7 @@ import ndspy.narc
 import os
 import re
 import random
-import sys
-from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container, GreedyRange, StopIf, Check
+from construct import Struct, Int8ul, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container, GreedyRange, StopIf, Check, BitsSwapped, Bitwise, Flag
 
 from enums import (
     Type,
@@ -385,6 +384,73 @@ class Learnsets(NarcExtractor):
     
     def get_narc_path(self):
         return "a/0/3/3"
+    
+    def parse_file(self, file_data, index):
+        return self.struct.parse(file_data, narc_index=index)
+    
+    def serialize_file(self, data, index):
+        return self.struct.build(data, narc_index=index)
+
+
+class EggMoves(NarcExtractor):
+    """Extractor for Pokemon egg moves from ROM."""
+    
+    def __init__(self, context):
+        super().__init__(context)
+        moves = context.get(Moves).data
+        
+        # Egg moves are stored as a list of move IDs for each Pokemon
+        # Format: species_id+20000 (marker), followed by move_ids, terminated by 0xFFFF
+        self.struct = GreedyRange(Struct(
+            "entry" / Int16ul,
+            "is_species" / Computed(lambda ctx: ctx.entry >= 20000),
+            "species_id" / Computed(lambda ctx: ctx.entry - 20000 if ctx.entry >= 20000 else None),
+            "move_id" / Computed(lambda ctx: ctx.entry if ctx.entry < 20000 and ctx.entry != 0xFFFF else None),
+            "is_terminator" / Computed(lambda ctx: ctx.entry == 0xFFFF),
+            "move" / Computed(lambda ctx: moves[ctx.entry] if ctx.entry < len(moves) and ctx.entry < 20000 and ctx.entry != 0xFFFF else None),
+            Check(lambda ctx: ctx.entry != 0xFFFF)  # Stop at terminator
+        ))
+        
+        # Load raw data and parse into structured format
+        raw_data = self.load_narc()
+        self.data = self._parse_egg_moves(raw_data)
+    
+    def _parse_egg_moves(self, raw_data):
+        """Parse raw egg move data into a dictionary by species."""
+        egg_moves_by_species = {}
+        
+        # Process each file (should be just one file with all egg moves)
+        for file_data in raw_data:
+            current_species = None
+            current_moves = []
+            
+            for entry in file_data:
+                if entry.is_species:
+                    # Save previous species data if exists
+                    if current_species is not None:
+                        egg_moves_by_species[current_species] = current_moves
+                    
+                    # Start new species
+                    current_species = entry.species_id
+                    current_moves = []
+                
+                elif entry.move_id is not None:
+                    # Add move to current species
+                    current_moves.append({
+                        'move_id': entry.move_id,
+                        'move': entry.move
+                    })
+            
+            # Save last species
+            if current_species is not None:
+                egg_moves_by_species[current_species] = current_moves
+        
+        return egg_moves_by_species
+    
+    def get_narc_path(self):
+        # Egg moves are stored at a/2/2/9 according to narcs.mk
+        # EGGMOVES_TARGET := $(FILESYS)/a/2/2/9
+        return "a/2/2/9"
     
     def parse_file(self, file_data, index):
         return self.struct.parse(file_data, narc_index=index)
@@ -847,6 +913,10 @@ class Mons(NarcExtractor):
             "ability2" / Int8ul,
             "additional1" / Int8ul,
             "additional2" / Int8ul,
+            Padding(2),  # Pad to offset 0x1C for TM bitmap
+            "tm_bitmap" / BitsSwapped(Bitwise(Array(128, Flag))),
+            "tm" / Computed(lambda ctx: [None] + ctx.tm_bitmap[:92]),  # tm[1] = TM001, tm[92] = TM092
+            "hm" / Computed(lambda ctx: [None] + ctx.tm_bitmap[92:100]),  # hm[1] = HM001, hm[8] = HM008
             "bst" / Computed(lambda ctx: self._get_adjusted_bst(ctx)),
             "name" / Computed(lambda ctx: pokemon_names_step.get_by_id(ctx._.narc_index)),
             "pokemon_id" / Computed(lambda ctx: ctx._.narc_index)
@@ -868,7 +938,9 @@ class Mons(NarcExtractor):
         
         # Default: return raw BST calculation
         return ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense
+    
 
+    
     def get_narc_path(self):
         return "a/0/0/2"
     
