@@ -5,7 +5,7 @@
         {
             "name": "MOVE_COLLISION_COURSE",
             "source": "level_up",
-            "display_name": "Collision Course",
+            "display_name": "ColisionCourse",
             "slot": 1
         },
         {
@@ -23,7 +23,7 @@
         {
             "name": "MOVE_UTURN",
             "source": "modern_tm",
-            "display_name": "Uturn",
+            "display_name": "U-turn",
             "slot": 4
         }
     ],

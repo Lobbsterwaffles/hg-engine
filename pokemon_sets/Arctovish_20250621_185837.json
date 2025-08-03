@@ -11,7 +11,7 @@
         {
             "name": "MOVE_FREEZE_DRY",
             "source": "level_up",
-            "display_name": "Freeze Dry",
+            "display_name": "Freeze-Dry",
             "slot": 2
         },
         {
@@ -19,6 +19,12 @@
             "source": "modern_tm",
             "display_name": "Hail",
             "slot": 3
+        },
+        {
+            "name": "MOVE_CRUNCH",
+            "source": "modern_tm",
+            "display_name": "Crunch",
+            "slot": 4
         }
     ],
     "ability": {

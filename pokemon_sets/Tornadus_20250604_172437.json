@@ -5,7 +5,7 @@
         {
             "name": "MOVE_BLEAKWIND_STORM",
             "source": "level_up",
-            "display_name": "Bleakwind Storm",
+            "display_name": "BleakwindStorm",
             "slot": 1
         },
         {
@@ -23,7 +23,7 @@
         {
             "name": "MOVE_UTURN",
             "source": "modern_tm",
-            "display_name": "Uturn",
+            "display_name": "U-turn",
             "slot": 4
         }
     ],

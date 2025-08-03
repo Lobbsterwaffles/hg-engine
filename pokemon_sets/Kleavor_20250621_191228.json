@@ -11,13 +11,13 @@
         {
             "name": "MOVE_X_SCISSOR",
             "source": "level_up",
-            "display_name": "X Scissor",
+            "display_name": "X-Scissor",
             "slot": 2
         },
         {
             "name": "MOVE_U_TURN",
             "source": "tm",
-            "display_name": "U Turn",
+            "display_name": "U-turn",
             "slot": 3
         },
         {

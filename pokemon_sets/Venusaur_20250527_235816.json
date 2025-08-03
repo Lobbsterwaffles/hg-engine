@@ -13,6 +13,18 @@
             "source": "tm",
             "display_name": "Giga Drain",
             "slot": 2
+        },
+        {
+            "name": "MOVE_SLUDGE_BOMB",
+            "source": "tm",
+            "display_name": "Sludge Bomb",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_SLEEP_POWDER",
+            "source": "tm",
+            "display_name": "Sleep Powder",
+            "slot": 4
         }
     ],
     "ability": {

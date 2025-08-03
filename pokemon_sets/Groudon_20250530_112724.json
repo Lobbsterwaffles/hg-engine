@@ -11,7 +11,7 @@
         {
             "name": "MOVE_PRECIPICE_BLADES",
             "source": "level_up",
-            "display_name": "Precipice Blades",
+            "display_name": "PrecipiceBlades",
             "slot": 2
         },
         {

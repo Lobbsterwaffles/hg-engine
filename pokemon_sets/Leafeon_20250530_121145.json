@@ -17,7 +17,7 @@
         {
             "name": "MOVE_X_SCISSOR",
             "source": "tm",
-            "display_name": "X Scissor",
+            "display_name": "X-Scissor",
             "slot": 3
         },
         {

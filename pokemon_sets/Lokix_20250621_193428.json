@@ -5,7 +5,7 @@
         {
             "name": "MOVE_FIRST_IMPRESSION",
             "source": "level_up",
-            "display_name": "First Impression",
+            "display_name": "FirstImpression",
             "slot": 1
         },
         {
@@ -17,13 +17,13 @@
         {
             "name": "MOVE_UTURN",
             "source": "modern_tm",
-            "display_name": "Uturn",
+            "display_name": "U-turn",
             "slot": 3
         },
         {
             "name": "MOVE_UTURN",
             "source": "modern_tm",
-            "display_name": "Uturn",
+            "display_name": "U-turn",
             "slot": 4
         }
     ],

@@ -5,7 +5,7 @@
         {
             "name": "MOVE_PARABOLIC_CHARGE",
             "source": "level_up",
-            "display_name": "Parabolic Charge",
+            "display_name": "ParabolicCharge",
             "slot": 1
         },
         {

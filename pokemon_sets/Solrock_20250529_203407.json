@@ -13,6 +13,18 @@
             "source": "tm",
             "display_name": "Reflect",
             "slot": 4
+        },
+        {
+            "name": "MOVE_ZEN_HEADBUTT",
+            "source": "tm",
+            "display_name": "Zen Headbutt",
+            "slot": 3
+        },
+        {
+            "name": "MOVE_ROCK_SLIDE",
+            "source": "tm",
+            "display_name": "Rock Slide",
+            "slot": 4
         }
     ],
     "ability": {

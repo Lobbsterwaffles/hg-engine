@@ -23,7 +23,7 @@
         {
             "name": "MOVE_U_TURN",
             "source": "level_up",
-            "display_name": "U Turn",
+            "display_name": "U-turn",
             "slot": 4
         }
     ],

@@ -5,7 +5,7 @@
         {
             "name": "MOVE_STOMPING_TANTRUM",
             "source": "level_up",
-            "display_name": "Stomping Tantrum",
+            "display_name": "StompingTantrum",
             "slot": 1
         },
         {

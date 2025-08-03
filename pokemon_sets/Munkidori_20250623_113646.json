@@ -23,7 +23,7 @@
         {
             "name": "MOVE_UTURN",
             "source": "modern_tm",
-            "display_name": "Uturn",
+            "display_name": "U-turn",
             "slot": 4
         }
     ],

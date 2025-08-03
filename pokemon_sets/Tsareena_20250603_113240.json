@@ -19,7 +19,7 @@
         },
         {
             "name": "MOVE_UTURN",
-            "display_name": "Uturn",
+            "display_name": "U-turn",
             "source": "modern_tm"
         }
     ],

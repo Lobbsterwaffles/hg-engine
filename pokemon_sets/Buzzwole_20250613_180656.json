@@ -11,7 +11,7 @@
         {
             "name": "MOVE_POWER_UP_PUNCH",
             "source": "level_up",
-            "display_name": "Power Up Punch",
+            "display_name": "Power-Up Punch",
             "slot": 2
         },
         {
