@@ -914,6 +914,66 @@ class LoadBlacklistStep(PokemonListBase):
     ]
 
 
+class TMHMNamesExtractor(Extractor):
+    """Extractor for TM/HM move names from ARM9 binary."""
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        # Get moves extractor for name lookup
+        moves = context.get(Moves)
+        
+        # Read TM/HM move IDs from ARM9 at offset 0x1000CC
+        arm9_data = self.context.rom.arm9
+        offset = 0x1000CC
+        
+        # Read move IDs (92 TMs + 8 HMs = 100 total, 2 bytes each)
+        num_tms = 92
+        num_hms = 8
+        move_ids = []
+        
+        for i in range(num_tms + num_hms):
+            move_id = int.from_bytes(arm9_data[offset + i*2:offset + i*2 + 2], 'little')
+            move_ids.append(move_id)
+        
+        # Map move IDs to move names using 1-based indexing
+        self.tm_names = [None] + [moves.data[move_ids[i]].name for i in range(num_tms)]
+        self.hm_names = [None] + [moves.data[move_ids[i + num_tms]].name for i in range(num_hms)]
+        
+        # Store move IDs for TMHM extractor compatibility
+        self.tm_move_ids = [None] + move_ids[:num_tms]
+        self.hm_move_ids = [None] + move_ids[num_tms:]
+
+
+class TMHM(Extractor):
+    """Extractor for TM/HM move data with move objects."""
+    
+    class TMHMMove:
+        def __init__(self, move_id, move_data):
+            self.move_id = move_id
+            self.move_data = move_data
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        # Get required extractors
+        moves = context.get(Moves)
+        tm_hm_names = context.get(TMHMNamesExtractor)
+        
+        # Create TM/HM move objects with 1-based indexing
+        self.tm = [None]  # tm[1] = TM001, etc.
+        for i in range(1, len(tm_hm_names.tm_move_ids)):
+            move_id = tm_hm_names.tm_move_ids[i]
+            move_data = moves.data[move_id] if move_id < len(moves.data) else None
+            self.tm.append(self.TMHMMove(move_id, move_data))
+        
+        self.hm = [None]  # hm[1] = HM001, etc.
+        for i in range(1, len(tm_hm_names.hm_move_ids)):
+            move_id = tm_hm_names.hm_move_ids[i]
+            move_data = moves.data[move_id] if move_id < len(moves.data) else None
+            self.hm.append(self.TMHMMove(move_id, move_data))
+
+
 class Mons(NarcExtractor):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
