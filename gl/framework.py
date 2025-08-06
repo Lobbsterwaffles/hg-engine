@@ -488,6 +488,7 @@ class TrainerTeam(Writeback,NarcExtractor ):
         mondata_extractor = context.get(Mons)
         move_extractor = context.get(Moves)
 
+        # Base struct that all trainer Pokemon have
         self.struct_common = Struct(
             "ivs" / Int8ul,
             "abilityslot" / Int8ul,
@@ -495,35 +496,63 @@ class TrainerTeam(Writeback,NarcExtractor ):
             "species_id" / Int16ul,
         )
         
-        self.trainer_pokemon_basic = self.struct_common + Struct(
-            "ballseal" / Int16ul
-        )
-        
-        self.struct_items = self.struct_common + Struct(
-            "item" / Int16ul,
-            "ballseal" / Int16ul
-        )
-        
-        self.struct_moves = self.struct_common + Struct(
-            "moves" / Array(4, Int16ul),
-            "ballseal" / Int16ul
-        )
-        
-        self.struct_movesitems = self.struct_common + Struct(
-            "item" / Int16ul,
-            "moves" / Array(4, Int16ul),
-            "ballseal" / Int16ul
-        )
-        
-        self.format_map = {
-            bytes([TrainerDataType.NOTHING]): self.trainer_pokemon_basic,
-            bytes([TrainerDataType.MOVES]): self.struct_moves,
-            bytes([TrainerDataType.ITEMS]): self.struct_items,
-            bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS]): self.struct_movesitems,
-        }
-        
         super().__init__(context)
         self.data = self.load_narc()
+    
+    def _build_trainer_pokemon_struct(self, trainer_type_flags):
+        
+        # Convert bytes to int if needed
+        if isinstance(trainer_type_flags, bytes):
+            flags = int.from_bytes(trainer_type_flags, byteorder='little')
+        else:
+            flags = trainer_type_flags
+        
+        # Start with the common base structure
+        struct_fields = []
+        
+        # Add conditional fields based on flags
+        if flags & TrainerDataType.ITEMS:
+            struct_fields.append("item" / Int16ul)
+        
+        if flags & TrainerDataType.MOVES:
+            struct_fields.append("moves" / Array(4, Int16ul))
+        
+        if flags & TrainerDataType.ABILITY:
+            struct_fields.append("ability" / Int16ul)
+        
+        if flags & TrainerDataType.BALL:
+            struct_fields.append("ball" / Int16ul)
+        
+        if flags & TrainerDataType.IV_EV_SET:
+            struct_fields.extend([
+                "hp_iv" / Int8ul,
+                "atk_iv" / Int8ul,
+                "def_iv" / Int8ul,
+                "speed_iv" / Int8ul,
+                "spatk_iv" / Int8ul,
+                "spdef_iv" / Int8ul,
+                "hp_ev" / Int8ul,
+                "atk_ev" / Int8ul,
+                "def_ev" / Int8ul,
+                "speed_ev" / Int8ul,
+                "spatk_ev" / Int8ul,
+                "spdef_ev" / Int8ul,
+            ])
+        
+        if flags & TrainerDataType.NATURE_SET:
+            struct_fields.append("nature" / Int8ul)
+        
+        if flags & TrainerDataType.SHINY_LOCK:
+            struct_fields.append("shinylock" / Int8ul)
+        
+        if flags & TrainerDataType.ADDITIONAL_FLAGS:
+            struct_fields.append("additionalflags" / Int32ul)
+        
+        # Always end with ballseal (present in all variants)
+        struct_fields.append("ballseal" / Int16ul)
+        
+        # Build the complete struct
+        return self.struct_common + Struct(*struct_fields)
     
     def get_narc_path(self):
         return "a/0/5/6"
@@ -533,7 +562,7 @@ class TrainerTeam(Writeback,NarcExtractor ):
             return []
         
         trainer = self.context.get(TrainerData).data[index]
-        struct = self.format_map[trainer.trainermontype.data]
+        struct = self._build_trainer_pokemon_struct(trainer.trainermontype.data)
         
         return Array(trainer.nummons, struct).parse(file_data)
     
@@ -542,9 +571,8 @@ class TrainerTeam(Writeback,NarcExtractor ):
             return b''
         
         trainer = self.context.get(TrainerData).data[index]
-        struct = self.format_map[trainer.trainermontype.data]
-       
-
+        struct = self._build_trainer_pokemon_struct(trainer.trainermontype.data)
+        
         return Array(trainer.nummons, struct).build(data)
 
 
@@ -725,12 +753,12 @@ class PokemonListBase(Extractor):
     def __init__(self, context):
         super().__init__(context)
         pokemon_names_step = context.get(LoadPokemonNamesStep)
-        tm_hm_names = context.get(TMHMNamesExtractor)
+        tm_hm_names = context.get(TMHM)
         self.by_id = set()
         
         # Add all Pokémon in the list
         for name in self.pokemon_names:
-            self.by_id.add(self.names_step.get_by_name(name))
+            self.by_id.add(pokemon_names_step.get_by_name(name))
 
 
 class InvalidPokemon(PokemonListBase):
@@ -738,9 +766,10 @@ class InvalidPokemon(PokemonListBase):
     
     def __init__(self, context):
         super().__init__(context)
+        pokemon_names_step = context.get(LoadPokemonNamesStep)
         
         # Add any dashes (invalid Pokémon)
-        for fid in self.names_step.get_all_by_name("-----"):
+        for fid in pokemon_names_step.get_all_by_name("-----"):
             self.by_id.add(fid)
             
 
@@ -914,66 +943,6 @@ class LoadBlacklistStep(PokemonListBase):
     ]
 
 
-class TMHMNamesExtractor(Extractor):
-    """Extractor for TM/HM move names from ARM9 binary."""
-    
-    def __init__(self, context):
-        super().__init__(context)
-        
-        # Get moves extractor for name lookup
-        moves = context.get(Moves)
-        
-        # Read TM/HM move IDs from ARM9 at offset 0x1000CC
-        arm9_data = self.context.rom.arm9
-        offset = 0x1000CC
-        
-        # Read move IDs (92 TMs + 8 HMs = 100 total, 2 bytes each)
-        num_tms = 92
-        num_hms = 8
-        move_ids = []
-        
-        for i in range(num_tms + num_hms):
-            move_id = int.from_bytes(arm9_data[offset + i*2:offset + i*2 + 2], 'little')
-            move_ids.append(move_id)
-        
-        # Map move IDs to move names using 1-based indexing
-        self.tm_names = [None] + [moves.data[move_ids[i]].name for i in range(num_tms)]
-        self.hm_names = [None] + [moves.data[move_ids[i + num_tms]].name for i in range(num_hms)]
-        
-        # Store move IDs for TMHM extractor compatibility
-        self.tm_move_ids = [None] + move_ids[:num_tms]
-        self.hm_move_ids = [None] + move_ids[num_tms:]
-
-
-class TMHM(Extractor):
-    """Extractor for TM/HM move data with move objects."""
-    
-    class TMHMMove:
-        def __init__(self, move_id, move_data):
-            self.move_id = move_id
-            self.move_data = move_data
-    
-    def __init__(self, context):
-        super().__init__(context)
-        
-        # Get required extractors
-        moves = context.get(Moves)
-        tm_hm_names = context.get(TMHMNamesExtractor)
-        
-        # Create TM/HM move objects with 1-based indexing
-        self.tm = [None]  # tm[1] = TM001, etc.
-        for i in range(1, len(tm_hm_names.tm_move_ids)):
-            move_id = tm_hm_names.tm_move_ids[i]
-            move_data = moves.data[move_id] if move_id < len(moves.data) else None
-            self.tm.append(self.TMHMMove(move_id, move_data))
-        
-        self.hm = [None]  # hm[1] = HM001, etc.
-        for i in range(1, len(tm_hm_names.hm_move_ids)):
-            move_id = tm_hm_names.hm_move_ids[i]
-            move_data = moves.data[move_id] if move_id < len(moves.data) else None
-            self.hm.append(self.TMHMMove(move_id, move_data))
-
-
 class Mons(NarcExtractor):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
@@ -988,7 +957,7 @@ class Mons(NarcExtractor):
     
     def __init__(self, context):
         pokemon_names_step = context.get(LoadPokemonNamesStep)
-        tm_hm_names = context.get(TMHMNamesExtractor)
+        tm_hm_names = context.get(TMHM)
         
         self.mondata_struct = Struct(
             "hp" / Int8ul,
@@ -1447,30 +1416,120 @@ class ExpandTrainerTeamsStep(Step):
 
 
 class ChangeTrainerDataTypeStep(Step):
-    """Step to change all trainers' data type to MOVES and ITEMS."""
+    """Step to change trainers' data type to support various TrainerDataType flags."""
     
-    def __init__(self):
-        pass
+    def __init__(self, target_flags=None, trainer_filter=None):
+        """
+        Initialize the step with configurable trainer data type flags.
+        
+        Args:
+            target_flags: TrainerDataType flags to set (default: MOVES | ITEMS)
+            trainer_filter: Optional function to filter which trainers to modify
+        """
+        self.target_flags = target_flags if target_flags is not None else (TrainerDataType.MOVES | TrainerDataType.ITEMS)
+        self.trainer_filter = trainer_filter
     
     def run(self, context):
         trainer_data = context.get(TrainerData)
         trainers = context.get(Trainers)
         
-        # Change all trainers to MOVES and ITEMS and update their team data
+        modified_count = 0
+        
+        # Change trainers to the specified data type and update their team data
         for i, trainer in enumerate(trainer_data.data):
-            trainer.trainermontype.value = TrainerDataType.MOVES | TrainerDataType.ITEMS
-            trainer.trainermontype.data = bytes([TrainerDataType.MOVES | TrainerDataType.ITEMS])
+            # Apply filter if provided
+            if self.trainer_filter and not self.trainer_filter(trainer, i):
+                continue
+                
+            # Update trainer data type
+            trainer.trainermontype.value = self.target_flags
+            trainer.trainermontype.data = bytes([self.target_flags])
             
-            # Update team data to include required fields
+            # Update team data to include required fields based on flags
             if i < len(trainers.data):
                 for pokemon in trainers.data[i].team:
-                    # Add item field if missing (default to 0 = no item)
-                    if not hasattr(pokemon, 'item'):
-                        pokemon.item = 0
-                    
-                    # Add moves array if missing (will be set by SetTrainerMovesStep)
-                    if not hasattr(pokemon, 'moves'):
-                        pokemon.moves = [0, 0, 0, 0]
+                    self._update_pokemon_data(pokemon, self.target_flags)
+            
+            modified_count += 1
+        
+        print(f"Modified {modified_count} trainers to use flags: {self._flags_to_string(self.target_flags)}")
+    
+    def _update_pokemon_data(self, pokemon, flags):
+        """Update Pokemon data structure to match the specified flags."""
+        
+        # Add item field if ITEMS flag is set
+        if flags & TrainerDataType.ITEMS:
+            if not hasattr(pokemon, 'item'):
+                pokemon.item = 0  # Default to no item
+        
+        # Add moves array if MOVES flag is set
+        if flags & TrainerDataType.MOVES:
+            if not hasattr(pokemon, 'moves'):
+                pokemon.moves = [0, 0, 0, 0]  # Default to no moves (will be set later)
+        
+        # Add ability field if ABILITY flag is set
+        if flags & TrainerDataType.ABILITY:
+            if not hasattr(pokemon, 'ability'):
+                pokemon.ability = 0  # Default to first ability
+        
+        # Add ball field if BALL flag is set
+        if flags & TrainerDataType.BALL:
+            if not hasattr(pokemon, 'ball'):
+                pokemon.ball = 4  # Default to Poke Ball
+        
+        # Add IV/EV fields if IV_EV_SET flag is set
+        if flags & TrainerDataType.IV_EV_SET:
+            iv_fields = ['hp_iv', 'atk_iv', 'def_iv', 'speed_iv', 'spatk_iv', 'spdef_iv']
+            ev_fields = ['hp_ev', 'atk_ev', 'def_ev', 'speed_ev', 'spatk_ev', 'spdef_ev']
+            
+            for field in iv_fields:
+                if not hasattr(pokemon, field):
+                    setattr(pokemon, field, 31)  # Default to max IVs
+            
+            for field in ev_fields:
+                if not hasattr(pokemon, field):
+                    setattr(pokemon, field, 0)  # Default to no EVs
+        
+        # Add nature field if NATURE_SET flag is set
+        if flags & TrainerDataType.NATURE_SET:
+            if not hasattr(pokemon, 'nature'):
+                pokemon.nature = 0  # Default to Hardy (neutral nature)
+        
+        # Add shinylock field if SHINY_LOCK flag is set
+        if flags & TrainerDataType.SHINY_LOCK:
+            if not hasattr(pokemon, 'shinylock'):
+                pokemon.shinylock = 0  # Default to no shiny lock
+        
+        # Add additionalflags field if ADDITIONAL_FLAGS flag is set
+        if flags & TrainerDataType.ADDITIONAL_FLAGS:
+            if not hasattr(pokemon, 'additionalflags'):
+                pokemon.additionalflags = 0  # Default to no additional flags
+    
+    def _flags_to_string(self, flags):
+        """Convert TrainerDataType flags to a readable string."""
+        flag_names = []
+        
+        if flags & TrainerDataType.MOVES:
+            flag_names.append('MOVES')
+        if flags & TrainerDataType.ITEMS:
+            flag_names.append('ITEMS')
+        if flags & TrainerDataType.ABILITY:
+            flag_names.append('ABILITY')
+        if flags & TrainerDataType.BALL:
+            flag_names.append('BALL')
+        if flags & TrainerDataType.IV_EV_SET:
+            flag_names.append('IV_EV_SET')
+        if flags & TrainerDataType.NATURE_SET:
+            flag_names.append('NATURE_SET')
+        if flags & TrainerDataType.SHINY_LOCK:
+            flag_names.append('SHINY_LOCK')
+        if flags & TrainerDataType.ADDITIONAL_FLAGS:
+            flag_names.append('ADDITIONAL_FLAGS')
+        
+        if not flag_names:
+            return 'NOTHING'
+        
+        return ' | '.join(flag_names)
 
 
 class SetTrainerMovesStep(Step):
