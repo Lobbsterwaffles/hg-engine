@@ -2241,7 +2241,7 @@ if __name__ == "__main__":
         *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
         *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
         *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
-        ChangeTrainerDataTypeStep(),
+        ChangeTrainerDataTypeStep(target_flags = TrainerDataType.MOVES | TrainerDataType.ITEMS | TrainerDataType.IV_EV_SET),
         SetTrainerMovesStep()
     ])
     
