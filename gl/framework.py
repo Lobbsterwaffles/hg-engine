@@ -1,4 +1,16 @@
+# -*- coding: utf-8 -*-
+import sys
+import os
+
+# Set UTF-8 encoding for console output on Windows
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+
 from abc import ABC, abstractmethod
+from enums import *
+from trainer_data_editor import *
 from typing import List
 from collections import Counter
 import ndspy.rom
@@ -1123,6 +1135,138 @@ class EvolutionData(NarcExtractor):
     
     def serialize_file(self, data, index):
         return self.evolution_struct.build(data, narc_index=index)
+
+
+class EvioliteUser(Extractor):
+    """Identifies Pokemon that are better with Eviolite than evolved.
+    
+    An Eviolite User is a Pokemon that:
+    1. Can evolve once (including second stage of 3-stage lines)
+    2. Has an Eviolite BST (with def/spdef multiplied by 1.5) > 500
+    
+    For beginners:
+    - Eviolite is an item that boosts Defense and Special Defense by 50% for Pokemon that can still evolve
+    - Some Pokemon are actually stronger with Eviolite than their evolved forms
+    - BST = Base Stat Total (sum of all 6 base stats)
+    """
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.pokemon_names_step = context.get(LoadPokemonNamesStep)
+        self.mons = context.get(Mons)
+        self.evolution_data = context.get(EvolutionData)
+        
+        # Find all Pokemon that can evolve once
+        self.candidates = self._find_evolution_candidates()
+        
+        # Calculate Eviolite stats and identify users
+        self.eviolite_users = self._identify_eviolite_users()
+        
+        # Create lookup sets for easy checking
+        self.by_id = {pokemon.pokemon_id for pokemon in self.eviolite_users}
+        self.by_name = {pokemon.name.lower(): pokemon for pokemon in self.eviolite_users}
+    
+    def _find_evolution_candidates(self):
+        """Find all Pokemon that can evolve exactly once.
+        
+        This includes:
+        - Base forms of 2-stage evolution lines (e.g., Charmander)
+        - Middle forms of 3-stage evolution lines (e.g., Charmeleon)
+        """
+        candidates = []
+        
+        for pokemon_data in self.evolution_data.data:
+            # Skip if no evolutions
+            if not pokemon_data.valid_evolutions:
+                continue
+            
+            # Get the Pokemon species
+            pokemon = pokemon_data.species
+            if not pokemon:
+                continue
+            
+            # Check if this Pokemon can evolve exactly once
+            # (has evolutions but none of its evolutions can evolve further)
+            can_evolve_once = False
+            
+            for evolution in pokemon_data.valid_evolutions:
+                if evolution.target:
+                    # Check if the evolution target can also evolve
+                    target_data = self.evolution_data.data[evolution.target.pokemon_id]
+                    
+                    # If target has no further evolutions, this is a candidate
+                    if not target_data.valid_evolutions:
+                        can_evolve_once = True
+                        break
+                    
+                    # If target has evolutions, this is a middle stage (also a candidate)
+                    # Example: Charmeleon can evolve to Charizard (which can't evolve further)
+                    if target_data.valid_evolutions:
+                        can_evolve_once = True
+                        break
+            
+            if can_evolve_once:
+                candidates.append(pokemon)
+        
+        return candidates
+    
+    def _calculate_eviolite_stats(self, pokemon):
+        """Calculate a Pokemon's stats with Eviolite boost.
+        
+        Eviolite multiplies Defense and Special Defense by 1.5.
+        
+        Returns:
+            dict: Individual stats with Eviolite adjustments
+            int: Eviolite BST (sum of adjusted stats)
+        """
+        # Get base stats
+        hp = pokemon.hp
+        attack = pokemon.attack
+        defense = pokemon.defense
+        sp_attack = pokemon.sp_attack
+        sp_defense = pokemon.sp_defense
+        speed = pokemon.speed
+        
+        # Apply Eviolite boost to Defense and Special Defense
+        eviolite_defense = int(defense * 1.5)
+        eviolite_sp_defense = int(sp_defense * 1.5)
+        
+        # Calculate adjusted stats
+        eviolite_stats = {
+            'hp': hp,
+            'attack': attack,
+            'defense': eviolite_defense,
+            'sp_attack': sp_attack,
+            'sp_defense': eviolite_sp_defense,
+            'speed': speed
+        }
+        
+        # Calculate Eviolite BST
+        eviolite_bst = sum(eviolite_stats.values())
+        
+        return eviolite_stats, eviolite_bst
+    
+    def _identify_eviolite_users(self):
+        """Identify Pokemon with Eviolite BST > 500."""
+        eviolite_users = []
+        
+        for pokemon in self.candidates:
+            eviolite_stats, eviolite_bst = self._calculate_eviolite_stats(pokemon)
+            
+            # Store analysis data on the Pokemon object for printing
+            pokemon._eviolite_analysis = {
+                'original_bst': pokemon.bst,
+                'eviolite_stats': eviolite_stats,
+                'eviolite_bst': eviolite_bst
+            }
+            
+            # Check if Eviolite BST > 500
+            if eviolite_bst > 500:
+                eviolite_users.append(pokemon)
+        
+        return eviolite_users
+    
+
 
 
 class RandomizeStartersStep(Step):
@@ -2638,6 +2782,257 @@ class ConsistentRivalStarter(Step):
         return current_species
 
 
+class ForceEvolvedTrainerPokemon(Step):
+    """Pipeline step to evolve trainer Pokemon based on configurable evolution thresholds.
+    
+    Supports both level-based and tier-based evolution logic with configurable targeting
+    (bosses only vs all trainers). Allows easy editing of should_evolve levels.
+    """
+    
+    def __init__(self,
+                 # Targeting options
+                 target_mode="all",  # "all", "bosses_only"
+                 # Evolution threshold mode
+                 evolution_mode="level_based",  # "level_based", "tier_based"
+                 # Level-based evolution thresholds (fallback for non-level evolutions)
+                 stage1_evolution_level=22,  # Base -> Stage 1 evolution level
+                 stage2_evolution_level=36,  # Stage 1 -> Stage 2 evolution level
+                 # Trainer filter
+                 trainer_filter=None):
+        
+        # Validate parameters
+        if target_mode not in ["all", "bosses_only"]:
+            raise ValueError(f"Invalid target_mode: {target_mode}. Must be 'all' or 'bosses_only'")
+        if evolution_mode not in ["level_based", "tier_based"]:
+            raise ValueError(f"Invalid evolution_mode: {evolution_mode}. Must be 'level_based' or 'tier_based'")
+        
+        self.target_mode = target_mode
+        self.evolution_mode = evolution_mode
+        self.trainer_filter = trainer_filter
+        
+        # Level-based thresholds
+        self.stage1_evolution_level = stage1_evolution_level
+        self.stage2_evolution_level = stage2_evolution_level
+        
+        # Statistics tracking
+        self.total_pokemon_processed = 0
+        self.total_pokemon_evolved = 0
+        self.evolution_log = []
+    
+    def run(self, context):
+        """Run the Pokemon evolution step."""
+        # Get required extractors
+        trainers = context.get(Trainers)
+        evolution_data = context.get(EvolutionData)
+        mons = context.get(Mons)
+        
+        # Get optional extractors based on mode
+        bosses = None
+        identify_tier = None
+        
+        if self.target_mode == "bosses_only":
+            bosses = context.get(IdentifyBosses)
+            boss_trainer_ids = set()
+            for boss_category in bosses.data.values():
+                for trainer in boss_category.trainers:
+                    boss_trainer_ids.add(trainer.info.trainer_id)
+        
+        if self.evolution_mode == "tier_based":
+            identify_tier = context.get(IdentifyTier)
+        
+        print(f"Evolving trainer Pokemon with {self.evolution_mode} thresholds (target: {self.target_mode})...")
+        
+        # Process all trainers
+        for trainer in trainers.data:
+            # Apply targeting filter
+            if self.target_mode == "bosses_only":
+                if trainer.info.trainer_id not in boss_trainer_ids:
+                    continue
+            
+            # Apply custom trainer filter if provided
+            if self.trainer_filter and not self.trainer_filter(trainer):
+                continue
+            
+            # Get trainer tier if using tier-based evolution
+            trainer_tier = None
+            if self.evolution_mode == "tier_based":
+                trainer_tier = identify_tier.get_tier_for_trainer(trainer.info.trainer_id)
+            
+            # Process each Pokemon in the trainer's team
+            for i, pokemon in enumerate(trainer.team):
+                self.total_pokemon_processed += 1
+                
+                # Get current species data
+                current_species = self._get_pokemon_data(mons, pokemon.species_id)
+                if not current_species:
+                    continue
+                
+                # Check if this Pokemon is an EvioliteUser - if so, don't evolve it
+                if self._is_eviolite_user(context, current_species):
+                    continue
+                
+                # Attempt to evolve the Pokemon
+                evolved_species = self._get_evolved_form(
+                    current_species, pokemon.level, evolution_data, trainer_tier
+                )
+                
+                # Update Pokemon if it evolved
+                if evolved_species.pokemon_id != current_species.pokemon_id:
+                    old_species_id = pokemon.species_id
+                    pokemon.species_id = evolved_species.pokemon_id
+                    self.total_pokemon_evolved += 1
+                    
+                    # Log the evolution
+                    trainer_name = getattr(trainer.info, 'name', f'Trainer {trainer.info.trainer_id}')
+                    self.evolution_log.append({
+                        'trainer': trainer_name,
+                        'pokemon_slot': i,
+                        'level': pokemon.level,
+                        'old_species': old_species_id,
+                        'new_species': evolved_species.pokemon_id,
+                        'tier': trainer_tier
+                    })
+        
+        print(f"\nEvolution Complete:")
+        print(f"  Processed: {self.total_pokemon_processed} Pokemon")
+        print(f"  Evolved: {self.total_pokemon_evolved} Pokemon")
+        
+        # Print evolution statistics by tier if using tier-based mode
+        if self.evolution_mode == "tier_based" and self.evolution_log:
+            tier_stats = {}
+            for entry in self.evolution_log:
+                tier = entry['tier']
+                if tier not in tier_stats:
+                    tier_stats[tier] = 0
+                tier_stats[tier] += 1
+            
+            print(f"\n  Evolution Statistics by Tier:")
+            for tier, count in sorted(tier_stats.items(), key=lambda x: x[0].value):
+                print(f"    {tier}: {count} Pokemon evolved")
+    
+    def _get_pokemon_data(self, mons, pokemon_id):
+        """Get Pokemon data by species ID."""
+        for mon in mons.data:
+            if mon.pokemon_id == pokemon_id:
+                return mon
+        return None
+    
+    def _is_eviolite_user(self, context, pokemon_species):
+        """Check if a Pokemon is an EvioliteUser and should not be evolved.
+        
+        Returns True if the Pokemon should use Eviolite and not evolve.
+        Returns False if EvioliteUser class is not available or Pokemon is not an EvioliteUser.
+        """
+        try:
+            # Try to get the EvioliteUser extractor
+            eviolite_users = context.get(EvioliteUser)
+            return pokemon_species.pokemon_id in eviolite_users.by_id
+        except:
+            # EvioliteUser class doesn't exist yet or isn't available
+            # Return False to allow normal evolution
+            return False
+    
+    def _get_evolved_form(self, base_species, level, evolution_data, trainer_tier=None):
+        """Get the appropriate evolved form based on level and evolution thresholds."""
+        current_species = base_species
+        evolution_path = evolution_data.get_evolution_paths(base_species.pokemon_id)
+        
+        if not evolution_path or len(evolution_path[0]) == 1:
+            # No evolution path, return the base species
+            return current_species
+        
+        full_path = evolution_path[0]  # Get the first (main) evolution path
+        
+        # For tier-based mode, use simplified evolution logic
+        if self.evolution_mode == "tier_based" and trainer_tier is not None:
+            return self._get_tier_based_evolution(full_path, trainer_tier)
+        
+        # For level-based mode, check each evolution in the path
+        for i in range(len(full_path) - 1):
+            current_pokemon_id = full_path[i].pokemon_id
+            next_pokemon = full_path[i + 1]
+            
+            # Get evolution data for current Pokemon
+            current_evo_data = evolution_data.data[current_pokemon_id]
+            
+            # Find the evolution that leads to the next Pokemon in the path
+            evolution_to_next = None
+            for evo in current_evo_data.valid_evolutions:
+                if evo.target and evo.target.pokemon_id == next_pokemon.pokemon_id:
+                    evolution_to_next = evo
+                    break
+            
+            if not evolution_to_next:
+                break
+            
+            # Check if we should evolve based on method and level
+            should_evolve = self._should_evolve(evolution_to_next, level, i, trainer_tier)
+            
+            if should_evolve:
+                current_species = next_pokemon
+            else:
+                break
+        
+        return current_species
+    
+    def _get_tier_based_evolution(self, full_path, trainer_tier):
+        """Get evolved form based on simplified tier-based logic.
+        
+        Tier 2 (Mid Game): All 2-stage evolution families should be fully evolved
+        Tier 3 & 4 (Late/End Game): All 3-stage evolution families should be fully evolved
+        """
+        path_length = len(full_path)
+        
+        if trainer_tier == Tier.EARLY_GAME:
+            # Tier 1: No evolution
+            return full_path[0]
+        elif trainer_tier == Tier.MID_GAME:
+            # Tier 2: Evolve 2-stage families to final form, 3-stage families to stage 1
+            if path_length == 2:
+                # 2-stage family: evolve to final form
+                return full_path[1]
+            elif path_length >= 3:
+                # 3-stage family: evolve to stage 1 only
+                return full_path[1]
+            else:
+                # No evolution possible
+                return full_path[0]
+        elif trainer_tier in [Tier.LATE_GAME, Tier.END_GAME]:
+            # Tier 3 & 4: Evolve all families to final form
+            return full_path[-1]  # Final evolution
+        else:
+            # Fallback: no evolution
+            return full_path[0]
+    
+    def _should_evolve(self, evolution, level, evolution_stage, trainer_tier=None):
+        """Determine if Pokemon should evolve based on evolution method and thresholds."""
+        if EvolutionMethod(evolution.method).param_type == EvoParam.LEVEL:
+            # Level-based evolution: evolve if level >= parameter
+            return level >= evolution.parameter
+        else:
+            # Non-level evolution: use configured thresholds (level-based mode only)
+            if evolution_stage == 0:  # First evolution (base -> stage 1)
+                return level >= self.stage1_evolution_level
+            elif evolution_stage == 1:  # Second evolution (stage 1 -> stage 2)
+                return level >= self.stage2_evolution_level
+        
+        return False
+    
+    def get_evolution_summary(self):
+        """Get a summary of all evolutions performed.
+        
+        Returns:
+            dict: Summary statistics and detailed log
+        """
+        return {
+            'total_processed': self.total_pokemon_processed,
+            'total_evolved': self.total_pokemon_evolved,
+            'evolution_mode': self.evolution_mode,
+            'target_mode': self.target_mode,
+            'evolution_log': self.evolution_log
+        }
+
+
 class ReadTypeMapping(Extractor):
     # set in subclass
     type_data = None
@@ -2775,6 +3170,7 @@ if __name__ == "__main__":
         GeneralEVStep(),
         GeneralIVStep(mode="ScalingIVs"),
         SetTrainerMovesStep()
+        
     ])
     
     ctx.write_all()
