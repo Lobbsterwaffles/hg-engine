@@ -1345,41 +1345,119 @@ class IndexTrainers(Extractor):
         return rs[0] if len(rs) > 0 else None
 
 class ExpandTrainerTeamsStep(Step):
-    """expand trainer teams to a specified size by adding Pokemon with similar BST to team average."""
+    """Expand trainer teams with tier-based sizing options.
     
-    def __init__(self, target_size=6, bosses_only=False):
-        if not (1 <= target_size <= 6):
-            raise ValueError(f"bad size: {target_size}")
-        self.target_size = target_size
+    Supports both scaling (tier-based) and fixed team size modes for regular trainers and bosses.
+    ScalingTrainerTeamSize is the default mode, providing progressive team sizes based on game tiers.
+    """
+    
+    def __init__(self, 
+                 # Tier-based team sizing options
+                 mode="ScalingTrainerTeamSize",  # "ScalingTrainerTeamSize" or "FixedTrainerTeamSize"
+                 boss_mode="ScalingBossTeamSize",  # "ScalingBossTeamSize" or "FixedBossTeamSize"
+                 bosses_only=False,  # Only expand boss teams if True
+                 # Scaling mode parameters - tier-based minimum team sizes
+                 tier1_trainer_team_size=2,
+                 tier2_trainer_team_size=3, 
+                 tier3_trainer_team_size=4,
+                 tier4_trainer_team_size=5,
+                 tier1_boss_team_size=4,
+                 tier2_boss_team_size=6,
+                 tier3_boss_team_size=6,
+                 tier4_boss_team_size=6,
+                 # Fixed mode parameters - global minimum team sizes
+                 fixed_trainer_team_size=3,
+                 fixed_boss_team_size=6):
+        
+        # Validate parameters
+        if mode not in ["ScalingTrainerTeamSize", "FixedTrainerTeamSize"]:
+            raise ValueError(f"Invalid mode: {mode}. Must be 'ScalingTrainerTeamSize' or 'FixedTrainerTeamSize'")
+        if boss_mode not in ["ScalingBossTeamSize", "FixedBossTeamSize"]:
+            raise ValueError(f"Invalid boss_mode: {boss_mode}. Must be 'ScalingBossTeamSize' or 'FixedBossTeamSize'")
+        
+        # Core parameters
         self.bosses_only = bosses_only
+        
+        # New tier-based parameters
+        self.mode = mode
+        self.boss_mode = boss_mode
+        
+        # Scaling mode - tier-based minimum team sizes
+        self.tier_trainer_sizes = {
+            Tier.EARLY_GAME: tier1_trainer_team_size,
+            Tier.MID_GAME: tier2_trainer_team_size,
+            Tier.LATE_GAME: tier3_trainer_team_size,
+            Tier.END_GAME: tier4_trainer_team_size
+        }
+        
+        self.tier_boss_sizes = {
+            Tier.EARLY_GAME: tier1_boss_team_size,
+            Tier.MID_GAME: tier2_boss_team_size,
+            Tier.LATE_GAME: tier3_boss_team_size,
+            Tier.END_GAME: tier4_boss_team_size
+        }
+        
+        # Fixed mode - global minimum team sizes
+        self.fixed_trainer_team_size = fixed_trainer_team_size
+        self.fixed_boss_team_size = fixed_boss_team_size
     
     def run(self, context):
-        if self.bosses_only:
-            # Only expand teams for trainers designated as bosses
-            bosses = context.get(IdentifyBosses)
-            boss_trainer_ids = set()
+        # Get required extractors
+        trainers = context.get(Trainers)
+        bosses = context.get(IdentifyBosses)
+        identify_tier = context.get(IdentifyTier)
+        
+        # Create a set of boss trainer IDs for quick lookup
+        boss_trainer_ids = set()
+        for boss_category in bosses.data.values():
+            for trainer in boss_category.trainers:
+                boss_trainer_ids.add(trainer.info.trainer_id)
+        
+        print(f"Expanding trainer teams with {self.mode} (regular) and {self.boss_mode} (bosses)...")
+        
+        # Process all trainers with tier-based team sizing
+        for trainer in trainers.data:
+            is_boss = trainer.info.trainer_id in boss_trainer_ids
             
-            # Collect all trainer IDs from all boss categories
-            for boss_category in bosses.data.values():
-                for trainer in boss_category.trainers:
-                    boss_trainer_ids.add(trainer.info.trainer_id)
+            # Skip if bosses_only is True and this isn't a boss
+            if self.bosses_only and not is_boss:
+                continue
             
-            # Only expand teams for boss trainers
-            for t in context.get(Trainers).data:
-                if t.info.trainer_id in boss_trainer_ids:
-                    self._expand_trainer_team(context, t)
-        else:
-            # Original behavior: expand all trainer teams
-            for t in context.get(Trainers).data:
-                self._expand_trainer_team(context, t)
+            # Get trainer tier
+            trainer_tier = identify_tier.get_tier_for_trainer(trainer.info.trainer_id)
+            
+            # Determine target team size based on mode and tier
+            if is_boss:
+                target_size = self._get_boss_target_size(trainer_tier)
+            else:
+                target_size = self._get_trainer_target_size(trainer_tier)
+            
+            # Expand team to target size (only if current size is smaller)
+            self._expand_trainer_team(context, trainer, target_size)
     
-    def _expand_trainer_team(self, context, trainer):
+    def _get_trainer_target_size(self, trainer_tier):
+        """Get target team size for regular trainers based on mode and tier."""
+        if self.mode == "ScalingTrainerTeamSize":
+            return self.tier_trainer_sizes[trainer_tier]
+        else:  # FixedTrainerTeamSize
+            return self.fixed_trainer_team_size
+    
+    def _get_boss_target_size(self, trainer_tier):
+        """Get target team size for boss trainers based on mode and tier."""
+        if self.boss_mode == "ScalingBossTeamSize":
+            return self.tier_boss_sizes[trainer_tier]
+        else:  # FixedBossTeamSize
+            return self.fixed_boss_team_size
+    
+    def _expand_trainer_team(self, context, trainer, target_size):
+        """Expand trainer team to target size (only if current size is smaller)."""
         if trainer.info.nummons != len(trainer.team):
             raise RuntimeError(f"team size mismatch! {trainer.info.trainer_id}")
 
         current_size = len(trainer.team)
         
-        if current_size >= self.target_size or current_size == 0:
+        # Only expand if current size is smaller than target (never shrink teams)
+        if current_size >= target_size or current_size == 0:
             return
         
         # Calculate average BST of existing team
@@ -1410,7 +1488,7 @@ class ExpandTrainerTeamsStep(Step):
             template_pokemon.species_id = best_pokemon.pokemon_id
         
         # Fill remaining slots with the selected Pokemon
-        for _ in range(self.target_size - current_size):
+        for _ in range(target_size - current_size):
             trainer.team.append(Container(template_pokemon))
         
         trainer.info.nummons = len(trainer.team)
@@ -2684,9 +2762,9 @@ if __name__ == "__main__":
 
     # Do everything
     ctx.run_pipeline([
+        TrainerMult(multiplier=args.trainer_level_mult),
         ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
         WildMult(multiplier=args.wild_level_mult),
-        TrainerMult(multiplier=args.trainer_level_mult),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters),
