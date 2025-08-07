@@ -18,7 +18,8 @@ from enums import (
     BattleType,
     TrainerClass,
     EvolutionMethod,
-    EvoParam
+    EvoParam,
+    Tier
 )
 from pivots import pivots_type_data, HasAbility
 from fulcrums import fulcrums_type_data
@@ -1546,16 +1547,16 @@ class GeneralEVStep(Step):
         Args:
             ev_budget (int): Default EV budget per Pokemon (default 510, max 510)
             tier_budgets (dict): Optional tier-specific EV budgets {tier_name: budget}
-                                Default: EarlyGame=252, MidGame=510, LateGame=510, EndGame=510
+                                Default: Tier.EARLY_GAME=252, Tier.MID_GAME=510, Tier.LATE_GAME=510, Tier.END_GAME=510
             trainer_filter: Optional function to filter which trainers to modify
         """
         self.default_ev_budget = min(ev_budget, 510)  # Clamp to maximum
         
         self.tier_budgets = tier_budgets or {
-            "EarlyGame": 252,
-            "MidGame": 510,
-            "LateGame": 510,
-            "EndGame": 510
+            Tier.EARLY_GAME: 252,
+            Tier.MID_GAME: 510,
+            Tier.LATE_GAME: 510,
+            Tier.END_GAME: 510
         }
         
         self.trainer_filter = trainer_filter
@@ -1600,14 +1601,18 @@ class GeneralEVStep(Step):
                 continue
             
             # Determine EV budget based on trainer tier
-            ev_budget = self.default_ev_budget
-            trainer_tier = "Unknown"
+            if not identify_tier:
+                raise ValueError("IdentifyTier extractor is required! Every trainer must have a tier!")
             
-            if identify_tier and i < len(trainers.data):
-                trainer_info = trainers.data[i].info
-                if hasattr(trainer_info, 'trainer_id') and trainer_info.trainer_id in identify_tier.data:
-                    trainer_tier = identify_tier.data[trainer_info.trainer_id]
-                    ev_budget = self.tier_budgets.get(trainer_tier, self.default_ev_budget)
+            if i >= len(trainers.data):
+                raise ValueError(f"Trainer index {i} out of range! Trainers data length: {len(trainers.data)}")
+            
+            trainer_info = trainers.data[i].info
+            if not hasattr(trainer_info, 'trainer_id'):
+                raise ValueError(f"Trainer {i} has no trainer_id! All trainers must have IDs!")
+            
+            trainer_tier = identify_tier.get_tier_for_trainer(trainer_info.trainer_id)
+            ev_budget = self.tier_budgets[trainer_tier]
             
             # Track tier statistics
             if trainer_tier not in self.tier_stats:
@@ -1661,7 +1666,7 @@ class GeneralEVStep(Step):
         # Print tier statistics
         if self.tier_stats:
             print(f"\n  Tier Statistics:")
-            for tier, stats in sorted(self.tier_stats.items()):
+            for tier, stats in sorted(self.tier_stats.items(), key=lambda x: x[0].value):
                 budget = self.tier_budgets.get(tier, self.default_ev_budget)
                 print(f"    {tier}: {stats['trainers']} trainers, {stats['pokemon']} Pokemon (Budget: {budget} EVs)")
         else:
@@ -1850,11 +1855,20 @@ class GeneralIVStep(Step):
                 continue
             
             # Determine trainer tier for ScalingIVs
-            trainer_tier = "EarlyGame"
-            if identify_tier and i < len(trainers.data):
+            if self.mode == "ScalingIVs":
+                if not identify_tier:
+                    raise ValueError("IdentifyTier extractor is required for ScalingIVs mode! Every trainer must have a tier!")
+                
+                if i >= len(trainers.data):
+                    raise ValueError(f"Trainer index {i} out of range! Trainers data length: {len(trainers.data)}")
+                
                 trainer_info = trainers.data[i].info
-                if hasattr(trainer_info, 'trainer_id') and trainer_info.trainer_id in identify_tier.data:
-                    trainer_tier = identify_tier.data[trainer_info.trainer_id]
+                if not hasattr(trainer_info, 'trainer_id'):
+                    raise ValueError(f"Trainer {i} has no trainer_id! All trainers must have IDs!")
+                
+                trainer_tier = identify_tier.get_tier_for_trainer(trainer_info.trainer_id)
+            else:
+                trainer_tier = None  # MaxIVs mode doesn't need tiers
             
             # Track tier statistics
             if trainer_tier not in self.tier_stats:
@@ -1895,7 +1909,7 @@ class GeneralIVStep(Step):
         # Print tier statistics for ScalingIVs
         if self.mode == "ScalingIVs" and self.tier_stats:
             print(f"\n  Tier Statistics:")
-            for tier, stats in sorted(self.tier_stats.items()):
+            for tier, stats in sorted(self.tier_stats.items(), key=lambda x: x[0].value if x[0] else ""):
                 tier_num = self._get_tier_number(tier)
                 max_ivs = self._get_max_ivs_for_tier(tier_num)
                 print(f"    {tier} (Tier {tier_num}): {stats['trainers']} trainers, {stats['pokemon']} Pokemon (Max IVs: {max_ivs})")
@@ -1947,12 +1961,14 @@ class GeneralIVStep(Step):
     def _get_tier_number(self, trainer_tier):
         """Convert tier name to tier number."""
         tier_map = {
-            "EarlyGame": 1,
-            "MidGame": 2,
-            "LateGame": 3,
-            "EndGame": 4
+            Tier.EARLY_GAME: 1,
+            Tier.MID_GAME: 2,
+            Tier.LATE_GAME: 3,
+            Tier.END_GAME: 4
         }
-        return tier_map.get(trainer_tier, 1)
+        if trainer_tier not in tier_map:
+            raise ValueError(f"Invalid tier: {trainer_tier}! Valid tiers: {list(tier_map.keys())}")
+        return tier_map[trainer_tier]
     
     def _get_max_ivs_for_tier(self, tier_num):
         """Get number of IVs to set to 31 for each tier."""
@@ -2194,7 +2210,7 @@ class IdentifyTier(Extractor):
     Tiers are defined by specific trainer ace levels:
     - EarlyGame: Level 1 to Whitney's ace level
     - MidGame: Whitney's ace level to Jasmine's ace level  
-    - LateGame: Jasmine's ace level to Will's ace level
+    - Tier.LATE_GAME: Jasmine's ace level to Will's ace level
     - EndGame: Will's ace level to Level 100
     """
     
@@ -2212,10 +2228,10 @@ class IdentifyTier(Extractor):
         
         # Define tier boundaries
         self.tier_boundaries = {
-            "EarlyGame": (1, whitney_ace_level),
-            "MidGame": (whitney_ace_level, jasmine_ace_level),
-            "LateGame": (jasmine_ace_level, will_ace_level),
-            "EndGame": (will_ace_level, 100)
+            Tier.EARLY_GAME: (1, whitney_ace_level),
+            Tier.MID_GAME: (whitney_ace_level, jasmine_ace_level),
+            Tier.LATE_GAME: (jasmine_ace_level, will_ace_level),
+            Tier.END_GAME: (will_ace_level, 100)
         }
         
         # Assign each trainer to a tier
@@ -2267,14 +2283,17 @@ class IdentifyTier(Extractor):
                 return tier_name
         
         # Handle edge case for level 100
-        if level >= self.tier_boundaries["EndGame"][0]:
-            return "EndGame"
+        if level >= self.tier_boundaries[Tier.END_GAME][0]:
+            return Tier.END_GAME
         
-        return "EarlyGame"  # Default fallback
+        # NO FALLBACKS! Every trainer must have a tier!
+        raise ValueError(f"No tier found for level {level}! Tier boundaries: {self.tier_boundaries}")
     
     def get_tier_for_trainer(self, trainer_id):
         """Get the tier for a specific trainer ID."""
-        return self.data.get(trainer_id, "EarlyGame")
+        if trainer_id not in self.data:
+            raise ValueError(f"No tier found for trainer_id {trainer_id}! All trainers must have a tier!")
+        return self.data[trainer_id]
     
     def get_trainers_by_tier(self, tier_name):
         """Get all trainer IDs in a specific tier."""

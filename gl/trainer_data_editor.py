@@ -997,26 +997,122 @@ class AssignCustomSet(Extractor):
         }
 
 
-class GeneralEVAllocator:
-    """Implements the GeneralEV allocation algorithm for trainer Pokemon.
+class GeneralEVStep:
+    """Pipeline step that implements GeneralEV allocation for trainer Pokemon.
     
-    Algorithm:
+    This unified class contains both the EV allocation algorithm and pipeline step functionality.
+    It uses the GeneralEV algorithm to allocate EVs based on Pokemon base stats.
+    
+    GeneralEV Algorithm:
     1. Set EV budget (default 510, max 510)
-    2. Allocate 152 EVs to highest base stat (random if tie)
-    3. Allocate 100 EVs to second highest stat (from remaining if tie)
-    4. Allocate 50 EVs to random stat, 5 times (skip if >252)
-    5. Allocate final 8 EVs to random stat (also respect 252 limit)
+    2. Allocate PRIMARY_ALLOCATION EVs to highest base stat (random if tie)
+    3. Allocate SECONDARY_ALLOCATION EVs to second highest stat (from remaining if tie)
+    4. Allocate RANDOM_ALLOCATION EVs to random stat, RANDOM_ITERATIONS times (skip if >MAX_STAT_EVs)
+    5. Allocate final FINAL_ALLOCATION EVs to random stat (also respect MAX_STAT_EVs limit)
+    
+    Requires the IV_EV_SET flag to be enabled in the trainer data type.
     """
     
-    def __init__(self, context):
+    # GeneralEV Algorithm Constants
+    MAX_EV_BUDGET = 510          # Maximum total EV budget
+    MAX_STAT_EVS = 252           # Maximum EVs per individual stat
+    PRIMARY_ALLOCATION = 152     # EVs allocated to highest base stat
+    SECONDARY_ALLOCATION = 100   # EVs allocated to second highest base stat
+    RANDOM_ALLOCATION = 50       # EVs allocated per random iteration
+    RANDOM_ITERATIONS = 5        # Number of random 50 EV allocations
+    FINAL_ALLOCATION = 8         # Final EVs allocated to random stat
+    
+    def __init__(self, ev_budget=510, trainer_filter=None):
+        """Initialize the GeneralEV step.
+        
+        Args:
+            ev_budget (int): Total EV budget per Pokemon (default 510, max 510)
+            trainer_filter: Optional function to filter which trainers to modify
+        """
+        self.ev_budget = min(ev_budget, self.MAX_EV_BUDGET)  # Clamp to maximum
+        self.trainer_filter = trainer_filter
+        self.total_pokemon_processed = 0
+        self.total_pokemon_allocated = 0
+        self.allocation_log = []
+        
+        # Will be initialized in run() method
+        self.context = None
+        self.mons = None
+        self.random = None
+    
+    def run(self, context):
+        """Run the GeneralEV allocation step."""
+        from framework import TrainerData, Trainers, LoadPokemonNamesStep
+        import random
+        
+        # Initialize context and dependencies
         self.context = context
         self.mons = context.get(Mons)
-        import random
         self.random = random
         
-        # Statistics tracking
-        self.allocations_made = 0
-        self.allocation_log = []
+        trainer_data = context.get(TrainerData)
+        trainers = context.get(Trainers)
+        
+        # Ensure we have the required extractors
+        try:
+            pokemon_names = context.get(LoadPokemonNamesStep)
+        except:
+            pokemon_names = None
+        
+        print(f"Applying GeneralEV allocation with {self.ev_budget} EV budget...")
+        
+        for i, trainer in enumerate(trainer_data.data):
+            # Apply filter if provided
+            if self.trainer_filter and not self.trainer_filter(trainer, i):
+                continue
+            
+            # Check if trainer has IV_EV_SET flag enabled
+            trainer_flags = trainer.trainermontype.data[0]
+            from enums import TrainerDataType
+            if not (trainer_flags & TrainerDataType.IV_EV_SET):
+                continue
+            
+            # Process each Pokemon in the trainer's team
+            if i < len(trainers.data) and trainers.data[i].team:
+                team = trainers.data[i].team
+                trainer_name = getattr(trainer, 'name', f'Trainer {i}')
+                
+                for j, pokemon in enumerate(team):
+                    self.total_pokemon_processed += 1
+                    
+                    # Get Pokemon species ID
+                    species_id = getattr(pokemon, 'species_id', 0)
+                    if species_id == 0:
+                        continue
+                    
+                    # Get Pokemon name for logging
+                    pokemon_name = f'Pokemon {species_id}'
+                    if pokemon_names and hasattr(pokemon_names, 'data') and species_id < len(pokemon_names.data):
+                        pokemon_name = pokemon_names.data[species_id] or pokemon_name
+                    
+                    # Apply GeneralEV allocation
+                    ev_allocation = self.allocate_evs(pokemon, species_id, self.ev_budget)
+                    
+                    self.total_pokemon_allocated += 1
+                    
+                    # Log the allocation
+                    log_entry = {
+                        'trainer': trainer_name,
+                        'pokemon': pokemon_name,
+                        'ev_allocation': ev_allocation,
+                        'total_evs': sum(ev_allocation.values())
+                    }
+                    self.allocation_log.append(log_entry)
+                    
+                    # Print allocation details
+                    total_evs = sum(ev_allocation.values())
+                    ev_str = '/'.join([str(ev_allocation[stat]) for stat in ['hp', 'atk', 'def', 'spatk', 'spdef', 'speed']])
+                    print(f"  {trainer_name} - {pokemon_name}: {ev_str} (Total: {total_evs})")
+        
+        print(f"\nGeneralEV Allocation Complete:")
+        print(f"  Processed: {self.total_pokemon_processed} Pokemon")
+        print(f"  Allocated: {self.total_pokemon_allocated} Pokemon")
+        print(f"  EV Budget: {self.ev_budget}")
     
     def allocate_evs(self, pokemon, pokemon_id, ev_budget=510):
         """Allocate EVs using the GeneralEV algorithm.
@@ -1030,12 +1126,12 @@ class GeneralEVAllocator:
             dict: Final EV allocation {stat: value}
         """
         # Clamp EV budget to maximum
-        ev_budget = min(ev_budget, 510)
+        ev_budget = min(ev_budget, self.MAX_EV_BUDGET)
         
-        # Get Pokemon base stats
+        # Get Pokemon base stats - NO FALLBACKS! Every Pokemon must have data!
         mon_data = self._get_pokemon_data(pokemon_id)
         if not mon_data:
-            return self._apply_fallback_evs(pokemon)
+            raise ValueError(f"No Pokemon data found for species ID {pokemon_id}! All Pokemon must have base stat data!")
         
         # Initialize EV allocation
         ev_allocation = {
@@ -1053,19 +1149,19 @@ class GeneralEVAllocator:
             'spdef': mon_data.sp_defense
         }
         
-        # Step 1: Allocate 152 EVs to highest base stat
+        # Step 1: Allocate PRIMARY_ALLOCATION EVs to highest base stat
         highest_stats = self._get_highest_stats(base_stats)
         chosen_highest = self.random.choice(highest_stats)
         
-        if remaining_budget >= 152:
-            ev_allocation[chosen_highest] = 152
-            remaining_budget -= 152
+        if remaining_budget >= self.PRIMARY_ALLOCATION:
+            ev_allocation[chosen_highest] = self.PRIMARY_ALLOCATION
+            remaining_budget -= self.PRIMARY_ALLOCATION
         else:
             ev_allocation[chosen_highest] = remaining_budget
             remaining_budget = 0
         
-        # Step 2: Allocate 100 EVs to second highest stat (excluding the chosen highest)
-        if remaining_budget >= 100:
+        # Step 2: Allocate SECONDARY_ALLOCATION EVs to second highest stat (excluding the chosen highest)
+        if remaining_budget >= self.SECONDARY_ALLOCATION:
             remaining_highest = [stat for stat in highest_stats if stat != chosen_highest]
             if remaining_highest:
                 chosen_second = self.random.choice(remaining_highest)
@@ -1079,35 +1175,35 @@ class GeneralEVAllocator:
                     available_stats = [s for s in base_stats.keys() if s != chosen_highest]
                     chosen_second = self.random.choice(available_stats) if available_stats else chosen_highest
             
-            ev_allocation[chosen_second] = 100
-            remaining_budget -= 100
+            ev_allocation[chosen_second] = self.SECONDARY_ALLOCATION
+            remaining_budget -= self.SECONDARY_ALLOCATION
         
-        # Step 3: Allocate 50 EVs to random stats, 5 times
-        for _ in range(5):
-            if remaining_budget < 50:
+        # Step 3: Allocate RANDOM_ALLOCATION EVs to random stats, RANDOM_ITERATIONS times
+        for _ in range(self.RANDOM_ITERATIONS):
+            if remaining_budget < self.RANDOM_ALLOCATION:
                 break
             
-            # Find stats that can accept 50 more EVs (won't exceed 252)
+            # Find stats that can accept RANDOM_ALLOCATION more EVs (won't exceed MAX_STAT_EVS)
             available_stats = [stat for stat in ev_allocation.keys() 
-                             if ev_allocation[stat] + 50 <= 252]
+                             if ev_allocation[stat] + self.RANDOM_ALLOCATION <= self.MAX_STAT_EVS]
             
             if available_stats:
                 chosen_stat = self.random.choice(available_stats)
-                ev_allocation[chosen_stat] += 50
-                remaining_budget -= 50
+                ev_allocation[chosen_stat] += self.RANDOM_ALLOCATION
+                remaining_budget -= self.RANDOM_ALLOCATION
             else:
-                # No stats can accept 50 EVs, skip this allocation
+                # No stats can accept RANDOM_ALLOCATION EVs, skip this allocation
                 break
         
-        # Step 4: Allocate final 8 EVs to a random stat
-        if remaining_budget >= 8:
+        # Step 4: Allocate final FINAL_ALLOCATION EVs to a random stat
+        if remaining_budget >= self.FINAL_ALLOCATION:
             available_stats = [stat for stat in ev_allocation.keys() 
-                             if ev_allocation[stat] + 8 <= 252]
+                             if ev_allocation[stat] + self.FINAL_ALLOCATION <= self.MAX_STAT_EVS]
             
             if available_stats:
                 chosen_stat = self.random.choice(available_stats)
-                ev_allocation[chosen_stat] += 8
-                remaining_budget -= 8
+                ev_allocation[chosen_stat] += self.FINAL_ALLOCATION
+                remaining_budget -= self.FINAL_ALLOCATION
         
         # Apply the EV allocation to the Pokemon
         pokemon.hp_ev = ev_allocation['hp']
@@ -1142,114 +1238,7 @@ class GeneralEVAllocator:
         max_value = max(remaining_stats.values())
         return [stat for stat, value in remaining_stats.items() if value == max_value]
     
-    def _apply_fallback_evs(self, pokemon):
-        """Apply fallback EV allocation if Pokemon data not found."""
-        # Simple fallback: 85 EVs in each stat (510 total)
-        fallback_ev = 85
-        
-        pokemon.hp_ev = fallback_ev
-        pokemon.atk_ev = fallback_ev
-        pokemon.def_ev = fallback_ev
-        pokemon.speed_ev = fallback_ev
-        pokemon.spatk_ev = fallback_ev
-        pokemon.spdef_ev = fallback_ev
-        
-        return {
-            'hp': fallback_ev, 'atk': fallback_ev, 'def': fallback_ev,
-            'speed': fallback_ev, 'spatk': fallback_ev, 'spdef': fallback_ev
-        }
 
-
-class GeneralEVStep:
-    """Pipeline step to apply GeneralEV allocation to trainer Pokemon.
-    
-    This step uses the GeneralEV algorithm to allocate EVs based on Pokemon base stats.
-    It requires the IV_EV_SET flag to be enabled in the trainer data type.
-    """
-    
-    def __init__(self, ev_budget=510, trainer_filter=None):
-        """Initialize the GeneralEV step.
-        
-        Args:
-            ev_budget (int): Total EV budget per Pokemon (default 510, max 510)
-            trainer_filter: Optional function to filter which trainers to modify
-        """
-        self.ev_budget = min(ev_budget, 510)  # Clamp to maximum
-        self.trainer_filter = trainer_filter
-        self.total_pokemon_processed = 0
-        self.total_pokemon_allocated = 0
-        self.allocation_log = []
-    
-    def run(self, context):
-        """Run the GeneralEV allocation step."""
-        from framework import TrainerData, Trainers, LoadPokemonNamesStep
-        
-        trainer_data = context.get(TrainerData)
-        trainers = context.get(Trainers)
-        
-        # Ensure we have the required extractors
-        try:
-            pokemon_names = context.get(LoadPokemonNamesStep)
-        except:
-            pokemon_names = None
-        
-        # Initialize EV allocator
-        ev_allocator = GeneralEVAllocator(context)
-        
-        print(f"Applying GeneralEV allocation with {self.ev_budget} EV budget...")
-        
-        for i, trainer in enumerate(trainer_data.data):
-            # Apply filter if provided
-            if self.trainer_filter and not self.trainer_filter(trainer, i):
-                continue
-            
-            # Check if trainer has IV_EV_SET flag enabled
-            trainer_flags = trainer.trainermontype.data[0]
-            from enums import TrainerDataType
-            if not (trainer_flags & TrainerDataType.IV_EV_SET):
-                continue
-            
-            # Process each Pokemon in the trainer's team
-            if i < len(trainers.data) and trainers.data[i].team:
-                team = trainers.data[i].team
-                trainer_name = getattr(trainer, 'name', f'Trainer {i}')
-                
-                for j, pokemon in enumerate(team):
-                    self.total_pokemon_processed += 1
-                    
-                    # Get Pokemon species ID
-                    species_id = getattr(pokemon, 'species_id', 0)
-                    if species_id == 0:
-                        continue
-                    
-                    # Get Pokemon name for logging
-                    pokemon_name = f'Pokemon {species_id}'
-                    if pokemon_names and hasattr(pokemon_names, 'data') and species_id < len(pokemon_names.data):
-                        pokemon_name = pokemon_names.data[species_id] or pokemon_name
-                    
-                    # Apply GeneralEV allocation
-                    ev_allocation = ev_allocator.allocate_evs(pokemon, species_id, self.ev_budget)
-                    
-                    self.total_pokemon_allocated += 1
-                    
-                    # Log the allocation
-                    log_entry = {
-                        'trainer': trainer_name,
-                        'pokemon': pokemon_name,
-                        'ev_allocation': ev_allocation,
-                        'total_evs': sum(ev_allocation.values())
-                    }
-                    self.allocation_log.append(log_entry)
-                    
-                    # Print allocation details
-                    total_evs = sum(ev_allocation.values())
-                    ev_str = '/'.join([str(ev_allocation[stat]) for stat in ['hp', 'atk', 'def', 'spatk', 'spdef', 'speed']])
-                    print(f"  {trainer_name} - {pokemon_name}: {ev_str} (Total: {total_evs})")
-        
-        print(f"\nGeneralEV Allocation Complete:")
-        print(f"  Processed: {self.total_pokemon_processed} Pokemon")
-        print(f"  Allocated: {self.total_pokemon_allocated} Pokemon")
-        print(f"  EV Budget: {self.ev_budget}")
     
     def get_allocation_summary(self):
         """Get a summary of all EV allocations performed.
