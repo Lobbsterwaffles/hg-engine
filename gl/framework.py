@@ -1532,6 +1532,439 @@ class ChangeTrainerDataTypeStep(Step):
         return ' | '.join(flag_names)
 
 
+class GeneralEVStep(Step):
+    """Pipeline step to apply GeneralEV allocation to trainer Pokemon.
+    
+    This step uses the GeneralEV algorithm to allocate EVs based on Pokemon base stats.
+    It requires the IV_EV_SET flag to be enabled in the trainer data type.
+    Supports tier-based EV budgets for progressive difficulty scaling.
+    """
+    
+    def __init__(self, ev_budget=510, tier_budgets=None, trainer_filter=None):
+        """Initialize the GeneralEV step.
+        
+        Args:
+            ev_budget (int): Default EV budget per Pokemon (default 510, max 510)
+            tier_budgets (dict): Optional tier-specific EV budgets {tier_name: budget}
+                                Default: EarlyGame=252, MidGame=510, LateGame=510, EndGame=510
+            trainer_filter: Optional function to filter which trainers to modify
+        """
+        self.default_ev_budget = min(ev_budget, 510)  # Clamp to maximum
+        
+        self.tier_budgets = tier_budgets or {
+            "EarlyGame": 252,
+            "MidGame": 510,
+            "LateGame": 510,
+            "EndGame": 510
+        }
+        
+        self.trainer_filter = trainer_filter
+        self.total_pokemon_processed = 0
+        self.total_pokemon_allocated = 0
+        self.allocation_log = []
+        self.tier_stats = {}  # Track allocations per tier
+    
+    def run(self, context):
+        """Run the GeneralEV allocation step."""
+        trainer_data = context.get(TrainerData)
+        trainers = context.get(Trainers)
+        mons = context.get(Mons)
+        
+        # Get tier information for progressive EV budgets
+        try:
+            identify_tier = context.get(IdentifyTier)
+        except:
+            identify_tier = None
+            print("Warning: IdentifyTier not available, using default EV budget for all trainers")
+        
+        # Ensure we have the required extractors
+        try:
+            pokemon_names = context.get(LoadPokemonNamesStep)
+        except:
+            pokemon_names = None
+        
+        print(f"Applying GeneralEV allocation with tier-based EV budgets...")
+        if identify_tier:
+            print(f"Tier budgets: {self.tier_budgets}")
+        else:
+            print(f"Default budget: {self.default_ev_budget}")
+        
+        for i, trainer in enumerate(trainer_data.data):
+            # Apply filter if provided
+            if self.trainer_filter and not self.trainer_filter(trainer, i):
+                continue
+            
+            # Check if trainer has IV_EV_SET flag enabled
+            trainer_flags = trainer.trainermontype.data[0]
+            if not (trainer_flags & TrainerDataType.IV_EV_SET):
+                continue
+            
+            # Determine EV budget based on trainer tier
+            ev_budget = self.default_ev_budget
+            trainer_tier = "Unknown"
+            
+            if identify_tier and i < len(trainers.data):
+                trainer_info = trainers.data[i].info
+                if hasattr(trainer_info, 'trainer_id') and trainer_info.trainer_id in identify_tier.data:
+                    trainer_tier = identify_tier.data[trainer_info.trainer_id]
+                    ev_budget = self.tier_budgets.get(trainer_tier, self.default_ev_budget)
+            
+            # Track tier statistics
+            if trainer_tier not in self.tier_stats:
+                self.tier_stats[trainer_tier] = {'trainers': 0, 'pokemon': 0}
+            self.tier_stats[trainer_tier]['trainers'] += 1
+            
+            # Process each Pokemon in the trainer's team
+            if i < len(trainers.data) and trainers.data[i].team:
+                team = trainers.data[i].team
+                trainer_name = getattr(trainer, 'name', f'Trainer {i}')
+                
+                for j, pokemon in enumerate(team):
+                    self.total_pokemon_processed += 1
+                    self.tier_stats[trainer_tier]['pokemon'] += 1
+                    
+                    # Get Pokemon species ID
+                    species_id = getattr(pokemon, 'species_id', 0)
+                    if species_id == 0:
+                        continue
+                    
+                    # Get Pokemon name for logging
+                    pokemon_name = f'Pokemon {species_id}'
+                    if pokemon_names and hasattr(pokemon_names, 'data') and species_id < len(pokemon_names.data):
+                        pokemon_name = pokemon_names.data[species_id] or pokemon_name
+                    
+                    # Apply GeneralEV allocation with tier-specific budget
+                    ev_allocation = self._allocate_evs(pokemon, species_id, mons, ev_budget)
+                    
+                    self.total_pokemon_allocated += 1
+                    
+                    # Log the allocation with tier information
+                    log_entry = {
+                        'trainer': trainer_name,
+                        'trainer_tier': trainer_tier,
+                        'pokemon': pokemon_name,
+                        'ev_allocation': ev_allocation,
+                        'ev_budget': ev_budget,
+                        'total_evs': sum(ev_allocation.values())
+                    }
+                    self.allocation_log.append(log_entry)
+                    
+                    # Print allocation details with tier info
+                    total_evs = sum(ev_allocation.values())
+                    ev_str = '/'.join([str(ev_allocation[stat]) for stat in ['hp', 'atk', 'def', 'spatk', 'spdef', 'speed']])
+                    print(f"  {trainer_name} ({trainer_tier}) - {pokemon_name}: {ev_str} (Total: {total_evs}/{ev_budget})")
+        
+        print(f"\nGeneralEV Allocation Complete:")
+        print(f"  Processed: {self.total_pokemon_processed} Pokemon")
+        print(f"  Allocated: {self.total_pokemon_allocated} Pokemon")
+        
+        # Print tier statistics
+        if self.tier_stats:
+            print(f"\n  Tier Statistics:")
+            for tier, stats in sorted(self.tier_stats.items()):
+                budget = self.tier_budgets.get(tier, self.default_ev_budget)
+                print(f"    {tier}: {stats['trainers']} trainers, {stats['pokemon']} Pokemon (Budget: {budget} EVs)")
+        else:
+            print(f"  Default EV Budget: {self.default_ev_budget}")
+    
+    def _allocate_evs(self, pokemon, pokemon_id, mons, ev_budget=510):
+        """Allocate EVs using the GeneralEV algorithm.
+        
+        Args:
+            pokemon: Pokemon object to allocate EVs for
+            pokemon_id: Pokemon species ID
+            mons: Mons extractor with base stats
+            ev_budget: Total EV budget to allocate (default 510)
+        """
+        import random
+        
+        # Get base stats for the Pokemon
+        if pokemon_id >= len(mons.data):
+            return {'hp': 0, 'atk': 0, 'def': 0, 'spatk': 0, 'spdef': 0, 'speed': 0}
+        
+        base_stats = mons.data[pokemon_id]
+        
+        # Initialize EV allocation
+        ev_allocation = {'hp': 0, 'atk': 0, 'def': 0, 'spatk': 0, 'spdef': 0, 'speed': 0}
+        remaining_budget = ev_budget
+        
+        # Get base stats for allocation decisions
+        stats = {
+            'hp': base_stats.hp,
+            'atk': base_stats.attack,
+            'def': base_stats.defense,
+            'spatk': base_stats.sp_attack,
+            'spdef': base_stats.sp_defense,
+            'speed': base_stats.speed
+        }
+        
+        # Step 1: Allocate 152 EVs to highest base stat
+        highest_stats = self._get_highest_stats(stats)
+        chosen_highest = random.choice(highest_stats)
+        
+        if remaining_budget >= 152:
+            ev_allocation[chosen_highest] = 152
+            remaining_budget -= 152
+        else:
+            ev_allocation[chosen_highest] = remaining_budget
+            remaining_budget = 0
+        
+        # Step 2: Allocate 100 EVs to second highest stat
+        if remaining_budget >= 100:
+            remaining_highest = [stat for stat in highest_stats if stat != chosen_highest]
+            if remaining_highest:
+                chosen_second = random.choice(remaining_highest)
+            else:
+                # Get next highest tier
+                second_highest_stats = self._get_second_highest_stats(stats, highest_stats)
+                if second_highest_stats:
+                    chosen_second = random.choice(second_highest_stats)
+                else:
+                    # Fallback to any remaining stat
+                    available_stats = [s for s in stats.keys() if s != chosen_highest]
+                    chosen_second = random.choice(available_stats) if available_stats else chosen_highest
+            
+            ev_allocation[chosen_second] = 100
+            remaining_budget -= 100
+        
+        # Step 3: Allocate 50 EVs to random stats, 5 times
+        for _ in range(5):
+            if remaining_budget < 50:
+                break
+            
+            # Find stats that can accept 50 more EVs (won't exceed 252)
+            available_stats = [stat for stat in ev_allocation.keys() 
+                             if ev_allocation[stat] + 50 <= 252]
+            
+            if available_stats:
+                chosen_stat = random.choice(available_stats)
+                ev_allocation[chosen_stat] += 50
+                remaining_budget -= 50
+            else:
+                break
+        
+        # Step 4: Allocate final 8 EVs to a random stat
+        if remaining_budget >= 8:
+            available_stats = [stat for stat in ev_allocation.keys() 
+                             if ev_allocation[stat] + 8 <= 252]
+            
+            if available_stats:
+                chosen_stat = random.choice(available_stats)
+                ev_allocation[chosen_stat] += 8
+                remaining_budget -= 8
+        
+        # Apply the EV allocation to the Pokemon
+        pokemon.hp_ev = ev_allocation['hp']
+        pokemon.atk_ev = ev_allocation['atk']
+        pokemon.def_ev = ev_allocation['def']
+        pokemon.speed_ev = ev_allocation['speed']
+        pokemon.spatk_ev = ev_allocation['spatk']
+        pokemon.spdef_ev = ev_allocation['spdef']
+        
+        return ev_allocation
+    
+    def _get_highest_stats(self, base_stats):
+        """Get list of stats tied for highest value."""
+        max_value = max(base_stats.values())
+        return [stat for stat, value in base_stats.items() if value == max_value]
+    
+    def _get_second_highest_stats(self, base_stats, exclude_stats):
+        """Get list of stats tied for second highest value, excluding specified stats."""
+        remaining_stats = {stat: value for stat, value in base_stats.items() 
+                         if stat not in exclude_stats}
+        
+        if not remaining_stats:
+            return []
+        
+        max_value = max(remaining_stats.values())
+        return [stat for stat, value in remaining_stats.items() if value == max_value]
+    
+    def _apply_fallback_evs(self, pokemon):
+        """Apply fallback EV allocation if Pokemon data not found."""
+        # Simple fallback: 85 EVs in each stat (510 total)
+        fallback_ev = 85
+        
+        pokemon.hp_ev = fallback_ev
+        pokemon.atk_ev = fallback_ev
+        pokemon.def_ev = fallback_ev
+        pokemon.speed_ev = fallback_ev
+        pokemon.spatk_ev = fallback_ev
+        pokemon.spdef_ev = fallback_ev
+        
+        return {
+            'hp': fallback_ev, 'atk': fallback_ev, 'def': fallback_ev,
+            'speed': fallback_ev, 'spatk': fallback_ev, 'spdef': fallback_ev
+        }
+
+
+class GeneralIVStep(Step):
+    """Pipeline step to apply tier-based IV allocation to trainer Pokemon.
+    
+    Supports two modes:
+    - ScalingIVs: Progressive IV quality based on trainer tier
+    - MaxIVs: All IVs set to 31
+    """
+    
+    def __init__(self, mode="ScalingIVs", trainer_filter=None):
+        """Initialize the GeneralIV step.
+        
+        Args:
+            mode (str): "ScalingIVs" or "MaxIVs"
+            trainer_filter: Optional function to filter which trainers to modify
+        """
+        self.mode = mode
+        self.trainer_filter = trainer_filter
+        self.total_pokemon_processed = 0
+        self.total_pokemon_allocated = 0
+        self.tier_stats = {}
+    
+    def run(self, context):
+        """Run the GeneralIV allocation step."""
+        trainer_data = context.get(TrainerData)
+        trainers = context.get(Trainers)
+        
+        # Get tier information for scaling IVs
+        identify_tier = None
+        if self.mode == "ScalingIVs":
+            try:
+                identify_tier = context.get(IdentifyTier)
+            except:
+                print("Warning: IdentifyTier not available, using Tier 1 for all trainers")
+        
+        # Get Pokemon names for logging
+        try:
+            pokemon_names = context.get(LoadPokemonNamesStep)
+        except:
+            pokemon_names = None
+        
+        print(f"Applying {self.mode} IV allocation...")
+        
+        for i, trainer in enumerate(trainer_data.data):
+            # Apply filter if provided
+            if self.trainer_filter and not self.trainer_filter(trainer, i):
+                continue
+            
+            # Check if trainer has IV_EV_SET flag enabled
+            trainer_flags = trainer.trainermontype.data[0]
+            if not (trainer_flags & TrainerDataType.IV_EV_SET):
+                continue
+            
+            # Determine trainer tier for ScalingIVs
+            trainer_tier = "EarlyGame"
+            if identify_tier and i < len(trainers.data):
+                trainer_info = trainers.data[i].info
+                if hasattr(trainer_info, 'trainer_id') and trainer_info.trainer_id in identify_tier.data:
+                    trainer_tier = identify_tier.data[trainer_info.trainer_id]
+            
+            # Track tier statistics
+            if trainer_tier not in self.tier_stats:
+                self.tier_stats[trainer_tier] = {'trainers': 0, 'pokemon': 0}
+            self.tier_stats[trainer_tier]['trainers'] += 1
+            
+            # Process each Pokemon in the trainer's team
+            if i < len(trainers.data) and trainers.data[i].team:
+                team = trainers.data[i].team
+                trainer_name = getattr(trainer, 'name', f'Trainer {i}')
+                
+                for j, pokemon in enumerate(team):
+                    self.total_pokemon_processed += 1
+                    self.tier_stats[trainer_tier]['pokemon'] += 1
+                    
+                    # Get Pokemon species ID and name
+                    species_id = getattr(pokemon, 'species_id', 0)
+                    pokemon_name = f'Pokemon {species_id}'
+                    if pokemon_names and hasattr(pokemon_names, 'data') and species_id < len(pokemon_names.data):
+                        pokemon_name = pokemon_names.data[species_id] or pokemon_name
+                    
+                    # Apply IV allocation based on mode
+                    if self.mode == "MaxIVs":
+                        iv_allocation = self._allocate_max_ivs(pokemon)
+                    else:  # ScalingIVs
+                        iv_allocation = self._allocate_scaling_ivs(pokemon, trainer_tier)
+                    
+                    self.total_pokemon_allocated += 1
+                    
+                    # Log the allocation
+                    iv_str = '/'.join([str(iv_allocation[stat]) for stat in ['hp', 'atk', 'def', 'spatk', 'spdef', 'speed']])
+                    print(f"  {trainer_name} ({trainer_tier}) - {pokemon_name}: {iv_str}")
+        
+        print(f"\n{self.mode} IV Allocation Complete:")
+        print(f"  Processed: {self.total_pokemon_processed} Pokemon")
+        print(f"  Allocated: {self.total_pokemon_allocated} Pokemon")
+        
+        # Print tier statistics for ScalingIVs
+        if self.mode == "ScalingIVs" and self.tier_stats:
+            print(f"\n  Tier Statistics:")
+            for tier, stats in sorted(self.tier_stats.items()):
+                tier_num = self._get_tier_number(tier)
+                max_ivs = self._get_max_ivs_for_tier(tier_num)
+                print(f"    {tier} (Tier {tier_num}): {stats['trainers']} trainers, {stats['pokemon']} Pokemon (Max IVs: {max_ivs})")
+    
+    def _allocate_max_ivs(self, pokemon):
+        """Set all IVs to 31."""
+        pokemon.hp_iv = 31
+        pokemon.atk_iv = 31
+        pokemon.def_iv = 31
+        pokemon.speed_iv = 31
+        pokemon.spatk_iv = 31
+        pokemon.spdef_iv = 31
+        
+        return {'hp': 31, 'atk': 31, 'def': 31, 'spatk': 31, 'spdef': 31, 'speed': 31}
+    
+    def _allocate_scaling_ivs(self, pokemon, trainer_tier):
+        """Allocate IVs based on trainer tier."""
+        import random
+        
+        tier_num = self._get_tier_number(trainer_tier)
+        max_ivs_count = self._get_max_ivs_for_tier(tier_num)
+        
+        # Start with all IVs in range 16-31
+        iv_allocation = {
+            'hp': random.randint(16, 31),
+            'atk': random.randint(16, 31),
+            'def': random.randint(16, 31),
+            'spatk': random.randint(16, 31),
+            'spdef': random.randint(16, 31),
+            'speed': random.randint(16, 31)
+        }
+        
+        # Randomly select stats to set to 31 based on tier
+        if max_ivs_count > 0:
+            stats_to_max = random.sample(list(iv_allocation.keys()), min(max_ivs_count, 6))
+            for stat in stats_to_max:
+                iv_allocation[stat] = 31
+        
+        # Apply to Pokemon object
+        pokemon.hp_iv = iv_allocation['hp']
+        pokemon.atk_iv = iv_allocation['atk']
+        pokemon.def_iv = iv_allocation['def']
+        pokemon.speed_iv = iv_allocation['speed']
+        pokemon.spatk_iv = iv_allocation['spatk']
+        pokemon.spdef_iv = iv_allocation['spdef']
+        
+        return iv_allocation
+    
+    def _get_tier_number(self, trainer_tier):
+        """Convert tier name to tier number."""
+        tier_map = {
+            "EarlyGame": 1,
+            "MidGame": 2,
+            "LateGame": 3,
+            "EndGame": 4
+        }
+        return tier_map.get(trainer_tier, 1)
+    
+    def _get_max_ivs_for_tier(self, tier_num):
+        """Get number of IVs to set to 31 for each tier."""
+        tier_max_ivs = {
+            1: 0,  # Tier 1: All random 16-31
+            2: 2,  # Tier 2: 2 IVs at 31
+            3: 4,  # Tier 3: 4 IVs at 31
+            4: 6   # Tier 4: All IVs at 31
+        }
+        return tier_max_ivs.get(tier_num, 0)
+
+
 class SetTrainerMovesStep(Step):
     """Step to set each trainer Pokemon's moves to the last four moves learned at their current level."""
     
@@ -2242,6 +2675,8 @@ if __name__ == "__main__":
         *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
         *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
         ChangeTrainerDataTypeStep(target_flags = TrainerDataType.MOVES | TrainerDataType.ITEMS | TrainerDataType.IV_EV_SET),
+        GeneralEVStep(),
+        GeneralIVStep(mode="ScalingIVs"),
         SetTrainerMovesStep()
     ])
     
