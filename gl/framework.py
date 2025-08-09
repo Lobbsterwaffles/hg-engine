@@ -597,10 +597,7 @@ class TrainerData(Writeback, NarcExtractor):
             "trainermontype" / RawCopy(FlagsEnum(Int8ul, TrainerDataType)),
             "trainerclass" / Int16ul,
             "nummons" / Int8ul,
-            "item1" / Int16ul,
-            "item2" / Int16ul,
-            "item3" / Int16ul,
-            "item4" / Int16ul,
+            "battleitems" / Array(4, Int16ul),
             "aiflags" / Int32ul,
             "battletype" / Enum(Int8ul, BattleType),
             Padding(2),
@@ -1753,6 +1750,37 @@ class ChangeTrainerDataTypeStep(Step):
             return 'NOTHING'
         
         return ' | '.join(flag_names)
+
+
+class NoEnemyBattleItems(Step):
+    
+    def __init__(self, trainer_filter=None):
+        self.trainer_filter = trainer_filter
+    
+    def run(self, context):
+        """Execute the step to remove all battle items from trainers."""
+        trainer_data = context.get(TrainerData)
+        
+        modified_count = 0
+        
+        # Process all trainers
+        for i, trainer in enumerate(trainer_data.data):
+            # Apply filter if provided
+            if self.trainer_filter and not self.trainer_filter(trainer, i):
+                continue
+            
+            # Check if trainer has any battle items
+            has_items = any(item != 0 for item in trainer.battleitems)
+            
+            # Set all battle items to 0
+            trainer.battleitems = [0, 0, 0, 0]
+            
+            # Only count trainers that actually had items
+            if has_items:
+                modified_count += 1
+        
+        print(f"Removed battle items from {modified_count} trainers")
+        return modified_count
 
 
 class GeneralEVStep(Step):
@@ -3123,6 +3151,7 @@ if __name__ == "__main__":
     parser.add_argument("--randomize-starters", action="store_true", help="Randomize starter Pokémon")
     parser.add_argument("--consistent-rival-starters", action="store_true", help="Update rival teams to use starters consistent with the player's randomized choice")
     parser.add_argument("--randomize-ordinary-trainers", action="store_true", help="Randomize all ordinary trainers (rivals, Team Rocket, etc.)")
+    parser.add_argument("--no-enemy-battle-items", action="store_true", help="Remove all battle items from enemy trainers")
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -3167,6 +3196,7 @@ if __name__ == "__main__":
         *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
         *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
         ChangeTrainerDataTypeStep(target_flags = TrainerDataType.MOVES | TrainerDataType.ITEMS | TrainerDataType.IV_EV_SET),
+        *([] if not args.no_enemy_battle_items else [NoEnemyBattleItems()]),
         GeneralEVStep(),
         GeneralIVStep(mode="ScalingIVs"),
         SetTrainerMovesStep()
