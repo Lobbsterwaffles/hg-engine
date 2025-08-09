@@ -1,5 +1,5 @@
 """
-Move selection logic for Pokemon ROM randomization.
+Move Naelection logic for Pokemon ROM randomization.
 
 This module contains classes and logic for determining appropriate movesets
 for trainer Pokemon based on various criteria like attacker type, level, etc.

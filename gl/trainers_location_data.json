@@ -1,0 +1,1706 @@
+[
+  {
+    "trainer": "Rival",
+    "area": "Cherrygrove City"
+  },
+  {
+    "trainer": "Youngster Joey",
+    "area": "Route 30"
+  },
+  {
+    "trainer": "Youngster Mikey",
+    "area": "Route 30"
+  },
+  {
+    "trainer": "Bug Catcher Don",
+    "area": "Route 30"
+  },
+  {
+    "trainer": "Bug Catcher Wade",
+    "area": "Route 31"
+  },
+  {
+    "trainer": "Sage Nico",
+    "area": "Sprout Tower"
+  },
+  {
+    "trainer": "Sage Chow",
+    "area": "Sprout Tower"
+  },
+  {
+    "trainer": "Sage Edmond",
+    "area": "Sprout Tower"
+  },
+  {
+    "trainer": "Sage Jin",
+    "area": "Sprout Tower"
+  },
+  {
+    "trainer": "Sage Neal",
+    "area": "Sprout Tower"
+  },
+  {
+    "trainer": "Sage Troy",
+    "area": "Sprout Tower"
+  },
+  {
+    "trainer": "Elder Li",
+    "area": "Sprout Tower"
+  },
+  {
+    "trainer": "Bird Keeper Abe",
+    "area": "Violet Gym"
+  },
+  {
+    "trainer": "Bird Keeper Rod",
+    "area": "Violet Gym"
+  },
+  {
+    "trainer": "Leader Falkner",
+    "area": "Violet Gym"
+  },
+  {
+    "trainer": "Youngster Albert",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Picnicker Liz",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Camper Roland",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Fisherman Henry",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Fisherman Justin",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Fisherman Ralph",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Youngster Gordon",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Bird Keeper Peter",
+    "area": "Route 32"
+  },
+  {
+    "trainer": "Firebreather Ray",
+    "area": "Union Cave"
+  },
+  {
+    "trainer": "Hiker Daniel",
+    "area": "Union Cave"
+  },
+  {
+    "trainer": "Hiker Russel",
+    "area": "Union Cave"
+  },
+  {
+    "trainer": "Firebreather Bill",
+    "area": "Union Cave"
+  },
+  {
+    "trainer": "Pok\u00e9 Maniac Larry",
+    "area": "Union Cave"
+  },
+  {
+    "trainer": "Hiker Anthony",
+    "area": "Route 33"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Slowpoke Well"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Slowpoke Well"
+  },
+  {
+    "trainer": "Team Rocket Grunt 3",
+    "area": "Slowpoke Well"
+  },
+  {
+    "trainer": "Executive Proton",
+    "area": "Slowpoke Well"
+  },
+  {
+    "trainer": "Rival",
+    "area": "Azalea Town"
+  },
+  {
+    "trainer": "Bug Catcher Al",
+    "area": "Azalea Gym"
+  },
+  {
+    "trainer": "Bug Catcher Benny",
+    "area": "Azalea Gym"
+  },
+  {
+    "trainer": "Bug Catcher Josh",
+    "area": "Azalea Gym"
+  },
+  {
+    "trainer": "Twins Amy & Mimi",
+    "area": "Azalea Gym"
+  },
+  {
+    "trainer": "Leader Bugsy",
+    "area": "Azalea Gym"
+  },
+  {
+    "trainer": "Youngster Samuel",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Pok\u00e9fan Brandon",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Picnicker Gina",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Youngster Ian",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Policeman Keith",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Camper Todd",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Pok\u00e9Maniac Donald",
+    "area": "Goldenrod Tunnel"
+  },
+  {
+    "trainer": "Super Nerd Teru",
+    "area": "Goldenrod Tunnel"
+  },
+  {
+    "trainer": "Pok\u00e9Maniac Issac",
+    "area": "Goldenrod Tunnel"
+  },
+  {
+    "trainer": "Super Nerd Eric",
+    "area": "Goldenrod Tunnel"
+  },
+  {
+    "trainer": "Picnicker Kim",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Camper Elliot",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Picnicker Brooke",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Camper Ivan",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Juggler Irwin",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Firebreather Walt",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Policeman Dirk",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Bug Catcher Arnie",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Bird Keeper Bryan",
+    "area": "Route 35"
+  },
+  {
+    "trainer": "Pok\u00e9fan Beverly",
+    "area": "National Park"
+  },
+  {
+    "trainer": "School Kid Jack",
+    "area": "National Park"
+  },
+  {
+    "trainer": "Pok\u00e9fan William",
+    "area": "National Park"
+  },
+  {
+    "trainer": "Lass Krise",
+    "area": "National Park"
+  },
+  {
+    "trainer": "Psychic Mark",
+    "area": "Route 36"
+  },
+  {
+    "trainer": "School Kid Alan",
+    "area": "Route 36"
+  },
+  {
+    "trainer": "Beauty Victoria",
+    "area": "Goldenrod Gym"
+  },
+  {
+    "trainer": "Beauty Samantha",
+    "area": "Goldenrod Gym"
+  },
+  {
+    "trainer": "Lass Carrie",
+    "area": "Goldenrod Gym"
+  },
+  {
+    "trainer": "Lass Cathy",
+    "area": "Goldenrod Gym"
+  },
+  {
+    "trainer": "Leader Whitney",
+    "area": "Goldenrod Gym"
+  },
+  {
+    "trainer": "Twins Tori & Til",
+    "area": "Route 37"
+  },
+  {
+    "trainer": "Beauty Callie",
+    "area": "Route 37"
+  },
+  {
+    "trainer": "Beauty Kassandra",
+    "area": "Route 37"
+  },
+  {
+    "trainer": "Psychic Greg",
+    "area": "Route 37"
+  },
+  {
+    "trainer": "Team Rocket Grunt",
+    "area": "Ecruteak Dance Theater"
+  },
+  {
+    "trainer": "Sailor Harry",
+    "area": "Route 38"
+  },
+  {
+    "trainer": "Lass Dana",
+    "area": "Route 38"
+  },
+  {
+    "trainer": "School Kid Chad",
+    "area": "Route 38"
+  },
+  {
+    "trainer": "Beauty Valerie",
+    "area": "Route 38"
+  },
+  {
+    "trainer": "Bird Keeper Toby",
+    "area": "Route 38"
+  },
+  {
+    "trainer": "Psychic Nelson",
+    "area": "Route 39"
+  },
+  {
+    "trainer": "Sailor Eugene",
+    "area": "Route 39"
+  },
+  {
+    "trainer": "Pok\u00e9fan Derek",
+    "area": "Route 39"
+  },
+  {
+    "trainer": "Pok\u00e9fan Ruth",
+    "area": "Route 39"
+  },
+  {
+    "trainer": "Beauty Charlotte",
+    "area": "Olivine Pokemon Center"
+  },
+  {
+    "trainer": "Rival",
+    "area": "Burned Tower"
+  },
+  {
+    "trainer": "Firebreather Ned",
+    "area": "Burned Tower"
+  },
+  {
+    "trainer": "Firebreather Richard",
+    "area": "Burned Tower"
+  },
+  {
+    "trainer": "Gentleman Alfred",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Sailor Huey",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Bird Keeper Theo",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Gentleman Preston",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Lass Connie",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Sailor Kent",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Bird Keeper Denis",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Sailor Terrell",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Sailor Roberto",
+    "area": "Glitter Lighthouse"
+  },
+  {
+    "trainer": "Medium Georgina",
+    "area": "Ecruteak Gym"
+  },
+  {
+    "trainer": "Medium Grace",
+    "area": "Ecruteak Gym"
+  },
+  {
+    "trainer": "Medium Edith",
+    "area": "Ecruteak Gym"
+  },
+  {
+    "trainer": "Medium Martha",
+    "area": "Ecruteak Gym"
+  },
+  {
+    "trainer": "Leader Morty",
+    "area": "Ecruteak Gym"
+  },
+  {
+    "trainer": "Swimmer Simon",
+    "area": "Route 40"
+  },
+  {
+    "trainer": "Swimmer Elaine",
+    "area": "Route 40"
+  },
+  {
+    "trainer": "Swimmer Randall",
+    "area": "Route 40"
+  },
+  {
+    "trainer": "Swimmer Paula",
+    "area": "Route 40"
+  },
+  {
+    "trainer": "Swimmer George",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Susie",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Charlie",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Kaylee",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Matthew",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Berke",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Kara",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Wendy",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Ronald",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Swimmer Denise",
+    "area": "Route 41"
+  },
+  {
+    "trainer": "Hiker Devin",
+    "area": "Route 47"
+  },
+  {
+    "trainer": "Camper Grant",
+    "area": "Route 47"
+  },
+  {
+    "trainer": "Double Team Thom & Kae",
+    "area": "Route 47"
+  },
+  {
+    "trainer": "Young Couple Duff & Eda",
+    "area": "Route 47"
+  },
+  {
+    "trainer": "Eusine",
+    "area": "Cianwood City"
+  },
+  {
+    "trainer": "Ace Trainer Irene",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Ace Trainer Jenn",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Ace Trainer Kate",
+    "area": "Route 34"
+  },
+  {
+    "trainer": "Fisherman Tully",
+    "area": "Route 42"
+  },
+  {
+    "trainer": "Pok\u00e9 Maniac Shane",
+    "area": "Route 42"
+  },
+  {
+    "trainer": "Hiker Benjamin",
+    "area": "Route 42"
+  },
+  {
+    "trainer": "Camper Spencer",
+    "area": "Route 43"
+  },
+  {
+    "trainer": "Picnicker Tiffany",
+    "area": "Route 43"
+  },
+  {
+    "trainer": "Pok\u00e9 Maniac Brent",
+    "area": "Route 43"
+  },
+  {
+    "trainer": "Pok\u00e9 Maniac Beckett",
+    "area": "Route 43"
+  },
+  {
+    "trainer": "Pok\u00e9 Maniac Ron",
+    "area": "Route 43"
+  },
+  {
+    "trainer": "Fisherman Marvin",
+    "area": "Route 43"
+  },
+  {
+    "trainer": "Fisherman Andre",
+    "area": "Lake of Rage"
+  },
+  {
+    "trainer": "Fisherman Raymond",
+    "area": "Lake of Rage"
+  },
+  {
+    "trainer": "Ace Trainer Lois",
+    "area": "Lake of Rage"
+  },
+  {
+    "trainer": "Ace Trainer Alton",
+    "area": "Lake of Rage"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Scientist Gregg",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt 3",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt 3",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Scientist Ross",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Scientist Mitch",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Executive Petrel",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Team Rocket Grunt & Executive Ariana",
+    "area": "Team Rocket HQ"
+  },
+  {
+    "trainer": "Black Belt Yoshi",
+    "area": "Cianwood Gym"
+  },
+  {
+    "trainer": "Black Belt Nob",
+    "area": "Cianwood Gym"
+  },
+  {
+    "trainer": "Black Belt Lao",
+    "area": "Cianwood Gym"
+  },
+  {
+    "trainer": "Black Belt Lung",
+    "area": "Cianwood Gym"
+  },
+  {
+    "trainer": "Leader Chuck",
+    "area": "Cianwood Gym"
+  },
+  {
+    "trainer": "Leader Jasmine",
+    "area": "Olivine Gym"
+  },
+  {
+    "trainer": "Boarder Patton",
+    "area": "Mahogany Gym"
+  },
+  {
+    "trainer": "Skier Diana",
+    "area": "Mahogany Gym"
+  },
+  {
+    "trainer": "Boarder Deandre",
+    "area": "Unknown"
+  },
+  {
+    "trainer": "Skier Jill",
+    "area": "Mahogany Gym"
+  },
+  {
+    "trainer": "Boarder Gerardo",
+    "area": "Mahogany Gym"
+  },
+  {
+    "trainer": "Leader Pryce",
+    "area": "Mahogany Gym"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 3",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 4",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Scientist Garett",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Scientist Trenton",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Executive Petrel",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Rival",
+    "area": "Goldenrod Tunnel Warehouse - Exterior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Goldenrod Tunnel Warehouse - Exterior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Goldenrod Tunnel Warehouse - Exterior"
+  },
+  {
+    "trainer": "Burglar Duncan",
+    "area": "Goldenrod Tunnel Warehouse - Exterior"
+  },
+  {
+    "trainer": "Burglar Orson",
+    "area": "Goldenrod Tunnel Warehouse - Exterior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 3",
+    "area": "Goldenrod Tunnel Warehouse - Exterior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 4",
+    "area": "Goldenrod Tunnel Warehouse - Exterior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 1",
+    "area": "Goldenrod Tunnel Warehouse - Interior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 2",
+    "area": "Goldenrod Tunnel Warehouse - Interior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 3",
+    "area": "Goldenrod Tunnel Warehouse - Interior"
+  },
+  {
+    "trainer": "Team Rocket Grunt 3",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Executive Proton",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Executive Ariana",
+    "area": "Radio Tower"
+  },
+  {
+    "trainer": "Executive Archer",
+    "area": "Radio Tower Observation Deck"
+  },
+  {
+    "trainer": "Psychic Phil",
+    "area": "Route 44"
+  },
+  {
+    "trainer": "Fisherman Edgar",
+    "area": "Route 44"
+  },
+  {
+    "trainer": "Ace Trainer Cybil",
+    "area": "Route 44"
+  },
+  {
+    "trainer": "Ace Trainer Allen",
+    "area": "Route 44"
+  },
+  {
+    "trainer": "Pok\u00e9 Maniac Zach",
+    "area": "Route 44"
+  },
+  {
+    "trainer": "Fisherman Wilton",
+    "area": "Route 44"
+  },
+  {
+    "trainer": "Bird Keeper Vance",
+    "area": "Route 44"
+  },
+  {
+    "trainer": "Hiker Erik",
+    "area": "Route 45"
+  },
+  {
+    "trainer": "Ace Trainer Ryan",
+    "area": "Route 45"
+  },
+  {
+    "trainer": "Ace Trainer Kelly",
+    "area": "Route 45"
+  },
+  {
+    "trainer": "Hiker Parry",
+    "area": "Route 45"
+  },
+  {
+    "trainer": "Black Belt Kenji",
+    "area": "Route 45"
+  },
+  {
+    "trainer": "Hiker Timothy",
+    "area": "Route 45"
+  },
+  {
+    "trainer": "Hiker Michael",
+    "area": "Route 45"
+  },
+  {
+    "trainer": "Camper Ted",
+    "area": "Route 46"
+  },
+  {
+    "trainer": "Picnicker Erin",
+    "area": "Route 46"
+  },
+  {
+    "trainer": "Hiker Bailey",
+    "area": "Route 46"
+  },
+  {
+    "trainer": "Ace Trainer Paulo",
+    "area": "Blackthorn Gym"
+  },
+  {
+    "trainer": "Ace Trainer Lola",
+    "area": "Blackthorn Gym"
+  },
+  {
+    "trainer": "Ace Trainer Cody",
+    "area": "Blackthorn Gym"
+  },
+  {
+    "trainer": "Ace Trainer Fran",
+    "area": "Blackthorn Gym"
+  },
+  {
+    "trainer": "Ace Trainer Mike",
+    "area": "Blackthorn Gym"
+  },
+  {
+    "trainer": "Leader Clair",
+    "area": "Blackthorn Gym"
+  },
+  {
+    "trainer": "Ace Trainer Kobe",
+    "area": "Dragon's Den"
+  },
+  {
+    "trainer": "Ace Trainer Piper",
+    "area": "Dragon's Den"
+  },
+  {
+    "trainer": "Twins Clea & Gil",
+    "area": "Dragon's Den"
+  },
+  {
+    "trainer": "Super Nerd Hugh",
+    "area": "Mt. Mortar"
+  },
+  {
+    "trainer": "Black Belt Kiyo",
+    "area": "Mt. Mortar"
+  },
+  {
+    "trainer": "Super Nerd Markus",
+    "area": "Mt. Mortar"
+  },
+  {
+    "trainer": "Pok\u00e9 Maniac Harrison",
+    "area": "Mt. Mortar"
+  },
+  {
+    "trainer": "Kimono Girl Zuki",
+    "area": "Ecruteak Dance Theater"
+  },
+  {
+    "trainer": "Kimono Girl Naoko",
+    "area": "Ecruteak Dance Theater"
+  },
+  {
+    "trainer": "Kimono Girl Miki",
+    "area": "Ecruteak Dance Theater"
+  },
+  {
+    "trainer": "Kimono Girl Sayo",
+    "area": "Ecruteak Dance Theater"
+  },
+  {
+    "trainer": "Kimono Girl Kuni",
+    "area": "Ecruteak Dance Theater"
+  },
+  {
+    "trainer": "Ace Trainer Megan",
+    "area": "Route 27"
+  },
+  {
+    "trainer": "Ace Trainer Blake",
+    "area": "Route 27"
+  },
+  {
+    "trainer": "Bird Keeper Jose",
+    "area": "Route 27"
+  },
+  {
+    "trainer": "Ace Trainer Brian",
+    "area": "Route 27"
+  },
+  {
+    "trainer": "Psychic Eli",
+    "area": "Route 27"
+  },
+  {
+    "trainer": "Ace Trainer Reena",
+    "area": "Route 27"
+  },
+  {
+    "trainer": "Fisherman Scott",
+    "area": "Route 26"
+  },
+  {
+    "trainer": "Psychic Vernon",
+    "area": "Route 26"
+  },
+  {
+    "trainer": "Ace Trainer Joyce",
+    "area": "Route 26"
+  },
+  {
+    "trainer": "Ace Trainer Gaven",
+    "area": "Route 26"
+  },
+  {
+    "trainer": "Ace Trainer Jake",
+    "area": "Route 26"
+  },
+  {
+    "trainer": "Ace Trainer Jamie",
+    "area": "Route 26"
+  },
+  {
+    "trainer": "Rival",
+    "area": "Victory Road"
+  },
+  {
+    "trainer": "Will",
+    "area": "Indigo Plateau"
+  },
+  {
+    "trainer": "Koga",
+    "area": "Indigo Plateau"
+  },
+  {
+    "trainer": "Bruno",
+    "area": "Indigo Plateau"
+  },
+  {
+    "trainer": "Karen",
+    "area": "Indigo Plateau"
+  },
+  {
+    "trainer": "Lance",
+    "area": "Indigo Plateau"
+  },
+  {
+    "trainer": "Hiker Noland",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Pok\u00e9fan Colin",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Twins Meg & Peg",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Firebreather Lyle",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Sailor Stanly",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Juggler Fritz",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Sailor Jeff",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Picnicker Debra",
+    "area": "S.S. Aqua"
+  },
+  {
+    "trainer": "Picnicker Selina",
+    "area": "Route 6"
+  },
+  {
+    "trainer": "Twins Day & Dani",
+    "area": "Route 6"
+  },
+  {
+    "trainer": "Camper Virgil",
+    "area": "Route 6"
+  },
+  {
+    "trainer": "Biker Dwayne",
+    "area": "Route 8"
+  },
+  {
+    "trainer": "Biker Harris",
+    "area": "Route 8"
+  },
+  {
+    "trainer": "Biker Zeke",
+    "area": "Route 8"
+  },
+  {
+    "trainer": "Super Nerd Sam",
+    "area": "Route 8"
+  },
+  {
+    "trainer": "Young Couple Moe & Lulu",
+    "area": "Route 8"
+  },
+  {
+    "trainer": "Super Nerd Tyrone",
+    "area": "Route 8"
+  },
+  {
+    "trainer": "Gentleman Milton",
+    "area": "Route 8"
+  },
+  {
+    "trainer": "Pok\u00e9fan Robert",
+    "area": "Route 10"
+  },
+  {
+    "trainer": "Hiker Jim",
+    "area": "Route 10"
+  },
+  {
+    "trainer": "Picnicker Heidi",
+    "area": "Route 9"
+  },
+  {
+    "trainer": "Hiker Clarke",
+    "area": "Route 9"
+  },
+  {
+    "trainer": "Hiker Eoin",
+    "area": "Route 9"
+  },
+  {
+    "trainer": "Camper Dean",
+    "area": "Route 9"
+  },
+  {
+    "trainer": "Camper Sid",
+    "area": "Route 9"
+  },
+  {
+    "trainer": "Picnicker Edna",
+    "area": "Route 9"
+  },
+  {
+    "trainer": "Team Rocket Grunt",
+    "area": "Cerulean City"
+  },
+  {
+    "trainer": "School Kid Dudley",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "Lass Ellen",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "School Kid Joe",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "Camper Lloyd",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "Lass Laura",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "Lass Shannon",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "Super Nerd Pat",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "Ace Trainer Kevin",
+    "area": "Route 25"
+  },
+  {
+    "trainer": "Fisherman Kyle",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Bird Keeper Justin",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Fisherman Martin",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Young Couple Vic & Tara",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Fisherman Stephen",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Bird Keeper Gail",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Fisherman Barney",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Fisherman Kyler",
+    "area": "Route 12"
+  },
+  {
+    "trainer": "Bird Keeper Bret",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Picnicker Piper",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Bird Keeper Perry",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Young Couple Tim & Sue",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Pok\u00e9fan Joshua",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Pok\u00e9fan Alex",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Camper Clark",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Picnicker Ginger",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Camper Tanner",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Hiker Kenny",
+    "area": "Route 13"
+  },
+  {
+    "trainer": "Bird Keeper Josh",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "Pok\u00e9fan Trevor",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "Pok\u00e9fan Carter",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "Bird Keeper Roy",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "School Kid Connor",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "Teacher Clarice",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "School Kid Torin",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "School Kid Travis",
+    "area": "Route 14"
+  },
+  {
+    "trainer": "School Kid Billy",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "Teacher Colette",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "Twins Kay & Tia",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "Pok\u00e9fan Eleanor",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "School Kid Kipp",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "School Kid Tommy",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "Teacher Hillary",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "Pok\u00e9fan Boone",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "School Kid Johnny",
+    "area": "Route 15"
+  },
+  {
+    "trainer": "Biker Dale",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Reese",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Joel",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Jacob",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Ernest",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Aiden",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Dan",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Theron",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Glenn",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Teddy",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Markey",
+    "area": "Route 17"
+  },
+  {
+    "trainer": "Biker Charles",
+    "area": "Route 18"
+  },
+  {
+    "trainer": "Bird Keeper Bob",
+    "area": "Route 18"
+  },
+  {
+    "trainer": "Bird Keeper Boris",
+    "area": "Route 18"
+  },
+  {
+    "trainer": "Psychic Herman",
+    "area": "Route 11"
+  },
+  {
+    "trainer": "Youngster Jason",
+    "area": "Route 11"
+  },
+  {
+    "trainer": "Youngster Owen",
+    "area": "Route 11"
+  },
+  {
+    "trainer": "Psychic Fidel",
+    "area": "Route 11"
+  },
+  {
+    "trainer": "Bug Catcher Ed",
+    "area": "Route 2"
+  },
+  {
+    "trainer": "Bug Catcher Doug",
+    "area": "Route 2"
+  },
+  {
+    "trainer": "Bug Catcher Rob",
+    "area": "Route 2"
+  },
+  {
+    "trainer": "Youngster Regis",
+    "area": "Route 3"
+  },
+  {
+    "trainer": "Youngster Warren",
+    "area": "Route 3"
+  },
+  {
+    "trainer": "Youngster Jimmy",
+    "area": "Route 3"
+  },
+  {
+    "trainer": "Double Team Zac & Jen",
+    "area": "Route 3"
+  },
+  {
+    "trainer": "Firebreather Otis",
+    "area": "Route 3"
+  },
+  {
+    "trainer": "Hiker Bruce",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Black Belt Manford",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Black Belt Ander",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Hiker Dwight",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Firebreather Burt",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Rival",
+    "area": "Mt. Moon"
+  },
+  {
+    "trainer": "Picnicker Hope",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Bird Keeper Hank",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Picnicker Sharon",
+    "area": "Route 4"
+  },
+  {
+    "trainer": "Bug Catcher Abner",
+    "area": "Viridian Forest"
+  },
+  {
+    "trainer": "Bug Catcher Ellis",
+    "area": "Viridian Forest"
+  },
+  {
+    "trainer": "Bug Catcher Stacey",
+    "area": "Viridian Forest"
+  },
+  {
+    "trainer": "Bug Catcher Dion",
+    "area": "Viridian Forest"
+  },
+  {
+    "trainer": "Bug Catcher Dane",
+    "area": "Viridian Forest"
+  },
+  {
+    "trainer": "School Kid Sherman",
+    "area": "Route 1"
+  },
+  {
+    "trainer": "School Kid Danny",
+    "area": "Route 1"
+  },
+  {
+    "trainer": "Ace Trainer French",
+    "area": "Route 1"
+  },
+  {
+    "trainer": "Ace Trainer Quinn",
+    "area": "Route 1"
+  },
+  {
+    "trainer": "Swimmer Nikki",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Fisherman Arnold",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Bird Keeper Kinsley",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Fisherman Murphy",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Swimmer Chelan",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Fisherman Liam",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Swimmer Tyson",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Fisherman Gideon",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Swimmer Esteban",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Swimmer Duane",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Bird Keeper Easton",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Swimmer Kendra",
+    "area": "Route 21"
+  },
+  {
+    "trainer": "Swimmer Frankie",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Bird Keeper Bert",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Swimmer Mina",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Picnicker Cheyenne",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Bird Keeper Ernie",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Swimmer Leona",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Picnicker Adrian",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Skier Cady",
+    "area": "Seafoam Islands"
+  },
+  {
+    "trainer": "Boarder Shaun",
+    "area": "Seafoam Islands"
+  },
+  {
+    "trainer": "Boarder Bryce",
+    "area": "Seafoam Islands"
+  },
+  {
+    "trainer": "Camper Pedro",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Swimmer Luis",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Swimmer Elmo",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Swimmer Lori",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Swimmer Nicole",
+    "area": "Route 20"
+  },
+  {
+    "trainer": "Swimmer Tucker",
+    "area": "Route 19"
+  },
+  {
+    "trainer": "Swimmer Debbie",
+    "area": "Route 19"
+  },
+  {
+    "trainer": "Swimmer Harold",
+    "area": "Route 19"
+  },
+  {
+    "trainer": "Swimmer Jerome",
+    "area": "Route 19"
+  },
+  {
+    "trainer": "Juggler Horton",
+    "area": "Vermilion Gym"
+  },
+  {
+    "trainer": "Guitarist Vincent",
+    "area": "Vermilion Gym"
+  },
+  {
+    "trainer": "Gentleman Gregory",
+    "area": "Vermilion Gym"
+  },
+  {
+    "trainer": "Leader Lt. Surge",
+    "area": "Vermilion Gym"
+  },
+  {
+    "trainer": "Picnicker Cindy",
+    "area": "Fuschia Gym"
+  },
+  {
+    "trainer": "Camper Barry",
+    "area": "Fuschia Gym"
+  },
+  {
+    "trainer": "Lass Alice",
+    "area": "Fuschia Gym"
+  },
+  {
+    "trainer": "Lass Linda",
+    "area": "Fuschia Gym"
+  },
+  {
+    "trainer": "Leader Janine",
+    "area": "Fuschia Gym"
+  },
+  {
+    "trainer": "Medium Rebecca",
+    "area": "Saffron Gym"
+  },
+  {
+    "trainer": "Psychic Jared",
+    "area": "Saffron Gym"
+  },
+  {
+    "trainer": "Medium Darcy",
+    "area": "Saffron Gym"
+  },
+  {
+    "trainer": "Psychic Franklin",
+    "area": "Saffron Gym"
+  },
+  {
+    "trainer": "Leader Sabrina",
+    "area": "Saffron Gym"
+  },
+  {
+    "trainer": "Sailor Parker",
+    "area": "Cerulean Gym"
+  },
+  {
+    "trainer": "Sailor Eddie",
+    "area": "Cerulean Gym"
+  },
+  {
+    "trainer": "Swimmer\u2640 Diana",
+    "area": "Cerulean Gym"
+  },
+  {
+    "trainer": "Swimmer\u2640 Joy",
+    "area": "Cerulean Gym"
+  },
+  {
+    "trainer": "Swimmer\u2640 Briana",
+    "area": "Cerulean Gym"
+  },
+  {
+    "trainer": "Leader Misty",
+    "area": "Cerulean Gym"
+  },
+  {
+    "trainer": "Twins Jo & Zoe",
+    "area": "Celadon Gym"
+  },
+  {
+    "trainer": "Lass Michelle",
+    "area": "Celadon Gym"
+  },
+  {
+    "trainer": "Picnicker Tanya",
+    "area": "Celadon Gym"
+  },
+  {
+    "trainer": "Beauty Julia",
+    "area": "Celadon Gym"
+  },
+  {
+    "trainer": "Leader Erika",
+    "area": "Celadon Gym"
+  },
+  {
+    "trainer": "Camper Jerry",
+    "area": "Pewter Gym"
+  },
+  {
+    "trainer": "Hiker Edwin",
+    "area": "Pewter Gym"
+  },
+  {
+    "trainer": "Leader Brock",
+    "area": "Pewter Gym"
+  },
+  {
+    "trainer": "Scientist Lowell",
+    "area": "Seafoam Gym"
+  },
+  {
+    "trainer": "Scientist Daniel",
+    "area": "Seafoam Gym"
+  },
+  {
+    "trainer": "Super Nerd Cary",
+    "area": "Seafoam Gym"
+  },
+  {
+    "trainer": "Scientist Linden",
+    "area": "Seafoam Gym"
+  },
+  {
+    "trainer": "Super Nerd Waldo",
+    "area": "Seafoam Gym"
+  },
+  {
+    "trainer": "Super Nerd Merle",
+    "area": "Seafoam Gym"
+  },
+  {
+    "trainer": "Leader Blaine",
+    "area": "Seafoam Gym"
+  },
+  {
+    "trainer": "Ace Trainer Arabella",
+    "area": "Viridian Gym"
+  },
+  {
+    "trainer": "Ace Trainer Salma",
+    "area": "Viridian Gym"
+  },
+  {
+    "trainer": "Ace Trainer Bonita",
+    "area": "Viridian Gym"
+  },
+  {
+    "trainer": "Double Team Elan & Ida",
+    "area": "Viridian Gym"
+  },
+  {
+    "trainer": "Leader Blue",
+    "area": "Viridian Gym"
+  },
+  {
+    "trainer": "Red",
+    "area": "Mt. Silver Summit"
+  }
+]

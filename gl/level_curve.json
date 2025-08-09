@@ -1,0 +1,4981 @@
+[
+  {
+    "trainer": "Rival (#1)",
+    "area": "Cherrygrove City",
+    "trainer_id": 2,
+    "levels": {
+      "erratic": 5,
+      "fast": 6,
+      "medium_fast": 5,
+      "medium_slow": 6,
+      "slow": 5,
+      "fluctuating": 6
+    }
+  },
+  {
+    "trainer": "Joey",
+    "area": "Route 30",
+    "trainer_id": 8,
+    "levels": {
+      "erratic": 5,
+      "fast": 6,
+      "medium_fast": 6,
+      "medium_slow": 7,
+      "slow": 6,
+      "fluctuating": 7
+    }
+  },
+  {
+    "trainer": "Mikey",
+    "area": "Route 30",
+    "trainer_id": 47,
+    "levels": {
+      "erratic": 5,
+      "fast": 6,
+      "medium_fast": 6,
+      "medium_slow": 7,
+      "slow": 6,
+      "fluctuating": 7
+    }
+  },
+  {
+    "trainer": "Don",
+    "area": "Route 30",
+    "trainer_id": 249,
+    "levels": {
+      "erratic": 6,
+      "fast": 7,
+      "medium_fast": 7,
+      "medium_slow": 8,
+      "slow": 6,
+      "fluctuating": 8
+    }
+  },
+  {
+    "trainer": "Wade",
+    "area": "Route 31",
+    "trainer_id": 4,
+    "levels": {
+      "erratic": 6,
+      "fast": 8,
+      "medium_fast": 7,
+      "medium_slow": 9,
+      "slow": 7,
+      "fluctuating": 8
+    }
+  },
+  {
+    "trainer": "Nico",
+    "area": "Sprout Tower",
+    "trainer_id": 51,
+    "levels": {
+      "erratic": 7,
+      "fast": 8,
+      "medium_fast": 8,
+      "medium_slow": 9,
+      "slow": 7,
+      "fluctuating": 9
+    }
+  },
+  {
+    "trainer": "Chow",
+    "area": "Sprout Tower",
+    "trainer_id": 43,
+    "levels": {
+      "erratic": 7,
+      "fast": 8,
+      "medium_fast": 8,
+      "medium_slow": 9,
+      "slow": 8,
+      "fluctuating": 9
+    }
+  },
+  {
+    "trainer": "Edmond",
+    "area": "Sprout Tower",
+    "trainer_id": 52,
+    "levels": {
+      "erratic": 7,
+      "fast": 9,
+      "medium_fast": 8,
+      "medium_slow": 10,
+      "slow": 8,
+      "fluctuating": 10
+    }
+  },
+  {
+    "trainer": "Jin",
+    "area": "Sprout Tower",
+    "trainer_id": 53,
+    "levels": {
+      "erratic": 7,
+      "fast": 9,
+      "medium_fast": 9,
+      "medium_slow": 10,
+      "slow": 8,
+      "fluctuating": 10
+    }
+  },
+  {
+    "trainer": "Neal",
+    "area": "Sprout Tower",
+    "trainer_id": 55,
+    "levels": {
+      "erratic": 8,
+      "fast": 9,
+      "medium_fast": 9,
+      "medium_slow": 11,
+      "slow": 8,
+      "fluctuating": 10
+    }
+  },
+  {
+    "trainer": "Troy",
+    "area": "Sprout Tower",
+    "trainer_id": 54,
+    "levels": {
+      "erratic": 8,
+      "fast": 10,
+      "medium_fast": 10,
+      "medium_slow": 11,
+      "slow": 9,
+      "fluctuating": 11
+    }
+  },
+  {
+    "trainer": "Li",
+    "area": "Sprout Tower",
+    "trainer_id": 290,
+    "levels": {
+      "erratic": 9,
+      "fast": 11,
+      "medium_fast": 11,
+      "medium_slow": 12,
+      "slow": 10,
+      "fluctuating": 12
+    }
+  },
+  {
+    "trainer": "Abe",
+    "area": "Violet Gym",
+    "trainer_id": 50,
+    "levels": {
+      "erratic": 10,
+      "fast": 12,
+      "medium_fast": 11,
+      "medium_slow": 13,
+      "slow": 11,
+      "fluctuating": 13
+    }
+  },
+  {
+    "trainer": "Rod",
+    "area": "Violet Gym",
+    "trainer_id": 29,
+    "levels": {
+      "erratic": 10,
+      "fast": 12,
+      "medium_fast": 11,
+      "medium_slow": 13,
+      "slow": 11,
+      "fluctuating": 13
+    }
+  },
+  {
+    "trainer": "Falkner",
+    "area": "Violet Gym",
+    "trainer_id": 20,
+    "levels": {
+      "erratic": 11,
+      "fast": 13,
+      "medium_fast": 12,
+      "medium_slow": 14,
+      "slow": 12,
+      "fluctuating": 14
+    }
+  },
+  {
+    "trainer": "Albert",
+    "area": "Route 32",
+    "trainer_id": 49,
+    "levels": {
+      "erratic": 11,
+      "fast": 13,
+      "medium_fast": 12,
+      "medium_slow": 14,
+      "slow": 12,
+      "fluctuating": 14
+    }
+  },
+  {
+    "trainer": "Liz",
+    "area": "Route 32",
+    "trainer_id": 27,
+    "levels": {
+      "erratic": 11,
+      "fast": 14,
+      "medium_fast": 13,
+      "medium_slow": 14,
+      "slow": 12,
+      "fluctuating": 14
+    }
+  },
+  {
+    "trainer": "Henry",
+    "area": "Route 32",
+    "trainer_id": 60,
+    "levels": {
+      "erratic": 11,
+      "fast": 14,
+      "medium_fast": 13,
+      "medium_slow": 15,
+      "slow": 12,
+      "fluctuating": 15
+    }
+  },
+  {
+    "trainer": "Justin",
+    "area": "Route 32",
+    "trainer_id": 18,
+    "levels": {
+      "erratic": 12,
+      "fast": 15,
+      "medium_fast": 14,
+      "medium_slow": 16,
+      "slow": 13,
+      "fluctuating": 16
+    }
+  },
+  {
+    "trainer": "Ralph",
+    "area": "Route 32",
+    "trainer_id": 57,
+    "levels": {
+      "erratic": 12,
+      "fast": 15,
+      "medium_fast": 14,
+      "medium_slow": 16,
+      "slow": 13,
+      "fluctuating": 16
+    }
+  },
+  {
+    "trainer": "Gordon",
+    "area": "Route 32",
+    "trainer_id": 56,
+    "levels": {
+      "erratic": 13,
+      "fast": 15,
+      "medium_fast": 14,
+      "medium_slow": 16,
+      "slow": 14,
+      "fluctuating": 16
+    }
+  },
+  {
+    "trainer": "Peter",
+    "area": "Route 32",
+    "trainer_id": 383,
+    "levels": {
+      "erratic": 13,
+      "fast": 16,
+      "medium_fast": 15,
+      "medium_slow": 16,
+      "slow": 14,
+      "fluctuating": 16
+    }
+  },
+  {
+    "trainer": "Ray",
+    "area": "Union Cave",
+    "trainer_id": 390,
+    "levels": {
+      "erratic": 13,
+      "fast": 16,
+      "medium_fast": 15,
+      "medium_slow": 17,
+      "slow": 14,
+      "fluctuating": 17
+    }
+  },
+  {
+    "trainer": "Daniel",
+    "area": "Union Cave",
+    "trainer_id": 384,
+    "levels": {
+      "erratic": 13,
+      "fast": 16,
+      "medium_fast": 15,
+      "medium_slow": 17,
+      "slow": 14,
+      "fluctuating": 17
+    }
+  },
+  {
+    "trainer": "Russel",
+    "area": "Union Cave",
+    "trainer_id": 25,
+    "levels": {
+      "erratic": 13,
+      "fast": 16,
+      "medium_fast": 15,
+      "medium_slow": 17,
+      "slow": 14,
+      "fluctuating": 17
+    }
+  },
+  {
+    "trainer": "Bill",
+    "area": "Union Cave",
+    "trainer_id": 319,
+    "levels": {
+      "erratic": 13,
+      "fast": 16,
+      "medium_fast": 15,
+      "medium_slow": 17,
+      "slow": 15,
+      "fluctuating": 17
+    }
+  },
+  {
+    "trainer": "Larry",
+    "area": "Union Cave",
+    "trainer_id": 23,
+    "levels": {
+      "erratic": 14,
+      "fast": 17,
+      "medium_fast": 16,
+      "medium_slow": 17,
+      "slow": 15,
+      "fluctuating": 17
+    }
+  },
+  {
+    "trainer": "Anthony",
+    "area": "Route 33",
+    "trainer_id": 61,
+    "levels": {
+      "erratic": 14,
+      "fast": 17,
+      "medium_fast": 16,
+      "medium_slow": 18,
+      "slow": 15,
+      "fluctuating": 18
+    }
+  },
+  {
+    "trainer": "Proton",
+    "area": "Slowpoke Well",
+    "trainer_id": 486,
+    "levels": {
+      "erratic": 14,
+      "fast": 17,
+      "medium_fast": 16,
+      "medium_slow": 18,
+      "slow": 15,
+      "fluctuating": 18
+    }
+  },
+  {
+    "trainer": "Rival (#2)",
+    "area": "Azalea Town",
+    "trainer_id": 1,
+    "levels": {
+      "erratic": 15,
+      "fast": 18,
+      "medium_fast": 17,
+      "medium_slow": 19,
+      "slow": 16,
+      "fluctuating": 19
+    }
+  },
+  {
+    "trainer": "Al",
+    "area": "Azalea Gym",
+    "trainer_id": 68,
+    "levels": {
+      "erratic": 15,
+      "fast": 19,
+      "medium_fast": 18,
+      "medium_slow": 19,
+      "slow": 17,
+      "fluctuating": 19
+    }
+  },
+  {
+    "trainer": "Benny",
+    "area": "Azalea Gym",
+    "trainer_id": 67,
+    "levels": {
+      "erratic": 16,
+      "fast": 19,
+      "medium_fast": 18,
+      "medium_slow": 20,
+      "slow": 17,
+      "fluctuating": 20
+    }
+  },
+  {
+    "trainer": "Josh",
+    "area": "Azalea Gym",
+    "trainer_id": 69,
+    "levels": {
+      "erratic": 16,
+      "fast": 19,
+      "medium_fast": 18,
+      "medium_slow": 20,
+      "slow": 17,
+      "fluctuating": 20
+    }
+  },
+  {
+    "trainer": "Amy & Mimi",
+    "area": "Azalea Gym",
+    "trainer_id": 10,
+    "levels": {
+      "erratic": 16,
+      "fast": 20,
+      "medium_fast": 18,
+      "medium_slow": 20,
+      "slow": 17,
+      "fluctuating": 20
+    }
+  },
+  {
+    "trainer": "Bugsy",
+    "area": "Azalea Gym",
+    "trainer_id": 21,
+    "levels": {
+      "erratic": 17,
+      "fast": 20,
+      "medium_fast": 19,
+      "medium_slow": 21,
+      "slow": 18,
+      "fluctuating": 21
+    }
+  },
+  {
+    "trainer": "Samuel",
+    "area": "Route 34",
+    "trainer_id": 62,
+    "levels": {
+      "erratic": 17,
+      "fast": 21,
+      "medium_fast": 19,
+      "medium_slow": 21,
+      "slow": 18,
+      "fluctuating": 21
+    }
+  },
+  {
+    "trainer": "Gina",
+    "area": "Route 34",
+    "trainer_id": 65,
+    "levels": {
+      "erratic": 18,
+      "fast": 21,
+      "medium_fast": 20,
+      "medium_slow": 21,
+      "slow": 19,
+      "fluctuating": 21
+    }
+  },
+  {
+    "trainer": "Ian",
+    "area": "Route 34",
+    "trainer_id": 64,
+    "levels": {
+      "erratic": 18,
+      "fast": 21,
+      "medium_fast": 20,
+      "medium_slow": 22,
+      "slow": 19,
+      "fluctuating": 21
+    }
+  },
+  {
+    "trainer": "Keith",
+    "area": "Route 34",
+    "trainer_id": 6,
+    "levels": {
+      "erratic": 18,
+      "fast": 21,
+      "medium_fast": 20,
+      "medium_slow": 22,
+      "slow": 19,
+      "fluctuating": 22
+    }
+  },
+  {
+    "trainer": "Todd",
+    "area": "Route 34",
+    "trainer_id": 66,
+    "levels": {
+      "erratic": 18,
+      "fast": 22,
+      "medium_fast": 20,
+      "medium_slow": 22,
+      "slow": 19,
+      "fluctuating": 22
+    }
+  },
+  {
+    "trainer": "Donald",
+    "area": "Goldenrod Tunnel",
+    "trainer_id": 392,
+    "levels": {
+      "erratic": 18,
+      "fast": 22,
+      "medium_fast": 21,
+      "medium_slow": 22,
+      "slow": 19,
+      "fluctuating": 22
+    }
+  },
+  {
+    "trainer": "Teru",
+    "area": "Goldenrod Tunnel",
+    "trainer_id": 393,
+    "levels": {
+      "erratic": 19,
+      "fast": 22,
+      "medium_fast": 21,
+      "medium_slow": 22,
+      "slow": 20,
+      "fluctuating": 22
+    }
+  },
+  {
+    "trainer": "Issac",
+    "area": "Goldenrod Tunnel",
+    "trainer_id": 391,
+    "levels": {
+      "erratic": 19,
+      "fast": 22,
+      "medium_fast": 21,
+      "medium_slow": 22,
+      "slow": 20,
+      "fluctuating": 22
+    }
+  },
+  {
+    "trainer": "Eric",
+    "area": "Goldenrod Tunnel",
+    "trainer_id": 233,
+    "levels": {
+      "erratic": 19,
+      "fast": 22,
+      "medium_fast": 21,
+      "medium_slow": 23,
+      "slow": 20,
+      "fluctuating": 22
+    }
+  },
+  {
+    "trainer": "Kim",
+    "area": "Route 35",
+    "trainer_id": 77,
+    "levels": {
+      "erratic": 19,
+      "fast": 23,
+      "medium_fast": 21,
+      "medium_slow": 23,
+      "slow": 20,
+      "fluctuating": 23
+    }
+  },
+  {
+    "trainer": "Elliot",
+    "area": "Route 35",
+    "trainer_id": 75,
+    "levels": {
+      "erratic": 19,
+      "fast": 23,
+      "medium_fast": 22,
+      "medium_slow": 23,
+      "slow": 20,
+      "fluctuating": 23
+    }
+  },
+  {
+    "trainer": "Brooke",
+    "area": "Route 35",
+    "trainer_id": 76,
+    "levels": {
+      "erratic": 19,
+      "fast": 23,
+      "medium_fast": 22,
+      "medium_slow": 23,
+      "slow": 21,
+      "fluctuating": 23
+    }
+  },
+  {
+    "trainer": "Ivan",
+    "area": "Route 35",
+    "trainer_id": 74,
+    "levels": {
+      "erratic": 20,
+      "fast": 23,
+      "medium_fast": 22,
+      "medium_slow": 23,
+      "slow": 21,
+      "fluctuating": 23
+    }
+  },
+  {
+    "trainer": "Irwin",
+    "area": "Route 35",
+    "trainer_id": 7,
+    "levels": {
+      "erratic": 20,
+      "fast": 23,
+      "medium_fast": 22,
+      "medium_slow": 24,
+      "slow": 21,
+      "fluctuating": 23
+    }
+  },
+  {
+    "trainer": "Walt",
+    "area": "Route 35",
+    "trainer_id": 388,
+    "levels": {
+      "erratic": 20,
+      "fast": 24,
+      "medium_fast": 22,
+      "medium_slow": 24,
+      "slow": 21,
+      "fluctuating": 24
+    }
+  },
+  {
+    "trainer": "Dirk",
+    "area": "Route 35",
+    "trainer_id": 80,
+    "levels": {
+      "erratic": 20,
+      "fast": 24,
+      "medium_fast": 23,
+      "medium_slow": 24,
+      "slow": 21,
+      "fluctuating": 24
+    }
+  },
+  {
+    "trainer": "Arnie",
+    "area": "Route 35",
+    "trainer_id": 78,
+    "levels": {
+      "erratic": 20,
+      "fast": 24,
+      "medium_fast": 23,
+      "medium_slow": 24,
+      "slow": 22,
+      "fluctuating": 24
+    }
+  },
+  {
+    "trainer": "Bryan",
+    "area": "Route 35",
+    "trainer_id": 72,
+    "levels": {
+      "erratic": 21,
+      "fast": 24,
+      "medium_fast": 23,
+      "medium_slow": 24,
+      "slow": 22,
+      "fluctuating": 24
+    }
+  },
+  {
+    "trainer": "Beverly",
+    "area": "National Park",
+    "trainer_id": 182,
+    "levels": {
+      "erratic": 21,
+      "fast": 24,
+      "medium_fast": 23,
+      "medium_slow": 25,
+      "slow": 22,
+      "fluctuating": 24
+    }
+  },
+  {
+    "trainer": "Jack",
+    "area": "National Park",
+    "trainer_id": 178,
+    "levels": {
+      "erratic": 21,
+      "fast": 25,
+      "medium_fast": 23,
+      "medium_slow": 25,
+      "slow": 22,
+      "fluctuating": 24
+    }
+  },
+  {
+    "trainer": "William",
+    "area": "National Park",
+    "trainer_id": 181,
+    "levels": {
+      "erratic": 21,
+      "fast": 25,
+      "medium_fast": 23,
+      "medium_slow": 25,
+      "slow": 22,
+      "fluctuating": 25
+    }
+  },
+  {
+    "trainer": "Krise",
+    "area": "National Park",
+    "trainer_id": 184,
+    "levels": {
+      "erratic": 21,
+      "fast": 25,
+      "medium_fast": 24,
+      "medium_slow": 25,
+      "slow": 22,
+      "fluctuating": 25
+    }
+  },
+  {
+    "trainer": "Mark",
+    "area": "Route 36",
+    "trainer_id": 395,
+    "levels": {
+      "erratic": 22,
+      "fast": 25,
+      "medium_fast": 24,
+      "medium_slow": 25,
+      "slow": 23,
+      "fluctuating": 25
+    }
+  },
+  {
+    "trainer": "Alan",
+    "area": "Route 36",
+    "trainer_id": 24,
+    "levels": {
+      "erratic": 22,
+      "fast": 26,
+      "medium_fast": 24,
+      "medium_slow": 26,
+      "slow": 23,
+      "fluctuating": 25
+    }
+  },
+  {
+    "trainer": "Victoria",
+    "area": "Goldenrod Gym",
+    "trainer_id": 5,
+    "levels": {
+      "erratic": 22,
+      "fast": 26,
+      "medium_fast": 24,
+      "medium_slow": 26,
+      "slow": 23,
+      "fluctuating": 25
+    }
+  },
+  {
+    "trainer": "Samantha",
+    "area": "Goldenrod Gym",
+    "trainer_id": 70,
+    "levels": {
+      "erratic": 22,
+      "fast": 26,
+      "medium_fast": 25,
+      "medium_slow": 26,
+      "slow": 23,
+      "fluctuating": 26
+    }
+  },
+  {
+    "trainer": "Carrie",
+    "area": "Goldenrod Gym",
+    "trainer_id": 22,
+    "levels": {
+      "erratic": 23,
+      "fast": 26,
+      "medium_fast": 25,
+      "medium_slow": 26,
+      "slow": 24,
+      "fluctuating": 26
+    }
+  },
+  {
+    "trainer": "Cathy",
+    "area": "Goldenrod Gym",
+    "trainer_id": 71,
+    "levels": {
+      "erratic": 23,
+      "fast": 27,
+      "medium_fast": 25,
+      "medium_slow": 27,
+      "slow": 24,
+      "fluctuating": 26
+    }
+  },
+  {
+    "trainer": "Whitney",
+    "area": "Goldenrod Gym",
+    "trainer_id": 30,
+    "levels": {
+      "erratic": 23,
+      "fast": 27,
+      "medium_fast": 25,
+      "medium_slow": 27,
+      "slow": 24,
+      "fluctuating": 26
+    }
+  },
+  {
+    "trainer": "Callie",
+    "area": "Route 37",
+    "trainer_id": 679,
+    "levels": {
+      "erratic": 23,
+      "fast": 27,
+      "medium_fast": 26,
+      "medium_slow": 27,
+      "slow": 24,
+      "fluctuating": 26
+    }
+  },
+  {
+    "trainer": "Greg",
+    "area": "Route 37",
+    "trainer_id": 386,
+    "levels": {
+      "erratic": 23,
+      "fast": 27,
+      "medium_fast": 26,
+      "medium_slow": 27,
+      "slow": 24,
+      "fluctuating": 27
+    }
+  },
+  {
+    "trainer": "Grunt",
+    "area": "Ecruteak Dance Theater",
+    "trainer_id": 12,
+    "levels": {
+      "erratic": 23,
+      "fast": 27,
+      "medium_fast": 26,
+      "medium_slow": 27,
+      "slow": 24,
+      "fluctuating": 27
+    }
+  },
+  {
+    "trainer": "Harry",
+    "area": "Route 38",
+    "trainer_id": 410,
+    "levels": {
+      "erratic": 24,
+      "fast": 27,
+      "medium_fast": 26,
+      "medium_slow": 27,
+      "slow": 25,
+      "fluctuating": 27
+    }
+  },
+  {
+    "trainer": "Dana",
+    "area": "Route 38",
+    "trainer_id": 400,
+    "levels": {
+      "erratic": 24,
+      "fast": 28,
+      "medium_fast": 26,
+      "medium_slow": 28,
+      "slow": 25,
+      "fluctuating": 27
+    }
+  },
+  {
+    "trainer": "Chad",
+    "area": "Route 38",
+    "trainer_id": 397,
+    "levels": {
+      "erratic": 24,
+      "fast": 28,
+      "medium_fast": 26,
+      "medium_slow": 28,
+      "slow": 25,
+      "fluctuating": 27
+    }
+  },
+  {
+    "trainer": "Valerie",
+    "area": "Route 38",
+    "trainer_id": 398,
+    "levels": {
+      "erratic": 24,
+      "fast": 28,
+      "medium_fast": 27,
+      "medium_slow": 28,
+      "slow": 25,
+      "fluctuating": 27
+    }
+  },
+  {
+    "trainer": "Toby",
+    "area": "Route 38",
+    "trainer_id": 82,
+    "levels": {
+      "erratic": 25,
+      "fast": 29,
+      "medium_fast": 27,
+      "medium_slow": 28,
+      "slow": 26,
+      "fluctuating": 28
+    }
+  },
+  {
+    "trainer": "Nelson",
+    "area": "Route 39",
+    "trainer_id": 389,
+    "levels": {
+      "erratic": 25,
+      "fast": 29,
+      "medium_fast": 27,
+      "medium_slow": 29,
+      "slow": 26,
+      "fluctuating": 28
+    }
+  },
+  {
+    "trainer": "Eugene",
+    "area": "Route 39",
+    "trainer_id": 39,
+    "levels": {
+      "erratic": 25,
+      "fast": 29,
+      "medium_fast": 28,
+      "medium_slow": 29,
+      "slow": 26,
+      "fluctuating": 28
+    }
+  },
+  {
+    "trainer": "Derek",
+    "area": "Route 39",
+    "trainer_id": 44,
+    "levels": {
+      "erratic": 25,
+      "fast": 29,
+      "medium_fast": 28,
+      "medium_slow": 29,
+      "slow": 26,
+      "fluctuating": 28
+    }
+  },
+  {
+    "trainer": "Ruth",
+    "area": "Route 39",
+    "trainer_id": 45,
+    "levels": {
+      "erratic": 25,
+      "fast": 29,
+      "medium_fast": 28,
+      "medium_slow": 29,
+      "slow": 26,
+      "fluctuating": 28
+    }
+  },
+  {
+    "trainer": "Charlotte",
+    "area": "Olivine Pokemon Center",
+    "trainer_id": 728,
+    "levels": {
+      "erratic": 26,
+      "fast": 29,
+      "medium_fast": 28,
+      "medium_slow": 29,
+      "slow": 26,
+      "fluctuating": 28
+    }
+  },
+  {
+    "trainer": "Rival (#3)",
+    "area": "Burned Tower",
+    "trainer_id": 263,
+    "levels": {
+      "erratic": 26,
+      "fast": 30,
+      "medium_fast": 28,
+      "medium_slow": 30,
+      "slow": 27,
+      "fluctuating": 29
+    }
+  },
+  {
+    "trainer": "Ned",
+    "area": "Burned Tower",
+    "trainer_id": 282,
+    "levels": {
+      "erratic": 26,
+      "fast": 30,
+      "medium_fast": 29,
+      "medium_slow": 30,
+      "slow": 27,
+      "fluctuating": 29
+    }
+  },
+  {
+    "trainer": "Richard",
+    "area": "Burned Tower",
+    "trainer_id": 281,
+    "levels": {
+      "erratic": 26,
+      "fast": 30,
+      "medium_fast": 29,
+      "medium_slow": 30,
+      "slow": 27,
+      "fluctuating": 29
+    }
+  },
+  {
+    "trainer": "Alfred",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 401,
+    "levels": {
+      "erratic": 27,
+      "fast": 30,
+      "medium_fast": 29,
+      "medium_slow": 30,
+      "slow": 27,
+      "fluctuating": 29
+    }
+  },
+  {
+    "trainer": "Huey",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 211,
+    "levels": {
+      "erratic": 27,
+      "fast": 31,
+      "medium_fast": 29,
+      "medium_slow": 30,
+      "slow": 27,
+      "fluctuating": 29
+    }
+  },
+  {
+    "trainer": "Theo",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 73,
+    "levels": {
+      "erratic": 27,
+      "fast": 31,
+      "medium_fast": 29,
+      "medium_slow": 30,
+      "slow": 28,
+      "fluctuating": 30
+    }
+  },
+  {
+    "trainer": "Preston",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 37,
+    "levels": {
+      "erratic": 27,
+      "fast": 31,
+      "medium_fast": 29,
+      "medium_slow": 31,
+      "slow": 28,
+      "fluctuating": 30
+    }
+  },
+  {
+    "trainer": "Connie",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 215,
+    "levels": {
+      "erratic": 27,
+      "fast": 31,
+      "medium_fast": 30,
+      "medium_slow": 31,
+      "slow": 28,
+      "fluctuating": 30
+    }
+  },
+  {
+    "trainer": "Kent",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 213,
+    "levels": {
+      "erratic": 27,
+      "fast": 31,
+      "medium_fast": 30,
+      "medium_slow": 31,
+      "slow": 28,
+      "fluctuating": 30
+    }
+  },
+  {
+    "trainer": "Denis",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 217,
+    "levels": {
+      "erratic": 28,
+      "fast": 32,
+      "medium_fast": 30,
+      "medium_slow": 31,
+      "slow": 28,
+      "fluctuating": 30
+    }
+  },
+  {
+    "trainer": "Terrell",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 212,
+    "levels": {
+      "erratic": 28,
+      "fast": 32,
+      "medium_fast": 30,
+      "medium_slow": 31,
+      "slow": 29,
+      "fluctuating": 30
+    }
+  },
+  {
+    "trainer": "Roberto",
+    "area": "Glitter Lighthouse",
+    "trainer_id": 214,
+    "levels": {
+      "erratic": 28,
+      "fast": 32,
+      "medium_fast": 30,
+      "medium_slow": 32,
+      "slow": 29,
+      "fluctuating": 31
+    }
+  },
+  {
+    "trainer": "Georgina",
+    "area": "Ecruteak Gym",
+    "trainer_id": 494,
+    "levels": {
+      "erratic": 28,
+      "fast": 32,
+      "medium_fast": 31,
+      "medium_slow": 32,
+      "slow": 29,
+      "fluctuating": 31
+    }
+  },
+  {
+    "trainer": "Grace",
+    "area": "Ecruteak Gym",
+    "trainer_id": 89,
+    "levels": {
+      "erratic": 29,
+      "fast": 33,
+      "medium_fast": 31,
+      "medium_slow": 32,
+      "slow": 29,
+      "fluctuating": 31
+    }
+  },
+  {
+    "trainer": "Edith",
+    "area": "Ecruteak Gym",
+    "trainer_id": 493,
+    "levels": {
+      "erratic": 29,
+      "fast": 33,
+      "medium_fast": 31,
+      "medium_slow": 32,
+      "slow": 29,
+      "fluctuating": 31
+    }
+  },
+  {
+    "trainer": "Martha",
+    "area": "Ecruteak Gym",
+    "trainer_id": 46,
+    "levels": {
+      "erratic": 29,
+      "fast": 33,
+      "medium_fast": 31,
+      "medium_slow": 32,
+      "slow": 30,
+      "fluctuating": 31
+    }
+  },
+  {
+    "trainer": "Morty",
+    "area": "Ecruteak Gym",
+    "trainer_id": 31,
+    "levels": {
+      "erratic": 30,
+      "fast": 34,
+      "medium_fast": 32,
+      "medium_slow": 33,
+      "slow": 30,
+      "fluctuating": 32
+    }
+  },
+  {
+    "trainer": "Simon",
+    "area": "Route 40",
+    "trainer_id": 16,
+    "levels": {
+      "erratic": 30,
+      "fast": 34,
+      "medium_fast": 32,
+      "medium_slow": 33,
+      "slow": 30,
+      "fluctuating": 32
+    }
+  },
+  {
+    "trainer": "Elaine",
+    "area": "Route 40",
+    "trainer_id": 9,
+    "levels": {
+      "erratic": 30,
+      "fast": 34,
+      "medium_fast": 32,
+      "medium_slow": 33,
+      "slow": 30,
+      "fluctuating": 32
+    }
+  },
+  {
+    "trainer": "Paula",
+    "area": "Route 40",
+    "trainer_id": 85,
+    "levels": {
+      "erratic": 30,
+      "fast": 34,
+      "medium_fast": 32,
+      "medium_slow": 33,
+      "slow": 30,
+      "fluctuating": 32
+    }
+  },
+  {
+    "trainer": "George",
+    "area": "Route 41",
+    "trainer_id": 96,
+    "levels": {
+      "erratic": 30,
+      "fast": 34,
+      "medium_fast": 32,
+      "medium_slow": 33,
+      "slow": 31,
+      "fluctuating": 32
+    }
+  },
+  {
+    "trainer": "Susie",
+    "area": "Route 41",
+    "trainer_id": 91,
+    "levels": {
+      "erratic": 31,
+      "fast": 34,
+      "medium_fast": 33,
+      "medium_slow": 34,
+      "slow": 31,
+      "fluctuating": 32
+    }
+  },
+  {
+    "trainer": "Charlie",
+    "area": "Route 41",
+    "trainer_id": 95,
+    "levels": {
+      "erratic": 31,
+      "fast": 35,
+      "medium_fast": 33,
+      "medium_slow": 34,
+      "slow": 31,
+      "fluctuating": 33
+    }
+  },
+  {
+    "trainer": "Kaylee",
+    "area": "Route 41",
+    "trainer_id": 90,
+    "levels": {
+      "erratic": 31,
+      "fast": 35,
+      "medium_fast": 33,
+      "medium_slow": 34,
+      "slow": 31,
+      "fluctuating": 33
+    }
+  },
+  {
+    "trainer": "Matthew",
+    "area": "Route 41",
+    "trainer_id": 99,
+    "levels": {
+      "erratic": 31,
+      "fast": 35,
+      "medium_fast": 33,
+      "medium_slow": 34,
+      "slow": 31,
+      "fluctuating": 33
+    }
+  },
+  {
+    "trainer": "Berke",
+    "area": "Route 41",
+    "trainer_id": 97,
+    "levels": {
+      "erratic": 31,
+      "fast": 35,
+      "medium_fast": 33,
+      "medium_slow": 34,
+      "slow": 31,
+      "fluctuating": 33
+    }
+  },
+  {
+    "trainer": "Kara",
+    "area": "Route 41",
+    "trainer_id": 93,
+    "levels": {
+      "erratic": 31,
+      "fast": 35,
+      "medium_fast": 33,
+      "medium_slow": 34,
+      "slow": 32,
+      "fluctuating": 33
+    }
+  },
+  {
+    "trainer": "Wendy",
+    "area": "Route 41",
+    "trainer_id": 94,
+    "levels": {
+      "erratic": 32,
+      "fast": 35,
+      "medium_fast": 34,
+      "medium_slow": 35,
+      "slow": 32,
+      "fluctuating": 33
+    }
+  },
+  {
+    "trainer": "Ronald",
+    "area": "Route 41",
+    "trainer_id": 98,
+    "levels": {
+      "erratic": 32,
+      "fast": 36,
+      "medium_fast": 34,
+      "medium_slow": 35,
+      "slow": 32,
+      "fluctuating": 33
+    }
+  },
+  {
+    "trainer": "Denise",
+    "area": "Route 41",
+    "trainer_id": 92,
+    "levels": {
+      "erratic": 32,
+      "fast": 36,
+      "medium_fast": 34,
+      "medium_slow": 35,
+      "slow": 32,
+      "fluctuating": 34
+    }
+  },
+  {
+    "trainer": "Devin",
+    "area": "Route 47",
+    "trainer_id": 731,
+    "levels": {
+      "erratic": 32,
+      "fast": 36,
+      "medium_fast": 34,
+      "medium_slow": 35,
+      "slow": 32,
+      "fluctuating": 34
+    }
+  },
+  {
+    "trainer": "Grant",
+    "area": "Route 47",
+    "trainer_id": 732,
+    "levels": {
+      "erratic": 32,
+      "fast": 36,
+      "medium_fast": 34,
+      "medium_slow": 35,
+      "slow": 32,
+      "fluctuating": 34
+    }
+  },
+  {
+    "trainer": "Duff & Eda",
+    "area": "Route 47",
+    "trainer_id": 729,
+    "levels": {
+      "erratic": 32,
+      "fast": 36,
+      "medium_fast": 34,
+      "medium_slow": 35,
+      "slow": 33,
+      "fluctuating": 34
+    }
+  },
+  {
+    "trainer": "Eusine",
+    "area": "Cianwood City",
+    "trainer_id": 498,
+    "levels": {
+      "erratic": 33,
+      "fast": 37,
+      "medium_fast": 35,
+      "medium_slow": 36,
+      "slow": 33,
+      "fluctuating": 34
+    }
+  },
+  {
+    "trainer": "Irene",
+    "area": "Route 34",
+    "trainer_id": 120,
+    "levels": {
+      "erratic": 33,
+      "fast": 37,
+      "medium_fast": 35,
+      "medium_slow": 36,
+      "slow": 33,
+      "fluctuating": 34
+    }
+  },
+  {
+    "trainer": "Jenn",
+    "area": "Route 34",
+    "trainer_id": 417,
+    "levels": {
+      "erratic": 33,
+      "fast": 37,
+      "medium_fast": 35,
+      "medium_slow": 36,
+      "slow": 33,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Kate",
+    "area": "Route 34",
+    "trainer_id": 118,
+    "levels": {
+      "erratic": 33,
+      "fast": 37,
+      "medium_fast": 35,
+      "medium_slow": 36,
+      "slow": 33,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Tully",
+    "area": "Route 42",
+    "trainer_id": 123,
+    "levels": {
+      "erratic": 34,
+      "fast": 37,
+      "medium_fast": 35,
+      "medium_slow": 36,
+      "slow": 34,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Shane",
+    "area": "Route 42",
+    "trainer_id": 129,
+    "levels": {
+      "erratic": 34,
+      "fast": 37,
+      "medium_fast": 35,
+      "medium_slow": 36,
+      "slow": 34,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Benjamin",
+    "area": "Route 42",
+    "trainer_id": 134,
+    "levels": {
+      "erratic": 34,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 36,
+      "slow": 34,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Spencer",
+    "area": "Route 43",
+    "trainer_id": 403,
+    "levels": {
+      "erratic": 34,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 37,
+      "slow": 34,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Tiffany",
+    "area": "Route 43",
+    "trainer_id": 402,
+    "levels": {
+      "erratic": 34,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 37,
+      "slow": 34,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Brent",
+    "area": "Route 43",
+    "trainer_id": 131,
+    "levels": {
+      "erratic": 34,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 37,
+      "slow": 34,
+      "fluctuating": 35
+    }
+  },
+  {
+    "trainer": "Beckett",
+    "area": "Route 43",
+    "trainer_id": 130,
+    "levels": {
+      "erratic": 34,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 37,
+      "slow": 34,
+      "fluctuating": 36
+    }
+  },
+  {
+    "trainer": "Ron",
+    "area": "Route 43",
+    "trainer_id": 132,
+    "levels": {
+      "erratic": 34,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 37,
+      "slow": 34,
+      "fluctuating": 36
+    }
+  },
+  {
+    "trainer": "Marvin",
+    "area": "Route 43",
+    "trainer_id": 122,
+    "levels": {
+      "erratic": 34,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 37,
+      "slow": 34,
+      "fluctuating": 36
+    }
+  },
+  {
+    "trainer": "Raymond",
+    "area": "Lake of Rage",
+    "trainer_id": 127,
+    "levels": {
+      "erratic": 35,
+      "fast": 38,
+      "medium_fast": 36,
+      "medium_slow": 37,
+      "slow": 34,
+      "fluctuating": 36
+    }
+  },
+  {
+    "trainer": "Lois",
+    "area": "Lake of Rage",
+    "trainer_id": 116,
+    "levels": {
+      "erratic": 35,
+      "fast": 39,
+      "medium_fast": 37,
+      "medium_slow": 37,
+      "slow": 35,
+      "fluctuating": 36
+    }
+  },
+  {
+    "trainer": "Alton",
+    "area": "Lake of Rage",
+    "trainer_id": 109,
+    "levels": {
+      "erratic": 35,
+      "fast": 39,
+      "medium_fast": 37,
+      "medium_slow": 38,
+      "slow": 35,
+      "fluctuating": 36
+    }
+  },
+  {
+    "trainer": "Gregg",
+    "area": "Team Rocket HQ",
+    "trainer_id": 470,
+    "levels": {
+      "erratic": 35,
+      "fast": 39,
+      "medium_fast": 37,
+      "medium_slow": 38,
+      "slow": 35,
+      "fluctuating": 36
+    }
+  },
+  {
+    "trainer": "Ross",
+    "area": "Team Rocket HQ",
+    "trainer_id": 468,
+    "levels": {
+      "erratic": 36,
+      "fast": 39,
+      "medium_fast": 37,
+      "medium_slow": 38,
+      "slow": 35,
+      "fluctuating": 37
+    }
+  },
+  {
+    "trainer": "Mitch",
+    "area": "Team Rocket HQ",
+    "trainer_id": 469,
+    "levels": {
+      "erratic": 36,
+      "fast": 39,
+      "medium_fast": 37,
+      "medium_slow": 38,
+      "slow": 35,
+      "fluctuating": 37
+    }
+  },
+  {
+    "trainer": "Petrel",
+    "area": "Team Rocket HQ",
+    "trainer_id": 487,
+    "levels": {
+      "erratic": 37,
+      "fast": 40,
+      "medium_fast": 38,
+      "medium_slow": 39,
+      "slow": 36,
+      "fluctuating": 37
+    }
+  },
+  {
+    "trainer": "Yoshi",
+    "area": "Cianwood Gym",
+    "trainer_id": 156,
+    "levels": {
+      "erratic": 37,
+      "fast": 40,
+      "medium_fast": 38,
+      "medium_slow": 39,
+      "slow": 36,
+      "fluctuating": 38
+    }
+  },
+  {
+    "trainer": "Nob",
+    "area": "Cianwood Gym",
+    "trainer_id": 251,
+    "levels": {
+      "erratic": 37,
+      "fast": 40,
+      "medium_fast": 38,
+      "medium_slow": 39,
+      "slow": 36,
+      "fluctuating": 38
+    }
+  },
+  {
+    "trainer": "Lao",
+    "area": "Cianwood Gym",
+    "trainer_id": 157,
+    "levels": {
+      "erratic": 37,
+      "fast": 40,
+      "medium_fast": 38,
+      "medium_slow": 39,
+      "slow": 36,
+      "fluctuating": 38
+    }
+  },
+  {
+    "trainer": "Lung",
+    "area": "Cianwood Gym",
+    "trainer_id": 159,
+    "levels": {
+      "erratic": 37,
+      "fast": 41,
+      "medium_fast": 39,
+      "medium_slow": 39,
+      "slow": 37,
+      "fluctuating": 38
+    }
+  },
+  {
+    "trainer": "Chuck",
+    "area": "Cianwood Gym",
+    "trainer_id": 34,
+    "levels": {
+      "erratic": 37,
+      "fast": 41,
+      "medium_fast": 39,
+      "medium_slow": 40,
+      "slow": 37,
+      "fluctuating": 38
+    }
+  },
+  {
+    "trainer": "Jasmine",
+    "area": "Olivine Gym",
+    "trainer_id": 33,
+    "levels": {
+      "erratic": 38,
+      "fast": 41,
+      "medium_fast": 39,
+      "medium_slow": 40,
+      "slow": 37,
+      "fluctuating": 38
+    }
+  },
+  {
+    "trainer": "Patton",
+    "area": "Mahogany Gym",
+    "trainer_id": 483,
+    "levels": {
+      "erratic": 38,
+      "fast": 42,
+      "medium_fast": 39,
+      "medium_slow": 40,
+      "slow": 37,
+      "fluctuating": 39
+    }
+  },
+  {
+    "trainer": "Diana",
+    "area": "Mahogany Gym",
+    "trainer_id": 297,
+    "levels": {
+      "erratic": 38,
+      "fast": 42,
+      "medium_fast": 40,
+      "medium_slow": 40,
+      "slow": 38,
+      "fluctuating": 39
+    }
+  },
+  {
+    "trainer": "Jill",
+    "area": "Mahogany Gym",
+    "trainer_id": 481,
+    "levels": {
+      "erratic": 39,
+      "fast": 42,
+      "medium_fast": 40,
+      "medium_slow": 40,
+      "slow": 38,
+      "fluctuating": 39
+    }
+  },
+  {
+    "trainer": "Gerardo",
+    "area": "Mahogany Gym",
+    "trainer_id": 484,
+    "levels": {
+      "erratic": 39,
+      "fast": 42,
+      "medium_fast": 40,
+      "medium_slow": 41,
+      "slow": 38,
+      "fluctuating": 39
+    }
+  },
+  {
+    "trainer": "Pryce",
+    "area": "Mahogany Gym",
+    "trainer_id": 32,
+    "levels": {
+      "erratic": 39,
+      "fast": 43,
+      "medium_fast": 40,
+      "medium_slow": 41,
+      "slow": 38,
+      "fluctuating": 40
+    }
+  },
+  {
+    "trainer": "Garett",
+    "area": "Radio Tower",
+    "trainer_id": 471,
+    "levels": {
+      "erratic": 40,
+      "fast": 43,
+      "medium_fast": 41,
+      "medium_slow": 41,
+      "slow": 38,
+      "fluctuating": 40
+    }
+  },
+  {
+    "trainer": "Trenton",
+    "area": "Radio Tower",
+    "trainer_id": 472,
+    "levels": {
+      "erratic": 40,
+      "fast": 43,
+      "medium_fast": 41,
+      "medium_slow": 41,
+      "slow": 39,
+      "fluctuating": 40
+    }
+  },
+  {
+    "trainer": "Petrel",
+    "area": "Radio Tower",
+    "trainer_id": 488,
+    "levels": {
+      "erratic": 40,
+      "fast": 43,
+      "medium_fast": 41,
+      "medium_slow": 41,
+      "slow": 39,
+      "fluctuating": 40
+    }
+  },
+  {
+    "trainer": "Rival (#4)",
+    "area": "Goldenrod Tunnel Warehouse - Exterior",
+    "trainer_id": 288,
+    "levels": {
+      "erratic": 40,
+      "fast": 44,
+      "medium_fast": 41,
+      "medium_slow": 42,
+      "slow": 39,
+      "fluctuating": 40
+    }
+  },
+  {
+    "trainer": "Duncan",
+    "area": "Goldenrod Tunnel Warehouse - Exterior",
+    "trainer_id": 14,
+    "levels": {
+      "erratic": 41,
+      "fast": 44,
+      "medium_fast": 42,
+      "medium_slow": 42,
+      "slow": 39,
+      "fluctuating": 40
+    }
+  },
+  {
+    "trainer": "Orson",
+    "area": "Goldenrod Tunnel Warehouse - Exterior",
+    "trainer_id": 283,
+    "levels": {
+      "erratic": 41,
+      "fast": 44,
+      "medium_fast": 42,
+      "medium_slow": 42,
+      "slow": 39,
+      "fluctuating": 41
+    }
+  },
+  {
+    "trainer": "Proton",
+    "area": "Radio Tower",
+    "trainer_id": 706,
+    "levels": {
+      "erratic": 41,
+      "fast": 44,
+      "medium_fast": 42,
+      "medium_slow": 43,
+      "slow": 40,
+      "fluctuating": 41
+    }
+  },
+  {
+    "trainer": "Ariana",
+    "area": "Radio Tower",
+    "trainer_id": 478,
+    "levels": {
+      "erratic": 41,
+      "fast": 44,
+      "medium_fast": 42,
+      "medium_slow": 43,
+      "slow": 40,
+      "fluctuating": 41
+    }
+  },
+  {
+    "trainer": "Archer",
+    "area": "Radio Tower Observation Deck",
+    "trainer_id": 485,
+    "levels": {
+      "erratic": 42,
+      "fast": 45,
+      "medium_fast": 43,
+      "medium_slow": 43,
+      "slow": 40,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Phil",
+    "area": "Route 44",
+    "trainer_id": 405,
+    "levels": {
+      "erratic": 42,
+      "fast": 45,
+      "medium_fast": 43,
+      "medium_slow": 43,
+      "slow": 40,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Edgar",
+    "area": "Route 44",
+    "trainer_id": 125,
+    "levels": {
+      "erratic": 42,
+      "fast": 45,
+      "medium_fast": 43,
+      "medium_slow": 43,
+      "slow": 41,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Cybil",
+    "area": "Route 44",
+    "trainer_id": 408,
+    "levels": {
+      "erratic": 42,
+      "fast": 45,
+      "medium_fast": 43,
+      "medium_slow": 44,
+      "slow": 41,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Allen",
+    "area": "Route 44",
+    "trainer_id": 407,
+    "levels": {
+      "erratic": 43,
+      "fast": 45,
+      "medium_fast": 43,
+      "medium_slow": 44,
+      "slow": 41,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Zach",
+    "area": "Route 44",
+    "trainer_id": 406,
+    "levels": {
+      "erratic": 43,
+      "fast": 46,
+      "medium_fast": 43,
+      "medium_slow": 44,
+      "slow": 41,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Wilton",
+    "area": "Route 44",
+    "trainer_id": 124,
+    "levels": {
+      "erratic": 43,
+      "fast": 46,
+      "medium_fast": 43,
+      "medium_slow": 44,
+      "slow": 41,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Vance",
+    "area": "Route 44",
+    "trainer_id": 137,
+    "levels": {
+      "erratic": 43,
+      "fast": 46,
+      "medium_fast": 44,
+      "medium_slow": 44,
+      "slow": 41,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Erik",
+    "area": "Route 45",
+    "trainer_id": 143,
+    "levels": {
+      "erratic": 43,
+      "fast": 46,
+      "medium_fast": 44,
+      "medium_slow": 44,
+      "slow": 41,
+      "fluctuating": 42
+    }
+  },
+  {
+    "trainer": "Ryan",
+    "area": "Route 45",
+    "trainer_id": 108,
+    "levels": {
+      "erratic": 44,
+      "fast": 46,
+      "medium_fast": 44,
+      "medium_slow": 44,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Kelly",
+    "area": "Route 45",
+    "trainer_id": 121,
+    "levels": {
+      "erratic": 44,
+      "fast": 46,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Parry",
+    "area": "Route 45",
+    "trainer_id": 145,
+    "levels": {
+      "erratic": 44,
+      "fast": 46,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Kenji",
+    "area": "Route 45",
+    "trainer_id": 17,
+    "levels": {
+      "erratic": 44,
+      "fast": 47,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Timothy",
+    "area": "Route 45",
+    "trainer_id": 146,
+    "levels": {
+      "erratic": 44,
+      "fast": 47,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Michael",
+    "area": "Route 45",
+    "trainer_id": 144,
+    "levels": {
+      "erratic": 44,
+      "fast": 47,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Ted",
+    "area": "Route 46",
+    "trainer_id": 147,
+    "levels": {
+      "erratic": 44,
+      "fast": 47,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Erin",
+    "area": "Route 46",
+    "trainer_id": 151,
+    "levels": {
+      "erratic": 44,
+      "fast": 47,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Bailey",
+    "area": "Route 46",
+    "trainer_id": 154,
+    "levels": {
+      "erratic": 44,
+      "fast": 47,
+      "medium_fast": 44,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 43
+    }
+  },
+  {
+    "trainer": "Paulo",
+    "area": "Blackthorn Gym",
+    "trainer_id": 110,
+    "levels": {
+      "erratic": 45,
+      "fast": 47,
+      "medium_fast": 45,
+      "medium_slow": 45,
+      "slow": 42,
+      "fluctuating": 44
+    }
+  },
+  {
+    "trainer": "Lola",
+    "area": "Blackthorn Gym",
+    "trainer_id": 117,
+    "levels": {
+      "erratic": 45,
+      "fast": 47,
+      "medium_fast": 45,
+      "medium_slow": 46,
+      "slow": 43,
+      "fluctuating": 44
+    }
+  },
+  {
+    "trainer": "Cody",
+    "area": "Blackthorn Gym",
+    "trainer_id": 112,
+    "levels": {
+      "erratic": 45,
+      "fast": 48,
+      "medium_fast": 45,
+      "medium_slow": 46,
+      "slow": 43,
+      "fluctuating": 44
+    }
+  },
+  {
+    "trainer": "Fran",
+    "area": "Blackthorn Gym",
+    "trainer_id": 119,
+    "levels": {
+      "erratic": 45,
+      "fast": 48,
+      "medium_fast": 45,
+      "medium_slow": 46,
+      "slow": 43,
+      "fluctuating": 44
+    }
+  },
+  {
+    "trainer": "Mike",
+    "area": "Blackthorn Gym",
+    "trainer_id": 111,
+    "levels": {
+      "erratic": 46,
+      "fast": 48,
+      "medium_fast": 45,
+      "medium_slow": 46,
+      "slow": 43,
+      "fluctuating": 44
+    }
+  },
+  {
+    "trainer": "Clair",
+    "area": "Blackthorn Gym",
+    "trainer_id": 35,
+    "levels": {
+      "erratic": 46,
+      "fast": 48,
+      "medium_fast": 46,
+      "medium_slow": 46,
+      "slow": 43,
+      "fluctuating": 44
+    }
+  },
+  {
+    "trainer": "Kobe",
+    "area": "Dragon's Den",
+    "trainer_id": 500,
+    "levels": {
+      "erratic": 46,
+      "fast": 49,
+      "medium_fast": 46,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Piper",
+    "area": "Dragon's Den",
+    "trainer_id": 501,
+    "levels": {
+      "erratic": 47,
+      "fast": 49,
+      "medium_fast": 46,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Hugh",
+    "area": "Mt. Mortar",
+    "trainer_id": 538,
+    "levels": {
+      "erratic": 47,
+      "fast": 49,
+      "medium_fast": 46,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Kiyo",
+    "area": "Mt. Mortar",
+    "trainer_id": 158,
+    "levels": {
+      "erratic": 47,
+      "fast": 49,
+      "medium_fast": 47,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Markus",
+    "area": "Mt. Mortar",
+    "trainer_id": 539,
+    "levels": {
+      "erratic": 47,
+      "fast": 49,
+      "medium_fast": 47,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Harrison",
+    "area": "Mt. Mortar",
+    "trainer_id": 537,
+    "levels": {
+      "erratic": 47,
+      "fast": 49,
+      "medium_fast": 47,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Zuki",
+    "area": "Ecruteak Dance Theater",
+    "trainer_id": 162,
+    "levels": {
+      "erratic": 47,
+      "fast": 49,
+      "medium_fast": 47,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Naoko",
+    "area": "Ecruteak Dance Theater",
+    "trainer_id": 160,
+    "levels": {
+      "erratic": 48,
+      "fast": 49,
+      "medium_fast": 47,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Miki",
+    "area": "Ecruteak Dance Theater",
+    "trainer_id": 164,
+    "levels": {
+      "erratic": 48,
+      "fast": 49,
+      "medium_fast": 47,
+      "medium_slow": 47,
+      "slow": 44,
+      "fluctuating": 45
+    }
+  },
+  {
+    "trainer": "Sayo",
+    "area": "Ecruteak Dance Theater",
+    "trainer_id": 161,
+    "levels": {
+      "erratic": 48,
+      "fast": 50,
+      "medium_fast": 47,
+      "medium_slow": 47,
+      "slow": 45,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Kuni",
+    "area": "Ecruteak Dance Theater",
+    "trainer_id": 163,
+    "levels": {
+      "erratic": 48,
+      "fast": 50,
+      "medium_fast": 47,
+      "medium_slow": 48,
+      "slow": 45,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Megan",
+    "area": "Route 27",
+    "trainer_id": 115,
+    "levels": {
+      "erratic": 48,
+      "fast": 50,
+      "medium_fast": 47,
+      "medium_slow": 48,
+      "slow": 45,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Blake",
+    "area": "Route 27",
+    "trainer_id": 103,
+    "levels": {
+      "erratic": 49,
+      "fast": 50,
+      "medium_fast": 48,
+      "medium_slow": 48,
+      "slow": 45,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Jose",
+    "area": "Route 27",
+    "trainer_id": 303,
+    "levels": {
+      "erratic": 49,
+      "fast": 50,
+      "medium_fast": 48,
+      "medium_slow": 48,
+      "slow": 45,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Brian",
+    "area": "Route 27",
+    "trainer_id": 104,
+    "levels": {
+      "erratic": 49,
+      "fast": 50,
+      "medium_fast": 48,
+      "medium_slow": 48,
+      "slow": 45,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Eli",
+    "area": "Route 27",
+    "trainer_id": 412,
+    "levels": {
+      "erratic": 49,
+      "fast": 51,
+      "medium_fast": 48,
+      "medium_slow": 48,
+      "slow": 45,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Reena",
+    "area": "Route 27",
+    "trainer_id": 114,
+    "levels": {
+      "erratic": 49,
+      "fast": 51,
+      "medium_fast": 48,
+      "medium_slow": 49,
+      "slow": 46,
+      "fluctuating": 46
+    }
+  },
+  {
+    "trainer": "Scott",
+    "area": "Route 26",
+    "trainer_id": 413,
+    "levels": {
+      "erratic": 49,
+      "fast": 51,
+      "medium_fast": 48,
+      "medium_slow": 49,
+      "slow": 46,
+      "fluctuating": 47
+    }
+  },
+  {
+    "trainer": "Vernon",
+    "area": "Route 26",
+    "trainer_id": 411,
+    "levels": {
+      "erratic": 50,
+      "fast": 51,
+      "medium_fast": 48,
+      "medium_slow": 49,
+      "slow": 46,
+      "fluctuating": 47
+    }
+  },
+  {
+    "trainer": "Joyce",
+    "area": "Route 26",
+    "trainer_id": 36,
+    "levels": {
+      "erratic": 50,
+      "fast": 51,
+      "medium_fast": 49,
+      "medium_slow": 49,
+      "slow": 46,
+      "fluctuating": 47
+    }
+  },
+  {
+    "trainer": "Gaven",
+    "area": "Route 26",
+    "trainer_id": 102,
+    "levels": {
+      "erratic": 50,
+      "fast": 51,
+      "medium_fast": 49,
+      "medium_slow": 49,
+      "slow": 46,
+      "fluctuating": 47
+    }
+  },
+  {
+    "trainer": "Jake",
+    "area": "Route 26",
+    "trainer_id": 28,
+    "levels": {
+      "erratic": 50,
+      "fast": 52,
+      "medium_fast": 49,
+      "medium_slow": 49,
+      "slow": 46,
+      "fluctuating": 47
+    }
+  },
+  {
+    "trainer": "Jamie",
+    "area": "Route 26",
+    "trainer_id": 113,
+    "levels": {
+      "erratic": 50,
+      "fast": 52,
+      "medium_fast": 49,
+      "medium_slow": 50,
+      "slow": 47,
+      "fluctuating": 47
+    }
+  },
+  {
+    "trainer": "Rival (#5)",
+    "area": "Victory Road",
+    "trainer_id": 264,
+    "levels": {
+      "erratic": 51,
+      "fast": 52,
+      "medium_fast": 50,
+      "medium_slow": 50,
+      "slow": 47,
+      "fluctuating": 48
+    }
+  },
+  {
+    "trainer": "Will",
+    "area": "Indigo Plateau",
+    "trainer_id": 245,
+    "levels": {
+      "erratic": 52,
+      "fast": 53,
+      "medium_fast": 50,
+      "medium_slow": 51,
+      "slow": 48,
+      "fluctuating": 48
+    }
+  },
+  {
+    "trainer": "Koga",
+    "area": "Indigo Plateau",
+    "trainer_id": 247,
+    "levels": {
+      "erratic": 52,
+      "fast": 54,
+      "medium_fast": 51,
+      "medium_slow": 51,
+      "slow": 48,
+      "fluctuating": 49
+    }
+  },
+  {
+    "trainer": "Bruno",
+    "area": "Indigo Plateau",
+    "trainer_id": 418,
+    "levels": {
+      "erratic": 53,
+      "fast": 54,
+      "medium_fast": 51,
+      "medium_slow": 52,
+      "slow": 49,
+      "fluctuating": 49
+    }
+  },
+  {
+    "trainer": "Karen",
+    "area": "Indigo Plateau",
+    "trainer_id": 246,
+    "levels": {
+      "erratic": 53,
+      "fast": 55,
+      "medium_fast": 52,
+      "medium_slow": 52,
+      "slow": 49,
+      "fluctuating": 50
+    }
+  },
+  {
+    "trainer": "Lance",
+    "area": "Indigo Plateau",
+    "trainer_id": 244,
+    "levels": {
+      "erratic": 54,
+      "fast": 55,
+      "medium_fast": 53,
+      "medium_slow": 53,
+      "slow": 50,
+      "fluctuating": 50
+    }
+  },
+  {
+    "trainer": "Colin",
+    "area": "S.S. Aqua",
+    "trainer_id": 424,
+    "levels": {
+      "erratic": 54,
+      "fast": 56,
+      "medium_fast": 53,
+      "medium_slow": 53,
+      "slow": 50,
+      "fluctuating": 50
+    }
+  },
+  {
+    "trainer": "Meg & Peg",
+    "area": "S.S. Aqua",
+    "trainer_id": 425,
+    "levels": {
+      "erratic": 55,
+      "fast": 56,
+      "medium_fast": 53,
+      "medium_slow": 53,
+      "slow": 50,
+      "fluctuating": 50
+    }
+  },
+  {
+    "trainer": "Lyle",
+    "area": "S.S. Aqua",
+    "trainer_id": 399,
+    "levels": {
+      "erratic": 55,
+      "fast": 56,
+      "medium_fast": 53,
+      "medium_slow": 53,
+      "slow": 50,
+      "fluctuating": 51
+    }
+  },
+  {
+    "trainer": "Stanly",
+    "area": "S.S. Aqua",
+    "trainer_id": 238,
+    "levels": {
+      "erratic": 55,
+      "fast": 56,
+      "medium_fast": 53,
+      "medium_slow": 53,
+      "slow": 50,
+      "fluctuating": 51
+    }
+  },
+  {
+    "trainer": "Fritz",
+    "area": "S.S. Aqua",
+    "trainer_id": 242,
+    "levels": {
+      "erratic": 55,
+      "fast": 56,
+      "medium_fast": 53,
+      "medium_slow": 54,
+      "slow": 51,
+      "fluctuating": 51
+    }
+  },
+  {
+    "trainer": "Jeff",
+    "area": "S.S. Aqua",
+    "trainer_id": 239,
+    "levels": {
+      "erratic": 56,
+      "fast": 57,
+      "medium_fast": 54,
+      "medium_slow": 54,
+      "slow": 51,
+      "fluctuating": 51
+    }
+  },
+  {
+    "trainer": "Debra",
+    "area": "S.S. Aqua",
+    "trainer_id": 139,
+    "levels": {
+      "erratic": 56,
+      "fast": 57,
+      "medium_fast": 54,
+      "medium_slow": 54,
+      "slow": 51,
+      "fluctuating": 51
+    }
+  },
+  {
+    "trainer": "Selina",
+    "area": "Route 6",
+    "trainer_id": 600,
+    "levels": {
+      "erratic": 56,
+      "fast": 57,
+      "medium_fast": 54,
+      "medium_slow": 54,
+      "slow": 51,
+      "fluctuating": 51
+    }
+  },
+  {
+    "trainer": "Virgil",
+    "area": "Route 6",
+    "trainer_id": 599,
+    "levels": {
+      "erratic": 56,
+      "fast": 57,
+      "medium_fast": 54,
+      "medium_slow": 54,
+      "slow": 51,
+      "fluctuating": 51
+    }
+  },
+  {
+    "trainer": "Dwayne",
+    "area": "Route 8",
+    "trainer_id": 309,
+    "levels": {
+      "erratic": 56,
+      "fast": 57,
+      "medium_fast": 54,
+      "medium_slow": 54,
+      "slow": 51,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Harris",
+    "area": "Route 8",
+    "trainer_id": 310,
+    "levels": {
+      "erratic": 56,
+      "fast": 57,
+      "medium_fast": 54,
+      "medium_slow": 54,
+      "slow": 51,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Zeke",
+    "area": "Route 8",
+    "trainer_id": 311,
+    "levels": {
+      "erratic": 57,
+      "fast": 57,
+      "medium_fast": 54,
+      "medium_slow": 55,
+      "slow": 52,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Sam",
+    "area": "Route 8",
+    "trainer_id": 364,
+    "levels": {
+      "erratic": 57,
+      "fast": 58,
+      "medium_fast": 55,
+      "medium_slow": 55,
+      "slow": 52,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Tyrone",
+    "area": "Route 8",
+    "trainer_id": 365,
+    "levels": {
+      "erratic": 57,
+      "fast": 58,
+      "medium_fast": 55,
+      "medium_slow": 55,
+      "slow": 52,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Milton",
+    "area": "Route 8",
+    "trainer_id": 554,
+    "levels": {
+      "erratic": 57,
+      "fast": 58,
+      "medium_fast": 55,
+      "medium_slow": 55,
+      "slow": 52,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Robert",
+    "area": "Route 10",
+    "trainer_id": 348,
+    "levels": {
+      "erratic": 57,
+      "fast": 58,
+      "medium_fast": 55,
+      "medium_slow": 55,
+      "slow": 52,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Jim",
+    "area": "Route 10",
+    "trainer_id": 359,
+    "levels": {
+      "erratic": 57,
+      "fast": 58,
+      "medium_fast": 55,
+      "medium_slow": 55,
+      "slow": 52,
+      "fluctuating": 52
+    }
+  },
+  {
+    "trainer": "Heidi",
+    "area": "Route 9",
+    "trainer_id": 332,
+    "levels": {
+      "erratic": 58,
+      "fast": 58,
+      "medium_fast": 55,
+      "medium_slow": 55,
+      "slow": 52,
+      "fluctuating": 53
+    }
+  },
+  {
+    "trainer": "Clarke",
+    "area": "Route 9",
+    "trainer_id": 357,
+    "levels": {
+      "erratic": 58,
+      "fast": 58,
+      "medium_fast": 55,
+      "medium_slow": 56,
+      "slow": 53,
+      "fluctuating": 53
+    }
+  },
+  {
+    "trainer": "Eoin",
+    "area": "Route 9",
+    "trainer_id": 234,
+    "levels": {
+      "erratic": 58,
+      "fast": 59,
+      "medium_fast": 56,
+      "medium_slow": 56,
+      "slow": 53,
+      "fluctuating": 53
+    }
+  },
+  {
+    "trainer": "Dean",
+    "area": "Route 9",
+    "trainer_id": 149,
+    "levels": {
+      "erratic": 58,
+      "fast": 59,
+      "medium_fast": 56,
+      "medium_slow": 56,
+      "slow": 53,
+      "fluctuating": 53
+    }
+  },
+  {
+    "trainer": "Sid",
+    "area": "Route 9",
+    "trainer_id": 150,
+    "levels": {
+      "erratic": 59,
+      "fast": 59,
+      "medium_fast": 56,
+      "medium_slow": 56,
+      "slow": 53,
+      "fluctuating": 53
+    }
+  },
+  {
+    "trainer": "Edna",
+    "area": "Route 9",
+    "trainer_id": 333,
+    "levels": {
+      "erratic": 59,
+      "fast": 59,
+      "medium_fast": 56,
+      "medium_slow": 56,
+      "slow": 53,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Grunt",
+    "area": "Cerulean City",
+    "trainer_id": 13,
+    "levels": {
+      "erratic": 59,
+      "fast": 59,
+      "medium_fast": 56,
+      "medium_slow": 56,
+      "slow": 53,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Dudley",
+    "area": "Route 25",
+    "trainer_id": 329,
+    "levels": {
+      "erratic": 59,
+      "fast": 59,
+      "medium_fast": 56,
+      "medium_slow": 56,
+      "slow": 53,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Ellen",
+    "area": "Route 25",
+    "trainer_id": 419,
+    "levels": {
+      "erratic": 59,
+      "fast": 59,
+      "medium_fast": 56,
+      "medium_slow": 57,
+      "slow": 53,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Joe",
+    "area": "Route 25",
+    "trainer_id": 330,
+    "levels": {
+      "erratic": 59,
+      "fast": 60,
+      "medium_fast": 57,
+      "medium_slow": 57,
+      "slow": 54,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Lloyd",
+    "area": "Route 25",
+    "trainer_id": 148,
+    "levels": {
+      "erratic": 59,
+      "fast": 60,
+      "medium_fast": 57,
+      "medium_slow": 57,
+      "slow": 54,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Laura",
+    "area": "Route 25",
+    "trainer_id": 354,
+    "levels": {
+      "erratic": 60,
+      "fast": 60,
+      "medium_fast": 57,
+      "medium_slow": 57,
+      "slow": 54,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Shannon",
+    "area": "Route 25",
+    "trainer_id": 355,
+    "levels": {
+      "erratic": 60,
+      "fast": 60,
+      "medium_fast": 57,
+      "medium_slow": 57,
+      "slow": 54,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Pat",
+    "area": "Route 25",
+    "trainer_id": 366,
+    "levels": {
+      "erratic": 60,
+      "fast": 60,
+      "medium_fast": 57,
+      "medium_slow": 57,
+      "slow": 54,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Kevin",
+    "area": "Route 25",
+    "trainer_id": 361,
+    "levels": {
+      "erratic": 60,
+      "fast": 61,
+      "medium_fast": 57,
+      "medium_slow": 57,
+      "slow": 54,
+      "fluctuating": 54
+    }
+  },
+  {
+    "trainer": "Kyle",
+    "area": "Route 12",
+    "trainer_id": 59,
+    "levels": {
+      "erratic": 60,
+      "fast": 61,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Justin",
+    "area": "Route 12",
+    "trainer_id": 555,
+    "levels": {
+      "erratic": 61,
+      "fast": 61,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Martin",
+    "area": "Route 12",
+    "trainer_id": 320,
+    "levels": {
+      "erratic": 61,
+      "fast": 61,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Stephen",
+    "area": "Route 12",
+    "trainer_id": 321,
+    "levels": {
+      "erratic": 61,
+      "fast": 61,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Gail",
+    "area": "Route 12",
+    "trainer_id": 556,
+    "levels": {
+      "erratic": 61,
+      "fast": 61,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Barney",
+    "area": "Route 12",
+    "trainer_id": 322,
+    "levels": {
+      "erratic": 61,
+      "fast": 61,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Kyler",
+    "area": "Route 12",
+    "trainer_id": 558,
+    "levels": {
+      "erratic": 61,
+      "fast": 61,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Bret",
+    "area": "Route 13",
+    "trainer_id": 421,
+    "levels": {
+      "erratic": 62,
+      "fast": 62,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Piper",
+    "area": "Route 13",
+    "trainer_id": 562,
+    "levels": {
+      "erratic": 62,
+      "fast": 62,
+      "medium_fast": 58,
+      "medium_slow": 58,
+      "slow": 55,
+      "fluctuating": 55
+    }
+  },
+  {
+    "trainer": "Perry",
+    "area": "Route 13",
+    "trainer_id": 420,
+    "levels": {
+      "erratic": 62,
+      "fast": 62,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Tim & Sue",
+    "area": "Route 13",
+    "trainer_id": 559,
+    "levels": {
+      "erratic": 62,
+      "fast": 62,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Joshua",
+    "area": "Route 13",
+    "trainer_id": 349,
+    "levels": {
+      "erratic": 62,
+      "fast": 62,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Alex",
+    "area": "Route 13",
+    "trainer_id": 492,
+    "levels": {
+      "erratic": 62,
+      "fast": 62,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Clark",
+    "area": "Route 13",
+    "trainer_id": 560,
+    "levels": {
+      "erratic": 62,
+      "fast": 62,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Ginger",
+    "area": "Route 13",
+    "trainer_id": 563,
+    "levels": {
+      "erratic": 63,
+      "fast": 62,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Tanner",
+    "area": "Route 13",
+    "trainer_id": 561,
+    "levels": {
+      "erratic": 63,
+      "fast": 62,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Kenny",
+    "area": "Route 13",
+    "trainer_id": 358,
+    "levels": {
+      "erratic": 63,
+      "fast": 63,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Josh",
+    "area": "Route 14",
+    "trainer_id": 565,
+    "levels": {
+      "erratic": 63,
+      "fast": 63,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Trevor",
+    "area": "Route 14",
+    "trainer_id": 351,
+    "levels": {
+      "erratic": 63,
+      "fast": 63,
+      "medium_fast": 59,
+      "medium_slow": 59,
+      "slow": 56,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Carter",
+    "area": "Route 14",
+    "trainer_id": 350,
+    "levels": {
+      "erratic": 63,
+      "fast": 63,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Roy",
+    "area": "Route 14",
+    "trainer_id": 300,
+    "levels": {
+      "erratic": 63,
+      "fast": 63,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Connor",
+    "area": "Route 14",
+    "trainer_id": 566,
+    "levels": {
+      "erratic": 63,
+      "fast": 63,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 56
+    }
+  },
+  {
+    "trainer": "Clarice",
+    "area": "Route 14",
+    "trainer_id": 564,
+    "levels": {
+      "erratic": 63,
+      "fast": 63,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Torin",
+    "area": "Route 14",
+    "trainer_id": 567,
+    "levels": {
+      "erratic": 64,
+      "fast": 63,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Travis",
+    "area": "Route 14",
+    "trainer_id": 568,
+    "levels": {
+      "erratic": 64,
+      "fast": 63,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Billy",
+    "area": "Route 15",
+    "trainer_id": 331,
+    "levels": {
+      "erratic": 64,
+      "fast": 63,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Colette",
+    "area": "Route 15",
+    "trainer_id": 38,
+    "levels": {
+      "erratic": 64,
+      "fast": 64,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Kay & Tia",
+    "area": "Route 15",
+    "trainer_id": 569,
+    "levels": {
+      "erratic": 64,
+      "fast": 64,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Eleanor",
+    "area": "Route 15",
+    "trainer_id": 571,
+    "levels": {
+      "erratic": 64,
+      "fast": 64,
+      "medium_fast": 60,
+      "medium_slow": 60,
+      "slow": 57,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Kipp",
+    "area": "Route 15",
+    "trainer_id": 179,
+    "levels": {
+      "erratic": 64,
+      "fast": 64,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Tommy",
+    "area": "Route 15",
+    "trainer_id": 328,
+    "levels": {
+      "erratic": 65,
+      "fast": 64,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 57
+    }
+  },
+  {
+    "trainer": "Hillary",
+    "area": "Route 15",
+    "trainer_id": 382,
+    "levels": {
+      "erratic": 65,
+      "fast": 64,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Boone",
+    "area": "Route 15",
+    "trainer_id": 570,
+    "levels": {
+      "erratic": 65,
+      "fast": 64,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Johnny",
+    "area": "Route 15",
+    "trainer_id": 135,
+    "levels": {
+      "erratic": 65,
+      "fast": 64,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Dale",
+    "area": "Route 17",
+    "trainer_id": 572,
+    "levels": {
+      "erratic": 65,
+      "fast": 65,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Reese",
+    "area": "Route 17",
+    "trainer_id": 313,
+    "levels": {
+      "erratic": 65,
+      "fast": 65,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Joel",
+    "area": "Route 17",
+    "trainer_id": 314,
+    "levels": {
+      "erratic": 65,
+      "fast": 65,
+      "medium_fast": 61,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Jacob",
+    "area": "Route 17",
+    "trainer_id": 573,
+    "levels": {
+      "erratic": 66,
+      "fast": 65,
+      "medium_fast": 62,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Ernest",
+    "area": "Route 17",
+    "trainer_id": 579,
+    "levels": {
+      "erratic": 66,
+      "fast": 65,
+      "medium_fast": 62,
+      "medium_slow": 61,
+      "slow": 58,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Aiden",
+    "area": "Route 17",
+    "trainer_id": 574,
+    "levels": {
+      "erratic": 66,
+      "fast": 65,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Dan",
+    "area": "Route 17",
+    "trainer_id": 575,
+    "levels": {
+      "erratic": 66,
+      "fast": 65,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Theron",
+    "area": "Route 17",
+    "trainer_id": 576,
+    "levels": {
+      "erratic": 66,
+      "fast": 65,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Glenn",
+    "area": "Route 17",
+    "trainer_id": 315,
+    "levels": {
+      "erratic": 66,
+      "fast": 65,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Teddy",
+    "area": "Route 17",
+    "trainer_id": 578,
+    "levels": {
+      "erratic": 66,
+      "fast": 65,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Markey",
+    "area": "Route 17",
+    "trainer_id": 577,
+    "levels": {
+      "erratic": 66,
+      "fast": 66,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 58
+    }
+  },
+  {
+    "trainer": "Charles",
+    "area": "Route 18",
+    "trainer_id": 312,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Bob",
+    "area": "Route 18",
+    "trainer_id": 302,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 62,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Boris",
+    "area": "Route 18",
+    "trainer_id": 301,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 63,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Herman",
+    "area": "Route 11",
+    "trainer_id": 316,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 63,
+      "medium_slow": 62,
+      "slow": 59,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Jason",
+    "area": "Route 11",
+    "trainer_id": 381,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Owen",
+    "area": "Route 11",
+    "trainer_id": 380,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Fidel",
+    "area": "Route 11",
+    "trainer_id": 317,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Ed",
+    "area": "Route 2",
+    "trainer_id": 248,
+    "levels": {
+      "erratic": 67,
+      "fast": 66,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Doug",
+    "area": "Route 2",
+    "trainer_id": 140,
+    "levels": {
+      "erratic": 68,
+      "fast": 67,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Rob",
+    "area": "Route 2",
+    "trainer_id": 48,
+    "levels": {
+      "erratic": 68,
+      "fast": 67,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 59
+    }
+  },
+  {
+    "trainer": "Regis",
+    "area": "Route 3",
+    "trainer_id": 552,
+    "levels": {
+      "erratic": 68,
+      "fast": 67,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Warren",
+    "area": "Route 3",
+    "trainer_id": 378,
+    "levels": {
+      "erratic": 68,
+      "fast": 67,
+      "medium_fast": 63,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Jimmy",
+    "area": "Route 3",
+    "trainer_id": 379,
+    "levels": {
+      "erratic": 68,
+      "fast": 67,
+      "medium_fast": 64,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Zac & Jen",
+    "area": "Route 3",
+    "trainer_id": 549,
+    "levels": {
+      "erratic": 68,
+      "fast": 67,
+      "medium_fast": 64,
+      "medium_slow": 63,
+      "slow": 60,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Otis",
+    "area": "Route 3",
+    "trainer_id": 15,
+    "levels": {
+      "erratic": 68,
+      "fast": 67,
+      "medium_fast": 64,
+      "medium_slow": 64,
+      "slow": 61,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Bruce",
+    "area": "Route 4",
+    "trainer_id": 547,
+    "levels": {
+      "erratic": 69,
+      "fast": 67,
+      "medium_fast": 64,
+      "medium_slow": 64,
+      "slow": 61,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Manford",
+    "area": "Route 4",
+    "trainer_id": 548,
+    "levels": {
+      "erratic": 69,
+      "fast": 67,
+      "medium_fast": 64,
+      "medium_slow": 64,
+      "slow": 61,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Ander",
+    "area": "Route 4",
+    "trainer_id": 550,
+    "levels": {
+      "erratic": 69,
+      "fast": 68,
+      "medium_fast": 64,
+      "medium_slow": 64,
+      "slow": 61,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Dwight",
+    "area": "Route 4",
+    "trainer_id": 551,
+    "levels": {
+      "erratic": 69,
+      "fast": 68,
+      "medium_fast": 64,
+      "medium_slow": 64,
+      "slow": 61,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Burt",
+    "area": "Route 4",
+    "trainer_id": 318,
+    "levels": {
+      "erratic": 69,
+      "fast": 68,
+      "medium_fast": 64,
+      "medium_slow": 64,
+      "slow": 61,
+      "fluctuating": 60
+    }
+  },
+  {
+    "trainer": "Rival (#6)",
+    "area": "Mt. Moon",
+    "trainer_id": 285,
+    "levels": {
+      "erratic": 70,
+      "fast": 68,
+      "medium_fast": 65,
+      "medium_slow": 65,
+      "slow": 61,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Hope",
+    "area": "Route 4",
+    "trainer_id": 152,
+    "levels": {
+      "erratic": 70,
+      "fast": 68,
+      "medium_fast": 65,
+      "medium_slow": 65,
+      "slow": 61,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Hank",
+    "area": "Route 4",
+    "trainer_id": 299,
+    "levels": {
+      "erratic": 70,
+      "fast": 68,
+      "medium_fast": 65,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Sharon",
+    "area": "Route 4",
+    "trainer_id": 153,
+    "levels": {
+      "erratic": 70,
+      "fast": 68,
+      "medium_fast": 65,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Abner",
+    "area": "Viridian Forest",
+    "trainer_id": 699,
+    "levels": {
+      "erratic": 70,
+      "fast": 69,
+      "medium_fast": 65,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Ellis",
+    "area": "Viridian Forest",
+    "trainer_id": 698,
+    "levels": {
+      "erratic": 70,
+      "fast": 69,
+      "medium_fast": 65,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Stacey",
+    "area": "Viridian Forest",
+    "trainer_id": 697,
+    "levels": {
+      "erratic": 70,
+      "fast": 69,
+      "medium_fast": 65,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Dion",
+    "area": "Viridian Forest",
+    "trainer_id": 696,
+    "levels": {
+      "erratic": 71,
+      "fast": 69,
+      "medium_fast": 66,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 61
+    }
+  },
+  {
+    "trainer": "Dane",
+    "area": "Viridian Forest",
+    "trainer_id": 695,
+    "levels": {
+      "erratic": 71,
+      "fast": 69,
+      "medium_fast": 66,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Sherman",
+    "area": "Route 1",
+    "trainer_id": 546,
+    "levels": {
+      "erratic": 71,
+      "fast": 69,
+      "medium_fast": 66,
+      "medium_slow": 65,
+      "slow": 62,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Danny",
+    "area": "Route 1",
+    "trainer_id": 327,
+    "levels": {
+      "erratic": 71,
+      "fast": 69,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "French",
+    "area": "Route 1",
+    "trainer_id": 545,
+    "levels": {
+      "erratic": 71,
+      "fast": 70,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Quinn",
+    "area": "Route 1",
+    "trainer_id": 362,
+    "levels": {
+      "erratic": 71,
+      "fast": 70,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Nikki",
+    "area": "Route 21",
+    "trainer_id": 296,
+    "levels": {
+      "erratic": 71,
+      "fast": 70,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Arnold",
+    "area": "Route 21",
+    "trainer_id": 58,
+    "levels": {
+      "erratic": 71,
+      "fast": 70,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Kinsley",
+    "area": "Route 21",
+    "trainer_id": 596,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Murphy",
+    "area": "Route 21",
+    "trainer_id": 589,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Chelan",
+    "area": "Route 21",
+    "trainer_id": 592,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 66,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Liam",
+    "area": "Route 21",
+    "trainer_id": 590,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 67,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Tyson",
+    "area": "Route 21",
+    "trainer_id": 374,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 67,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Gideon",
+    "area": "Route 21",
+    "trainer_id": 591,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 67,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Esteban",
+    "area": "Route 21",
+    "trainer_id": 594,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 67,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Duane",
+    "area": "Route 21",
+    "trainer_id": 595,
+    "levels": {
+      "erratic": 72,
+      "fast": 70,
+      "medium_fast": 67,
+      "medium_slow": 66,
+      "slow": 63,
+      "fluctuating": 62
+    }
+  },
+  {
+    "trainer": "Easton",
+    "area": "Route 21",
+    "trainer_id": 597,
+    "levels": {
+      "erratic": 72,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Kendra",
+    "area": "Route 21",
+    "trainer_id": 593,
+    "levels": {
+      "erratic": 72,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Frankie",
+    "area": "Route 20",
+    "trainer_id": 373,
+    "levels": {
+      "erratic": 72,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Bert",
+    "area": "Route 20",
+    "trainer_id": 583,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Mina",
+    "area": "Route 20",
+    "trainer_id": 588,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Cheyenne",
+    "area": "Route 20",
+    "trainer_id": 582,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Ernie",
+    "area": "Route 20",
+    "trainer_id": 584,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Leona",
+    "area": "Route 20",
+    "trainer_id": 587,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Adrian",
+    "area": "Route 20",
+    "trainer_id": 581,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Cady",
+    "area": "Seafoam Islands",
+    "trainer_id": 688,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 67,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Shaun",
+    "area": "Seafoam Islands",
+    "trainer_id": 687,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 68,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Bryce",
+    "area": "Seafoam Islands",
+    "trainer_id": 686,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 68,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Pedro",
+    "area": "Route 20",
+    "trainer_id": 580,
+    "levels": {
+      "erratic": 73,
+      "fast": 71,
+      "medium_fast": 68,
+      "medium_slow": 67,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Luis",
+    "area": "Route 20",
+    "trainer_id": 586,
+    "levels": {
+      "erratic": 73,
+      "fast": 72,
+      "medium_fast": 68,
+      "medium_slow": 68,
+      "slow": 64,
+      "fluctuating": 63
+    }
+  },
+  {
+    "trainer": "Elmo",
+    "area": "Route 20",
+    "trainer_id": 585,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 68,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Lori",
+    "area": "Route 20",
+    "trainer_id": 294,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 68,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Nicole",
+    "area": "Route 20",
+    "trainer_id": 293,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 68,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Tucker",
+    "area": "Route 19",
+    "trainer_id": 371,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 68,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Debbie",
+    "area": "Route 19",
+    "trainer_id": 291,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 68,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Harold",
+    "area": "Route 19",
+    "trainer_id": 252,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 68,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Jerome",
+    "area": "Route 19",
+    "trainer_id": 370,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 69,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Horton",
+    "area": "Vermilion Gym",
+    "trainer_id": 396,
+    "levels": {
+      "erratic": 74,
+      "fast": 72,
+      "medium_fast": 69,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Vincent",
+    "area": "Vermilion Gym",
+    "trainer_id": 232,
+    "levels": {
+      "erratic": 75,
+      "fast": 72,
+      "medium_fast": 69,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Gregory",
+    "area": "Vermilion Gym",
+    "trainer_id": 337,
+    "levels": {
+      "erratic": 75,
+      "fast": 73,
+      "medium_fast": 69,
+      "medium_slow": 68,
+      "slow": 65,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Lt. Surge",
+    "area": "Vermilion Gym",
+    "trainer_id": 255,
+    "levels": {
+      "erratic": 75,
+      "fast": 73,
+      "medium_fast": 69,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Cindy",
+    "area": "Fuschia Gym",
+    "trainer_id": 83,
+    "levels": {
+      "erratic": 75,
+      "fast": 73,
+      "medium_fast": 69,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Barry",
+    "area": "Fuschia Gym",
+    "trainer_id": 84,
+    "levels": {
+      "erratic": 75,
+      "fast": 73,
+      "medium_fast": 69,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 64
+    }
+  },
+  {
+    "trainer": "Alice",
+    "area": "Fuschia Gym",
+    "trainer_id": 183,
+    "levels": {
+      "erratic": 75,
+      "fast": 73,
+      "medium_fast": 69,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Linda",
+    "area": "Fuschia Gym",
+    "trainer_id": 136,
+    "levels": {
+      "erratic": 76,
+      "fast": 73,
+      "medium_fast": 69,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Janine",
+    "area": "Fuschia Gym",
+    "trainer_id": 257,
+    "levels": {
+      "erratic": 76,
+      "fast": 73,
+      "medium_fast": 70,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Rebecca",
+    "area": "Saffron Gym",
+    "trainer_id": 368,
+    "levels": {
+      "erratic": 76,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Jared",
+    "area": "Saffron Gym",
+    "trainer_id": 415,
+    "levels": {
+      "erratic": 76,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 69,
+      "slow": 66,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Darcy",
+    "area": "Saffron Gym",
+    "trainer_id": 369,
+    "levels": {
+      "erratic": 76,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 70,
+      "slow": 66,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Franklin",
+    "area": "Saffron Gym",
+    "trainer_id": 230,
+    "levels": {
+      "erratic": 76,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Sabrina",
+    "area": "Saffron Gym",
+    "trainer_id": 258,
+    "levels": {
+      "erratic": 77,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 65
+    }
+  },
+  {
+    "trainer": "Parker",
+    "area": "Cerulean Gym",
+    "trainer_id": 377,
+    "levels": {
+      "erratic": 77,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Eddie",
+    "area": "Cerulean Gym",
+    "trainer_id": 677,
+    "levels": {
+      "erratic": 77,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Diana",
+    "area": "Cerulean Gym",
+    "trainer_id": 480,
+    "levels": {
+      "erratic": 77,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Joy",
+    "area": "Cerulean Gym",
+    "trainer_id": 678,
+    "levels": {
+      "erratic": 77,
+      "fast": 74,
+      "medium_fast": 70,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Briana",
+    "area": "Cerulean Gym",
+    "trainer_id": 298,
+    "levels": {
+      "erratic": 77,
+      "fast": 74,
+      "medium_fast": 71,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Misty",
+    "area": "Cerulean Gym",
+    "trainer_id": 254,
+    "levels": {
+      "erratic": 77,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Jo & Zoe",
+    "area": "Celadon Gym",
+    "trainer_id": 326,
+    "levels": {
+      "erratic": 77,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Michelle",
+    "area": "Celadon Gym",
+    "trainer_id": 356,
+    "levels": {
+      "erratic": 77,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 70,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Tanya",
+    "area": "Celadon Gym",
+    "trainer_id": 336,
+    "levels": {
+      "erratic": 78,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 71,
+      "slow": 67,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Julia",
+    "area": "Celadon Gym",
+    "trainer_id": 346,
+    "levels": {
+      "erratic": 78,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Erika",
+    "area": "Celadon Gym",
+    "trainer_id": 256,
+    "levels": {
+      "erratic": 78,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Jerry",
+    "area": "Pewter Gym",
+    "trainer_id": 308,
+    "levels": {
+      "erratic": 78,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Edwin",
+    "area": "Pewter Gym",
+    "trainer_id": 685,
+    "levels": {
+      "erratic": 78,
+      "fast": 75,
+      "medium_fast": 71,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 66
+    }
+  },
+  {
+    "trainer": "Brock",
+    "area": "Pewter Gym",
+    "trainer_id": 253,
+    "levels": {
+      "erratic": 78,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Lowell",
+    "area": "Seafoam Gym",
+    "trainer_id": 692,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Daniel",
+    "area": "Seafoam Gym",
+    "trainer_id": 694,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Cary",
+    "area": "Seafoam Gym",
+    "trainer_id": 689,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Linden",
+    "area": "Seafoam Gym",
+    "trainer_id": 693,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Waldo",
+    "area": "Seafoam Gym",
+    "trainer_id": 690,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 71,
+      "slow": 68,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Merle",
+    "area": "Seafoam Gym",
+    "trainer_id": 691,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 72,
+      "slow": 68,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Blaine",
+    "area": "Seafoam Gym",
+    "trainer_id": 259,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 72,
+      "slow": 69,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Arabella",
+    "area": "Viridian Gym",
+    "trainer_id": 681,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 72,
+      "slow": 69,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Salma",
+    "area": "Viridian Gym",
+    "trainer_id": 683,
+    "levels": {
+      "erratic": 79,
+      "fast": 76,
+      "medium_fast": 72,
+      "medium_slow": 72,
+      "slow": 69,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Bonita",
+    "area": "Viridian Gym",
+    "trainer_id": 682,
+    "levels": {
+      "erratic": 80,
+      "fast": 76,
+      "medium_fast": 73,
+      "medium_slow": 72,
+      "slow": 69,
+      "fluctuating": 67
+    }
+  },
+  {
+    "trainer": "Blue",
+    "area": "Viridian Gym",
+    "trainer_id": 261,
+    "levels": {
+      "erratic": 80,
+      "fast": 77,
+      "medium_fast": 73,
+      "medium_slow": 72,
+      "slow": 69,
+      "fluctuating": 68
+    }
+  },
+  {
+    "trainer": "Red",
+    "area": "Mt. Silver Summit",
+    "trainer_id": 260,
+    "levels": {
+      "erratic": 81,
+      "fast": 78,
+      "medium_fast": 74,
+      "medium_slow": 73,
+      "slow": 70,
+      "fluctuating": 68
+    }
+  }
+]
