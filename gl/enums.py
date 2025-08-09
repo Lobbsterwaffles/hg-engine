@@ -261,9 +261,9 @@ class TrainerClass(enum.IntEnum):
     PKMN_TRAINER_LUCAS_PT = 127
     PKMN_TRAINER_DAWN_PT = 128
 
-class Tier(enum.Enum):
+class Tier(enum.IntEnum):
     """Game progression tiers for trainer difficulty scaling."""
-    EARLY_GAME = "EarlyGame"
-    MID_GAME = "MidGame"
-    LATE_GAME = "LateGame"
-    END_GAME = "EndGame"
+    EARLY_GAME = 1
+    MID_GAME = 2
+    LATE_GAME = 3
+    END_GAME = 4
