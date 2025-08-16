@@ -242,7 +242,7 @@ class RandomizationContext(ObjectRegistry):
         self.rom = rom
         self.verbosity_map = PathHierMap(verbosity_overrides or [([], verbosity)])
     
-    def decide(self, path, original, candidates, filter):
+    def decide(self, path, original, candidates, filter=NoFilter()):
         def n(e):
             return e.name if hasattr(e, "name") else repr(e)
     

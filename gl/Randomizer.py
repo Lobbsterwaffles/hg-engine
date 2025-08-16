@@ -101,6 +101,7 @@ if __name__ == "__main__":
         GeneralEVStep(),
         GeneralIVStep(mode="ScalingIVs"),
         SetTrainerMovesStep(),
+        TrainerHeldItem(),
         PrintEvioliteUsersStep()
         
     ])
