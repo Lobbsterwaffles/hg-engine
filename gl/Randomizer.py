@@ -4,6 +4,7 @@ import random
 import ndspy.rom
 from steps import *
 from trainer_data_editor import *
+from print_eviolite_users_step import PrintEvioliteUsersStep
 
 # Set UTF-8 encoding for console output on Windows
 if sys.platform == 'win32':
@@ -99,7 +100,8 @@ if __name__ == "__main__":
         *([] if not args.no_enemy_battle_items else [NoEnemyBattleItems()]),
         GeneralEVStep(),
         GeneralIVStep(mode="ScalingIVs"),
-        SetTrainerMovesStep()
+        SetTrainerMovesStep(),
+        PrintEvioliteUsersStep()
         
     ])
     

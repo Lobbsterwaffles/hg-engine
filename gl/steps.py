@@ -55,7 +55,7 @@ class Moves(NarcExtractor):
             "pp" / Int8ul,
             "effect_chance" / Int8ul,
             "target" / Enum(Int16ul, Target),
-            "priority" / Int8ul,
+            "priority" / Int8sl,
             "flags" / FlagsEnum(Int8ul, MoveFlags),
             "appeal" / Int8ul,
             "contest_type" / Enum(Int8ul, Contest),
@@ -223,7 +223,7 @@ class TrainerTeam(Writeback,NarcExtractor ):
         
         # Add conditional fields based on flags
         if flags & TrainerDataType.ITEMS:
-            struct_fields.append("item" / Int16ul)
+            struct_fields.append("held_item" / Int16ul)
         
         if flags & TrainerDataType.MOVES:
             struct_fields.append("moves" / Array(4, Int16ul))
@@ -364,9 +364,9 @@ class UpdateTrainerTeamDataStep(Step):
                 for pokemon in trainer.team:
                     updated = False
                     
-                    # Add default item if missing
-                    if not hasattr(pokemon, 'item'):
-                        pokemon.item = 0  # No item (0 = no item in the game)
+                    # Add default held item if missing
+                    if not hasattr(pokemon, 'held_item'):
+                        pokemon.held_item = 0  # No item (0 = no item in the game)
                         updated = True
                     
                     # Add default moves if missing
@@ -843,7 +843,15 @@ class EvioliteUser(Extractor):
     - Eviolite is an item that boosts Defense and Special Defense by 50% for Pokemon that can still evolve
     - Some Pokemon are actually stronger with Eviolite than their evolved forms
     - BST = Base Stat Total (sum of all 6 base stats)
+    
+    This class provides:
+    - Lists of Pokemon that can benefit from Eviolite
+    - Special MonData objects with modified stats for randomization integration
+    - Helper methods to check if a Pokemon is an Eviolite user
     """
+    
+    # Eviolite item ID - used when assigning the item to Eviolite users
+    EVIOLITE_ITEM_ID = 113
     
     def __init__(self, context):
         super().__init__(context)
@@ -860,6 +868,14 @@ class EvioliteUser(Extractor):
         # Create lookup sets for easy checking
         self.by_id = {pokemon.pokemon_id for pokemon in self.eviolite_users}
         self.by_name = {pokemon.name.lower(): pokemon for pokemon in self.eviolite_users}
+        
+        # Create modified MonData objects for randomization integration
+        self.eviolite_mondata = self._create_eviolite_mondata_objects()
+        
+        # Map from eviolite mondata objects to original pokemon objects
+        self.eviolite_map = {eviolite_mon: original_mon 
+                           for eviolite_mon, original_mon in 
+                           zip(self.eviolite_mondata, self.eviolite_users)}
     
     def _find_evolution_candidates(self):
         """Find all Pokemon that can evolve exactly once.
@@ -961,6 +977,120 @@ class EvioliteUser(Extractor):
         
         return eviolite_users
     
+    def _create_eviolite_mondata_objects(self):
+        """Create copies of MonData objects with adjusted Eviolite stats.
+        
+        These objects can be used in randomization alongside normal Pokemon.
+        When assigned to trainers, the randomizer can check if a Pokemon is an
+        Eviolite user by reference equality.
+        
+        Returns:
+            list: List of MonData-like objects with Eviolite-adjusted stats
+        """
+        eviolite_mondata = []
+        
+        for pokemon in self.eviolite_users:
+            # Create a copy of the original Pokemon object
+            # We use a simple object() to avoid potential reference issues
+            eviolite_mon = type('EvioliteMonData', (object,), {})()
+            
+            # Copy all attributes from original Pokemon
+            for attr_name in dir(pokemon):
+                if not attr_name.startswith('_') and not callable(getattr(pokemon, attr_name)):
+                    setattr(eviolite_mon, attr_name, getattr(pokemon, attr_name))
+            
+            # Apply Eviolite stats
+            eviolite_stats = pokemon._eviolite_analysis['eviolite_stats']
+            eviolite_bst = pokemon._eviolite_analysis['eviolite_bst']
+            
+            # Update stats with Eviolite values
+            eviolite_mon.defense = eviolite_stats['defense']
+            eviolite_mon.sp_defense = eviolite_stats['sp_defense']
+            eviolite_mon.bst = eviolite_bst
+            
+            # Mark this as an Eviolite MonData object
+            eviolite_mon.is_eviolite_user = True
+            eviolite_mon.original_pokemon_id = pokemon.pokemon_id
+            
+            # Modify the name to indicate it's an Eviolite user
+            eviolite_mon.name = f"{pokemon.name} (Eviolite)"
+            
+            eviolite_mondata.append(eviolite_mon)
+        
+        return eviolite_mondata
+    
+    def is_eviolite_mondata(self, pokemon):
+        """Check if a Pokemon is one of our special Eviolite MonData objects.
+        
+        Args:
+            pokemon: A Pokemon object to check
+            
+        Returns:
+            bool: True if this is an Eviolite MonData object, False otherwise
+        """
+        return pokemon in self.eviolite_mondata
+
+
+class AssignEvioliteItemsStep(Step):
+    """Assigns Eviolite items to trainer Pokémon that are Eviolite users.
+    
+    This step should run after trainer randomization. It checks all trainer Pokémon
+    and, if any are from the special Eviolite MonData list, gives them an Eviolite item.
+    
+    For beginners:
+    - After trainers get their random Pokémon, this step checks each one
+    - If a trainer has a Pokémon that benefits from Eviolite, it gives that Pokémon an Eviolite
+    - This makes sure the special Pokémon get their Defense and Special Defense boost in battle
+    """
+    
+    def run(self, context):
+        # Get required extractors and data
+        trainers = context.get(Trainers)
+        eviolite_users = context.get(EvioliteUser)
+        mons = context.get(Mons)
+        
+        # Track how many Eviolites we assign
+        eviolite_count = 0
+        trainer_count = 0
+        
+        # Check each trainer's team for Eviolite users
+        for trainer in trainers.data:
+            # Skip trainers that don't use items
+            if not TrainerDataType.ITEMS in trainer.info.trainermontype:
+                continue
+                
+            # Check each Pokémon on the team
+            trainer_has_eviolite_user = False
+            
+            for pokemon in trainer.team:
+                # Look up this Pokémon species
+                species = mons.data[pokemon.species_id]
+                
+                # Check if this species ID matches an Eviolite user
+                # Get the matching Eviolite MonData if it exists
+                matching_eviolite = None
+                
+                for eviolite_mon in eviolite_users.eviolite_mondata:
+                    if eviolite_mon.pokemon_id == pokemon.species_id:
+                        matching_eviolite = eviolite_mon
+                        break
+                
+                # If this is an Eviolite user, assign the Eviolite item
+                if matching_eviolite:
+                    # Make sure this Pokémon has a held_item field
+                    if hasattr(pokemon, 'held_item'):
+                        pokemon.held_item = EvioliteUser.EVIOLITE_ITEM_ID
+                        eviolite_count += 1
+                        trainer_has_eviolite_user = True
+            
+            # Count trainers with at least one Eviolite user
+            if trainer_has_eviolite_user:
+                trainer_count += 1
+        
+        # Print results
+        print(f"Assigned Eviolite to {eviolite_count} Pokémon across {trainer_count} trainers")
+        
+        return eviolite_count
 
 
 
@@ -1375,10 +1505,10 @@ class ChangeTrainerDataTypeStep(Step):
     def _update_pokemon_data(self, pokemon, flags):
         """Update Pokemon data structure to match the specified flags."""
         
-        # Add item field if ITEMS flag is set
+        # Add held_item field if ITEMS flag is set
         if flags & TrainerDataType.ITEMS:
-            if not hasattr(pokemon, 'item'):
-                pokemon.item = 0  # Default to no item
+            if not hasattr(pokemon, 'held_item'):
+                pokemon.held_item = 0  # Default to no item
         
         # Add moves array if MOVES flag is set
         if flags & TrainerDataType.MOVES:
@@ -2346,6 +2476,13 @@ class RandomizeOrdinaryTrainersStep(Step):
         rivals = context.get(IdentifyRivals)
         mondata = context.get(Mons)
         
+        # Get Eviolite users for integration
+        try:
+            eviolite_users = context.get(EvioliteUser)
+            has_eviolite_users = True
+        except:
+            has_eviolite_users = False
+        
         # Create a set of trainer IDs to exclude (gym trainers and rivals)
         excluded_trainer_ids = set()
         
@@ -2359,26 +2496,41 @@ class RandomizeOrdinaryTrainersStep(Step):
         excluded_trainer_ids.update(rival_ids)
         print(f"Excluding {len(rival_ids)} rival trainer IDs: {sorted(rival_ids)}")
         
-        # Randomize all ordinary trainers (excluding gyms and rivals)
+        # Randomize all trainers that aren't in the excluded set
         for trainer in trainers.data:
             if trainer.info.trainer_id not in excluded_trainer_ids:
-                self._randomize_trainer_team(context, trainer, mondata, self.filter)
+                self._randomize_trainer_team(context, trainer, mondata, eviolite_users if has_eviolite_users else None, self.filter)
     
-    def _randomize_trainer_team(self, context, trainer, mondata, filter):
+    def _randomize_trainer_team(self, context, trainer, mondata, eviolite_users, filter):
         """Randomize a trainer's team using the provided filter."""
         for i, pokemon in enumerate(trainer.team):
+            # Create combined candidate list from regular Pokemon and Eviolite users
+            candidates = list(mondata.data)
+            
+            # Add Eviolite variants if available and trainer uses items
+            if eviolite_users and TrainerDataType.ITEMS in trainer.info.trainermontype:
+                candidates.extend(eviolite_users.eviolite_mondata)
+            
+            # Decide which Pokemon to use
             new_species = context.decide(
                 path=["trainer", trainer.info.name, "team", i, "species"],
                 original=mondata.data[pokemon.species_id],
-                candidates=list(mondata.data),
+                candidates=candidates,
                 filter=filter
             )
+            
+            # Assign the species ID
             pokemon.species_id = new_species.pokemon_id
+            
+            # If this is an Eviolite user, give it the Eviolite item
+            if eviolite_users and hasattr(pokemon, 'item') and new_species in eviolite_users.eviolite_mondata:
+                pokemon.item = EvioliteUser.EVIOLITE_ITEM_ID
 
 
 class ConsistentRivalStarter(Step):
     """Updates rival teams to use starters consistent with the player's randomized choice."""
     
+    # ... (rest of the code remains the same)
     def run(self, context):
         starters = context.get(StarterExtractor)
         trainers = context.get(Trainers)

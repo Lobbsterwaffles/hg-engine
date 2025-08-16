@@ -6,13 +6,19 @@ for trainer Pokemon based on various criteria like attacker type, level, etc.
 """
 
 from framework import Extractor, Step
-from steps import Mons, Moves, EggMoves, Learnsets, TMHM, TrainerData
-from enums import Split
+from steps import Mons, Moves, EggMoves, Learnsets, TMHM, TrainerData, IdentifyTier, LoadPokemonNamesStep, LoadAbilityNames, LoadMoveNamesStep
+from enums import Split, Item, Type, Tier
+from TypeEffectiveness import sup_eff
+from Trainer_mon_Classifier import TrainerMonClassifier
 import json
 import os
 import glob
+import random
 
 
+#############
+# Foe Pokemon Movesets
+#############
 
 class IdentifyAttackerCategory(Extractor):
     """Categorizes Pokemon as Physical, Special, or Mixed attackers based on base stats."""
@@ -1029,6 +1035,9 @@ class AssignCustomSetsStep(Step):
         }
 
 
+#############
+# Held Items
+#############
 
 
 
@@ -1119,3 +1128,781 @@ if __name__ == "__main__":
         
         
         
+
+class TrainerHeldItem(Step):
+    """Assigns held items to trainer Pokémon based on predicate evaluations and tier scaling.
+    
+    This step implements a tier-scaled probabilistic item assignment system with three item sets:
+    - Set A: Primary competitive items (generally useful items like Choice items, Life Orb, etc.)
+    - Set B: Premium specialized items (type-enhancing items, ability-specific items, etc.)
+    - Set C: Common/universal items that can be added to any Pokémon (berries, etc.)
+    
+    Item assignment probabilities vary by trainer tier:
+    - Tier 1 (EARLY_GAME): No items assigned
+    - Tier 2 (MID_GAME): 50% chance from A+C, 5% from B+C, 45% no item
+    - Tier 3 (LATE_GAME): 50% chance from either A+C or B+C
+    - Tier 4 (END_GAME): Items from B+C only
+    
+    Additional modes:
+    - Sensible Items: All trainers get items from A+C and B+C
+    - Good Items: All trainers get items from B+C
+    """
+    
+    def __init__(self, context, mode="default"):
+        """Initialize the TrainerHeldItem step.
+        
+        Args:
+            context: The randomization context
+            mode (str): Item assignment mode - 'default', 'sensible', or 'good'
+        """
+        self.context = context
+        self.mode = mode.lower()
+        
+        # Get required extractors
+        self.trainers = context.get(TrainerData)
+        self.mons = context.get(Mons)
+        self.moves = context.get(Moves)
+        self.tiers = context.get(IdentifyTier)
+        self.ability_names = context.get(LoadAbilityNames)
+        self.move_names = context.get(LoadMoveNamesStep)
+        self.pokemon_names = context.get(LoadPokemonNamesStep)
+        
+        # Initialize TrainerMonClassifier for predicate evaluation
+        self.classifier = TrainerMonClassifier(context)
+        
+        # Obligate Items - pokemon MUST get these if they qualify
+        self.base_obligate_items = []
+        
+        # Favored Items - pokemon have 50% chance to get these if they qualify
+        self.base_favored_items = []
+        
+        # Sensible Items plus Plates. No Custap. You're welcome.
+        self.base_item_set_a = [
+            Item.ASPEAR_BERRY,
+            Item.PERSIM_BERRY,
+            Item.PECHA_BERRY,
+            Item.RAWST_BERRY,
+            Item.CHESTO_BERRY,
+            Item.KEE_BERRY,
+            Item.CHILAN_BERRY,
+            Item.APICOT_BERRY,
+            Item.GANLON_BERRY,
+            Item.LIECHI_BERRY,
+            Item.MARANGA_BERRY,
+            Item.PETAYA_BERRY,
+            Item.SALAC_BERRY,
+            Item.PROTECTIVE_PADS,
+            Item.SHED_SHELL,
+            Item.UTILITY_UMBRELLA,
+            Item.CELL_BATTERY,
+            Item.LUMINOUS_MOSS,
+            Item.ABSORB_BULB,
+            Item.METRONOME,
+        ]
+        
+        # Set B: better items plus supereffective berries
+        self.item_set_b = [
+            # Type enhancers
+            Item.MIRROR_HERB,
+            Item.ABILITY_SHIELD,
+            Item.CLEAR_AMULET,
+            Item.COVERT_CLOAK,
+            Item.SAFETY_GOGGLES,
+            Item.EXPERT_BELT,
+            Item.HEAVY_DUTY_BOOTS,
+            Item.LUM_BERRY,
+           
+            # Special case items
+            
+            # Weather items#####################################################################
+            Item.HEAT_ROCK,       # Sun
+            Item.DAMP_ROCK,       # Rain
+            Item.SMOOTH_ROCK,     # Sand
+            Item.ICY_ROCK,        # Hail
+            
+            # Status effect items
+            Item.TOXIC_ORB,       # Toxic
+            Item.FLAME_ORB,       # Burn
+            
+            # Other specialized items
+            Item.WIDE_LENS,       # Accuracy boost
+            Item.ZOOM_LENS,       # Accuracy when moving second
+            Item.LIGHT_CLAY,      # Extend screens
+            Item.EVIOLITE,        # For unevolved Pokémon
+            Item.WEAKNESS_POLICY, # When hit by super effective move
+        ]
+        
+        # Set C: Common/universal items
+        self.item_set_c = [
+            # Berries
+            Item.SITRUS_BERRY,    # Restore HP at 50%
+            Item.LUM_BERRY,       # Cure status
+            Item.CHESTO_BERRY,    # Wake up
+            Item.CHERI_BERRY,     # Cure paralysis
+            Item.PECHA_BERRY,     # Cure poison
+            Item.RAWST_BERRY,     # Cure burn
+            Item.ASPEAR_BERRY,    # Cure freeze
+            Item.PERSIM_BERRY,    # Cure confusion
+            
+            # Other common items
+            Item.BRIGHTPOWDER,   # Evasion boost
+            Item.QUICK_CLAW,      # Chance to move first
+            Item.SHELL_BELL,      # Recover HP
+            Item.MENTAL_HERB,     # Cure infatuation
+            Item.WHITE_HERB,      # Reset lowered stats
+            Item.FOCUS_BAND,      # Chance to survive with 1 HP
+            Item.SCOPE_LENS,      # Critical hit boost
+            Item.KINGS_ROCK,      # Chance to cause flinch
+            Item.MUSCLE_BAND,     # Physical attack boost
+            Item.WISE_GLASSES,    # Special attack boost
+        ]
+        
+        # Item assignment probabilities by tier (default mode)
+        self.tier_probabilities = {
+            # Tier: (prob_no_item, prob_set_a, prob_set_b)
+            # Set C is always considered alongside A or B
+            Tier.EARLY_GAME: (1.00, 0.00, 0.00),  # Early Game: No items
+            Tier.MID_GAME: (0.45, 0.50, 0.05),    # Mid Game: Mostly A+C, rarely B+C
+            Tier.LATE_GAME: (0.00, 0.50, 0.50),   # Late Game: Equal chance A+C or B+C
+            Tier.END_GAME: (0.00, 0.00, 1.00),    # End Game: Only B+C
+        }
+        
+        # needs to be even probability for all items on base lists plus an appended items
+        if self.mode == "sensible":
+            self.tier_probabilities = {
+                Tier.EARLY_GAME: (0.00, 0.70, 0.30),  # All tiers get items, weighted toward A+C
+                Tier.MID_GAME: (0.00, 0.60, 0.40),
+                Tier.LATE_GAME: (0.00, 0.40, 0.60),
+                Tier.END_GAME: (0.00, 0.20, 0.80),
+            }
+        elif self.mode == "good":
+            self.tier_probabilities = {
+                Tier.EARLY_GAME: (0.00, 0.00, 1.00),  # All tiers get items from B+C only
+                Tier.MID_GAME: (0.00, 0.00, 1.00),
+                Tier.LATE_GAME: (0.00, 0.00, 1.00),
+                Tier.END_GAME: (0.00, 0.00, 1.00),
+            }
+        
+        
+        # Set up item sets for easy access
+        self.item_set_a = self.base_item_set_a
+        self.obligate_items = self.base_obligate_items
+        self.favored_items = self.base_favored_items
+        
+        # Track statistics
+        self.items_assigned = 0
+        self.pokemon_processed = 0
+    
+    def get_item_set_a_for_pokemon(self, pokemon, classifications):
+        """Build Set A items conditionally based on pokemon characteristics.
+        
+        Args:
+            pokemon: Pokemon object
+            classifications: Dict of classifications from TrainerMonClassifier
+            
+        Returns:
+            List of Item enums eligible for this pokemon
+        """
+        item_set_a = self.base_item_set_a.copy()
+        
+        # WISE_GLASSES - only add to Set A if pokemon is a Special Attacker
+        if self.classifier.SPECIAL_ATTACKER in classifications:
+            item_set_a.append(Item.WISE_GLASSES)
+        
+        # MUSCLE_BAND - only add to Set A if pokemon is a Physical Attacker
+        if self.classifier.PHYSICAL_ATTACKER in classifications:
+            item_set_a.append(Item.MUSCLE_BAND)
+        
+        # Type-specific Plates - add based on pokemon's primary or secondary type
+        # Get pokemon data from Mons to access actual Type enum objects
+        mon_data = self.mons.data[pokemon.species_id]
+        pokemon_types = [mon_data.type1]
+        if mon_data.type2 != mon_data.type1:  # Avoid duplicate types
+            pokemon_types.append(mon_data.type2)
+        
+        # Type to plate mapping
+        type_to_plate = {
+            Type.FIGHTING: Item.FIST_PLATE,
+            Type.FLYING: Item.SKY_PLATE,
+            Type.POISON: Item.TOXIC_PLATE,
+            Type.GROUND: Item.EARTH_PLATE,
+            Type.ROCK: Item.STONE_PLATE,
+            Type.BUG: Item.INSECT_PLATE,
+            Type.GHOST: Item.SPOOKY_PLATE,
+            Type.STEEL: Item.IRON_PLATE,
+            Type.FIRE: Item.FLAME_PLATE,
+            Type.WATER: Item.SPLASH_PLATE,
+            Type.GRASS: Item.MEADOW_PLATE,
+            Type.ELECTRIC: Item.ZAP_PLATE,
+            Type.PSYCHIC: Item.MIND_PLATE,
+            Type.ICE: Item.ICICLE_PLATE,
+            Type.DRAGON: Item.DRACO_PLATE,
+            Type.DARK: Item.DREAD_PLATE,
+            Type.FAIRY: Item.PIXIE_PLATE,
+        }
+        
+        # Add plates based on pokemon types
+        for poke_type in pokemon_types:
+            if poke_type in type_to_plate:
+                item_set_a.append(type_to_plate[poke_type])
+        
+        return item_set_a
+    
+    def get_obligate_items_for_pokemon(self, pokemon, classifications):
+        """Build obligate items list - pokemon MUST get one of these if they qualify.
+        
+        Args:
+            pokemon: Pokemon object with species_id and other attributes
+            classifications: Dict mapping species_id to classification info
+            
+        Returns:
+            List of Item enum values that this pokemon must have
+        """
+        obligate_items = self.base_obligate_items.copy()
+        
+        # Get shared data
+        mon_data = self.mons.data[pokemon.species_id]
+        pokemon_names = self.context.get(LoadPokemonNamesStep)
+        pokemon_name = pokemon_names.id_to_name.get(pokemon.species_id, f"Pokemon_{pokemon.species_id}")
+        
+        
+        if pokemon_name == "Marowak":
+            obligate_items.append(Item.THICK_CLUB)
+        if pokemon_name == "Zacian":
+            obligate_items.append(Item.RUSTED_SWORD)
+        if pokemon_name == "Zamazenta":
+            obligate_items.append(Item.RUSTED_SHIELD)
+        if pokemon_name == "Genesect":
+            obligate_items+=[Item.DOUSE_DRIVE, Item.SHOCK_DRIVE, Item.BURN_DRIVE, Item.CHILL_DRIVE]
+        # when memories implemented
+        # if pokemon_name == "Silvally":
+        #     obligate_items+=[Item.BUG_MEMORY, Item.DARK_MEMORY, Item.DRAGON_MEMORY, Item.ELECTRIC_MEMORY, Item. FIGHTING_MEMORY, Item.FIRE_MEMORY, 
+        #     Item.FLYING_MEMORY, Item.GHOST_MEMORY, Item.GRASS_MEMORY, Item.GROUND_MEMORY, Item.ICE_MEMORY, Item.POISON_MEMORY, Item.PSYCHIC_MEMORY, Item.ROCK_MEMORY, 
+        #     Item.STEEL_MEMORY, Item.WATER_MEMORY, Item.WIND_MEMORY, Item.FAIRY_MEMORY]
+        return obligate_items
+    
+    def _has_4x_ground_weakness(self, pokemon):
+        """Check if Pokemon has 4x weakness to Ground type."""
+        mon_data = self.mons.data[pokemon.species_id]
+        types = [mon_data.type1]
+        if hasattr(mon_data, 'type2') and mon_data.type2 != mon_data.type1:
+            types.append(mon_data.type2)
+        
+        # Check if both types are weak to Ground
+        ground_weak_count = 0
+        for ptype in types:
+            if (Type.GROUND, ptype) in sup_eff:
+                ground_weak_count += 1
+        
+        return ground_weak_count >= 2
+    
+    def _pokemon_knows_move(self, pokemon, move_name):
+        """Check if Pokemon knows a specific move."""
+        if not hasattr(pokemon, 'moves'):
+            return False
+        
+        try:
+            move_id = self.move_names.get_by_name(move_name)
+            return move_id in pokemon.moves
+        except:
+            return False
+    
+    def _pokemon_has_ability(self, pokemon, ability_name):
+        """Check if Pokemon has a specific ability."""
+        if not hasattr(pokemon, 'ability'):
+            return False
+        
+        try:
+            ability_id = self.ability_names.get_by_name(ability_name)
+            return pokemon.ability == ability_id
+        except:
+            return False
+    
+    def _is_pokemon_species(self, pokemon, species_name):
+        """Check if Pokemon is a specific species."""
+        try:
+            species_id = self.pokemon_names.get_by_name(species_name)
+            return pokemon.species_id == species_id
+        except:
+            return False
+    
+    def _pokemon_is_fire_type(self, pokemon):
+        """Check if Pokemon is Fire type."""
+        mon_data = self.mons.data[pokemon.species_id]
+        return mon_data.type1 == Type.FIRE or (hasattr(mon_data, 'type2') and mon_data.type2 == Type.FIRE)
+    
+    def get_favored_items_for_pokemon(self, pokemon, classifications):
+        """Build favored items list - pokemon have 50% chance to get one of these.
+        
+        Args:
+            pokemon: Pokemon object with species_id and other attributes
+            classifications: Dict mapping species_id to classification info
+            
+        Returns:
+            List of Item enum values that this pokemon might favor
+        """
+        favored_items = self.base_favored_items.copy()
+        
+        # Life Orb - for pokemon with Sheer Force ability
+        if self._pokemon_has_ability(pokemon, "Sheer Force"):
+            favored_items.append(Item.LIFE_ORB)
+        
+        # Air Balloon - pokemon has 4x weakness to Ground
+        if self._has_4x_ground_weakness(pokemon):
+            favored_items.append(Item.AIR_BALLOON)
+        
+        # Chesto Berry - Pokemon knows Rest
+        if self._pokemon_knows_move(pokemon, "Rest"):
+            favored_items.append(Item.CHESTO_BERRY)
+        
+        # Damp Rock - Has Drizzle ability or knows Rain Dance
+        if (self._pokemon_has_ability(pokemon, "Drizzle") or 
+            self._pokemon_knows_move(pokemon, "Rain Dance")):
+            favored_items.append(Item.DAMP_ROCK)
+        
+        # Heat Rock - Has Drought ability or knows Sunny Day
+        if (self._pokemon_has_ability(pokemon, "Drought") or 
+            self._pokemon_knows_move(pokemon, "Sunny Day")):
+            favored_items.append(Item.HEAT_ROCK)
+        
+        # Icy Rock - Has Snow Warning or knows Hail/Chilly Reception/Snowscape
+        if (self._pokemon_has_ability(pokemon, "Snow Warning") or
+            self._pokemon_knows_move(pokemon, "Hail") or
+            self._pokemon_knows_move(pokemon, "Chilly Reception") or
+            self._pokemon_knows_move(pokemon, "Snowscape")):
+            favored_items.append(Item.ICY_ROCK)
+        
+        # Flame Orb - Has Guts ability and is not Fire-type
+        if (self._pokemon_has_ability(pokemon, "Guts") and 
+            not self._pokemon_is_fire_type(pokemon)):
+            favored_items.append(Item.FLAME_ORB)
+        
+        # Toxic Orb - Has Guts ability and is Fire-type
+        if (self._pokemon_has_ability(pokemon, "Guts") and 
+            self._pokemon_is_fire_type(pokemon)):
+            favored_items.append(Item.TOXIC_ORB)
+        
+        # White Herb - Knows Shell Smash
+        if self._pokemon_knows_move(pokemon, "Shell Smash"):
+            favored_items.append(Item.WHITE_HERB)
+        
+        # Shedinja items - Safety Goggles, Heavy Duty Boots, Focus Sash
+        if self._is_pokemon_species(pokemon, "Shedinja"):
+            favored_items.extend([Item.SAFETY_GOGGLES, Item.HEAVY_DUTY_BOOTS, Item.FOCUS_SASH])
+        
+        # Legendary signature items
+        if self._is_pokemon_species(pokemon, "Dialga"):
+            favored_items.extend([Item.ADAMANT_ORB, Item.ADAMANT_CRYSTAL])
+        
+        if self._is_pokemon_species(pokemon, "Palkia"):
+            favored_items.extend([Item.LUSTROUS_ORB, Item.LUSTROUS_GLOBE])
+        
+        if self._is_pokemon_species(pokemon, "Giratina"):
+            favored_items.extend([Item.GRISEOUS_ORB, Item.GRISEOUS_CORE])
+        
+        if (self._is_pokemon_species(pokemon, "Latios") or 
+            self._is_pokemon_species(pokemon, "Latias")):
+            favored_items.append(Item.SOUL_DEW)
+        
+        # Light Ball - Pikachu
+        if self._is_pokemon_species(pokemon, "Pikachu"):
+            favored_items.append(Item.LIGHT_BALL)
+        
+        return favored_items
+    
+    def get_item_set_b_for_pokemon(self, pokemon, classifications):
+        """Build Set B items conditionally based on pokemon characteristics.
+        
+        Args:
+            pokemon: Pokemon object
+            classifications: Dict of classifications from TrainerMonClassifier
+            
+        Returns:
+            List of Item enums eligible for this pokemon
+        """
+        item_set_b = self.item_set_b.copy()
+        
+        # Get shared data that might be used by multiple item checks
+        mon_data = self.mons.data[pokemon.species_id]
+        moves_data = self.context.get(Moves)
+        
+        # Weakness-reducing berries - add based on pokemon weaknesses
+        weaknesses = self.classifier.get_weaknesses(pokemon)
+        if weaknesses:
+            weakness_to_berry = {
+                Type.FIRE: Item.OCCA_BERRY,
+                Type.WATER: Item.PASSHO_BERRY,
+                Type.ELECTRIC: Item.WACAN_BERRY,
+                Type.GRASS: Item.RINDO_BERRY,
+                Type.ICE: Item.YACHE_BERRY,
+                Type.FIGHTING: Item.CHOPLE_BERRY,
+                Type.POISON: Item.KEBIA_BERRY,
+                Type.GROUND: Item.SHUCA_BERRY,
+                Type.FLYING: Item.COBA_BERRY,
+                Type.PSYCHIC: Item.PAYAPA_BERRY,
+                Type.BUG: Item.TANGA_BERRY,
+                Type.ROCK: Item.CHARTI_BERRY,
+                Type.GHOST: Item.KASIB_BERRY,
+                Type.DRAGON: Item.HABAN_BERRY,
+                Type.DARK: Item.COLBUR_BERRY,
+                Type.STEEL: Item.BABIRI_BERRY,
+                Type.NORMAL: Item.CHILAN_BERRY,
+                Type.FAIRY: Item.ROSELI_BERRY,
+            }
+            
+            # Add berries for types this pokemon is weak to
+            for weakness_type_id, multiplier in weaknesses.items():
+                if multiplier > 1.0:  # Pokemon is weak to this type
+                    # Convert type ID back to Type enum
+                    for type_enum in Type:
+                        if type_enum.value == weakness_type_id:
+                            if type_enum in weakness_to_berry:
+                                item_set_b.append(weakness_to_berry[type_enum])
+                            break
+        
+        # King's Rock - add if pokemon has high speed or priority moves
+        # Condition 1: Base speed > 84
+        if mon_data.speed > 84:
+            item_set_b.append(Item.KINGS_ROCK)
+        else:
+            # Condition 2: Has a move with priority > 0 and power > 39
+            for move_id in pokemon.moves:
+                move = moves_data.data[move_id]
+                if move.priority > 0 and move.base_power > 39:
+                    item_set_b.append(Item.KINGS_ROCK)
+                    break
+        
+        return item_set_b
+    
+    def get_item_set_c_for_pokemon(self, pokemon, classifications):
+        """Build Set C items conditionally based on pokemon characteristics.
+        
+        Args:
+            pokemon: Pokemon object with species_id and other attributes
+            classifications: Dict mapping species_id to classification info
+            
+        Returns:
+            List of Item enum values for this pokemon
+        """
+        item_set_c = []
+        
+        # Get shared data that might be used by multiple item checks
+        mon_data = self.mons.data[pokemon.species_id]
+        moves_data = self.context.get(Moves)
+        pokemon_types = [mon_data.type1]
+        if mon_data.type2 != mon_data.type1:  # Avoid duplicate types
+            pokemon_types.append(mon_data.type2)
+        
+        type_to_enhancer = {
+            Type.FIRE: Item.CHARCOAL,
+            Type.WATER: Item.MYSTIC_WATER,
+            Type.GRASS: Item.MIRACLE_SEED,
+            Type.ELECTRIC: Item.MAGNET,
+            Type.ICE: Item.NEVER_MELT_ICE,
+            Type.FIGHTING: Item.BLACK_BELT,
+            Type.POISON: Item.POISON_BARB,
+            Type.GROUND: Item.SOFT_SAND,
+            Type.FLYING: Item.SHARP_BEAK,
+            Type.PSYCHIC: Item.TWISTED_SPOON,
+            Type.BUG: Item.SILVER_POWDER,
+            Type.ROCK: Item.HARD_STONE,
+            Type.GHOST: Item.SPELL_TAG,
+            Type.DRAGON: Item.DRAGON_FANG,
+            Type.DARK: Item.BLACK_GLASSES,
+            Type.STEEL: Item.METAL_COAT,
+        }
+        
+        # Add type enhancers based on pokemon types
+        for poke_type in pokemon_types:
+            if poke_type in type_to_enhancer:
+                item_set_c.append(type_to_enhancer[poke_type])
+        
+        return item_set_c
+    
+    
+    def run(self, context):
+        """Run the held item assignment step.
+        
+        For each trainer Pokémon, evaluates predicates and assigns held items
+        based on tier-scaled probability.
+        """
+        print(f"\n=== TrainerHeldItem: Running in {self.mode} mode ===")
+        
+        # Process each trainer
+        for trainer in self.trainers.data:
+            # Skip if trainer doesn't use items
+            if not hasattr(trainer.info, 'trainermontype') or 'ITEMS' not in str(trainer.info.trainermontype):
+                continue
+            
+            # Get trainer tier
+            try:
+                trainer_tier = self.tiers.get_tier_for_trainer(trainer.info.trainer_id)
+                tier_num = int(trainer_tier)  # Convert Tier enum to int
+            except (ValueError, KeyError):
+                # Skip trainers without a defined tier
+                print(f"Warning: Trainer {trainer.info.name} has no defined tier, skipping item assignment")
+                continue
+            
+            # Process each Pokémon in the trainer's team
+            for pokemon in trainer.team:
+                self.pokemon_processed += 1
+                
+                # Skip if Pokémon already has a held item
+                if hasattr(pokemon, 'held_item') and pokemon.held_item > 0:
+                    continue
+                
+                # Ensure Pokémon has held_item attribute
+                if not hasattr(pokemon, 'held_item'):
+                    pokemon.held_item = 0
+                
+                # Get probabilities for this tier
+                prob_no_item, prob_set_a, prob_set_b = self.tier_probabilities[tier_num]
+                
+                # Roll for item assignment
+                roll = random.random()
+                
+                if roll < prob_no_item:
+                    # No item assigned
+                    pokemon.held_item = 0
+                elif roll < prob_no_item + prob_set_a:
+                    # Assign from Set A + C
+                    pokemon.held_item = self._select_item_for_pokemon(pokemon, trainer_tier=trainer_tier, set_a=True, set_c=True)
+                else:
+                    # Assign from Set B + C
+                    pokemon.held_item = self._select_item_for_pokemon(pokemon, trainer_tier=trainer_tier, set_b=True, set_c=True)
+                
+                if pokemon.held_item > 0:
+                    self.items_assigned += 1
+        
+        # Print summary statistics
+        print(f"=== TrainerHeldItem: Summary ===")
+        print(f"Assigned items to {self.items_assigned}/{self.pokemon_processed} Pokémon ({(self.items_assigned/max(1, self.pokemon_processed))*100:.1f}%)")
+        print(f"===========================\n")
+    
+    def _select_item_for_pokemon(self, pokemon, trainer_tier=None, set_a=False, set_b=False, set_c=False):
+        """Select an appropriate held item for a Pokémon based on its attributes.
+        
+        Args:
+            pokemon: The Pokémon object to assign an item to
+            trainer_tier: The tier of the trainer (Tier enum)
+            set_a: Whether to consider items from Set A
+            set_b: Whether to consider items from Set B
+            set_c: Whether to consider items from Set C
+            
+        Returns:
+            int: Item ID (from Item enum) or 0 if no suitable item found
+        """
+        # Get Pokemon species data
+        if not hasattr(pokemon, 'species_id') or pokemon.species_id >= len(self.mons.data):
+            return 0
+        
+        species = self.mons.data[pokemon.species_id]
+        classifications = {}  # TODO: Get actual classifications if needed
+        
+        # Check obligate and favored items based on mode and tier
+        should_check_obligate_favored = False
+        
+        if self.mode == "default":
+            # Only check in LATE_GAME and END_GAME tiers
+            if trainer_tier and trainer_tier in [Tier.LATE_GAME, Tier.END_GAME]:
+                should_check_obligate_favored = True
+        elif self.mode == "sensible":
+            # Never check obligate/favored in sensible mode
+            should_check_obligate_favored = False
+        elif self.mode == "good":
+            # Always check obligate/favored in good mode
+            should_check_obligate_favored = True
+        
+        if should_check_obligate_favored:
+            # Check obligate items first - pokemon MUST get one if they qualify
+            obligate_items = self.get_obligate_items_for_pokemon(pokemon, classifications)
+            if obligate_items:
+                return random.choice(obligate_items).value
+            
+            # Check favored items - 50% chance if they qualify
+            favored_items = self.get_favored_items_for_pokemon(pokemon, classifications)
+            if favored_items and random.random() < 0.5:
+                return random.choice(favored_items).value
+        
+        # Build candidate item pool from regular sets
+        candidate_items = []
+        
+        # Check for special-case items based on species
+        special_item = self._get_special_case_item(species)
+        if special_item:
+            return special_item
+        
+        # Add items from enabled sets
+        if set_a and self.item_set_a:
+            # For set A, consider attacker type
+            if hasattr(species, 'attack') and hasattr(species, 'sp_attack'):
+                if species.attack > species.sp_attack * 1.2:
+                    # Physical attacker - prioritize physical items
+                    physical_items = [Item.CHOICE_BAND.value, Item.MUSCLE_BAND.value, 
+                                     Item.EXPERT_BELT.value, Item.LIFE_ORB.value]
+                    candidate_items.extend(physical_items)
+                elif species.sp_attack > species.attack * 1.2:
+                    # Special attacker - prioritize special items
+                    special_items = [Item.CHOICE_SPECS.value, Item.WISE_GLASSES.value, 
+                                    Item.EXPERT_BELT.value, Item.LIFE_ORB.value]
+                    candidate_items.extend(special_items)
+                else:
+                    # Mixed attacker or balanced
+                    candidate_items.extend(self.item_set_a)
+            else:
+                candidate_items.extend(self.item_set_a)
+        
+        if set_b and self.item_set_b:
+            # For set B, consider type-enhancing items
+            if hasattr(species, 'type1'):
+                # Add type-enhancing item for primary type if available
+                type_item = self._get_type_enhancing_item(species.type1)
+                if type_item:
+                    candidate_items.append(type_item)
+            
+            # Check if this Pokémon can evolve and add Eviolite
+            if self._can_evolve(pokemon.species_id):
+                candidate_items.append(Item.EVIOLITE.value)
+                
+            # Add other set B items
+            candidate_items.extend(self.item_set_b)
+        
+        if set_c and self.item_set_c:
+            # Add basic items
+            candidate_items.extend(self.item_set_c)
+            
+            # Check for status move to add relevant berries
+            if self._has_status_move(pokemon):
+                status_berries = [
+                    Item.LUM_BERRY.value,
+                    Item.CHESTO_BERRY.value,
+                    Item.PERSIM_BERRY.value
+                ]
+                candidate_items.extend(status_berries)
+        
+        # Remove duplicates while preserving order
+        candidate_items = list(dict.fromkeys(candidate_items))
+        
+        # If no candidates, return no item
+        if not candidate_items:
+            return 0
+        
+        # Return a random item from the candidates
+        return random.choice(candidate_items) if candidate_items else 0
+    
+    def _get_special_case_item(self, species):
+        """Check if this Pokemon should get a special species-specific item.
+        
+        Args:
+            species: Pokemon species data
+            
+        Returns:
+            int: Item ID for special case, or 0 if none applies
+        """
+        # Map of species names to their special items
+        special_items = {
+            "Pikachu": Item.LIGHT_BALL.value,
+            "Cubone": Item.THICK_CLUB.value,
+            "Marowak": Item.THICK_CLUB.value,
+            "Latios": Item.SOUL_DEW.value,
+            "Latias": Item.SOUL_DEW.value,
+            "Clamperl": Item.DEEP_SEA_TOOTH.value,  # Could be either tooth or scale
+            "Ditto": Item.QUICK_POWDER.value
+        }
+        
+        if hasattr(species, 'name') and species.name in special_items:
+            return special_items[species.name]
+        
+        return 0
+    
+    def _get_type_enhancing_item(self, type_id):
+        """Get the type-enhancing item for a specific type.
+        
+        Args:
+            type_id: Type ID
+            
+        Returns:
+            int: Item ID for type enhancer, or 0 if none applies
+        """
+        # Map of types to their enhancing items
+        type_items = {
+            Type.FIRE.value: Item.CHARCOAL.value,
+            Type.WATER.value: Item.MYSTIC_WATER.value,
+            Type.GRASS.value: Item.MIRACLE_SEED.value,
+            Type.ELECTRIC.value: Item.MAGNET.value,
+            Type.ICE.value: Item.NEVER_MELT_ICE.value,
+            Type.FIGHTING.value: Item.BLACK_BELT.value,
+            Type.POISON.value: Item.POISON_BARB.value,
+            Type.GROUND.value: Item.SOFT_SAND.value,
+            Type.FLYING.value: Item.SHARP_BEAK.value,
+            Type.PSYCHIC.value: Item.TWISTED_SPOON.value,
+            Type.BUG.value: Item.SILVER_POWDER.value,
+            Type.ROCK.value: Item.HARD_STONE.value,
+            Type.GHOST.value: Item.SPELL_TAG.value,
+            Type.DRAGON.value: Item.DRAGON_FANG.value,
+            Type.DARK.value: Item.BLACK_GLASSES.value,
+            Type.STEEL.value: Item.METAL_COAT.value,
+            Type.NORMAL.value: Item.SILK_SCARF.value
+        }
+        
+        return type_items.get(type_id, 0)
+    
+    def _can_evolve(self, species_id):
+        """Check if a Pokémon can evolve.
+        
+        Args:
+            species_id: The species ID to check
+            
+        Returns:
+            bool: True if the Pokémon can evolve, False otherwise
+        """
+        # Try to get evolution data from context
+        try:
+            from gl.framework import EvolutionData
+            evo_data = self.context.get(EvolutionData)
+            
+            # Check if this species has any evolution entries
+            if species_id < len(evo_data.data) and evo_data.data[species_id]:
+                # Filter out empty evolution entries
+                valid_evos = [evo for evo in evo_data.data[species_id] if evo.method != 0]
+                return len(valid_evos) > 0
+        except:
+            # If evolution data is not available, use a simpler approach with common unevolved Pokémon
+            # These are some common unevolved Pokémon for demonstration
+            unevolved_pokemon = [
+                1, 4, 7, 10, 13, 16, 19, 21, 23, 25, 27, 29, 32, 35, 37, 39, 41, 
+                43, 46, 48, 50, 52, 54, 56, 58, 60, 63, 66, 69, 72, 74, 77, 79, 
+                81, 83, 84, 86, 88, 90, 92, 95, 96, 98, 100, 102, 104, 108, 109, 
+                111, 114, 116, 118, 120, 122, 123, 124, 125, 126, 127, 128, 129, 
+                131, 133, 138, 140, 142, 147
+            ]
+            return species_id in unevolved_pokemon
+            
+    def _has_status_move(self, pokemon):
+        """Check if a Pokémon has status moves.
+        
+        Args:
+            pokemon: The Pokémon object to check
+            
+        Returns:
+            bool: True if the Pokémon has status moves, False otherwise
+        """
+        # Get the moves context
+        moves = self.context.get(Moves)
+        
+        # Trainer Pokémon have move1, move2, etc. attributes (not a moves list)
+        move_attrs = ['move1', 'move2', 'move3', 'move4']
+        
+        # Check each move attribute
+        for move_attr in move_attrs:
+            if hasattr(pokemon, move_attr):
+                move_id = getattr(pokemon, move_attr)
+                if move_id == 0:  # Skip empty move slots
+                    continue
+                
+                # Check if move exists and is a status move
+                if move_id < len(moves.data) and hasattr(moves.data[move_id], 'pss'):
+                    if moves.data[move_id].pss == Split.STATUS:
+                        return True
+                        
+        return False
