@@ -139,9 +139,18 @@ class InvalidPokemon(PokemonListBase):
         pokemon_names_step = context.get(LoadPokemonNamesStep)
         form_mapper = context.get(FormMapper)
         
-        # Add dashes that are NOT legitimate forms (truly invalid Pokémon)
+        # Get EvioliteUser objects to exclude them from filtering
+        try:
+            from extractors import EvioliteUser
+            eviolite_users = context.get(EvioliteUser)
+            eviolite_user_ids = eviolite_users.by_id
+        except:
+            # EvioliteUser not available, continue without exclusion
+            eviolite_user_ids = set()
+        
+        # Add dashes that are NOT legitimate forms and NOT EvioliteUser objects
         for fid in pokemon_names_step.get_all_by_name("-----"):
-            if not form_mapper.is_form(fid):
+            if not form_mapper.is_form(fid) and fid not in eviolite_user_ids:
                 self.by_id.add(fid)
 
 
@@ -360,67 +369,6 @@ class LoadBlacklistStep(PokemonListBase):
 
 
 
-
-class AssignEvioliteItemsStep(Step):
-    """Assigns Eviolite items to trainer Pokémon that are Eviolite users.
-    
-    This step should run after trainer randomization. It checks all trainer Pokémon
-    and, if any are from the special Eviolite MonData list, gives them an Eviolite item.
-    
-    For beginners:
-    - After trainers get their random Pokémon, this step checks each one
-    - If a trainer has a Pokémon that benefits from Eviolite, it gives that Pokémon an Eviolite
-    - This makes sure the special Pokémon get their Defense and Special Defense boost in battle
-    """
-    
-    def run(self, context):
-        # Get required extractors and data
-        trainers = context.get(Trainers)
-        eviolite_users = context.get(EvioliteUser)
-        mons = context.get(Mons)
-        
-        # Track how many Eviolites we assign
-        eviolite_count = 0
-        trainer_count = 0
-        
-        # Check each trainer's team for Eviolite users
-        for trainer in trainers.data:
-            # Skip trainers that don't use items
-            if not TrainerDataType.ITEMS in trainer.info.trainermontype:
-                continue
-                
-            # Check each Pokémon on the team
-            trainer_has_eviolite_user = False
-            
-            for pokemon in trainer.team:
-                # Look up this Pokémon species
-                species = mons.data[pokemon.species_id]
-                
-                # Check if this species ID matches an Eviolite user
-                # Get the matching Eviolite MonData if it exists
-                matching_eviolite = None
-                
-                for eviolite_mon in eviolite_users.eviolite_mondata:
-                    if eviolite_mon.pokemon_id == pokemon.species_id:
-                        matching_eviolite = eviolite_mon
-                        break
-                
-                # If this is an Eviolite user, assign the Eviolite item
-                if matching_eviolite:
-                    # Make sure this Pokémon has a held_item field
-                    if hasattr(pokemon, 'held_item'):
-                        pokemon.held_item = EvioliteUser.EVIOLITE_ITEM_ID
-                        eviolite_count += 1
-                        trainer_has_eviolite_user = True
-            
-            # Count trainers with at least one Eviolite user
-            if trainer_has_eviolite_user:
-                trainer_count += 1
-        
-        # Print results
-        print(f"Assigned Eviolite to {eviolite_count} Pokémon across {trainer_count} trainers")
-        
-        return eviolite_count
 
 
 
@@ -1913,13 +1861,28 @@ class FormCategoryFilter(SimpleFilter):
         return form_category in self.allowed_categories
 
 
+class EvioliteFilter(SimpleFilter):
+    """Filter that only allows Eviolite users when appropriate."""
+    
+    def check(self, context, original, candidate) -> bool:
+        """Allow Eviolite users only if they have the is_eviolite_user attribute."""
+        # Allow all non-Eviolite Pokemon
+        if not hasattr(candidate, 'is_eviolite_user'):
+            return True
+        
+        # For Eviolite users, only allow them if they're marked as such
+        return getattr(candidate, 'is_eviolite_user', False)
+
+
 class RandomizeOrdinaryTrainersStep(Step):
     """Randomize all ordinary trainers (no gym leaders, rivals, E4, possibly Rocket Leaders if I ever get around to it)."""
     
     def __init__(self, filter):
         # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
         form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
-        self.filter = AllFilters([filter, form_filter])
+        # Add Eviolite filter to allow Eviolite users in the candidate pool
+        eviolite_filter = EvioliteFilter()
+        self.filter = AllFilters([filter, form_filter, eviolite_filter])
     
     def run(self, context):
         trainers = context.get(Trainers)
@@ -1957,10 +1920,11 @@ class RandomizeOrdinaryTrainersStep(Step):
     def _randomize_trainer_team(self, context, trainer, mondata, eviolite_users, filter):
         """Randomize a trainer's team using the provided filter."""
         for i, pokemon in enumerate(trainer.team):
-            # Create candidate list from all mondata (filter will handle form categories)
+            # Create candidate list from all mondata
             candidates = list(mondata.data)
             
             # Add Eviolite variants if available and trainer uses items
+            # The EvioliteFilter will handle filtering these appropriately
             if eviolite_users and TrainerDataType.ITEMS in trainer.info.trainermontype:
                 candidates.extend(eviolite_users.eviolite_mondata)
             

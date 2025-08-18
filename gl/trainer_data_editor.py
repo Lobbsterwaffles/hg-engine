@@ -7,6 +7,7 @@ for trainer Pokemon based on various criteria like attacker type, level, etc.
 
 from framework import Extractor, Step
 from steps import Mons, Moves, EggMoves, Learnsets, TMHM, TrainerData, IdentifyTier, LoadPokemonNamesStep, LoadAbilityNames, LoadMoveNamesStep, Trainers, IdentifyBosses
+from extractors import EvioliteUser
 from enums import Split, Item, Type, Tier
 from TypeEffectiveness import sup_eff, get_4x_weaknesses
 from Trainer_mon_Classifier import TrainerMonClassifier
@@ -1041,93 +1042,6 @@ class AssignCustomSetsStep(Step):
 
 
 
-if __name__ == "__main__":
-    import ndspy.rom
-    from framework import RandomizationContext, LoadPokemonNamesStep, LoadMoveNamesStep
-    
-    # Load the same ROM that framework uses
-    rom_path = "recompiletest.nds"
-    print(f"Loading ROM: {rom_path}")
-    
-    rom = ndspy.rom.NintendoDSRom.fromFile(rom_path)
-    ctx = RandomizationContext(rom)
-    
-    print("\n=== Testing Move Selection Classes ===")
-        
-    # Test IdentifyAttackerCategory
-    print("\n1. Testing IdentifyAttackerCategory...")
-    attacker_categories = ctx.get(IdentifyAttackerCategory)
-        
-    # Show some examples
-    example_pokemon = [25, 150, 144]  # Pikachu, Mewtwo, Articuno
-    for pid in example_pokemon:
-        if pid < len(ctx.get(Mons).data):
-            pokemon = ctx.get(Mons).data[pid]
-            category = attacker_categories.get_category(pid)
-            print(f"  {pokemon.name}: Attack={pokemon.attack}, Sp.Attack={pokemon.sp_attack} -> {category}")
-        
-            # Test MoveBlacklist and MoveWhitelist
-    print("\n2. Testing MoveBlacklist and MoveWhitelist...")
-    blacklist = ctx.get(MoveBlacklist)
-    whitelist = ctx.get(MoveWhitelist)
-        
-    # Add some example moves
-    blacklist.add_move_by_name("Splash")
-    whitelist.add_move_by_name("Earthquake")
-        
-    print(f"  Added 'Splash' to blacklist")
-    print(f"  Added 'Earthquake' to whitelist")
-        
-    # Test IdentifyGoodMoves
-    print("\n3. Testing IdentifyGoodMoves...")
-    good_moves = ctx.get(IdentifyGoodMoves)
-    good_move_count = len(good_moves.get_good_moves())
-    print(f"  Found {good_move_count} good moves total")
-        
-    # Show some examples of good moves
-    moves = ctx.get(Moves)
-    good_move_ids = list(good_moves.get_good_moves())[:10]  # First 10
-    print("  Example good moves:")
-    for move_id in good_move_ids:
-        if move_id < len(moves.data):
-            move = moves.data[move_id]
-            if move.name:
-                print(f"    {move.name}: Power={move.base_power}, Accuracy={move.accuracy}")
-        
-    # Test FindEstPower
-    print("\n4. Testing FindEstPower...")
-    est_power = ctx.get(FindEstPower)
-        
-    # Test with Pikachu (should prefer special moves)
-    pikachu_id = 25
-    test_moves = [85, 87, 129]  # Thunderbolt, Bubble Beam, Swift
-    print(f"  Testing estimated power for Pikachu:")
-    for move_id in test_moves:
-        if move_id < len(moves.data):
-                move = moves.data[move_id]
-                power = est_power.calculate_estimated_power(pikachu_id, move_id)
-                if move.name:
-                    print(f"    {move.name}: {power} estimated power")
-        
-    # Test EggMoves
-    print("\n5. Testing EggMoves...")
-    egg_moves = ctx.get(EggMoves)
-            
-    # Test with some starter Pokemon
-    test_pokemon = [1, 4, 7]  # Bulbasaur, Charmander, Squirtle
-    for pid in test_pokemon:
-            if pid < len(ctx.get(Mons).data):
-                pokemon = ctx.get(Mons).data[pid]
-                egg_move_ids = egg_moves.get_egg_move_ids(pid)
-                print(f"  {pokemon.name}: {len(egg_move_ids)} egg moves")
-                    
-                # Show first few egg moves
-                for move_id in egg_move_ids[:3]:  # First 3
-                    if move_id < len(moves.data) and moves.data[move_id].name:
-                        print(f"    - {moves.data[move_id].name}")
-        
-        
-        
 
 class TrainerHeldItem(Step):
     """Assigns held items to trainer Pokémon based on predicate evaluations and tier scaling.
@@ -1233,6 +1147,14 @@ class TrainerHeldItem(Step):
         pokemon_names = self.context.get(LoadPokemonNamesStep)
         pokemon_name = pokemon_names.id_to_name.get(pokemon.species_id, f"Pokemon_{pokemon.species_id}")
         
+        # Check if this Pokemon is an Eviolite user
+        try:
+            eviolite_users = self.context.get(EvioliteUser)
+            if pokemon.species_id in eviolite_users.by_id:
+                obligate_items.append(Item.EVIOLITE)
+        except:
+            # EvioliteUser class doesn't exist or isn't available - continue without Eviolite
+            pass
         
         if pokemon_name == "Marowak":
             obligate_items.append(Item.THICK_CLUB)
