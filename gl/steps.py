@@ -1,345 +1,7 @@
 from framework import *
-
-class NameTableReader(Extractor):
-    """Base class for reading name tables from text files."""
-    filename = None  # Must be set by subclasses
-    
-    def __init__(self, context):
-        super().__init__(context)
-        with open(self.filename, "r", encoding="utf-8") as f:
-            names_list = [line.strip() for line in f.readlines()]
-
-        self.id_to_name = {}
-        self.name_to_ids = {}
-
-        for i, name in enumerate(names_list):
-            self.id_to_name[i] = name
-            if name not in self.name_to_ids:
-                self.name_to_ids[name] = []
-            self.name_to_ids[name].append(i)
-
-    def get_by_id(self, i):
-        return self.id_to_name[i]
-
-    def get_by_name(self, n):
-        ns = self.get_all_by_name(n)
-        if len(ns) > 1:
-            print(f"!!! Use of duplicate name: {repr(n)} => {repr(ns)}")
-        return ns[0]
-
-    def get_all_by_name(self, n):
-        return self.name_to_ids[n]
-
-
-class LoadPokemonNamesStep(NameTableReader):
-    filename = "build/rawtext/237.txt"
-
-        
-class LoadMoveNamesStep(NameTableReader):
-    filename = "build/rawtext/750.txt"
-
-class LoadAbilityNames(NameTableReader):
-    filename = "data/text/720.txt"
-
-class Moves(NarcExtractor):
-    def __init__(self, context):
-        super().__init__(context)
-        move_names_step = context.get(LoadMoveNamesStep)
-        
-        self.move_struct = Struct(
-            "battle_effect" / Int16ul,
-            "pss" / Enum(Int8ul, Split),
-            "base_power" / Int8ul,
-            "type" / Enum(Int8ul, Type),
-            "accuracy" / Int8ul,
-            "pp" / Int8ul,
-            "effect_chance" / Int8ul,
-            "target" / Enum(Int16ul, Target),
-            "priority" / Int8sl,
-            "flags" / FlagsEnum(Int8ul, MoveFlags),
-            "appeal" / Int8ul,
-            "contest_type" / Enum(Int8ul, Contest),
-            Padding(2),
-            "move_id" / Computed(lambda ctx: ctx._.narc_index),
-            "name" / Computed(lambda ctx: move_names_step.id_to_name.get(ctx._.narc_index, None))
-        )
-
-        self.data = self.load_narc()
-
-    def get_narc_path(self):
-        return "a/0/1/1"
-    
-    def get_struct(self):
-        return self.move_struct
-    
-    def parse_file(self, file_data, file_index):
-        return self.move_struct.parse(file_data, narc_index=file_index)
-    
-    def serialize_file(self, data, index):
-        return self.move_struct.build(data, narc_index=index)
-
-
-class Learnsets(NarcExtractor):
-    def __init__(self, context):
-        super().__init__(context)
-        moves = context.get(Moves).data
-
-        self.struct = GreedyRange(Struct(
-            "move_id" / Int16ul,
-            "level" / Int16ul,
-            Check(lambda ctx: ctx.move_id != 0xffff),
-            "move" / Computed(lambda ctx: moves[ctx.move_id] if ctx.move_id < len(moves) else None),
-        ))
-        
-        self.data = self.load_narc()
-    
-    def get_narc_path(self):
-        return "a/0/3/3"
-    
-    def parse_file(self, file_data, index):
-        return self.struct.parse(file_data, narc_index=index)
-    
-    def serialize_file(self, data, index):
-        return self.struct.build(data, narc_index=index)
-
-
-class EggMoves(NarcExtractor):
-    """Extractor for Pokemon egg moves from ROM."""
-    
-    def __init__(self, context):
-        super().__init__(context)
-        moves = context.get(Moves).data
-        
-        # Egg moves are stored as a list of move IDs for each Pokemon
-        # Format: species_id+20000 (marker), followed by move_ids, terminated by 0xFFFF
-        self.struct = GreedyRange(Struct(
-            "entry" / Int16ul,
-            "is_species" / Computed(lambda ctx: ctx.entry >= 20000),
-            "species_id" / Computed(lambda ctx: ctx.entry - 20000 if ctx.entry >= 20000 else None),
-            "move_id" / Computed(lambda ctx: ctx.entry if ctx.entry < 20000 and ctx.entry != 0xFFFF else None),
-            "is_terminator" / Computed(lambda ctx: ctx.entry == 0xFFFF),
-            "move" / Computed(lambda ctx: moves[ctx.entry] if ctx.entry < len(moves) and ctx.entry < 20000 and ctx.entry != 0xFFFF else None),
-            Check(lambda ctx: ctx.entry != 0xFFFF)  # Stop at terminator
-        ))
-        
-        # Load raw data and parse into structured format
-        raw_data = self.load_narc()
-        self.data = self._parse_egg_moves(raw_data)
-    
-    def _parse_egg_moves(self, raw_data):
-        """Parse raw egg move data into a dictionary by species."""
-        egg_moves_by_species = {}
-        
-        # Process each file (should be just one file with all egg moves)
-        for file_data in raw_data:
-            current_species = None
-            current_moves = []
-            
-            for entry in file_data:
-                if entry.is_species:
-                    # Save previous species data if exists
-                    if current_species is not None:
-                        egg_moves_by_species[current_species] = current_moves
-                    
-                    # Start new species
-                    current_species = entry.species_id
-                    current_moves = []
-                
-                elif entry.move_id is not None:
-                    # Add move to current species
-                    current_moves.append({
-                        'move_id': entry.move_id,
-                        'move': entry.move
-                    })
-            
-            # Save last species
-            if current_species is not None:
-                egg_moves_by_species[current_species] = current_moves
-        
-        return egg_moves_by_species
-    
-    def get_narc_path(self):
-        # Egg moves are stored at a/2/2/9 according to narcs.mk
-        # EGGMOVES_TARGET := $(FILESYS)/a/2/2/9
-        return "a/2/2/9"
-    
-    def parse_file(self, file_data, index):
-        return self.struct.parse(file_data, narc_index=index)
-    
-    def serialize_file(self, data, index):
-        return self.struct.build(data, narc_index=index)
-
-
-class LoadTrainerNamesStep(Extractor):
-    """Extractor that loads trainer names from assembly source."""
-    
-    def __init__(self, context):
-        super().__init__(context)
-        self.by_id = {}
-        self.by_name = {}
-        
-        trainer_file = os.path.join("armips", "data", "trainers", "trainers.s")
-        try:
-            with open(trainer_file, "r", encoding="utf-8") as f:
-                pattern = r"trainerdata\s+(\d+),\s+\"([^\"]+)\""
-                for line in f:
-                    match = re.search(pattern, line)
-                    if match:
-                        trainer_id = int(match.group(1))
-                        name = match.group(2)
-                        self.by_id[trainer_id] = name
-                        self.by_name[name] = trainer_id
-        except FileNotFoundError:
-            pass
-
-
-class TrainerTeam(Writeback,NarcExtractor ):
-    
-    def __init__(self, context):
-        mondata_extractor = context.get(Mons)
-        move_extractor = context.get(Moves)
-
-        # Base struct that all trainer Pokemon have
-        self.struct_common = Struct(
-            "ivs" / Int8ul,
-            "abilityslot" / Int8ul,
-            "level" / Int16ul,
-            "species_id" / Int16ul,
-        )
-        
-        super().__init__(context)
-        self.data = self.load_narc()
-    
-    def _build_trainer_pokemon_struct(self, trainer_type_flags):
-        
-        # Convert bytes to int if needed
-        if isinstance(trainer_type_flags, bytes):
-            flags = int.from_bytes(trainer_type_flags, byteorder='little')
-        else:
-            flags = trainer_type_flags
-        
-        # Start with the common base structure
-        struct_fields = []
-        
-        # Add conditional fields based on flags
-        if flags & TrainerDataType.ITEMS:
-            struct_fields.append("held_item" / Int16ul)
-        
-        if flags & TrainerDataType.MOVES:
-            struct_fields.append("moves" / Array(4, Int16ul))
-        
-        if flags & TrainerDataType.ABILITY:
-            struct_fields.append("ability" / Int16ul)
-        
-        if flags & TrainerDataType.BALL:
-            struct_fields.append("ball" / Int16ul)
-        
-        if flags & TrainerDataType.IV_EV_SET:
-            struct_fields.extend([
-                "hp_iv" / Int8ul,
-                "atk_iv" / Int8ul,
-                "def_iv" / Int8ul,
-                "speed_iv" / Int8ul,
-                "spatk_iv" / Int8ul,
-                "spdef_iv" / Int8ul,
-                "hp_ev" / Int8ul,
-                "atk_ev" / Int8ul,
-                "def_ev" / Int8ul,
-                "speed_ev" / Int8ul,
-                "spatk_ev" / Int8ul,
-                "spdef_ev" / Int8ul,
-            ])
-        
-        if flags & TrainerDataType.NATURE_SET:
-            struct_fields.append("nature" / Int8ul)
-        
-        if flags & TrainerDataType.SHINY_LOCK:
-            struct_fields.append("shinylock" / Int8ul)
-        
-        if flags & TrainerDataType.ADDITIONAL_FLAGS:
-            struct_fields.append("additionalflags" / Int32ul)
-        
-        # Always end with ballseal (present in all variants)
-        struct_fields.append("ballseal" / Int16ul)
-        
-        # Build the complete struct
-        return self.struct_common + Struct(*struct_fields)
-    
-    def get_narc_path(self):
-        return "a/0/5/6"
-    
-    def parse_file(self, file_data, index):
-        if len(file_data) == 0:
-            return []
-        
-        trainer = self.context.get(TrainerData).data[index]
-        struct = self._build_trainer_pokemon_struct(trainer.trainermontype.data)
-        
-        return Array(trainer.nummons, struct).parse(file_data)
-    
-    def serialize_file(self, data, index):
-        if not data:
-            return b''
-        
-        trainer = self.context.get(TrainerData).data[index]
-        struct = self._build_trainer_pokemon_struct(trainer.trainermontype.data)
-        
-        return Array(trainer.nummons, struct).build(data)
-
-
-class TrainerData(Writeback, NarcExtractor):
-    def __init__(self, context):
-        trainer_names_step = context.get(LoadTrainerNamesStep)
-        
-        self.trainer_data_struct = Struct(
-            "trainermontype" / RawCopy(FlagsEnum(Int8ul, TrainerDataType)),
-            "trainerclass" / Int16ul,
-            "nummons" / Int8ul,
-            "battleitems" / Array(4, Int16ul),
-            "aiflags" / Int32ul,
-            "battletype" / Enum(Int8ul, BattleType),
-            Padding(2),
-            "trainer_id" / Computed(lambda ctx: ctx._.narc_index),
-            "name" / Computed(lambda ctx: trainer_names_step.by_id[ctx._.narc_index])
-        )
-        
-        super().__init__(context)
-        self.data = self.load_narc()
-    
-    def get_narc_path(self):
-        return "a/0/5/5"
-    
-    def parse_file(self, file_data, index):
-        return self.trainer_data_struct.parse(file_data, narc_index=index)
-    
-    def serialize_file(self, data, index):
-        return self.trainer_data_struct.build(data, narc_index=index)
-
-
-class TrainerInfo:
-    def __init__(self, trainer_data, team_data):
-        self.info = trainer_data
-        self.team = team_data
-        self.ace_index = self._compute_ace_index() if self.team else None
-        self.ace = self.team[self.ace_index] if self.ace_index else None
-    
-    def _compute_ace_index(self):
-        maxlvl = max(pokemon.level for pokemon in self.team)
-        imaxlvl = [i for i, pokemon in enumerate(self.team) if pokemon.level == maxlvl]
-        return imaxlvl[0] if len(imaxlvl) == 1 else None
-
-class Trainers(Extractor):
-    def __init__(self, context):
-        super().__init__(context)
-        
-        trainer_data_extractor = context.get(TrainerData)
-        trainer_team_extractor = context.get(TrainerTeam)
-        
-        self.data = [
-            TrainerInfo(trainer_data_extractor.data[i], trainer_team_extractor.data[i])
-            for i in range(len(trainer_data_extractor.data))
-        ]
-
+from enums import *
+from form_mapping import FormMapper, FormCategory
+from extractors import *
 
 class UpdateTrainerTeamDataStep(Step):
     """Updates trainer Pokémon team data to include required fields for MOVES and ITEMS format.
@@ -470,16 +132,18 @@ class PokemonListBase(Extractor):
 
 
 class InvalidPokemon(PokemonListBase):
-    """Handles invalid Pokémon entries (marked with dashes)."""
+    """Handles invalid Pokémon entries (marked with dashes that are NOT legitimate forms)."""
     
     def __init__(self, context):
         super().__init__(context)
         pokemon_names_step = context.get(LoadPokemonNamesStep)
+        form_mapper = context.get(FormMapper)
         
-        # Add any dashes (invalid Pokémon)
+        # Add dashes that are NOT legitimate forms (truly invalid Pokémon)
         for fid in pokemon_names_step.get_all_by_name("-----"):
-            self.by_id.add(fid)
-            
+            if not form_mapper.is_form(fid):
+                self.by_id.add(fid)
+
 
 class RestrictedPokemon(PokemonListBase):
     """Restricted legendary Pokémon, aka Cover Legendaries."""
@@ -647,388 +311,54 @@ class LoadBlacklistStep(PokemonListBase):
     
     pokemon_names = [
         "Bad Egg",
-        "Egg"
+        "Egg",
+        
+        # w/Unimplemented Abilities 
+        "Silvally",
+        "Hoopa",
+        "Wimpod",
+        "Golisopod",
+        "Minior",
+        "Oricorio",
+        "Cramorant",
+        "Runerigus",
+        "Morpeko",
+        "Palafin",
+        "Finizen",
+        "Gholdengo",
+        "Gimmighoul",
+        "Toedscruel",
+        "Toedscool",
+        "Terapagos",
+        "Pecharunt",
+        
+        # Paradox Pokemon (unimplemented Protosynthesis, Quark Drive, etc.) 
+         "Great Tusk",
+        "ScreamTail",
+        "BruteBonet",
+        "FluttrMane",
+        "SlithrWing",
+        "SandyShock",
+        "IronTreads",
+        "IronBundle",
+        "Iron Hands",
+        "Iron Neck",
+        "Iron Moth",
+        "IronThorns",
+        "RoarinMoon",
+        "Iron Valor",
+        "WalkngWake",
+        "IronLeaves",
+        "GouginFire",
+        "RagingBolt",
+        "IronBolder",
+        "Iron Crown",
+
+        "Miraidon",
+        "Koraidon",
     ]
 
 
-class Mons(NarcExtractor):
-    """Extractor for Pokemon data from ROM with full mondata structure."""
-    
-    # BST overrides for Pokemon whose power level is not accurately represented by raw BST
-    BST_OVERRIDES = {
-        "Wishiwashi": 550, 
-        "Shedinja": 400,    
-        "Slaking": 550,     
-        "Regigigas": 580,   
-        "Archeops": 550,    
-    }
-    
-    def __init__(self, context):
-        pokemon_names_step = context.get(LoadPokemonNamesStep)
-        tm_hm_names = context.get(TMHM)
-        
-        self.mondata_struct = Struct(
-            "hp" / Int8ul,
-            "attack" / Int8ul, 
-            "defense" / Int8ul,
-            "speed" / Int8ul,
-            "sp_attack" / Int8ul,
-            "sp_defense" / Int8ul,
-            "type1" / Enum(Int8ul, Type),
-            "type2" / Enum(Int8ul, Type),
-            "catch_rate" / Int8ul,
-            "base_exp" / Int8ul,
-            "ev_yields" / Int16ul,
-            "item1" / Int16ul,
-            "item2" / Int16ul,
-            "gender_ratio" / Int8ul,
-            "egg_cycles" / Int8ul,
-            "base_friendship" / Int8ul,
-            "growth_rate" / Int8ul,
-            "egg_group1" / Int8ul,
-            "egg_group2" / Int8ul,
-            "ability1" / Int8ul,
-            "ability2" / Int8ul,
-            "additional1" / Int8ul,
-            "additional2" / Int8ul,
-            Padding(2),  # Pad to offset 0x1C for TM bitmap
-            "tm_bitmap" / BitsSwapped(Bitwise(Array(128, Flag))),
-            "tm" / Computed(lambda ctx: [None] + ctx.tm_bitmap[:92]),  # tm[1] = TM001, tm[92] = TM092
-            "hm" / Computed(lambda ctx: [None] + ctx.tm_bitmap[92:100]),  # hm[1] = HM001, hm[8] = HM008
-            "bst" / Computed(lambda ctx: self._get_adjusted_bst(ctx)),
-            "name" / Computed(lambda ctx: pokemon_names_step.get_by_id(ctx._.narc_index)),
-            "pokemon_id" / Computed(lambda ctx: ctx._.narc_index)
-        )
-        
-        super().__init__(context)
-        
-        self.data = self.load_narc()
-    
-    def _get_adjusted_bst(self, ctx):
-        """Get adjusted BST for Pokemon, applying overrides for special cases."""
-        # Get the Pokemon name
-        pokemon_names_step = self.context.get(LoadPokemonNamesStep)
-        pokemon_name = pokemon_names_step.get_by_id(ctx._.narc_index)
-        
-        # Check if this Pokemon has a BST override
-        if pokemon_name in self.BST_OVERRIDES:
-            return self.BST_OVERRIDES[pokemon_name]
-        
-        # Default: return raw BST calculation
-        return ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense
-    
-
-    
-    def get_narc_path(self):
-        return "a/0/0/2"
-    
-    def parse_file(self, file_data, index):
-        return self.mondata_struct.parse(file_data, narc_index=index)
-    
-    def serialize_file(self, data, index):
-        return self.mondata_struct.build(data, narc_index=index)
-
-class TMHM(Extractor):
-    def __init__(self, context):
-        super().__init__(context)
-        moves = context.get(Moves)
-        
-        num_tms = 92
-        num_hms = 8
-        base_addr = 0x1000CC
-        
-        tm_hm_bytes = self.rom.arm9[base_addr:base_addr + (num_tms + num_hms) * 2]
-        tm_hm_struct = Struct("move_ids" / Array(num_tms + num_hms, Int16ul))
-        move_ids = tm_hm_struct.parse(tm_hm_bytes).move_ids
-        
-        self.tm = [None] + [moves.data[move_ids[i]] for i in range(num_tms)]
-        self.hm = [None] + [moves.data[move_ids[i + num_tms]] for i in range(num_hms)]
-
-
-class StarterExtractor(Extractor):
-    """Extractor for starter Pokemon data from ARM9 binary.
-    
-    Reads/writes the three starter species stored at address 0x02108514 in ARM9.
-    """
-    
-    def __init__(self, context):
-        super().__init__(context)
-        mons = context.get(Mons)
-        
-        # ARM9 is loaded at 0x02000000, starters are at 0x02108514
-        self.starter_offset = 0x108514
-        
-        # Define the structure for just the starter data (3 × 4-byte integers)
-        self.starter_struct = Struct(
-            "starter_id" / Array(3, Int32ul),
-            "starters" / Computed(lambda ctx: [mons.data[s] for s in ctx.starter_id])
-        )
-        
-        # Read starter data from the specific offset in ARM9
-        starter_bytes = self.rom.arm9[self.starter_offset:self.starter_offset + 12]
-        self.data = self.starter_struct.parse(starter_bytes)
-    
-    def write(self):
-        """Write starter data back to ARM9 binary."""
-        # Build just the starter data
-        starter_bytes = self.starter_struct.build(self.data)
-        
-        # Replace the 12 bytes at the starter offset in ARM9
-        arm9_data = bytearray(self.rom.arm9)
-        arm9_data[self.starter_offset:self.starter_offset + 12] = starter_bytes
-        self.rom.arm9 = bytes(arm9_data)
-
-
-class EvolutionData(NarcExtractor):
-    
-    def __init__(self, context):
-        mons = context.get(Mons)
-        
-        EvolutionEntry = Struct(
-            "method" / Int16ul,
-            "parameter" / Int16ul, 
-            "target_species" / Int16ul,
-            "target" / Computed(lambda ctx: mons.data[ctx.target_species] if ctx.target_species > 0 and ctx.target_species < len(mons.data) else None)
-        )
-        
-        self.evolution_struct = Struct(
-            "evolutions" / Array(9, EvolutionEntry),
-            "species_id" / Computed(lambda ctx: ctx._.narc_index),
-            "species" / Computed(lambda ctx: mons.data[ctx._.narc_index] if ctx._.narc_index < len(mons.data) else None),
-            "valid_evolutions" / Computed(lambda ctx: [evo for evo in ctx.evolutions if evo.method != 0])
-        )
-        
-        super().__init__(context)
-        self.data = self.load_narc()
-    
-    def get_evolution_paths(self, species_id):
-        def walk_evolution_tree(current_species_id, current_path):
-            current_pokemon = self.data[current_species_id]
-            current_path = current_path + [current_pokemon.species]
-            
-            if not current_pokemon.valid_evolutions:
-                return [current_path]
-            
-            all_paths = []
-            for evolution in current_pokemon.valid_evolutions:
-                if evolution.target and evolution.target.pokemon_id not in [p.pokemon_id for p in current_path]:
-                    paths = walk_evolution_tree(evolution.target.pokemon_id, current_path)
-                    all_paths.extend(paths)
-            
-            if not all_paths:
-                return [current_path]
-            
-            return all_paths
-        
-        return walk_evolution_tree(species_id, [])
-    
-    def get_narc_path(self):
-        return "a/0/3/4"
-    
-    def parse_file(self, file_data, index):
-        return self.evolution_struct.parse(file_data, narc_index=index)
-    
-    def serialize_file(self, data, index):
-        return self.evolution_struct.build(data, narc_index=index)
-
-
-class EvioliteUser(Extractor):
-    """Identifies Pokemon that are better with Eviolite than evolved.
-    
-    An Eviolite User is a Pokemon that:
-    1. Can evolve once (including second stage of 3-stage lines)
-    2. Has an Eviolite BST (with def/spdef multiplied by 1.5) > 500
-    
-    For beginners:
-    - Eviolite is an item that boosts Defense and Special Defense by 50% for Pokemon that can still evolve
-    - Some Pokemon are actually stronger with Eviolite than their evolved forms
-    - BST = Base Stat Total (sum of all 6 base stats)
-    
-    This class provides:
-    - Lists of Pokemon that can benefit from Eviolite
-    - Special MonData objects with modified stats for randomization integration
-    - Helper methods to check if a Pokemon is an Eviolite user
-    """
-    
-    # Eviolite item ID - used when assigning the item to Eviolite users
-    EVIOLITE_ITEM_ID = 113
-    
-    def __init__(self, context):
-        super().__init__(context)
-        self.pokemon_names_step = context.get(LoadPokemonNamesStep)
-        self.mons = context.get(Mons)
-        self.evolution_data = context.get(EvolutionData)
-        
-        # Find all Pokemon that can evolve once
-        self.candidates = self._find_evolution_candidates()
-        
-        # Calculate Eviolite stats and identify users
-        self.eviolite_users = self._identify_eviolite_users()
-        
-        # Create lookup sets for easy checking
-        self.by_id = {pokemon.pokemon_id for pokemon in self.eviolite_users}
-        self.by_name = {pokemon.name.lower(): pokemon for pokemon in self.eviolite_users}
-        
-        # Create modified MonData objects for randomization integration
-        self.eviolite_mondata = self._create_eviolite_mondata_objects()
-        
-        # Map from eviolite mondata objects to original pokemon objects
-        self.eviolite_map = {eviolite_mon: original_mon 
-                           for eviolite_mon, original_mon in 
-                           zip(self.eviolite_mondata, self.eviolite_users)}
-    
-    def _find_evolution_candidates(self):
-        """Find all Pokemon that can evolve exactly once.
-        
-        This includes:
-        - Base forms of 2-stage evolution lines (e.g., Charmander)
-        - Middle forms of 3-stage evolution lines (e.g., Charmeleon)
-        """
-        candidates = []
-        
-        for pokemon_data in self.evolution_data.data:
-            # Skip if no evolutions
-            if not pokemon_data.valid_evolutions:
-                continue
-            
-            # Get the Pokemon species
-            pokemon = pokemon_data.species
-            if not pokemon:
-                continue
-            
-            # Check if this Pokemon can evolve exactly once
-            # (has evolutions but none of its evolutions can evolve further)
-            can_evolve_once = False
-            
-            for evolution in pokemon_data.valid_evolutions:
-                if evolution.target:
-                    # Check if the evolution target can also evolve
-                    target_data = self.evolution_data.data[evolution.target.pokemon_id]
-                    
-                    # If target has no further evolutions, this is a candidate
-                    if not target_data.valid_evolutions:
-                        can_evolve_once = True
-                        break
-                    
-                    # If target has evolutions, this is a middle stage (also a candidate)
-                    # Example: Charmeleon can evolve to Charizard (which can't evolve further)
-                    if target_data.valid_evolutions:
-                        can_evolve_once = True
-                        break
-            
-            if can_evolve_once:
-                candidates.append(pokemon)
-        
-        return candidates
-    
-    def _calculate_eviolite_stats(self, pokemon):
-        """Calculate a Pokemon's stats with Eviolite boost.
-        
-        Eviolite multiplies Defense and Special Defense by 1.5.
-        
-        Returns:
-            dict: Individual stats with Eviolite adjustments
-            int: Eviolite BST (sum of adjusted stats)
-        """
-        # Get base stats
-        hp = pokemon.hp
-        attack = pokemon.attack
-        defense = pokemon.defense
-        sp_attack = pokemon.sp_attack
-        sp_defense = pokemon.sp_defense
-        speed = pokemon.speed
-        
-        # Apply Eviolite boost to Defense and Special Defense
-        eviolite_defense = int(defense * 1.5)
-        eviolite_sp_defense = int(sp_defense * 1.5)
-        
-        # Calculate adjusted stats
-        eviolite_stats = {
-            'hp': hp,
-            'attack': attack,
-            'defense': eviolite_defense,
-            'sp_attack': sp_attack,
-            'sp_defense': eviolite_sp_defense,
-            'speed': speed
-        }
-        
-        # Calculate Eviolite BST
-        eviolite_bst = sum(eviolite_stats.values())
-        
-        return eviolite_stats, eviolite_bst
-    
-    def _identify_eviolite_users(self):
-        """Identify Pokemon with Eviolite BST > 500."""
-        eviolite_users = []
-        
-        for pokemon in self.candidates:
-            eviolite_stats, eviolite_bst = self._calculate_eviolite_stats(pokemon)
-            
-            # Store analysis data on the Pokemon object for printing
-            pokemon._eviolite_analysis = {
-                'original_bst': pokemon.bst,
-                'eviolite_stats': eviolite_stats,
-                'eviolite_bst': eviolite_bst
-            }
-            
-            # Check if Eviolite BST > 500
-            if eviolite_bst > 500:
-                eviolite_users.append(pokemon)
-        
-        return eviolite_users
-    
-    def _create_eviolite_mondata_objects(self):
-        """Create copies of MonData objects with adjusted Eviolite stats.
-        
-        These objects can be used in randomization alongside normal Pokemon.
-        When assigned to trainers, the randomizer can check if a Pokemon is an
-        Eviolite user by reference equality.
-        
-        Returns:
-            list: List of MonData-like objects with Eviolite-adjusted stats
-        """
-        eviolite_mondata = []
-        
-        for pokemon in self.eviolite_users:
-            # Create a copy of the original Pokemon object
-            # We use a simple object() to avoid potential reference issues
-            eviolite_mon = type('EvioliteMonData', (object,), {})()
-            
-            # Copy all attributes from original Pokemon
-            for attr_name in dir(pokemon):
-                if not attr_name.startswith('_') and not callable(getattr(pokemon, attr_name)):
-                    setattr(eviolite_mon, attr_name, getattr(pokemon, attr_name))
-            
-            # Apply Eviolite stats
-            eviolite_stats = pokemon._eviolite_analysis['eviolite_stats']
-            eviolite_bst = pokemon._eviolite_analysis['eviolite_bst']
-            
-            # Update stats with Eviolite values
-            eviolite_mon.defense = eviolite_stats['defense']
-            eviolite_mon.sp_defense = eviolite_stats['sp_defense']
-            eviolite_mon.bst = eviolite_bst
-            
-            # Mark this as an Eviolite MonData object
-            eviolite_mon.is_eviolite_user = True
-            eviolite_mon.original_pokemon_id = pokemon.pokemon_id
-            
-            # Modify the name to indicate it's an Eviolite user
-            eviolite_mon.name = f"{pokemon.name} (Eviolite)"
-            
-            eviolite_mondata.append(eviolite_mon)
-        
-        return eviolite_mondata
-    
-    def is_eviolite_mondata(self, pokemon):
-        """Check if a Pokemon is one of our special Eviolite MonData objects.
-        
-        Args:
-            pokemon: A Pokemon object to check
-            
-        Returns:
-            bool: True if this is an Eviolite MonData object, False otherwise
-        """
-        return pokemon in self.eviolite_mondata
 
 
 class AssignEvioliteItemsStep(Step):
@@ -1246,10 +576,27 @@ class RandomizeEncountersStep(Step):
         self.mondata = context.get(Mons)
         self.encounters = context.get(Encounters)
         self.blacklist = context.get(LoadBlacklistStep)
+        self.forms = context.get(FormMapper)
         self.context = context
+        
+        # Build expanded candidate pool including Discrete forms
+        self.candidates = self._build_form_aware_candidates()
         
         for i, encounter in enumerate(self.encounters.data):
             self._randomize_encounter(encounter, i)
+    
+    def _build_form_aware_candidates(self):
+        """Build candidate pool including base Pokemon and Discrete forms."""
+        
+        candidates = list(self.mondata.data)  # Start with base Pokemon
+        
+        # Add all Discrete forms to the candidate pool
+        discrete_forms = self.forms.get_forms_by_category(FormCategory.DISCRETE)
+        for form_id, base_name, form_name in discrete_forms:
+            if form_id in self.mondata.data:
+                candidates.append(self.mondata.data[form_id])
+        
+        return candidates
     
     def _randomize_encounter(self, encounter, location_id):
         self._randomize_slot_list(encounter.morning, location_id)
@@ -1276,16 +623,48 @@ class RandomizeEncountersStep(Step):
                 else:
                     path = ["encounters", mon.name]
                 
+                # Use expanded candidate pool that includes Discrete forms
                 new_species = self.context.decide(
                     path=path,
                     original=mon,
-                    candidates=list(self.mondata.data),
+                    candidates=self.candidates,
                     filter=self.filter
                 )
                 
-                self.replacements[replacement_key] = new_species.pokemon_id
+                # After selecting a Pokemon, check for cosmetic forms and randomly select one
+                final_species_id = self._select_cosmetic_variant(new_species.pokemon_id, path + ["cosmetic_form"])
+                self.replacements[replacement_key] = final_species_id
             
             slot_list[i] = self.replacements[replacement_key]
+    
+    def _select_cosmetic_variant(self, base_species_id, decision_path):
+        """Select a random cosmetic variant (including base form) for the given Pokemon."""
+        
+        # Get base species (in case we selected a form)
+        actual_base = self.forms.get_base_species(base_species_id)
+        
+        # Find all cosmetic forms for this base species
+        cosmetic_variants = [actual_base]  # Always include base form
+        
+        all_forms = self.forms.get_all_forms(actual_base)
+        for form_id in all_forms:
+            form_category = self.forms.get_form_category(form_id)
+            if form_category == FormCategory.COSMETIC:
+                cosmetic_variants.append(form_id)
+        
+        # If only base form available, return the selected species
+        if len(cosmetic_variants) == 1:
+            return base_species_id
+        
+        # Randomly select from available cosmetic variants (including base)
+        selected_variant = self.context.decide(
+            path=decision_path,
+            original=self.mondata.data[actual_base],
+            candidates=[self.mondata.data[vid] for vid in cosmetic_variants if vid < len(self.mondata.data)],
+            filter=NoFilter()  # Accept all cosmetic variants
+        )
+        
+        return selected_variant.pokemon_id
 
 
 class IndexTrainers(Extractor):
@@ -2317,7 +1696,6 @@ class IdentifyTier(Extractor):
             highest_level = self._get_highest_level(trainer)
             tier = self._determine_tier(highest_level)
             self.data[trainer.info.trainer_id] = tier
-            print(f"{trainer.info.name}: {tier}{highest_level}")
     
     
     def _find_lowest_ace_level(self, trainers, index, trainer_name):
@@ -2438,15 +1816,20 @@ class RandomizeGymTypesStep(Step):
 
 class RandomizeGymsStep(Step):
     def __init__(self, filter):
-        self.filter = filter
+        # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
+        form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
+        self.filter = AllFilters([filter, form_filter])
     
     def run(self, context):
         gyms = context.get(IdentifyGymTrainers)
         mondata = context.get(Mons)
+        self.forms = context.get(FormMapper)
+        self.context = context
         
         for gym_name, gym in gyms.data.items():
             if gym.type is not None:
                 self._randomize_gym_teams(context, gym, mondata)
+    
     
     def _randomize_gym_teams(self, context, gym, mondata):
         filter = AllFilters([self.filter, TypeMatches([int(gym.type)])])
@@ -2454,27 +1837,97 @@ class RandomizeGymsStep(Step):
             self._randomize_trainer_team(context, trainer, mondata, filter)
 
     def _randomize_trainer_team(self, context, trainer, mondata, filter):
+        """Randomize a trainer's team using the provided filter."""
         for i, pokemon in enumerate(trainer.team):
             new_species = context.decide(
-                path=["gymtrainer", trainer.info.name, "team", i, "species"],
+                path=["gym", trainer.info.name, "team", i, "species"],
                 original=mondata.data[pokemon.species_id],
                 candidates=list(mondata.data),
                 filter=filter
             )
-            pokemon.species_id = new_species.pokemon_id
+            
+            # After selecting a Pokemon, check for cosmetic forms and randomly select one
+            final_species_id = self._select_cosmetic_variant(
+                new_species.pokemon_id, 
+                ["gymtrainer", trainer.info.name, "team", i, "cosmetic_form"]
+            )
+            pokemon.species_id = final_species_id
+    
+    def _select_cosmetic_variant(self, base_species_id, decision_path):
+        """Select a random cosmetic variant (including base form) for the given Pokemon."""
+        
+        # Get base species (in case we selected a form)
+        actual_base = self.forms.get_base_species(base_species_id)
+        
+        # Find all cosmetic forms for this base species
+        cosmetic_variants = [actual_base]  # Always include base form
+        
+        all_forms = self.forms.get_all_forms(actual_base)
+        for form_id in all_forms:
+            form_category = self.forms.get_form_category(form_id)
+            if form_category == FormCategory.COSMETIC:
+                cosmetic_variants.append(form_id)
+        
+        # If only base form available, return the selected species
+        if len(cosmetic_variants) == 1:
+            return base_species_id
+        
+        # Get mondata for available variants
+        mondata = self.context.get(Mons)
+        available_candidates = [mondata.data[vid] for vid in cosmetic_variants if vid in mondata.data]
+        
+        if len(available_candidates) <= 1:
+            return base_species_id
+        
+        # Randomly select from available cosmetic variants (including base)
+        selected_variant = self.context.decide(
+            path=decision_path,
+            original=mondata.data[actual_base],
+            candidates=available_candidates,
+            filter=NoFilter()  # Accept all cosmetic variants
+        )
+        
+        return selected_variant.pokemon_id
+
+
+class FormCategoryFilter(SimpleFilter):
+    """Filter that only allows forms from specified categories."""
+    
+    def __init__(self, allowed_categories: List):
+        """
+        Args:
+            allowed_categories: List of FormCategory enum values to allow
+        """
+        self.allowed_categories = set(allowed_categories)
+    
+    def check(self, context, original, candidate) -> bool:
+        """Allow base Pokemon and forms from allowed categories."""
+        form_mapper = context.get(FormMapper)
+        
+        # Always allow base Pokemon (non-forms)
+        if not form_mapper.is_form(candidate.pokemon_id):
+            return True
+        
+        # For forms, check if their category is allowed
+        form_category = form_mapper.get_form_category(candidate.pokemon_id)
+        return form_category in self.allowed_categories
 
 
 class RandomizeOrdinaryTrainersStep(Step):
     """Randomize all ordinary trainers (no gym leaders, rivals, E4, possibly Rocket Leaders if I ever get around to it)."""
     
     def __init__(self, filter):
-        self.filter = filter
+        # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
+        form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
+        self.filter = AllFilters([filter, form_filter])
     
     def run(self, context):
         trainers = context.get(Trainers)
         gyms = context.get(IdentifyGymTrainers)
         rivals = context.get(IdentifyRivals)
         mondata = context.get(Mons)
+        self.forms = context.get(FormMapper)
+        self.context = context
         
         # Get Eviolite users for integration
         try:
@@ -2504,7 +1957,7 @@ class RandomizeOrdinaryTrainersStep(Step):
     def _randomize_trainer_team(self, context, trainer, mondata, eviolite_users, filter):
         """Randomize a trainer's team using the provided filter."""
         for i, pokemon in enumerate(trainer.team):
-            # Create combined candidate list from regular Pokemon and Eviolite users
+            # Create candidate list from all mondata (filter will handle form categories)
             candidates = list(mondata.data)
             
             # Add Eviolite variants if available and trainer uses items
@@ -2519,12 +1972,52 @@ class RandomizeOrdinaryTrainersStep(Step):
                 filter=filter
             )
             
-            # Assign the species ID
-            pokemon.species_id = new_species.pokemon_id
+            # After selecting a Pokemon, check for cosmetic forms and randomly select one
+            final_species_id = self._select_cosmetic_variant(
+                new_species.pokemon_id, 
+                ["trainer", trainer.info.name, "team", i, "cosmetic_form"]
+            )
+            pokemon.species_id = final_species_id
             
             # If this is an Eviolite user, give it the Eviolite item
             if eviolite_users and hasattr(pokemon, 'item') and new_species in eviolite_users.eviolite_mondata:
                 pokemon.item = EvioliteUser.EVIOLITE_ITEM_ID
+    
+    def _select_cosmetic_variant(self, base_species_id, decision_path):
+        """Select a random cosmetic variant (including base form) for the given Pokemon."""
+        
+        # Get base species (in case we selected a form)
+        actual_base = self.forms.get_base_species(base_species_id)
+        
+        # Find all cosmetic forms for this base species
+        cosmetic_variants = [actual_base]  # Always include base form
+        
+        all_forms = self.forms.get_all_forms(actual_base)
+        for form_id in all_forms:
+            form_category = self.forms.get_form_category(form_id)
+            if form_category == FormCategory.COSMETIC:
+                cosmetic_variants.append(form_id)
+        
+        # If only base form available, return the selected species
+        if len(cosmetic_variants) == 1:
+            return base_species_id
+        
+        # Get mondata for available variants
+        mondata = self.context.get(Mons)
+        available_candidates = [mondata.data[vid] for vid in cosmetic_variants if vid in mondata.data]
+        
+        if len(available_candidates) <= 1:
+            return base_species_id
+        
+        # Randomly select from available cosmetic variants (including base)
+        selected_variant = self.context.decide(
+            path=decision_path,
+            original=mondata.data[actual_base],
+            candidates=available_candidates,
+            filter=NoFilter()  # Accept all cosmetic variants
+        )
+        
+        return selected_variant.pokemon_id
 
 
 class ConsistentRivalStarter(Step):
@@ -2540,7 +2033,7 @@ class ConsistentRivalStarter(Step):
         
         # Rival starter logic: rival gets the starter that's strong against the player's choice
         rival_battle_groups = {
-            0: (rivals.chikorita_group_ids, 2),  #I dont know why this needs to be offset. I've searched and I just don't know.
+            0: (rivals.chikorita_group_ids, 2),  #I dont know why this needs to be offset this way. I've searched and I just don't know.
             1: (rivals.cyndaquil_group_ids, 0),  
             2: (rivals.totodile_group_ids, 1),   
         }

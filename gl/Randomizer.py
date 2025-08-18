@@ -51,7 +51,9 @@ if __name__ == "__main__":
     parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
     parser.add_argument("--randomize-starters", action="store_true", help="Randomize starter Pokémon")
     parser.add_argument("--consistent-rival-starters", action="store_true", help="Update rival teams to use starters consistent with the player's randomized choice")
-    parser.add_argument("--randomize-ordinary-trainers", action="store_true", help="Randomize all ordinary trainers (rivals, Team Rocket, etc.)")
+    parser.add_argument("--no-randomize-ordinary-trainers", action="store_false", 
+                       dest="randomize_ordinary_trainers", default=True,
+                       help="Disable randomization of ordinary trainers (default: enabled)")
     parser.add_argument("--no-enemy-battle-items", action="store_true", help="Remove all battle items from enemy trainers")
     args = parser.parse_args()
 

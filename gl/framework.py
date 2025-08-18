@@ -294,6 +294,46 @@ class RandomizationContext(ObjectRegistry):
 
 
 #########################
+class NameTableReader(Extractor):
+    """Base class for reading name tables from text files."""
+    filename = None  # Must be set by subclasses
+    
+    def __init__(self, context):
+        super().__init__(context)
+        with open(self.filename, "r", encoding="utf-8") as f:
+            names_list = [line.strip() for line in f.readlines()]
+
+        self.id_to_name = {}
+        self.name_to_ids = {}
+
+        for i, name in enumerate(names_list):
+            self.id_to_name[i] = name
+            if name not in self.name_to_ids:
+                self.name_to_ids[name] = []
+            self.name_to_ids[name].append(i)
+
+    def get_by_id(self, i):
+        return self.id_to_name[i]
+
+    def get_by_name(self, n):
+        ns = self.get_all_by_name(n)
+        if len(ns) > 1:
+            print(f"!!! Use of duplicate name: {repr(n)} => {repr(ns)}")
+        return ns[0]
+
+    def get_all_by_name(self, n):
+        return self.name_to_ids[n]
+
+
+class LoadPokemonNamesStep(NameTableReader):
+    filename = "build/rawtext/237.txt"
+
+        
+class LoadMoveNamesStep(NameTableReader):
+    filename = "build/rawtext/750.txt"
+
+class LoadAbilityNames(NameTableReader):
+    filename = "data/text/720.txt"
 
 
     
