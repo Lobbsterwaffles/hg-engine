@@ -1861,18 +1861,6 @@ class FormCategoryFilter(SimpleFilter):
         return form_category in self.allowed_categories
 
 
-class EvioliteFilter(SimpleFilter):
-    """Filter that only allows Eviolite users when appropriate."""
-    
-    def check(self, context, original, candidate) -> bool:
-        """Allow Eviolite users only if they have the is_eviolite_user attribute."""
-        # Allow all non-Eviolite Pokemon
-        if not hasattr(candidate, 'is_eviolite_user'):
-            return True
-        
-        # For Eviolite users, only allow them if they're marked as such
-        return getattr(candidate, 'is_eviolite_user', False)
-
 
 class RandomizeOrdinaryTrainersStep(Step):
     """Randomize all ordinary trainers (no gym leaders, rivals, E4, possibly Rocket Leaders if I ever get around to it)."""
@@ -1880,9 +1868,7 @@ class RandomizeOrdinaryTrainersStep(Step):
     def __init__(self, filter):
         # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
         form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
-        # Add Eviolite filter to allow Eviolite users in the candidate pool
-        eviolite_filter = EvioliteFilter()
-        self.filter = AllFilters([filter, form_filter, eviolite_filter])
+        self.filter = AllFilters([filter, form_filter])
     
     def run(self, context):
         trainers = context.get(Trainers)
@@ -1924,7 +1910,6 @@ class RandomizeOrdinaryTrainersStep(Step):
             candidates = list(mondata.data)
             
             # Add Eviolite variants if available and trainer uses items
-            # The EvioliteFilter will handle filtering these appropriately
             if eviolite_users and TrainerDataType.ITEMS in trainer.info.trainermontype:
                 candidates.extend(eviolite_users.eviolite_mondata)
             
