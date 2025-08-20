@@ -1202,7 +1202,7 @@ mondata SPECIES_MANKEY, "Mankey"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_VITAL_SPIRIT, ABILITY_ANGER_POINT
+    abilities ABILITY_INSOMNIA, ABILITY_ANGER_POINT
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_MANKEY, "It is extremely ill-tempered.\nGroups of them will attack any\nhandy target for no reason."
@@ -1223,7 +1223,7 @@ mondata SPECIES_PRIMEAPE, "Primeape"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_VITAL_SPIRIT, ABILITY_ANGER_POINT
+    abilities ABILITY_INSOMNIA, ABILITY_ANGER_POINT
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_PRIMEAPE, "If approached while asleep,\nit may awaken and angrily give chase\nin a groggy state of semi-sleep."
@@ -2315,7 +2315,7 @@ mondata SPECIES_KOFFING, "Koffing"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_AMORPHOUS, EGG_GROUP_AMORPHOUS
-    abilities ABILITY_LEVITATE, ABILITY_NEUTRALIZING_GAS
+    abilities ABILITY_LEVITATE, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
     mondexentry SPECIES_KOFFING, "Its thin, filmy body is filled\nwith gases that cause constant\nsniffles, coughs and teary eyes."
@@ -2336,7 +2336,7 @@ mondata SPECIES_WEEZING, "Weezing"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_AMORPHOUS, EGG_GROUP_AMORPHOUS
-    abilities ABILITY_LEVITATE, ABILITY_NEUTRALIZING_GAS
+    abilities ABILITY_LEVITATE, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
     mondexentry SPECIES_WEEZING, "If one of the twin KOFFING inflates,\nthe other one deflates. It constantly\nmixes its poisonous gases."
@@ -2966,7 +2966,7 @@ mondata SPECIES_KABUTO, "Kabuto"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_WATER_1, EGG_GROUP_WATER_3
-    abilities ABILITY_SWIFT_SWIM, ABILITY_BATTLE_ARMOR
+    abilities ABILITY_SWIFT_SWIM, ABILITY_SHELL_ARMOR
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_KABUTO, "On rare occasions, some have been\nfound as fossils which they became\nwhile hiding on the ocean floor."
@@ -2987,7 +2987,7 @@ mondata SPECIES_KABUTOPS, "Kabutops"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_WATER_1, EGG_GROUP_WATER_3
-    abilities ABILITY_SWIFT_SWIM, ABILITY_BATTLE_ARMOR
+    abilities ABILITY_SWIFT_SWIM, ABILITY_SHELL_ARMOR
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_KABUTOPS, "In the water, it tucks in its limbs\nto become more compact, then it\nwiggles its shell to swim fast."
@@ -4751,7 +4751,7 @@ mondata SPECIES_DELIBIRD, "Delibird"
     basefriendship 50
     growthrate GROWTH_FAST
     egggroups EGG_GROUP_WATER_1, EGG_GROUP_FIELD
-    abilities ABILITY_VITAL_SPIRIT, ABILITY_HUSTLE
+    abilities ABILITY_INSOMNIA, ABILITY_HUSTLE
     runchance 0
     colorflip BODY_COLOR_RED, 0
     mondexentry SPECIES_DELIBIRD, "It carries food all day long.\nThere are tales about lost people\nwho were saved by its stored food."
@@ -6074,7 +6074,7 @@ mondata SPECIES_VIGOROTH, "Vigoroth"
     basefriendship 70
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_VITAL_SPIRIT, ABILITY_NONE
+    abilities ABILITY_INSOMNIA, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
     mondexentry SPECIES_VIGOROTH, "Its stress level rises if it\ncannot keep moving constantly.\nToo much stress makes it feel sick."
@@ -6473,7 +6473,7 @@ mondata SPECIES_MEDITITE, "Meditite"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_HUMAN_LIKE, EGG_GROUP_HUMAN_LIKE
-    abilities ABILITY_PURE_POWER, ABILITY_NONE
+    abilities ABILITY_HUGE_POWER, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 0
     mondexentry SPECIES_MEDITITE, "It meditates to heighten its inner\nenergy and to float in the air.\nIt eats one berry a day."
@@ -6494,7 +6494,7 @@ mondata SPECIES_MEDICHAM, "Medicham"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_HUMAN_LIKE, EGG_GROUP_HUMAN_LIKE
-    abilities ABILITY_PURE_POWER, ABILITY_NONE
+    abilities ABILITY_HUGE_POWER, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_RED, 0
     mondexentry SPECIES_MEDICHAM, "Through yoga training, it gained\nthe psychic power to predict\nits foe’s next move."
@@ -6809,7 +6809,7 @@ mondata SPECIES_CAMERUPT, "Camerupt"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_MAGMA_ARMOR, ABILITY_SOLID_ROCK
+    abilities ABILITY_MAGMA_ARMOR, ABILITY_FILTER
     runchance 0
     colorflip BODY_COLOR_RED, 0
     mondexentry SPECIES_CAMERUPT, "It lives in the crater of a volcano.\nIt is well known that the humps on\nits back erupt every 10 years."
@@ -6830,7 +6830,7 @@ mondata SPECIES_TORKOAL, "Torkoal"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_WHITE_SMOKE, ABILITY_DROUGHT
+    abilities ABILITY_CLEAR_BODY, ABILITY_DROUGHT
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_TORKOAL, "You find abandoned coal mines full\nof them. They dig tirelessly in\nsearch of coal."
@@ -7313,7 +7313,7 @@ mondata SPECIES_ANORITH, "Anorith"
     basefriendship 50
     growthrate GROWTH_ERRATIC
     egggroups EGG_GROUP_WATER_3, EGG_GROUP_WATER_3
-    abilities ABILITY_BATTLE_ARMOR, ABILITY_NONE
+    abilities ABILITY_SHELL_ARMOR, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_ANORITH, "An ancestral Pokémon that lived in\nthe ocean. Over time, its eight feet\ntransformed into wings."
@@ -7334,7 +7334,7 @@ mondata SPECIES_ARMALDO, "Armaldo"
     basefriendship 50
     growthrate GROWTH_ERRATIC
     egggroups EGG_GROUP_WATER_3, EGG_GROUP_WATER_3
-    abilities ABILITY_BATTLE_ARMOR, ABILITY_NONE
+    abilities ABILITY_SHELL_ARMOR, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_ARMALDO, "Its enormous, retractable claws\ncan cut through most anything. Its\nentire body is clad in sturdy plates."
@@ -9497,7 +9497,7 @@ mondata SPECIES_SKORUPI, "Skorupi"
     basefriendship 50
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_BUG, EGG_GROUP_WATER_3
-    abilities ABILITY_BATTLE_ARMOR, ABILITY_SNIPER
+    abilities ABILITY_SHELL_ARMOR, ABILITY_SNIPER
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
     mondexentry SPECIES_SKORUPI, "It burrows under the sand to lie in\nwait for prey. Its tail claws can inject\nits prey with a savage poison."
@@ -9518,7 +9518,7 @@ mondata SPECIES_DRAPION, "Drapion"
     basefriendship 50
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_BUG, EGG_GROUP_WATER_3
-    abilities ABILITY_BATTLE_ARMOR, ABILITY_SNIPER
+    abilities ABILITY_SHELL_ARMOR, ABILITY_SNIPER
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
     mondexentry SPECIES_DRAPION, "It attacks people and Pokémon that\ncross the desert. This has only\nfurthered its bad reputation."
@@ -9770,7 +9770,7 @@ mondata SPECIES_RHYPERIOR, "Rhyperior"
     basefriendship 50
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_MONSTER, EGG_GROUP_FIELD
-    abilities ABILITY_LIGHTNING_ROD, ABILITY_SOLID_ROCK
+    abilities ABILITY_LIGHTNING_ROD, ABILITY_FILTER
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_RHYPERIOR, "From holes in its palms, it fires out\nGEODUDE. Its carapace \ncan withstand volcanic eruptions."
@@ -11702,7 +11702,7 @@ mondata SPECIES_LILLIPUP, "Lillipup"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_VITAL_SPIRIT, ABILITY_PICKUP
+    abilities ABILITY_INSOMNIA, ABILITY_PICKUP
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_LILLIPUP, "Though it is a very brave Pokémon,\nit's also smart enough to check\nits foe's strength and avoid battle."
@@ -12920,7 +12920,7 @@ mondata SPECIES_TIRTOUGA, "Tirtouga"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_WATER_1, EGG_GROUP_WATER_3
-    abilities ABILITY_SOLID_ROCK, ABILITY_STURDY
+    abilities ABILITY_FILTER, ABILITY_STURDY
     runchance 0
     colorflip BODY_COLOR_BLUE, 0
     mondexentry SPECIES_TIRTOUGA, "This Pokémon was restored from a fossil.\nIt swam skillfully and dove\nto depths beyond half a mile."
@@ -12941,7 +12941,7 @@ mondata SPECIES_CARRACOSTA, "Carracosta"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_WATER_1, EGG_GROUP_WATER_3
-    abilities ABILITY_SOLID_ROCK, ABILITY_STURDY
+    abilities ABILITY_FILTER, ABILITY_STURDY
     runchance 0
     colorflip BODY_COLOR_BLUE, 0
     mondexentry SPECIES_CARRACOSTA, "It could knock out a foe with a slap from\none of its developed front appendages\nand chew it up, shell or bones and all."
@@ -13613,7 +13613,7 @@ mondata SPECIES_FERROSEED, "Ferroseed"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_GRASS, EGG_GROUP_MINERAL
-    abilities ABILITY_IRON_BARBS, ABILITY_NONE
+    abilities ABILITY_ROUGH_SKIN, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_FERROSEED, "It absorbs the iron it finds in\nthe rock while clinging to the ceiling.\nIt shoots spikes when in danger."
@@ -13634,7 +13634,7 @@ mondata SPECIES_FERROTHORN, "Ferrothorn"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_GRASS, EGG_GROUP_MINERAL
-    abilities ABILITY_IRON_BARBS, ABILITY_NONE
+    abilities ABILITY_ROUGH_SKIN, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_FERROTHORN, "By swinging around its three\nspiky feelers and shooting spikes,\nit can obliterate an opponent."
@@ -14579,7 +14579,7 @@ mondata SPECIES_RESHIRAM, "Reshiram"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_TURBOBLAZE, ABILITY_NONE
+    abilities ABILITY_MOLD_BREAKER, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
     mondexentry SPECIES_RESHIRAM, "This legendary Pokémon can scorch\nthe world with fire. It helps those\nwho want to build a world of truth."
@@ -16490,7 +16490,7 @@ mondata SPECIES_YUNGOOS, "Yungoos"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_STAKEOUT, ABILITY_STRONG_JAW
+    abilities ABILITY_STRONG_JAW, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_YUNGOOS, "It prefers to eat fresh living things\nso it marches down streets in search of\nprey."
@@ -16511,7 +16511,7 @@ mondata SPECIES_GUMSHOOS, "Gumshoos"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_STAKEOUT, ABILITY_STRONG_JAW
+    abilities ABILITY_STRONG_JAW, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_GUMSHOOS, "Patient by nature, it loses control of\nitself and pounces when it spots its\nfavorite meal-Rattata!"
@@ -16700,7 +16700,7 @@ mondata SPECIES_ROCKRUFF, "Rockruff"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_KEEN_EYE, ABILITY_VITAL_SPIRIT
+    abilities ABILITY_KEEN_EYE, ABILITY_INSOMNIA
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_ROCKRUFF, "When it rubs the rocks on its neck\nagainst you, that’s proof of its love\nfor you."
@@ -17099,7 +17099,7 @@ mondata SPECIES_TSAREENA, "Tsareena"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_GRASS, EGG_GROUP_GRASS
-    abilities ABILITY_LEAF_GUARD, ABILITY_QUEENLY_MAJESTY
+    abilities ABILITY_LEAF_GUARD, ABILITY_DAZZLING
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
     mondexentry SPECIES_TSAREENA, "A master of grand and beautiful kicks,\nit can knock out even kickboxing\nchampions with a single blow."
@@ -17288,7 +17288,7 @@ mondata SPECIES_TYPE_NULL, "Type: Null"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_BATTLE_ARMOR, ABILITY_NONE
+    abilities ABILITY_SHELL_ARMOR, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_TYPE_NULL, "There’s danger of its going on a\nrampage, so its true power is sealed\naway beneath its control mask."
@@ -17393,7 +17393,7 @@ mondata SPECIES_TOGEDEMARU, "Togedemaru"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FAIRY
-    abilities ABILITY_IRON_BARBS, ABILITY_LIGHTNING_ROD
+    abilities ABILITY_ROUGH_SKIN, ABILITY_LIGHTNING_ROD
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_TOGEDEMARU, "When it’s surprised or agitated, the 14\nfur spikes on its back will stand up\ninvoluntarily."
@@ -17687,7 +17687,7 @@ mondata SPECIES_SOLGALEO, "Solgaleo"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_FULL_METAL_BODY, ABILITY_NONE
+    abilities ABILITY_CLEAR_BODY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
     mondexentry SPECIES_SOLGALEO, "In writings from the distant past, it’s\ncalled by the name ’the beast that\ndevours the sun.’."
@@ -17708,7 +17708,7 @@ mondata SPECIES_LUNALA, "Lunala"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_SHADOW_SHIELD, ABILITY_NONE
+    abilities ABILITY_MULTISCALE, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
     mondexentry SPECIES_LUNALA, "It sometimes summons unknown powers and\nlife-forms to this world from holes\nthat lead to other worlds."
@@ -17876,7 +17876,7 @@ mondata SPECIES_NECROZMA, "Necrozma"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_PRISM_ARMOR, ABILITY_NONE
+    abilities ABILITY_FILTER, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLACK, 0
     mondexentry SPECIES_NECROZMA, "Light is the source of its energy. If\nit isn’t devouring light, impurities\nbuild up in it."
@@ -18443,7 +18443,7 @@ mondata SPECIES_NICKIT, "Nickit"
     basefriendship 50
     growthrate GROWTH_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_RUN_AWAY, ABILITY_UNBURDEN
+    abilities ABILITY_RUN_AWAY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_NICKIT, "Aided by the soft pads on its feet, it\nsilently raids the food stores of others.\nIt survives off its ill-gotten gains."
@@ -18464,7 +18464,7 @@ mondata SPECIES_THIEVUL, "Thievul"
     basefriendship 50
     growthrate GROWTH_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_RUN_AWAY, ABILITY_UNBURDEN
+    abilities ABILITY_RUN_AWAY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_THIEVUL, "With a lithe body and sharp claws, it\ngoes around stealing food and eggs.\nIt secretly marks its future targets."
@@ -18653,7 +18653,7 @@ mondata SPECIES_ROLYCOLY, "Rolycoly"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_MINERAL
-    abilities ABILITY_STEAM_ENGINE, ABILITY_HEATPROOF
+    abilities ABILITY_HEATPROOF, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLACK, 0
     mondexentry SPECIES_ROLYCOLY, "It can race around like a unicycle,\neven on rough, rocky terrain. Burning\ncoal sustains it."
@@ -18674,7 +18674,7 @@ mondata SPECIES_CARKOL, "Carkol"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_MINERAL
-    abilities ABILITY_STEAM_ENGINE, ABILITY_FLAME_BODY
+    abilities ABILITY_FLAME_BODY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLACK, 0
     mondexentry SPECIES_CARKOL, "By rapidly rolling its legs, it can\neasily travel at over 18 mph. It\nforms coal inside its body."
@@ -18695,7 +18695,7 @@ mondata SPECIES_COALOSSAL, "Coalossal"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_MINERAL
-    abilities ABILITY_STEAM_ENGINE, ABILITY_FLAME_BODY
+    abilities ABILITY_FLAME_BODY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLACK, 0
     mondexentry SPECIES_COALOSSAL, "While engaged in battle, its mountain\nof coal will burn bright red, scorching\nthe surrounding area with sparks."
@@ -18716,7 +18716,7 @@ mondata SPECIES_APPLIN, "Applin"
     basefriendship 50
     growthrate GROWTH_ERRATIC
     egggroups EGG_GROUP_GRASS, EGG_GROUP_DRAGON
-    abilities ABILITY_RIPEN, ABILITY_GLUTTONY
+    abilities ABILITY_GLUTTONY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_APPLIN, "As soon as it’s born, it burrows into\nan apple. the flavor of the apple is\nwhat determines its evolution."
@@ -18737,7 +18737,7 @@ mondata SPECIES_FLAPPLE, "Flapple"
     basefriendship 50
     growthrate GROWTH_ERRATIC
     egggroups EGG_GROUP_GRASS, EGG_GROUP_DRAGON
-    abilities ABILITY_RIPEN, ABILITY_GLUTTONY
+    abilities ABILITY_GLUTTONY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_FLAPPLE, "It ate a sour apple, which induced its\nevolution. It stores an acid capable of\ncausing chemical burns in its cheeks."
@@ -18758,7 +18758,7 @@ mondata SPECIES_APPLETUN, "Appletun"
     basefriendship 50
     growthrate GROWTH_ERRATIC
     egggroups EGG_GROUP_GRASS, EGG_GROUP_DRAGON
-    abilities ABILITY_RIPEN, ABILITY_GLUTTONY
+    abilities ABILITY_GLUTTONY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_APPLETUN, "It ate a sweet apple, which induced\nits evolution. Back in the day, children\nused to have it as a snack."
@@ -18779,7 +18779,7 @@ mondata SPECIES_SILICOBRA, "Silicobra"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_DRAGON
-    abilities ABILITY_SAND_SPIT, ABILITY_SHED_SKIN
+    abilities ABILITY_SAND_STREAM, ABILITY_SHED_SKIN
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_SILICOBRA, "It spews sand from its nostrils. While\nthe enemy is blinded, it burrows into\nthe ground to hide."
@@ -18800,7 +18800,7 @@ mondata SPECIES_SANDACONDA, "Sandaconda"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_DRAGON
-    abilities ABILITY_SAND_SPIT, ABILITY_SHED_SKIN
+    abilities ABILITY_SAND_STREAM, ABILITY_SHED_SKIN
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_SANDACONDA, "When it contracts its body, over 220\npounds of sand sprays from its nose.\nIt becomes disheartened if it runs out."
@@ -18926,7 +18926,7 @@ mondata SPECIES_SIZZLIPEDE, "Sizzlipede"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_BUG, EGG_GROUP_BUG
-    abilities ABILITY_FLASH_FIRE, ABILITY_WHITE_SMOKE
+    abilities ABILITY_FLASH_FIRE, ABILITY_CLEAR_BODY
     runchance 0
     colorflip BODY_COLOR_RED, 0
     mondexentry SPECIES_SIZZLIPEDE, "It stores flammable gas in its body\nand uses it to generate heat. It then\ncoils around its prey and cooks it."
@@ -18947,7 +18947,7 @@ mondata SPECIES_CENTISKORCH, "Centskorch"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_BUG, EGG_GROUP_BUG
-    abilities ABILITY_FLASH_FIRE, ABILITY_WHITE_SMOKE
+    abilities ABILITY_FLASH_FIRE, ABILITY_CLEAR_BODY
     runchance 0
     colorflip BODY_COLOR_RED, 0
     mondexentry SPECIES_CENTISKORCH, "This excessively hostile Pokémon has\nlarge and very sharp fangs in addition\nto its dangerous burning body. "
@@ -19199,7 +19199,7 @@ mondata SPECIES_PERRSERKER, "Perrserker"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_BATTLE_ARMOR, ABILITY_TOUGH_CLAWS
+    abilities ABILITY_SHELL_ARMOR, ABILITY_TOUGH_CLAWS
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_PERRSERKER, "What appears to be an iron helmet is\nactually hardened hair. This Pokémon\nlives for the thrill of battle."
@@ -19262,7 +19262,7 @@ mondata SPECIES_MR_RIME, "Mr. Rime"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_HUMAN_LIKE, EGG_GROUP_HUMAN_LIKE
-    abilities ABILITY_TANGLED_FEET, ABILITY_SCREEN_CLEANER
+    abilities ABILITY_TANGLED_FEET, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
     mondexentry SPECIES_MR_RIME, "Its amusing movements make it very\npopular. It releases its psychic power\nfrom the pattern on its belly."
@@ -19346,7 +19346,7 @@ mondata SPECIES_FALINKS, "Falinks"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FAIRY, EGG_GROUP_MINERAL
-    abilities ABILITY_BATTLE_ARMOR, ABILITY_NONE
+    abilities ABILITY_SHELL_ARMOR, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_YELLOW, 0
     mondexentry SPECIES_FALINKS, "The six of them work together as one.\nTeamwork is also their battle strategy, and\nthey constantly change their formation."
@@ -19640,7 +19640,7 @@ mondata SPECIES_DURALUDON, "Duraludon"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_DRAGON
-    abilities ABILITY_LIGHT_METAL, ABILITY_HEAVY_METAL
+    abilities ABILITY_LIGHT_METAL, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
     mondexentry SPECIES_DURALUDON, "Its body resembles polished metal,\nand it’s both lightweight and strong.\nHowever, its body rusts easily."
@@ -20606,7 +20606,7 @@ mondata SPECIES_ARBOLIVA, "Arboliva"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_GRASS, EGG_GROUP_GRASS
-    abilities ABILITY_SEED_SOWER, ABILITY_NONE
+    abilities ABILITY_GRASSY_SURGE, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_ARBOLIVA, "This calm Pokémon is very compassionate.\nIt will share its delicious, nutrient-rich\noil with weakened Pokémon."
@@ -20858,7 +20858,7 @@ mondata SPECIES_MASCHIFF, "Maschiff"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_INTIMIDATE, ABILITY_RUN_AWAY
+    abilities ABILITY_INTIMIDATE, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_MASCHIFF, "Its well-developed jaw and fangs are strong\nenough to crunch through boulders, and its\nthick fat makes for an excellent defense."
@@ -20879,7 +20879,7 @@ mondata SPECIES_MABOSSTIFF, "Mabosstiff"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_INTIMIDATE, ABILITY_GUARD_DOG
+    abilities ABILITY_INTIMIDATE, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_MABOSSTIFF, "This Pokémon can store energy in its\nlarge dewlap. Mabosstiff unleashes this\nenergy all at once to blow away enemies."
@@ -21026,7 +21026,7 @@ mondata SPECIES_KLAWF, "Klawf"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_WATER_3, EGG_GROUP_WATER_3
-    abilities ABILITY_ANGER_SHELL, ABILITY_SHELL_ARMOR
+    abilities ABILITY_SHELL_ARMOR, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_RED, 0
     mondexentry SPECIES_KLAWF, "This Pokémon lives on sheer cliffs.\nIt sidesteps opponents' attacks, then\nlunges for their weak spots with its claws."
@@ -21152,7 +21152,7 @@ mondata SPECIES_ESPATHRA, "Espathra"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_FLYING, EGG_GROUP_FLYING
-    abilities ABILITY_OPPORTUNIST, ABILITY_FRISK
+    abilities ABILITY_FRISK, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_YELLOW, 0
     mondexentry SPECIES_ESPATHRA, "It emits psychic power from the gaps\nbetween its multicolored frills and\nsprints at speeds greater than 120 mph."
@@ -21425,7 +21425,7 @@ mondata SPECIES_GLIMMET, "Glimmet"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_MINERAL
-    abilities ABILITY_TOXIC_DEBRIS, ABILITY_NONE
+    abilities ABILITY_CORROSION, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 0
     mondexentry SPECIES_GLIMMET, "It absorbs nutrients from cave walls.\nThe petals it wears are made of\ncrystallized poison."
@@ -21446,7 +21446,7 @@ mondata SPECIES_GLIMMORA, "Glimmora"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_MINERAL
-    abilities ABILITY_TOXIC_DEBRIS, ABILITY_NONE
+    abilities ABILITY_CORROSION, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 0
     mondexentry SPECIES_GLIMMORA, "When this Pokémon detects danger,\nit will open up its crystalline petals\nand fire beams from its conical body."
@@ -21509,7 +21509,7 @@ mondata SPECIES_FLAMIGO, "Flamigo"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_FLYING, EGG_GROUP_FLYING
-    abilities ABILITY_SCRAPPY, ABILITY_TANGLED_FEET
+    abilities ABILITY_SCRAPPY, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PINK, 0
     mondexentry SPECIES_FLAMIGO, "This Pokémon apparently ties the base of its\nneck into a knot so that the energy stored\nin its belly does not escape from its beak."
@@ -21614,7 +21614,7 @@ mondata SPECIES_TATSUGIRI, "Tatsugiri"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_WATER_2, EGG_GROUP_WATER_2
-    abilities ABILITY_COMMANDER, ABILITY_NONE
+    abilities ABILITY_STORM_DRAIN, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PINK, 0
     mondexentry SPECIES_TATSUGIRI, "This is a small dragon Pokémon.\nIt lives inside the mouth of Dondozo to\nprotect itself from enemies on the outside."
@@ -21635,7 +21635,7 @@ mondata SPECIES_ANNIHILAPE, "Annihilape"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_VITAL_SPIRIT, ABILITY_INNER_FOCUS
+    abilities ABILITY_INSOMNIA, ABILITY_INNER_FOCUS
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
     mondexentry SPECIES_ANNIHILAPE, "When its anger rose beyond a critical\npoint, this Pokémon gained power that is\nunfettered by the limits of its physical body."
@@ -21677,7 +21677,7 @@ mondata SPECIES_FARIGIRAF, "Farigiraf"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_CUD_CHEW, ABILITY_ARMOR_TAIL
+    abilities ABILITY_DAZZLING, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
     mondexentry SPECIES_FARIGIRAF, "The hardened head from the tail protects\nthe head of the main body as Farigiraf whips\nits long neck around to headbutt enemies."
@@ -21719,7 +21719,7 @@ mondata SPECIES_KINGAMBIT, "Kingambit"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_HUMAN_LIKE, EGG_GROUP_HUMAN_LIKE
-    abilities ABILITY_DEFIANT, ABILITY_SUPREME_OVERLORD
+    abilities ABILITY_DEFIANT, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLACK, 0
     mondexentry SPECIES_KINGAMBIT, "Only a Bisharp that stands above all\nothers in its vast army can evolve\ninto Kingambit."
@@ -22328,7 +22328,7 @@ mondata SPECIES_POLTCHAGEIST, "Polchgeist"
     basefriendship 0
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_AMORPHOUS
-    abilities ABILITY_HOSPITALITY, ABILITY_NONE
+    abilities ABILITY_HEATPROOF, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_POLTCHAGEIST, "Poltchageist looks like a regional form of\nSinistea, but it was recently discovered\nthat the two Pokémon are entirely unrelated."
@@ -22349,7 +22349,7 @@ mondata SPECIES_SINISTCHA, "Sinistcha"
     basefriendship 0
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_AMORPHOUS
-    abilities ABILITY_HOSPITALITY, ABILITY_NONE
+    abilities ABILITY_HEATPROOF, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GREEN, 0
     mondexentry SPECIES_SINISTCHA, "It pretends to be tea, trying to fool people\ninto drinking it so it can drain their life-\nforce. Its ruse is generally unsuccessful."
@@ -22454,7 +22454,7 @@ mondata SPECIES_ARCHALUDON, "Archaludon"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_MINERAL, EGG_GROUP_DRAGON
-    abilities ABILITY_STAMINA, ABILITY_STURDY
+    abilities ABILITY_STAMINA, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
     mondexentry SPECIES_ARCHALUDON, "It digs holes on mountains, searching\nfor food. It’s so durable that being\ncaught in a cave-in won’t faze it."
@@ -23070,7 +23070,7 @@ mondata SPECIES_MEGA_MEDICHAM, "-----"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_HUMAN_LIKE, EGG_GROUP_HUMAN_LIKE
-    abilities ABILITY_PURE_POWER, ABILITY_NONE
+    abilities ABILITY_HUGE_POWER, ABILITY_NONE
     runchance 0
     colorflip 0, 0
 
@@ -23118,7 +23118,7 @@ mondata SPECIES_MEGA_CAMERUPT, "-----"
     basefriendship 50
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_MAGMA_ARMOR, ABILITY_SOLID_ROCK //ABILITY_SHEER_FORCE, ABILITY_SHEER_FORCE
+    abilities ABILITY_MAGMA_ARMOR, ABILITY_FILTER //ABILITY_SHEER_FORCE, ABILITY_SHEER_FORCE
     runchance 0
     colorflip 0, 0
 
@@ -23534,7 +23534,7 @@ mondata SPECIES_DIGLETT_ALOLAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_SAND_VEIL,  ABILITY_TANGLING_HAIR
+    abilities ABILITY_SAND_VEIL,  ABILITY_GOOEY
     runchance 0
     colorflip BODY_COLOR_BROWN, 0
 
@@ -23550,7 +23550,7 @@ mondata SPECIES_DUGTRIO_ALOLAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_SAND_VEIL,  ABILITY_TANGLING_HAIR
+    abilities ABILITY_SAND_VEIL,  ABILITY_GOOEY
     runchance 0
     colorflip BODY_COLOR_BROWN, 1
 
@@ -23918,7 +23918,7 @@ mondata SPECIES_PONYTA_GALARIAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_RUN_AWAY,  ABILITY_PASTEL_VEIL
+    abilities ABILITY_RUN_AWAY,  ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
 
@@ -23934,7 +23934,7 @@ mondata SPECIES_RAPIDASH_GALARIAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_RUN_AWAY,  ABILITY_PASTEL_VEIL
+    abilities ABILITY_RUN_AWAY,  ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
 
@@ -23966,7 +23966,7 @@ mondata SPECIES_SLOWBRO_GALARIAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_MONSTER, EGG_GROUP_WATER_1
-    abilities ABILITY_QUICK_DRAW,  ABILITY_OWN_TEMPO
+    abilities ABILITY_OWN_TEMPO,  ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PINK, 0
 
@@ -23998,7 +23998,7 @@ mondata SPECIES_WEEZING_GALARIAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_AMORPHOUS, EGG_GROUP_AMORPHOUS
-    abilities ABILITY_LEVITATE,  ABILITY_NEUTRALIZING_GAS
+    abilities ABILITY_LEVITATE,  ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 0
 
@@ -24014,7 +24014,7 @@ mondata SPECIES_MR_MIME_GALARIAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_HUMAN_LIKE, EGG_GROUP_HUMAN_LIKE
-    abilities ABILITY_VITAL_SPIRIT,  ABILITY_SCREEN_CLEANER
+    abilities ABILITY_INSOMNIA,  ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_WHITE, 0
 
@@ -24078,7 +24078,7 @@ mondata SPECIES_SLOWKING_GALARIAN, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_MONSTER, EGG_GROUP_WATER_1
-    abilities ABILITY_CURIOUS_MEDICINE,  ABILITY_OWN_TEMPO
+    abilities ABILITY_OWN_TEMPO,  ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PINK, 0
 
@@ -24766,7 +24766,7 @@ mondata SPECIES_KYUREM_WHITE, "-----"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_TURBOBLAZE, ABILITY_NONE
+    abilities ABILITY_MOLD_BREAKER, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_GRAY, 1
 
@@ -24882,7 +24882,7 @@ mondata SPECIES_GENESECT_CHILL_DRIVE, "-----"
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
 
-mondata SPECIES_GRENINJA_BATTLE_BOND, "-----"
+mondata SPECIES_GRENINJA_SHELL_BOND, "-----"
     basestats 72, 95, 67, 122, 103, 71
     types TYPE_WATER, TYPE_DARK
     catchrate 45
@@ -24894,7 +24894,7 @@ mondata SPECIES_GRENINJA_BATTLE_BOND, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_BATTLE_BOND, ABILITY_NONE
+    abilities ABILITY_SHELL_BOND, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 1
 
@@ -24910,7 +24910,7 @@ mondata SPECIES_GRENINJA_ASH, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_BATTLE_BOND, ABILITY_NONE
+    abilities ABILITY_SHELL_BOND, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 1
 
@@ -25870,7 +25870,7 @@ mondata SPECIES_LYCANROC_MIDNIGHT, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_FAST
     egggroups EGG_GROUP_FIELD, EGG_GROUP_FIELD
-    abilities ABILITY_KEEN_EYE,  ABILITY_VITAL_SPIRIT
+    abilities ABILITY_KEEN_EYE,  ABILITY_INSOMNIA
     runchance 0
     colorflip BODY_COLOR_RED, 0
 
@@ -26142,7 +26142,7 @@ mondata SPECIES_NECROZMA_DUSK_MANE, "-----"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_PRISM_ARMOR, ABILITY_NONE
+    abilities ABILITY_FILTER, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_YELLOW, 1
 
@@ -26158,7 +26158,7 @@ mondata SPECIES_NECROZMA_DAWN_WINGS, "-----"
     basefriendship 0
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_PRISM_ARMOR, ABILITY_NONE
+    abilities ABILITY_FILTER, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 1
 
@@ -27150,7 +27150,7 @@ mondata SPECIES_TATSUGIRI_DROOPY, "-----"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_WATER_2, EGG_GROUP_WATER_2
-    abilities ABILITY_COMMANDER, ABILITY_NONE
+    abilities ABILITY_STORM_DRAIN, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PINK, 0
 
@@ -27166,7 +27166,7 @@ mondata SPECIES_TATSUGIRI_STRETCHY, "-----"
     basefriendship 50
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_WATER_2, EGG_GROUP_WATER_2
-    abilities ABILITY_COMMANDER, ABILITY_NONE
+    abilities ABILITY_STORM_DRAIN, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_PINK, 0
 

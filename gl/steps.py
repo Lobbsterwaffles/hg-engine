@@ -115,7 +115,7 @@ class TrainerMult(Step):
 
 
 class PokemonListBase(Extractor):
-    """Base class for categorized Pokémon lists."""
+    """Base class for categorized Pokémon lists with form support."""
     
     # This should be overridden by subclasses
     pokemon_names = []
@@ -124,11 +124,38 @@ class PokemonListBase(Extractor):
         super().__init__(context)
         pokemon_names_step = context.get(LoadPokemonNamesStep)
         tm_hm_names = context.get(TMHM)
+        form_mapper = context.get(FormMapper)
         self.by_id = set()
         
         # Add all Pokémon in the list
-        for name in self.pokemon_names:
-            self.by_id.add(pokemon_names_step.get_by_name(name))
+        for entry in self.pokemon_names:
+            if isinstance(entry, tuple) and len(entry) == 2:
+                # Handle (base_name, form_name) tuples for specific forms
+                base_name, form_name = entry
+                form_id = self._find_form_by_names(base_name, form_name, form_mapper)
+                if form_id is not None:
+                    self.by_id.add(form_id)
+                else:
+                    print(f"Warning: Form '{base_name} {form_name}' not found in form mapping")
+            else:
+                # Handle regular Pokemon names (strings)
+                name = entry
+                try:
+                    self.by_id.add(pokemon_names_step.get_by_name(name))
+                except KeyError:
+                    print(f"Warning: Pokemon '{name}' not found in Pokemon names")
+    
+    def _find_form_by_names(self, base_name, form_name, form_mapper):
+        """Find a form ID by base Pokemon name and form name."""
+        if form_mapper is None:
+            return None
+            
+        # Search through all forms to find matching base_name and form_name
+        for form_id, (mapped_base_name, mapped_form_name, form_category) in form_mapper.ALL_FORMS.items():
+            if mapped_base_name == base_name and mapped_form_name == form_name:
+                return form_id
+        
+        return None
 
 
 class InvalidPokemon(PokemonListBase):
@@ -340,6 +367,12 @@ class LoadBlacklistStep(PokemonListBase):
         "Toedscool",
         "Terapagos",
         "Pecharunt",
+        ("Stunfisk", "GALARIAN"),
+        ("Yamask", "GALARIAN"),
+        ("Urshifu", "RAPID_STRIKE"),
+        "Urshifu",
+        "Kubfu",
+        
         
         # Paradox Pokemon (unimplemented Protosynthesis, Quark Drive, etc.) 
          "Great Tusk",
