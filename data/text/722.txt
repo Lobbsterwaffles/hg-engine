@@ -2,7 +2,6 @@
 The stench helps keep\nwild Pokémon away.
 The Pokémon makes it rain\nif it appears in battle.
 Its Speed stat is\ngradually boosted.
-The Pokémon is protected\nagainst critical hits.
 It is protected against\n1-hit KO attacks.
 Prevents combatants\nfrom self-destructing.
 The Pokémon is protected\nfrom paralysis.
@@ -70,9 +69,6 @@ Powers up Bug-type\nmoves in a pinch.
 Protects the Pokémon\nfrom recoil damage.
 The Pokémon makes it\nsunny if it is in battle.
 Prevents the foe from\nfleeing.
-Prevents the Pokémon\nfrom falling asleep.
-Prevents its stats from\nbeing lowered.
-Boosts the power of\nphysical attacks.
 The Pokémon is protected\nagainst critical hits.
 Eliminates the effects of\nweather.
 Raises evasion if the\nPokémon is confused.
@@ -109,7 +105,6 @@ Senses the foe’s\ndangerous moves.
 Determines what moves\nthe foe has.
 Ignores any change in\nability by the foe.
 Powers up “not very\neffective” moves.
-Reduces damage from\nsupereffective attacks.
 Temporarily halves\nAttack and Speed.
 Enables moves to hit\nGhost-type foes.
 The Pokémon draws in all\nWater-type moves.
@@ -158,17 +153,13 @@ Reflects\nstatus-changing moves.
 Boosts Attack when\nhit by a Grass-type move.
 Gives priority to\na status move.
 Boosts certain moves’\npower in a sandstorm.
-Inflicts damage to\nthe Pokémon on contact.
 Changes the Pokémon’s\nshape when HP is halved.
 Boosts the accuracy of\nits allies and itself.
-Moves can be used\nregardless of Abilities.
-Moves can be used\nregardless of Abilities.
 Protects against attacks\nthat limit move choices.
 Protects Grass-type allies\nfrom stat/status effects.
 Restores HP as well when\nthe Pokémon eats a Berry.
 It changes type to that\nof the move it’s about to use.
 Halves the damage from\nphysical moves.
-Steals the held item of\na Pokémon it hits.
 Protects the Pokémon from\nsome ball and bomb moves.
 Sharply boosts Sp. Atk\nwhen a stat is lowered.
 Boosts the power of\nbiting moves.
@@ -191,12 +182,8 @@ Changes the weather\nto nullify Fire-type moves.
 Changes the weather\nto nullify Water-type moves.
 Alters weather to\nremove Flying-type’s weaknesses.
 Boosts Defense when\nhit by an attack.
-Wimpily switches out if its\nHP becomes half or less.
-Switches out if its HP\nbecomes half or less.
 Sharply ups Defense when\nhit by a Water-type move.
 Its attacks are critical hits\nwhen it is poisoned.
-Its shell breaks if its\nHP becomes half or less.
-Deals doubles damage to\na target’s replacement.
 Weakens incoming Fire-type\nmoves and prevents burns.
 Powers up\nSteel-type moves.
 Ups Sp. Atk if a hit\nmakes its HP half or less.
@@ -212,54 +199,29 @@ Defeating a foe\nlets it become Ash-Greninja.
 Changes with other Cells\nif HP becomes half or less.
 It can poison Steel- and\nPoison-type targets.
 It’s always drowsing, and\nattacks without waking.
-Makes foes unable to\nuse priority attacks.
 Damages an attacker that\nlands the finishing hit.
-Repeats another Pokémon’s\ndance move immediately.
 Powers up ally\nPokémon’s special moves.
 Resists contact damage\nbut weaker to Fire-type.
 Makes foes unable to\nuse priority attacks.
 Boosts Sp. Atk each\ntime a Pokémon faints.
-Contact with it lowers\nthe attacker’s Speed.
-Copies the Ability of\na defeated ally.
 Copies the Ability of\na defeated ally.
 Boosts its best stat\neach time it deals a KO.
-Its type matches\nthe memory disc it holds.
 Turns the ground\ninto Electric Terrain.
 Turns the ground\ninto Psychic Terrain.
 Turns the ground\ninto Misty Terrain.
 Turns the ground\ninto Grassy Terrain.
 Prevents other Pokémon\nfrom lowering its stats.
-Resists damage while\nits HP is full.
 Reduces damage from\nsuper-effective attacks.
 Powers up moves that\nare super-effective.
 Boosts Attack when\nentering a battle.
 Boosts Defense when\nentering a battle.
-It changes type to that\nof the move it’s about to use.
 Retrieves the first thrown\nPoké Ball if it failed.
-Scatters Speed-lowering\ncotton fluff when hit.
-This Pokémon’s\nmoves cannot be redirected.
-Bounces back\nstat-lowering effects.
-Catches prey via Surf or Dive\nand spits it out when hit.
-This Pokémon’s moves\ncannot be redirected.
-Boosts Speed drastically\nif hit by a Fire or Water move.
 Powers up own sound moves.\nResists other sound moves.
-Creates a sandstorm\nwhen hit by an attack.
 Halves the damage\ntaken from special moves.
-Ripens Berries and\ndoubles their effect.
 Blocks a physical hit, but\nthe ice head breaks.
 Just being next to the\nPokémon powers up moves.
-Changes type depending\non the terrain.
-On entering battle, clears\neffects of Reflect, etc.
 Powers up ally Pokémon’s\nSteel-type moves.
-Both Pokémon faint 3 turns\nafter taking a contact hit.
-Swaps Abilities with\ncontact-making Pokémon.
 Boosts Attack, but allows\nonly one move to be used.
-Nullifies the effects of\nall other Abilities.
-Protects the Pokémon and\nits allies from poisoning.
-Changes between Full Belly\nand Hangry Mode each turn.
-Enables the Pokémon to\nmove first occasionally.
-The Pokémon’s contact\nmoves ignore protections.
-Removes all allies’ stat\nchanges on joining battle.
 Powers up\nElectric-type moves.
 Powers up\nDragon-type moves.
 When knocking out a\ntarget, raises Attack.
@@ -267,45 +229,90 @@ When knocking out a\ntarget, raises Sp. Atk.
 Combines Unnerve\nand Chilling Neigh.
 Combines Unnerve\nand Grim Neigh.
 Contact with this Pokémon\nspreads this Ability.
-Turns the ground into\nGrassy Terrain if attacked.
 Ups Attack if hit\nby Fire moves. Prevents burns.
-Ups stats if a hit\nmakes its HP half or less.
 Prevents status problems.\nWeakens Ghost moves.
 Raises Defense if hit\nby a Fire-type move.
 Raises Attack if hit\nby a wind-based move.
-Ups Attack if intimidated.\nStops forced switching.
 Powers up\nRock-type moves.
 Becomes charged if hit\nby a wind-based move.
-Becomes Hero Form upon\nswitching out.
-Enters the mouth of\nan ally Dondozo.
 Becomes charged when\nhit by an attack.
-Boosts its best stat\nin harsh sunlight.
-Boosts its best stat\nin Electric Terrain.
-This Pokémon is immune\nto all status moves.
 Lowers the Sp. Atk\nstat of other Pokémon.
 Lowers the Defense\nstat of other Pokémon.
 Lowers the Attack\nstat of other Pokémon.
 Lowers the Sp. Def\nstat of other Pokémon.
+Powers up\nslicing moves.
+Restores HP if hit by a\nGround-type move.
+Ignores accuracy changes\nand Ghost type immunities.
+May badly poison targets when\na Pokémon makes contact.
+Lowers evasiveness of\nPokémon upon first entry.
+Resists all damage when\nHP is full.
+This Pokémon’s\nmoves cannot be redirected.
+Its type matches\nthe memory disc it holds.
+Steals the held item of\na Pokémon it hits.
+Wimpily switches out if its\nHP becomes half or less.
+Switches out if its HP\nbecomes half or less.
+Its shell breaks if its\nHP becomes half or less.
+Repeats another Pokémon’s\ndance move immediately.
+Deals doubles damage to\na target’s replacement.
+Scatters Speed-lowering\ncotton fluff when hit.
+Bounces back\nstat-lowering effects.
+Catches prey via Surf or Dive\nand spits it out when hit.
+Boosts Speed drastically\nif hit by a Fire or Water move.
+Creates a sandstorm\nwhen hit by an attack.
+Ripens Berries and\ndoubles their effect.
+Changes type depending\non the terrain.
+On entering battle, clears\neffects of Reflect, etc.
+Both Pokémon faint 3 turns\nafter taking a contact hit.
+Swaps Abilities with\ncontact-making Pokémon.
+Nullifies the effects of\nall other Abilities.
+Protects the Pokémon and\nits allies from poisoning.
+Changes between Full Belly\nand Hangry Mode each turn.
+Enables the Pokémon to\nmove first occasionally.
+Removes all allies’ stat\nchanges on joining battle.
+The Pokémon’s contact\nmoves ignore protections.
+Turns the ground into\nGrassy Terrain if attacked.
+Ups stats if a hit\nmakes its HP half or less.
+Ups Attack if intimidated.\nStops forced switching.
+Becomes Hero Form upon\nswitching out.
+Enters the mouth of\nan ally Dondozo.
+This Pokémon is immune\nto all status moves.
+Boosts its best stat\nin harsh sunlight.
+Boosts its best stat\nin Electric Terrain.
 Makes the weather sunny.\nUps Attack in sun.
 Makes Electric Terrain.\nUps Sp. Atk on Electric Terrain.
 If foe raises a stat,\nboosts the stat itself.
 After eating a Berry,\nit’s eaten again next turn.
-Powers up\nslicing moves.
 Ups Attack and Sp. Atk\nif allies were defeated.
 Copies an ally’s stat\nchanges when sent out.
 Scatters poison spikes\nif hit by physical moves.
-Makes foes unable to\nuse priority attacks.
-Restores HP if hit by a\nGround-type move.
 Status moves go last\nbut ignore abilities.
 Upon entry, restores\nan allies HP.
-Ignores accuracy changes\nand Ghost type immunities.
 The Teal Mask shines,\nboosting the Speed stat.
+Transforms into its Terastal Form\nupon entering battle.
+Reduces effects of weather\nand terrain to zero.
+Pokémon poisoned by Pecharunt\nwill also become confused.
+Makes foes unable to\nuse priority attacks.
+Makes foes unable to\nuse priority attacks.
+The Pokémon is protected\nagainst critical hits.
+Prevents its stats from\nbeing lowered.
+Contact with it lowers\nthe attacker’s Speed.
+It changes type to that\nof the move it’s about to use.
+Moves can be used\nregardless of Abilities.
+Moves can be used\nregardless of Abilities.
+Copies the Ability of\na defeated ally.
+Prevents the Pokémon\nfrom falling asleep.
+Resists damage while\nits HP is full.
+Inflicts damage to\nthe Pokémon on contact.
+This Pokémon’s moves\ncannot be redirected.
+Reduces damage from\nsuper-effective attacks.
 The Wellspring Mask shines,\nboosting the Sp. Def stat.
 The Hearthflame Mask shines,\nboosting the Attack stat.
 The Cornerstone Mask shines,\nboosting the Defense stat.
-May badly poison targets when\na Pokémon makes contact.
-Lowers evasiveness of\nPokémon upon first entry.
-Transforms into its Terastal Form\nupon entering battle.
-Resists all damage when\nHP is full.
-Reduces effects of weather\nand terrain to zero.
-Pokémon poisoned by Pecharunt\nwill also become confused.
+Boosts the power of\nphysical attacks.
+
+
+
+
+
+
+

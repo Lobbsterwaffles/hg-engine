@@ -24882,7 +24882,7 @@ mondata SPECIES_GENESECT_CHILL_DRIVE, "-----"
     runchance 0
     colorflip BODY_COLOR_PURPLE, 0
 
-mondata SPECIES_GRENINJA_SHELL_BOND, "-----"
+mondata SPECIES_GRENINJA_BATTLE_BOND, "-----"
     basestats 72, 95, 67, 122, 103, 71
     types TYPE_WATER, TYPE_DARK
     catchrate 45
@@ -24894,7 +24894,7 @@ mondata SPECIES_GRENINJA_SHELL_BOND, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_SHELL_BOND, ABILITY_NONE
+    abilities ABILITY_BATTLE_BOND, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 1
 
@@ -24910,7 +24910,7 @@ mondata SPECIES_GRENINJA_ASH, "-----"
     basefriendship 70
     growthrate GROWTH_MEDIUM_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_SHELL_BOND, ABILITY_NONE
+    abilities ABILITY_BATTLE_BOND, ABILITY_NONE
     runchance 0
     colorflip BODY_COLOR_BLUE, 1
 

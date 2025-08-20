@@ -721,6 +721,7 @@ REQUIRED_DIRECTORIES += $(TRAINER_GFX_DIR)
 
 
 $(MSGDATA_NARC): $(MSGDATA_DEPENDENCIES) $(MSGDATA_COMPILETIME_DEPENDENCIES)
+	set -e
 	$(NARCHIVE) extract $(MSGDATA_TARGET) -o $(MSGDATA_DIR) -nf
 	for file in $^; do $(MSGENC) -e -c $(CHARMAP) $$file $(MSGDATA_DIR)/7_$$(basename $$file .txt); done
 	$(NARCHIVE) create $@ $(MSGDATA_DIR) -nf
