@@ -87,6 +87,7 @@ if __name__ == "__main__":
     starter_filter = AllFilters(legendary_filters)
     trainer_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
 
+    type_mimics = ctx.get(TypeMimics)
     # Do everything
     ctx.run_pipeline([
         TrainerMult(multiplier=args.trainer_level_mult),

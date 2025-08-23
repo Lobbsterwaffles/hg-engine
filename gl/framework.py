@@ -29,6 +29,7 @@ from enums import (
 )
 from pivots import pivots_type_data, HasAbility
 from fulcrums import fulcrums_type_data
+from type_mimics import type_mimics_data
 
 
 class PathHierMap:

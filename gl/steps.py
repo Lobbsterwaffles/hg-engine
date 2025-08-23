@@ -1833,7 +1833,7 @@ class RandomizeGymsStep(Step):
                 ["gymtrainer", trainer.info.name, "team", i, "cosmetic_form"]
             )
             pokemon.species_id = final_species_id
-    
+        
     def _select_cosmetic_variant(self, base_species_id, decision_path):
         """Select a random cosmetic variant (including base form) for the given Pokemon."""
         
@@ -1869,7 +1869,7 @@ class RandomizeGymsStep(Step):
         )
         
         return selected_variant.pokemon_id
-
+    
 
 class FormCategoryFilter(SimpleFilter):
     """Filter that only allows forms from specified categories."""
@@ -2432,6 +2432,41 @@ class Pivots(ReadTypeMapping):
 
 class Fulcrums(ReadTypeMapping):
     type_data = fulcrums_type_data
+
+
+class ReadTypeList(Extractor):
+    """Base class for type mappings that use Pokemon names with validation."""
+    # set in subclass
+    mons_by_type = None
+
+    def __init__(self, context):
+        super().__init__(context)
+        self.monnames = context.get(LoadPokemonNamesStep)
+        self.mons = context.get(Mons)
+        self.data = self.build()
+
+    def build(self):
+        """Build the type mapping with name validation."""
+        data = {}
+        for (ty, mon_names) in self.mons_by_type.items():
+            data[ty] = []
+            for entry in mon_names:
+                if isinstance(entry, tuple):
+                    # Handle form tuples: ("Pokemon", "FORM")
+                    base_name, form_name = entry
+                    pokemon_id = self.monnames.get_by_name(base_name)
+                    # For now, just use base Pokemon - form handling can be added later
+                    data[ty].append(self.mons.data[pokemon_id])
+                else:
+                    # Handle string names
+                    pokemon_id = self.monnames.get_by_name(entry)
+                    data[ty].append(self.mons.data[pokemon_id])
+        return data
+
+
+class TypeMimics(ReadTypeList):
+    from type_mimics import type_mimics_data
+    mons_by_type = type_mimics_data
 
 #add class for champion only
 #add class for rival fights
