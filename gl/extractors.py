@@ -1,6 +1,6 @@
 from framework import *
 from enums import Type, Split
-from form_mapping import FormMapper
+from form_mapping import FormMapping
 
 
 class Moves(NarcExtractor):
@@ -318,7 +318,7 @@ class Mons(NarcExtractor):
     def __init__(self, context):
         pokemon_names_step = context.get(LoadPokemonNamesStep)
         tm_hm_names = context.get(TMHM)
-        form_mapper = context.get(FormMapper)
+        form_mapping = context.get(FormMapping)
         
         self.mondata_struct = Struct(
             "hp" / Int8ul,
@@ -349,9 +349,11 @@ class Mons(NarcExtractor):
             "tm" / Computed(lambda ctx: [None] + ctx.tm_bitmap[:92]),  # tm[1] = TM001, tm[92] = TM092
             "hm" / Computed(lambda ctx: [None] + ctx.tm_bitmap[92:100]),  # hm[1] = HM001, hm[8] = HM008
             "bst" / Computed(lambda ctx: self._get_adjusted_bst(ctx)),
-            "is_form" / Computed(lambda ctx: self._is_form_pokemon(ctx, form_mapper)),
+            "is_form_of" / Computed(lambda ctx: form_mapping.get_base_species(ctx._.narc_index)),
+            "forms" / Computed(lambda ctx: form_mapping.get_all_forms(ctx._.narc_index) if form_mapping.get_base_species(ctx._.narc_index) is None else None),
+            "form_category" / Computed(lambda ctx: form_mapping.get_form_category(ctx._.narc_index)),
             "original_name" / Computed(lambda ctx: pokemon_names_step.get_by_id(ctx._.narc_index)),
-            "name" / Computed(lambda ctx: self._get_display_name(ctx, pokemon_names_step, form_mapper)),
+            "name" / Computed(lambda ctx: form_mapping.get_display_name(ctx._.narc_index, pokemon_names_step)),
             "pokemon_id" / Computed(lambda ctx: ctx._.narc_index)
         )
         
@@ -372,28 +374,6 @@ class Mons(NarcExtractor):
         # Default: return raw BST calculation
         return ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense
     
-    def _is_form_pokemon(self, ctx, form_mapper):
-        """Check if this Pokemon is a form (has '-----' name)."""
-        if form_mapper is None:
-            return False
-        return form_mapper.is_form(ctx._.narc_index)
-    
-    def _get_display_name(self, ctx, pokemon_names_step, form_mapper):
-        """Get the display name for a Pokemon, handling forms properly."""
-        pokemon_id = ctx._.narc_index
-        original_name = pokemon_names_step.get_by_id(pokemon_id)
-        
-        # If this is not a form or we don't have form mapping, return original name
-        if form_mapper is None or not form_mapper.is_form(pokemon_id):
-            return original_name
-        
-        # This is a form with "-----" name, get the proper form name
-        form_info = form_mapper.get_form_info(pokemon_id)
-        base_name = form_info["base_name"]
-        form_name = form_info["form_name"]
-        
-        # Return formatted name like "Rotom-Heat" or "Deoxys-Attack"
-        return f"{base_name}-{form_name}"
     
     def get_narc_path(self):
         return "a/0/0/2"

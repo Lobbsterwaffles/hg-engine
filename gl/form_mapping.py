@@ -72,8 +72,8 @@ def invalid(start_index: int, forms: List[str]) -> Tuple[int, List[Tuple[str, Fo
     return (start_index, [(form, FormCategory.INVALID) for form in forms])
 
 
-class FormMapper(Extractor):
-    """Maps Pokemon form IDs to their base species and form information."""
+class FormMapping(Extractor):
+    """Container for hand-entered form data with fast lookup indexes."""
     
     # All forms in one unified dictionary
     # Format: form_id: ("BaseName", "form_name", FormCategory)
@@ -267,8 +267,15 @@ class FormMapper(Extractor):
         1260: ("Furfrou", "PHARAOH", FormCategory.COSMETIC),
         
         1261: ("Aegislash", "BLADE", FormCategory.BATTLE_ONLY),  # MISC_FORM_START + 86
-        
-        1262: ("Xerneas", "ACTIVE", FormCategory.BATTLE_ONLY),  # MISC_FORM_START + 93
+       
+        1262: ("Pumpkaboo", "SMALL", FormCategory.DISCRETE),
+        1263: ("Pumpkaboo", "LARGE", FormCategory.DISCRETE),
+        1264: ("Pumpkaboo", "SUPER", FormCategory.DISCRETE),
+        1265: ("Gourgeist", "SMALL", FormCategory.DISCRETE),
+        1266: ("Gourgeist", "LARGE", FormCategory.DISCRETE),
+        1267: ("Gourgeist", "SUPER", FormCategory.DISCRETE),
+
+        1268: ("Xerneas", "ACTIVE", FormCategory.BATTLE_ONLY),  # MISC_FORM_START + 93
         
         1269: ("Zygarde", "10", FormCategory.DISCRETE),  # MISC_FORM_START + 94
         1270: ("Zygarde", "10_POWER_CONSTRUCT", FormCategory.DISCRETE),  # MISC_FORM_START + 95
@@ -455,12 +462,6 @@ class FormMapper(Extractor):
         1367: ("Oinkologne", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_OINKOLOGNE_FEMALE
         
         # Pumpkaboo and Gourgeist size forms (moved here to avoid conflicts)
-        1400: ("Pumpkaboo", "SMALL", FormCategory.DISCRETE),
-        1401: ("Pumpkaboo", "LARGE", FormCategory.DISCRETE),
-        1402: ("Pumpkaboo", "SUPER", FormCategory.DISCRETE),
-        1403: ("Gourgeist", "SMALL", FormCategory.DISCRETE),
-        1404: ("Gourgeist", "LARGE", FormCategory.DISCRETE),
-        1405: ("Gourgeist", "SUPER", FormCategory.DISCRETE),
         
         # Invalid forms - forms that exist in species constants but are not properly categorized
         # Large Alolan forms (SPECIES_ALOLAN_REGIONAL_START + 18 to 29)
@@ -510,28 +511,24 @@ class FormMapper(Extractor):
     }
     
     def __init__(self, context):
-        """Initialize the form mapper with Pokemon names from context."""
+        """Initialize the form mapping with processed lookup indexes."""
         super().__init__(context)
         self.pokemon_names_step = context.get(LoadPokemonNamesStep)
-        self._form_to_base_cache = None
-        self._base_to_forms_cache = None
         
-    def _build_form_lookup(self) -> Dict[int, Tuple[int, int]]:
+        # Process static data once in constructor to create fast lookup indexes
+        self.form_to_base_lookup = {}  # form_id -> (base_species_id, form_number)
+        self.base_to_forms_lookup = {}  # base_species_id -> {form_name: form_id}
+        self.form_names_lookup = {}  # form_id -> form_name
+        
+        self._build_lookup_indexes()
+        
+    def _build_lookup_indexes(self):
         """
-        Build the mondata_index -> (base_species_id, form_number) lookup table.
+        Build all lookup indexes from the static form data.
         
-        This method processes all form categories and creates a unified lookup
-        that maps form IDs to their base species and form number.
-        
-        Returns:
-            Dict mapping form_id -> (base_species_id, form_number)
+        This processes the hand-entered form data once in the constructor
+        to create fast lookup structures for runtime use.
         """
-        if self._form_to_base_cache is not None:
-            return self._form_to_base_cache
-            
-        form_lookup = {}
-        
-        # Process all forms from the unified dictionary
         base_species_cache = {}  # Cache for base species lookups
         form_counters = {}  # Track form numbers per base species
         
@@ -553,172 +550,70 @@ class FormMapper(Extractor):
             form_counters[base_species_id] += 1
             form_number = form_counters[base_species_id]
             
-            form_lookup[form_id] = (base_species_id, form_number)
-        
-        self._form_to_base_cache = form_lookup
-        return form_lookup
+            # Build lookup indexes
+            self.form_to_base_lookup[form_id] = (base_species_id, form_number)
+            self.form_names_lookup[form_id] = form_name
+            
+            # Build base to forms lookup
+            if base_species_id not in self.base_to_forms_lookup:
+                self.base_to_forms_lookup[base_species_id] = {}
+            self.base_to_forms_lookup[base_species_id][form_name] = form_id
     
-    def _build_base_to_forms_lookup(self) -> Dict[int, List[int]]:
-        """
-        Build the base_species_id -> [form_ids] lookup table.
-        
-        Returns:
-            Dict mapping base_species_id -> list of form_ids
-        """
-        if self._base_to_forms_cache is not None:
-            return self._base_to_forms_cache
-            
-        form_lookup = self._build_form_lookup()
-        base_to_forms = {}
-        
-        for form_id, (base_species_id, form_number) in form_lookup.items():
-            if base_species_id not in base_to_forms:
-                base_to_forms[base_species_id] = []
-            base_to_forms[base_species_id].append(form_id)
-        
-        # Sort form lists for consistent ordering
-        for form_list in base_to_forms.values():
-            form_list.sort()
-            
-        self._base_to_forms_cache = base_to_forms
-        return base_to_forms
     
-    def is_form(self, pokemon_id: int) -> bool:
-        """
-        Check if a Pokemon ID represents a form (exists in our form mapping).
-        
-        Args:
-            pokemon_id: The Pokemon species ID to check
-            
-        Returns:
-            True if this Pokemon is a form, False otherwise
-        """
-        return pokemon_id in self.ALL_FORMS
     
     def get_base_species(self, pokemon_id: int) -> int:
         """
-        Get the base species ID for any Pokemon (form or base).
-        
-        Args:
-            pokemon_id: The Pokemon species ID (form or base)
-            
-        Returns:
-            The base species ID
-        """
-        form_lookup = self._build_form_lookup()
-        
-        if pokemon_id in form_lookup:
-            return form_lookup[pokemon_id][0]
-        else:
-            # Not a form, return the ID itself
-            return pokemon_id
-    
-    def get_form_number(self, pokemon_id: int) -> int:
-        """
-        Get the form number for a Pokemon.
+        Get the base species ID for forms only.
         
         Args:
             pokemon_id: The Pokemon species ID
             
         Returns:
-            0 for base forms, 1+ for alternate forms
+            Base species ID for forms, None for base Pokemon
         """
-        form_lookup = self._build_form_lookup()
-        
-        if pokemon_id in form_lookup:
-            return form_lookup[pokemon_id][1]
+        if pokemon_id in self.form_to_base_lookup:
+            return self.form_to_base_lookup[pokemon_id][0]
         else:
-            return 0  # Base form
+            return None
     
-    def get_form_name(self, pokemon_id: int) -> str:
+    
+    def get_display_name(self, pokemon_id: int, pokemon_names_step):
         """
-        Get the form name for a Pokemon.
+        Get the display name for a Pokemon, handling forms properly.
         
         Args:
             pokemon_id: The Pokemon species ID
+            pokemon_names_step: LoadPokemonNamesStep instance
             
         Returns:
-            "Base" for base forms, or the specific form name
+            Display name (e.g., "Rotom-Heat" for forms, original name for base)
         """
-        if not self.is_form(pokemon_id):
-            return "Base"
-            
-        if pokemon_id in self.ALL_FORMS:
-            return self.ALL_FORMS[pokemon_id][1]  # form_name
-        else:
-            return f"Form_{self.get_form_number(pokemon_id)}"
+        original_name = pokemon_names_step.get_by_id(pokemon_id)
+        
+        if pokemon_id not in self.form_to_base_lookup:
+            return original_name
+        
+        # This is a form, construct display name
+        base_species_id = self.form_to_base_lookup[pokemon_id][0]
+        base_name = pokemon_names_step.get_by_id(base_species_id)
+        form_name = self.form_names_lookup[pokemon_id]
+        
+        return f"{base_name}-{form_name}"
     
-    def get_form_info(self, pokemon_id: int) -> Dict:
-        """
-        Get complete form information for a Pokemon.
-        
-        Args:
-            pokemon_id: The Pokemon species ID
-            
-        Returns:
-            Dictionary with form information
-        """
-        base_species = self.get_base_species(pokemon_id)
-        form_number = self.get_form_number(pokemon_id)
-        form_name = self.get_form_name(pokemon_id)
-        is_form = self.is_form(pokemon_id)
-        form_category = None
-        
-        if pokemon_id in self.ALL_FORMS:
-            form_category = self.ALL_FORMS[pokemon_id][2]  # FormCategory
-        
-        return {
-            "pokemon_id": pokemon_id,
-            "base_species_id": base_species,
-            "form_number": form_number,
-            "form_name": form_name,
-            "form_category": form_category,
-            "is_form": is_form,
-            "base_name": self.pokemon_names_step.get_by_id(base_species)
-        }
     
-    def get_all_forms(self, base_species_id: int) -> List[int]:
+    def get_all_forms(self, base_species_id: int) -> Dict[str, int]:
         """
-        Get all form IDs for a base species.
+        Get all forms for a base species as a name->id mapping.
         
         Args:
             base_species_id: The base Pokemon species ID
             
         Returns:
-            List of all form IDs for this base species (not including base)
+            Dict mapping form_name -> form_id for this base species
         """
-        base_to_forms = self._build_base_to_forms_lookup()
-        return base_to_forms.get(base_species_id, [])
+        return self.base_to_forms_lookup.get(base_species_id, {})
     
-    def get_all_variants(self, base_species_id: int) -> List[int]:
-        """
-        Get all variants (base + forms) for a base species.
-        
-        Args:
-            base_species_id: The base Pokemon species ID
-            
-        Returns:
-            List of all IDs (base + forms) for this species
-        """
-        variants = [base_species_id]
-        variants.extend(self.get_all_forms(base_species_id))
-        return variants
     
-    def get_forms_by_category(self, category) -> List[Tuple[int, str, str]]:
-        """
-        Get all forms that belong to a specific category.
-        
-        Args:
-            category: FormCategory enum value
-            
-        Returns:
-            List of (pokemon_id, base_name, form_name) tuples
-        """
-        forms = []
-        for pokemon_id, (base_name, form_name, form_category) in self.ALL_FORMS.items():
-            if form_category == category:
-                forms.append((pokemon_id, base_name, form_name))
-        return forms
     
     def get_form_category(self, pokemon_id: int):
         """

@@ -1,7 +1,43 @@
 from framework import *
 from enums import *
-from form_mapping import FormMapper, FormCategory
+from form_mapping import FormMapping, FormCategory
 from extractors import *
+
+def select_cosmetic_variant(context, mondata, base_species_id, decision_path):
+    """Select a random cosmetic variant (including base form) for the given Pokemon."""
+    
+    # Get the Pokemon data
+    selected_pokemon = mondata.data[base_species_id]
+    
+    # Get base species (in case we selected a form)
+    if selected_pokemon.is_form_of is not None:
+        actual_base = selected_pokemon.is_form_of
+        base_pokemon = mondata.data[actual_base]
+    else:
+        actual_base = base_species_id
+        base_pokemon = selected_pokemon
+    
+    # Find all cosmetic forms for this base species
+    cosmetic_variants = [actual_base]  # Always include base form
+    
+    if base_pokemon.forms:
+        for form_name, form_id in base_pokemon.forms.items():
+            form_pokemon = mondata.data[form_id]
+            if form_pokemon.form_category == FormCategory.COSMETIC:
+                cosmetic_variants.append(form_id)
+    
+    # If only base form available, return the selected species
+    if len(cosmetic_variants) == 1:
+        return base_species_id
+    
+    # Randomly select from available cosmetic variants (including base)
+    selected_variant = context.decide(
+        path=decision_path,
+        original=mondata.data[actual_base],
+        candidates=[mondata.data[vid] for vid in cosmetic_variants]
+    )
+    
+    return selected_variant.pokemon_id
 
 class UpdateTrainerTeamDataStep(Step):
     """Updates trainer Pokémon team data to include required fields for MOVES and ITEMS format.
@@ -124,7 +160,7 @@ class PokemonListBase(Extractor):
         super().__init__(context)
         pokemon_names_step = context.get(LoadPokemonNamesStep)
         tm_hm_names = context.get(TMHM)
-        form_mapper = context.get(FormMapper)
+        form_mapping = context.get(FormMapping)
         self.by_id = set()
         
         # Add all Pokémon in the list
@@ -132,7 +168,7 @@ class PokemonListBase(Extractor):
             if isinstance(entry, tuple) and len(entry) == 2:
                 # Handle (base_name, form_name) tuples for specific forms
                 base_name, form_name = entry
-                form_id = self._find_form_by_names(base_name, form_name, form_mapper)
+                form_id = self._find_form_by_names(base_name, form_name, form_mapping)
                 if form_id is not None:
                     self.by_id.add(form_id)
                 else:
@@ -164,20 +200,20 @@ class InvalidPokemon(PokemonListBase):
     def __init__(self, context):
         super().__init__(context)
         pokemon_names_step = context.get(LoadPokemonNamesStep)
-        form_mapper = context.get(FormMapper)
+        mondata = context.get(Mons)
         
         # Get EvioliteUser objects to exclude them from filtering
-        try:
-            from extractors import EvioliteUser
-            eviolite_users = context.get(EvioliteUser)
-            eviolite_user_ids = eviolite_users.by_id
-        except:
-            # EvioliteUser not available, continue without exclusion
-            eviolite_user_ids = set()
+     
+        eviolite_users = context.get(EvioliteUser)
+        eviolite_user_ids = eviolite_users.by_id
         
         # Add dashes that are NOT legitimate forms and NOT EvioliteUser objects
         for fid in pokemon_names_step.get_all_by_name("-----"):
-            if not form_mapper.is_form(fid) and fid not in eviolite_user_ids:
+            # Check if this is a legitimate form using Mons
+            pokemon = mondata.data[fid]
+            is_legitimate_form = pokemon.is_form_of is not None
+            
+            if not is_legitimate_form and fid not in eviolite_user_ids:
                 self.by_id.add(fid)
 
 
@@ -557,7 +593,6 @@ class RandomizeEncountersStep(Step):
         self.mondata = context.get(Mons)
         self.encounters = context.get(Encounters)
         self.blacklist = context.get(LoadBlacklistStep)
-        self.forms = context.get(FormMapper)
         self.context = context
         
         # Build expanded candidate pool including Discrete forms
@@ -569,13 +604,17 @@ class RandomizeEncountersStep(Step):
     def _build_form_aware_candidates(self):
         """Build candidate pool including base Pokemon and Discrete forms."""
         
-        candidates = list(self.mondata.data)  # Start with base Pokemon
+        candidates = []
         
-        # Add all Discrete forms to the candidate pool
-        discrete_forms = self.forms.get_forms_by_category(FormCategory.DISCRETE)
-        for form_id, base_name, form_name in discrete_forms:
-            if form_id in self.mondata.data:
-                candidates.append(self.mondata.data[form_id])
+        # Add all Pokemon (base and forms) that meet our criteria
+        for pokemon in self.mondata.data:
+            # Always include base Pokemon
+            if pokemon.is_form_of is None:
+                candidates.append(pokemon)
+            else:
+                # For forms, only include Discrete and Out-of-Battle forms
+                if pokemon.form_category in [FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE]:
+                    candidates.append(pokemon)
         
         return candidates
     
@@ -613,39 +652,11 @@ class RandomizeEncountersStep(Step):
                 )
                 
                 # After selecting a Pokemon, check for cosmetic forms and randomly select one
-                final_species_id = self._select_cosmetic_variant(new_species.pokemon_id, path + ["cosmetic_form"])
+                final_species_id = select_cosmetic_variant(self.context, self.mondata, new_species.pokemon_id, path + ["cosmetic_form"])
                 self.replacements[replacement_key] = final_species_id
             
             slot_list[i] = self.replacements[replacement_key]
     
-    def _select_cosmetic_variant(self, base_species_id, decision_path):
-        """Select a random cosmetic variant (including base form) for the given Pokemon."""
-        
-        # Get base species (in case we selected a form)
-        actual_base = self.forms.get_base_species(base_species_id)
-        
-        # Find all cosmetic forms for this base species
-        cosmetic_variants = [actual_base]  # Always include base form
-        
-        all_forms = self.forms.get_all_forms(actual_base)
-        for form_id in all_forms:
-            form_category = self.forms.get_form_category(form_id)
-            if form_category == FormCategory.COSMETIC:
-                cosmetic_variants.append(form_id)
-        
-        # If only base form available, return the selected species
-        if len(cosmetic_variants) == 1:
-            return base_species_id
-        
-        # Randomly select from available cosmetic variants (including base)
-        selected_variant = self.context.decide(
-            path=decision_path,
-            original=self.mondata.data[actual_base],
-            candidates=[self.mondata.data[vid] for vid in cosmetic_variants if vid < len(self.mondata.data)],
-            filter=NoFilter()  # Accept all cosmetic variants
-        )
-        
-        return selected_variant.pokemon_id
 
 
 class IndexTrainers(Extractor):
@@ -1804,7 +1815,6 @@ class RandomizeGymsStep(Step):
     def run(self, context):
         gyms = context.get(IdentifyGymTrainers)
         mondata = context.get(Mons)
-        self.forms = context.get(FormMapper)
         self.context = context
         
         for gym_name, gym in gyms.data.items():
@@ -1828,47 +1838,12 @@ class RandomizeGymsStep(Step):
             )
             
             # After selecting a Pokemon, check for cosmetic forms and randomly select one
-            final_species_id = self._select_cosmetic_variant(
-                new_species.pokemon_id, 
+            final_species_id = select_cosmetic_variant(
+                context, mondata, new_species.pokemon_id, 
                 ["gymtrainer", trainer.info.name, "team", i, "cosmetic_form"]
             )
             pokemon.species_id = final_species_id
         
-    def _select_cosmetic_variant(self, base_species_id, decision_path):
-        """Select a random cosmetic variant (including base form) for the given Pokemon."""
-        
-        # Get base species (in case we selected a form)
-        actual_base = self.forms.get_base_species(base_species_id)
-        
-        # Find all cosmetic forms for this base species
-        cosmetic_variants = [actual_base]  # Always include base form
-        
-        all_forms = self.forms.get_all_forms(actual_base)
-        for form_id in all_forms:
-            form_category = self.forms.get_form_category(form_id)
-            if form_category == FormCategory.COSMETIC:
-                cosmetic_variants.append(form_id)
-        
-        # If only base form available, return the selected species
-        if len(cosmetic_variants) == 1:
-            return base_species_id
-        
-        # Get mondata for available variants
-        mondata = self.context.get(Mons)
-        available_candidates = [mondata.data[vid] for vid in cosmetic_variants if vid in mondata.data]
-        
-        if len(available_candidates) <= 1:
-            return base_species_id
-        
-        # Randomly select from available cosmetic variants (including base)
-        selected_variant = self.context.decide(
-            path=decision_path,
-            original=mondata.data[actual_base],
-            candidates=available_candidates,
-            filter=NoFilter()  # Accept all cosmetic variants
-        )
-        
-        return selected_variant.pokemon_id
     
 
 class FormCategoryFilter(SimpleFilter):
@@ -1883,15 +1858,12 @@ class FormCategoryFilter(SimpleFilter):
     
     def check(self, context, original, candidate) -> bool:
         """Allow base Pokemon and forms from allowed categories."""
-        form_mapper = context.get(FormMapper)
-        
         # Always allow base Pokemon (non-forms)
-        if not form_mapper.is_form(candidate.pokemon_id):
+        if candidate.is_form_of is None:
             return True
         
         # For forms, check if their category is allowed
-        form_category = form_mapper.get_form_category(candidate.pokemon_id)
-        return form_category in self.allowed_categories
+        return candidate.form_category in self.allowed_categories
 
 
 
@@ -1908,7 +1880,6 @@ class RandomizeOrdinaryTrainersStep(Step):
         gyms = context.get(IdentifyGymTrainers)
         rivals = context.get(IdentifyRivals)
         mondata = context.get(Mons)
-        self.forms = context.get(FormMapper)
         self.context = context
         
         # Get Eviolite users for integration
@@ -1955,8 +1926,8 @@ class RandomizeOrdinaryTrainersStep(Step):
             )
             
             # After selecting a Pokemon, check for cosmetic forms and randomly select one
-            final_species_id = self._select_cosmetic_variant(
-                new_species.pokemon_id, 
+            final_species_id = select_cosmetic_variant(
+                context, mondata, new_species.pokemon_id, 
                 ["trainer", trainer.info.name, "team", i, "cosmetic_form"]
             )
             pokemon.species_id = final_species_id
@@ -1965,41 +1936,6 @@ class RandomizeOrdinaryTrainersStep(Step):
             if eviolite_users and hasattr(pokemon, 'item') and new_species in eviolite_users.eviolite_mondata:
                 pokemon.item = EvioliteUser.EVIOLITE_ITEM_ID
     
-    def _select_cosmetic_variant(self, base_species_id, decision_path):
-        """Select a random cosmetic variant (including base form) for the given Pokemon."""
-        
-        # Get base species (in case we selected a form)
-        actual_base = self.forms.get_base_species(base_species_id)
-        
-        # Find all cosmetic forms for this base species
-        cosmetic_variants = [actual_base]  # Always include base form
-        
-        all_forms = self.forms.get_all_forms(actual_base)
-        for form_id in all_forms:
-            form_category = self.forms.get_form_category(form_id)
-            if form_category == FormCategory.COSMETIC:
-                cosmetic_variants.append(form_id)
-        
-        # If only base form available, return the selected species
-        if len(cosmetic_variants) == 1:
-            return base_species_id
-        
-        # Get mondata for available variants
-        mondata = self.context.get(Mons)
-        available_candidates = [mondata.data[vid] for vid in cosmetic_variants if vid in mondata.data]
-        
-        if len(available_candidates) <= 1:
-            return base_species_id
-        
-        # Randomly select from available cosmetic variants (including base)
-        selected_variant = self.context.decide(
-            path=decision_path,
-            original=mondata.data[actual_base],
-            candidates=available_candidates,
-            filter=NoFilter()  # Accept all cosmetic variants
-        )
-        
-        return selected_variant.pokemon_id
 
 
 class ConsistentRivalStarter(Step):
