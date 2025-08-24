@@ -104,6 +104,7 @@ if __name__ == "__main__":
         GeneralEVStep(),
         GeneralIVStep(mode="ScalingIVs"),
         SetTrainerMovesStep(),
+        RandomizeAbilitiesStep(mode="randomability_with_hidden"),
         TrainerHeldItem(),
         PrintEvioliteUsersStep()
         

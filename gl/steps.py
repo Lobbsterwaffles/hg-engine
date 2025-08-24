@@ -2,6 +2,7 @@ from framework import *
 from enums import *
 from form_mapping import FormMapping, FormCategory
 from extractors import *
+import random
 
 def select_cosmetic_variant(context, mondata, base_species_id, decision_path):
     """Select a random cosmetic variant (including base form) for the given Pokemon."""
@@ -2436,6 +2437,189 @@ class ReadTypeList(Extractor):
 class TypeMimics(ReadTypeList):
     from type_mimics import type_mimics_data
     mons_by_type = type_mimics_data
+
+class RandomizeAbilitiesStep(Step):
+    """Pipeline step to randomize trainer Pokemon abilities.
+    
+    Supports two modes:
+    - randomability: 50/50 between slots 0 and 1 (if slot 1 exists, otherwise 100% slot 0)
+    - randomability_with_hidden: 45% slot 0, 45% slot 1, 10% slot 3 (with fallbacks)
+    """
+    
+    def __init__(self, mode="randomability", trainer_filter=None):
+        """Initialize the RandomizeAbilities step.
+        
+        Args:
+            mode (str): "randomability" or "randomability_with_hidden"
+            trainer_filter: Optional function to filter which trainers to modify
+        """
+        if mode not in ["randomability", "randomability_with_hidden"]:
+            raise ValueError(f"Invalid mode: {mode}. Must be 'randomability' or 'randomability_with_hidden'")
+        
+        self.mode = mode
+        self.trainer_filter = trainer_filter
+        self.total_pokemon_processed = 0
+        self.total_pokemon_modified = 0
+        self.ability_slot_stats = {0: 0, 1: 0, 3: 0}
+        self.hidden_ability_assignments = []  # Track hidden ability assignments
+    
+    def run(self, context):
+        """Run the ability randomization step."""
+        trainers = context.get(Trainers)
+        mons = context.get(Mons)
+        hidden_abilities = context.get(HiddenAbilityTable)
+        
+        print(f"Starting ability randomization (mode: {self.mode})")
+        
+        for trainer_id, trainer in enumerate(trainers.data):
+            # Apply trainer filter if specified
+            if self.trainer_filter and not self.trainer_filter(trainer):
+                continue
+            
+            for pokemon_index, pokemon in enumerate(trainer.team):
+                self.total_pokemon_processed += 1
+                
+                # Get Pokemon data to check available abilities
+                pokemon_data = mons[pokemon.species_id]
+                
+                # Determine new ability slot based on mode
+                new_slot = self._determine_ability_slot(context, pokemon_data, hidden_abilities)
+                
+                # Track hidden ability assignments
+                if new_slot == 3:
+                    hidden_ability_id = hidden_abilities.get_hidden_ability(pokemon_data.pokemon_id)
+                    self.hidden_ability_assignments.append({
+                        'trainer_id': trainer_id,
+                        'trainer_name': getattr(trainer, 'name', f'Trainer {trainer_id}'),
+                        'pokemon_index': pokemon_index,
+                        'pokemon_name': pokemon_data.name,
+                        'species_id': pokemon.species_id,
+                        'hidden_ability_id': hidden_ability_id
+                    })
+                
+                # Only modify if the slot actually changes
+                if pokemon.abilityslot != new_slot:
+                    pokemon.abilityslot = new_slot
+                    self.total_pokemon_modified += 1
+                
+                self.ability_slot_stats[new_slot] += 1
+        
+        self._print_summary()
+    
+    def _determine_ability_slot(self, context, pokemon_data, hidden_abilities):
+        """Determine which ability slot to use based on the mode and Pokemon's available abilities."""
+        
+        # Check which abilities are available (non-zero ability IDs)
+        has_ability1 = pokemon_data.ability1 != 0
+        has_ability2 = pokemon_data.ability2 != 0
+        # Check if Pokemon has a hidden ability using the HiddenAbilityTable
+        has_hidden = hidden_abilities.has_hidden_ability(pokemon_data.pokemon_id)
+        
+        if self.mode == "randomability":
+            # 50/50 between slots 0 and 1, fallback to slot 0 if no ability2
+            if has_ability2:
+                return random.randint(0, 1)  # 50/50 choice
+            else:
+                return 0  # Only ability1 available
+        
+        elif self.mode == "randomability_with_hidden":
+            # 45% slot 0, 45% slot 1, 10% slot 3 with fallbacks
+            if has_ability2 and has_hidden:
+                # All three slots available: 45/45/10 distribution
+                rand_val = random.random()
+                if rand_val < 0.45:
+                    return 0
+                elif rand_val < 0.90:
+                    return 1
+                else:
+                    return 3
+            elif has_ability2:
+                # No hidden ability: 50/50 between slots 0 and 1
+                return random.randint(0, 1)
+            elif has_hidden:
+                # No ability2: 90% slot 0, 10% slot 3
+                rand_val = random.random()
+                return 0 if rand_val < 0.90 else 3
+            else:
+                # Only ability1 available
+                return 0
+        
+        # Should never reach here due to validation in __init__
+        raise ValueError(f"Invalid mode: {self.mode}")
+    
+    def _print_summary(self):
+        """Print a summary of the ability randomization results."""
+        print(f"\nAbility Randomization Summary:")
+        print(f"  Mode: {self.mode}")
+        print(f"  Total Pokemon processed: {self.total_pokemon_processed}")
+        print(f"  Total Pokemon modified: {self.total_pokemon_modified}")
+        print(f"  Ability slot distribution:")
+        print(f"    Slot 0 (Ability 1): {self.ability_slot_stats[0]} ({self.ability_slot_stats[0]/self.total_pokemon_processed*100:.1f}%)")
+        print(f"    Slot 1 (Ability 2): {self.ability_slot_stats[1]} ({self.ability_slot_stats[1]/self.total_pokemon_processed*100:.1f}%)")
+        if self.mode == "randomability_with_hidden":
+            print(f"    Slot 3 (Hidden): {self.ability_slot_stats[3]} ({self.ability_slot_stats[3]/self.total_pokemon_processed*100:.1f}%)")
+        
+        # Print detailed hidden ability assignments
+        if self.hidden_ability_assignments:
+            print(f"\nHidden Ability Assignments ({len(self.hidden_ability_assignments)} total):")
+            for assignment in self.hidden_ability_assignments:
+                print(f"  Trainer {assignment['trainer_id']} ({assignment['trainer_name']}) - "
+                      f"Pokemon {assignment['pokemon_index'] + 1}: {assignment['pokemon_name']} "
+                      f"(Species {assignment['species_id']}) -> Hidden Ability ID {assignment['hidden_ability_id']}")
+        else:
+            print(f"\nNo hidden abilities were assigned.")
+
+
+class SetAbilityStep(Step):
+    """Pipeline step to set trainer Pokemon to a specific ability slot.
+    
+    Sets all trainer Pokemon to use the specified ability slot (0, 1, or 3).
+    """
+    
+    def __init__(self, ability_slot, trainer_filter=None):
+        """Initialize the SetAbility step.
+        
+        Args:
+            ability_slot (int): The ability slot to use (0, 1, or 3)
+            trainer_filter: Optional function to filter which trainers to modify
+        """
+        if ability_slot not in [0, 1, 3]:
+            raise ValueError(f"Invalid ability_slot: {ability_slot}. Must be 0, 1, or 3")
+        
+        self.ability_slot = ability_slot
+        self.trainer_filter = trainer_filter
+        self.total_pokemon_processed = 0
+        self.total_pokemon_modified = 0
+    
+    def run(self, context):
+        """Run the ability setting step."""
+        trainers = context.get(Trainers)
+        
+        print(f"Setting all trainer Pokemon to ability slot {self.ability_slot}")
+        
+        for trainer_id, trainer in enumerate(trainers.data):
+            # Apply trainer filter if specified
+            if self.trainer_filter and not self.trainer_filter(trainer):
+                continue
+            
+            for pokemon in trainer.team:
+                self.total_pokemon_processed += 1
+                
+                # Only modify if the slot actually changes
+                if pokemon.abilityslot != self.ability_slot:
+                    pokemon.abilityslot = self.ability_slot
+                    self.total_pokemon_modified += 1
+        
+        self._print_summary()
+    
+    def _print_summary(self):
+        """Print summary statistics for the ability setting."""
+        slot_names = {0: "Ability 1", 1: "Ability 2", 3: "Hidden Ability"}
+        print(f"\nSet Ability Summary:")
+        print(f"Target slot: {self.ability_slot} ({slot_names[self.ability_slot]})")
+        print(f"Total Pokemon processed: {self.total_pokemon_processed}")
+        print(f"Total Pokemon modified: {self.total_pokemon_modified}")
+
 
 #add class for champion only
 #add class for rival fights

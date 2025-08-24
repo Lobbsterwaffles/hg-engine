@@ -760,3 +760,57 @@ class EvioliteUser(Extractor):
         """
         return pokemon in self.eviolite_mondata
 
+
+class HiddenAbilityTable(NarcExtractor):
+    """Extractor for hidden ability data from ROM."""
+    
+    def __init__(self, context):
+        # Hidden ability data is stored as an array of 16-bit ability IDs
+        # One entry per Pokemon species (indexed by species ID)
+        self.hidden_ability_struct = Struct(
+            "abilities" / GreedyRange(Int16ul)
+        )
+        
+        super().__init__(context)
+        # Load ONLY file 7 from the NARC (more efficient than parsing all files)
+        narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
+        narc_file = self.rom.files[narc_file_id]
+        narc_data = ndspy.narc.NARC(narc_file)
+        
+        # Parse only file 7 which contains the hidden ability table
+        file_7_data = narc_data.files[7]
+        parsed_data = self.hidden_ability_struct.parse(file_7_data)
+        self.data = parsed_data.abilities
+    
+    def get_narc_path(self):
+        return "a/0/2/8"
+    
+    def parse_file(self, file_data, index):
+        return self.hidden_ability_struct.parse(file_data)
+    
+    def serialize_file(self, data, index):
+        return self.hidden_ability_struct.build(data)
+    
+    def get_hidden_ability(self, species_id):
+        """Get hidden ability ID for a Pokemon species.
+        
+        Args:
+            species_id: Pokemon species ID (0-based index)
+            
+        Returns:
+            int: Hidden ability ID, or 0 if no hidden ability
+        """
+        if species_id < 0 or species_id >= len(self.data):
+            return 0
+        return self.data[species_id]
+    
+    def has_hidden_ability(self, species_id):
+        """Check if a Pokemon species has a hidden ability.
+        
+        Args:
+            species_id: Pokemon species ID (0-based index)
+            
+        Returns:
+            bool: True if Pokemon has a hidden ability (ability_id != 0)
+        """
+        return self.get_hidden_ability(species_id) != 0
