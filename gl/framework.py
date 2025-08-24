@@ -273,25 +273,7 @@ class RandomizationContext(ObjectRegistry):
         selected = random.choice(filtered)
     
         if verbosity >= 2:
-            # Check if this is a trainer_items decision and add Eviolite user info
-            eviolite_status = ""
-            if len(path) >= 2 and path[0] == "trainer_items":
-                try:
-                    # Get the pokemon name from the path (should be the last element)
-                    pokemon_name = path[-1] if len(path) > 2 else ""
-                    
-                    # Try to get EvioliteUser data to check if this pokemon is an Eviolite user
-                    from extractors import EvioliteUser
-                    eviolite_users = self.get(EvioliteUser)
-                    
-                    # Check if pokemon is in Eviolite users by name
-                    if pokemon_name.lower() in eviolite_users.by_name:
-                        eviolite_status = " [EVIOLITE_USER]"
-                except:
-                    # If we can't get Eviolite data, just continue without the status
-                    pass
-            
-            print(f"{path_str:50} {n(original):20} -> {n(selected):20}{eviolite_status}")
+            print(f"{path_str:50} {n(original):20} -> {n(selected):20}")
     
         return selected
     

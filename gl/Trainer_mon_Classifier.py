@@ -187,7 +187,7 @@ class TrainerMonClassifier:
             print(f"Warning: No species data for Pokémon ID {pokemon.species_id}")
             return classifications
         
-        mon = self.pokemon_data.data[pokemon.species_id]
+        mon = self.pokemon_data[pokemon.species_id]
         
         # Stat-based classifications
         self._classify_by_stats(pokemon, mon, classifications)
@@ -455,7 +455,7 @@ class TrainerMonClassifier:
                 species_name = "Unknown"
                 
                 if self.pokemon_data and species_id in self.pokemon_data.data:
-                    species_name = getattr(self.pokemon_data.data[species_id], 'name', f"Species {species_id}")
+                    species_name = getattr(self.pokemon_data[species_id], 'name', f"Species {species_id}")
                 
                 level = getattr(pokemon, 'level', 0)
                 classifications = self.classify_pokemon(pokemon)
@@ -488,7 +488,7 @@ class TrainerMonClassifier:
         if not self.pokemon_data or pokemon.species_id not in self.pokemon_data.data:
             return False
         
-        mon = self.pokemon_data.data[pokemon.species_id]
+        mon = self.pokemon_data[pokemon.species_id]
         type1 = mon.type1
         type2 = mon.type2
         
@@ -602,7 +602,7 @@ class TrainerMonClassifier:
             print(f"Warning: No species data for Pokémon ID {pokemon.species_id}")
             return None
         
-        mon = self.pokemon_data.data[pokemon.species_id]
+        mon = self.pokemon_data[pokemon.species_id]
         type1 = mon.type1
         type2 = mon.type2
         
@@ -655,7 +655,7 @@ class TrainerMonClassifier:
         if not self.pokemon_data or pokemon.species_id not in self.pokemon_data.data:
             return False
         
-        mon = self.pokemon_data.data[pokemon.species_id]
+        mon = self.pokemon_data[pokemon.species_id]
         
         # Access the stat directly by name
         try:

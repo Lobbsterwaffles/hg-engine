@@ -519,6 +519,7 @@ class FormMapping(Extractor):
         self.form_to_base_lookup = {}  # form_id -> (base_species_id, form_number)
         self.base_to_forms_lookup = {}  # base_species_id -> {form_name: form_id}
         self.form_names_lookup = {}  # form_id -> form_name
+        self.encoded_species_lookup = {}  # encoded_species_id -> actual_data_index
         
         self._build_lookup_indexes()
         
@@ -558,6 +559,10 @@ class FormMapping(Extractor):
             if base_species_id not in self.base_to_forms_lookup:
                 self.base_to_forms_lookup[base_species_id] = {}
             self.base_to_forms_lookup[base_species_id][form_name] = form_id
+            
+            # Build encoded species lookup: (form_number << 11) | base_species_id -> form_id
+            encoded_species_id = (form_number << 11) | base_species_id
+            self.encoded_species_lookup[encoded_species_id] = form_id
     
     
     
@@ -628,3 +633,34 @@ class FormMapping(Extractor):
         if pokemon_id in self.ALL_FORMS:
             return self.ALL_FORMS[pokemon_id][2]  # FormCategory
         return None
+    
+    def resolve_data_index(self, species_id: int) -> int:
+        """
+        Resolve a potentially encoded species ID to the actual data array index.
+        
+        This handles the binary packing where forms are encoded as:
+        (form_number << 11) | base_species_id
+        
+        Args:
+            species_id: Integer species ID, possibly with form encoding
+            
+        Returns:
+            The actual index to use in the Mons data array
+            
+        Raises:
+            ValueError: If the encoded species ID is invalid
+        """
+        # Check if this is an encoded form species ID
+        if species_id in self.encoded_species_lookup:
+            return self.encoded_species_lookup[species_id]
+        
+        # Extract form number from high 5 bits to check if encoding is attempted
+        form_number = (species_id >> 11) & 0x1F
+        
+        if form_number > 0:
+            # This looks like form encoding but we don't have a mapping for it
+            base_species_id = species_id & 0x7FF
+            raise ValueError(f"No form mapping found for encoded species {species_id} (form {form_number} of species {base_species_id})")
+        
+        # Not encoded, return as-is (base Pokemon)
+        return species_id

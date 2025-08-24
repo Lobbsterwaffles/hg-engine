@@ -254,7 +254,7 @@ class FindEstPower(Extractor):
         if pokemon_id >= len(self.mons.data) or move_id >= len(self.moves.data):
             return 0
         
-        pokemon = self.mons.data[pokemon_id]
+        pokemon = self.mons[pokemon_id]
         move = self.moves.data[move_id]
         
         # If move has no base power, return 0
@@ -321,7 +321,7 @@ class GetAllAvailableMoves(Extractor):
         # TM/HM moves - get moves this Pokemon can learn
         tm_hm_moves = []
         if pokemon_id < len(self.mons.data):
-            pokemon = self.mons.data[pokemon_id]
+            pokemon = self.mons[pokemon_id]
             
             # Check TM compatibility (TM001-TM092)
             for tm_num in range(1, 93):  # TM001 to TM092
@@ -378,7 +378,7 @@ class FindDamagingStab(Extractor):
         if pokemon_id >= len(self.mons.data):
             return None
             
-        pokemon = self.mons.data[pokemon_id]
+        pokemon = self.mons[pokemon_id]
         is_dual_type = pokemon.type2 != pokemon.type1
         
         # For dual-type Pokemon, use enhanced dual-type logic
@@ -462,7 +462,7 @@ class FindDamagingStab(Extractor):
         if pokemon_id >= len(self.mons.data):
             return []
         
-        pokemon = self.mons.data[pokemon_id]
+        pokemon = self.mons[pokemon_id]
         stab_moves = []
         
         # Check TM compatibility (TM001-TM092)
@@ -484,7 +484,7 @@ class FindDamagingStab(Extractor):
             return []
         
         stab_moves = []
-        pokemon = self.mons.data[pokemon_id]
+        pokemon = self.mons[pokemon_id]
         
         for hm_num in range(1, 9):  # HM001 to HM008
             if pokemon.hm[hm_num]:  # Can learn this HM
@@ -582,7 +582,7 @@ class FindDamagingStab(Extractor):
         """
         import random
         
-        pokemon = self.mons.data[pokemon_id]
+        pokemon = self.mons[pokemon_id]
         primary_type = pokemon.type1
         secondary_type = pokemon.type2
         
@@ -1097,7 +1097,7 @@ class TrainerHeldItem(Step):
         
         # Type-specific Plates - add based on pokemon's primary or secondary type
         # Get pokemon data from Mons to access actual Type enum objects
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         pokemon_types = [mon_data.type1]
         if mon_data.type2 != mon_data.type1:  # Avoid duplicate types
             pokemon_types.append(mon_data.type2)
@@ -1143,7 +1143,7 @@ class TrainerHeldItem(Step):
         obligate_items = self.base_obligate_items.copy()
         
         # Get shared data
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         pokemon_names = self.context.get(LoadPokemonNamesStep)
         pokemon_name = pokemon_names.id_to_name.get(pokemon.species_id, f"Pokemon_{pokemon.species_id}")
         
@@ -1173,7 +1173,7 @@ class TrainerHeldItem(Step):
     
     def _has_4x_ground_weakness(self, pokemon):
         """Check if Pokemon has 4x weakness to Ground type."""
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         types = [mon_data.type1]
         if hasattr(mon_data, 'type2') and mon_data.type2 != mon_data.type1:
             types.append(mon_data.type2)
@@ -1218,12 +1218,12 @@ class TrainerHeldItem(Step):
     
     def _pokemon_is_fire_type(self, pokemon):
         """Check if Pokemon is Fire type."""
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         return mon_data.type1 == Type.FIRE or (hasattr(mon_data, 'type2') and mon_data.type2 == Type.FIRE)
     
     def _pokemon_is_poison_type(self, pokemon):
         """Check if Pokemon is Poison type."""
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         return mon_data.type1 == Type.POISON or (hasattr(mon_data, 'type2') and mon_data.type2 == Type.POISON)
     
     def _pokemon_has_status_moves(self, pokemon):
@@ -1265,7 +1265,7 @@ class TrainerHeldItem(Step):
     
     def _pokemon_has_4x_weakness(self, pokemon):
         """Check if Pokemon has any 4x weakness."""
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         type2 = mon_data.type2 if hasattr(mon_data, 'type2') and mon_data.type2 != mon_data.type1 else None
         weaknesses = get_4x_weaknesses(mon_data.type1, type2)
         return len(weaknesses) > 0
@@ -1369,7 +1369,7 @@ class TrainerHeldItem(Step):
         item_set_b = self.item_set_b.copy()
         
         # Get shared data
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         
         # Assault Vest - Pokemon with no status moves
         if not self._pokemon_has_status_moves(pokemon):
@@ -1535,7 +1535,7 @@ class TrainerHeldItem(Step):
         item_set_c = []
         
         # Get shared data that might be used by multiple item checks
-        mon_data = self.mons.data[pokemon.species_id]
+        mon_data = self.mons[pokemon.species_id]
         moves_data = self.context.get(Moves)
         pokemon_types = [mon_data.type1]
         if mon_data.type2 != mon_data.type1:  # Avoid duplicate types
@@ -1747,7 +1747,7 @@ class TrainerHeldItem(Step):
         if not hasattr(pokemon, 'species_id') or pokemon.species_id >= len(self.mons.data):
             return 0
         
-        species = self.mons.data[pokemon.species_id]
+        species = self.mons[pokemon.species_id]
         classifications = {}  # TODO: Get actual classifications if needed
         
         # Check obligate and favored items based on mode and tier
@@ -2035,14 +2035,14 @@ class TrainerHeldItem(Step):
                 
                 # Get item name for logging
                 item_name = Item(assigned_item).name if assigned_item < len(Item) else f"Item_{assigned_item}"
-                species_name = self.mons.data[ace_pokemon.species_id].name
+                species_name = self.mons[ace_pokemon.species_id].name
                 print(f"Boss ace item: {trainer.info.name}'s {species_name} -> {item_name}")
         
         print(f"Boss ace items: {boss_aces_given_items}/{boss_aces_processed} boss aces given items")
     
     def _assign_boss_ace_item(self, pokemon, trainer, trainer_tier):
         """Assign an item to a boss ace based on tier rules that match regular item assignment."""
-        species = self.mons.data[pokemon.species_id]
+        species = self.mons[pokemon.species_id]
         classifications = {}  # TODO: Get actual classifications if needed
         
         # For Mid/Late/End game tiers, check obligate and favored items first

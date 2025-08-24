@@ -26,9 +26,9 @@ def select_cosmetic_variant(context, mondata, base_species_id, decision_path):
             if form_pokemon.form_category == FormCategory.COSMETIC:
                 cosmetic_variants.append(form_id)
     
-    # If only base form available, return the selected species
+    # If only base form available, return the selected species object
     if len(cosmetic_variants) == 1:
-        return base_species_id
+        return mondata.data[base_species_id]
     
     # Randomly select from available cosmetic variants (including base)
     selected_variant = context.decide(
@@ -37,7 +37,18 @@ def select_cosmetic_variant(context, mondata, base_species_id, decision_path):
         candidates=[mondata.data[vid] for vid in cosmetic_variants]
     )
     
-    return selected_variant.pokemon_id
+    return selected_variant
+
+
+def encode_species_for_encounter(pokemon_obj):
+    """Encode Pokemon object for encounter data using monwithform format: species | (formid<<11)"""
+    if pokemon_obj.is_form_of is not None:  # This is a form
+        base_species_id = pokemon_obj.is_form_of
+        form_number = pokemon_obj.form_number
+        return base_species_id | (form_number << 11)
+    
+    # Base Pokemon - no form encoding needed
+    return pokemon_obj.pokemon_id
 
 class UpdateTrainerTeamDataStep(Step):
     """Updates trainer Pokémon team data to include required fields for MOVES and ITEMS format.
@@ -237,18 +248,23 @@ class RestrictedPokemon(PokemonListBase):
         "Cosmoem",
         "Solgaleo",
         "Lunala",
-        "Necrozma",
+        ("Necrozma", "DAWN_WINGS"),
+        ("Necrozma", "DUSK_MANE"),
         "Zacian",
         "Zamazenta",
         "Eternatus",
-        "Calyrex",
         "Koraidon",
         "Miraidon",
         "Terapagos",
         "Xerneas",
         "Yveltal",
         "Zygarde",
-        "Arceus"
+        "Arceus",
+        ("Dialga", "ORIGIN"),
+        ("Palkia", "ORIGIN"),
+        ("Hoopa", "UNBOUND"),
+        ("Calyrex", "ICE_RIDER"),
+        ("Calyrex", "SHADOW_RIDER"),
     ]
 
 
@@ -300,6 +316,12 @@ class SubLegendaryPokemon(PokemonListBase):
         "Munkidori",
         "Fezanditi",
         "Ogerpon",
+        ("Greninja", "BATTLE_BOND"),
+        ("Articuno", "GALARIAN"),
+        ("Zapdos", "GALARIAN"),
+        ("Moltres", "GALARIAN"),
+        "Calyrex",
+        "Necrozma",
 
     ]
 
@@ -652,8 +674,11 @@ class RandomizeEncountersStep(Step):
                 )
                 
                 # After selecting a Pokemon, check for cosmetic forms and randomly select one
-                final_species_id = select_cosmetic_variant(self.context, self.mondata, new_species.pokemon_id, path + ["cosmetic_form"])
-                self.replacements[replacement_key] = final_species_id
+                final_species = select_cosmetic_variant(self.context, self.mondata, new_species.pokemon_id, path + ["cosmetic_form"])
+                
+                # Encode for encounter data using monwithform format
+                encoded_species = encode_species_for_encounter(final_species)
+                self.replacements[replacement_key] = encoded_species
             
             slot_list[i] = self.replacements[replacement_key]
     
@@ -1136,7 +1161,7 @@ class GeneralEVStep(Step):
         if pokemon_id >= len(mons.data):
             return {'hp': 0, 'atk': 0, 'def': 0, 'spatk': 0, 'spdef': 0, 'speed': 0}
         
-        base_stats = mons.data[pokemon_id]
+        base_stats = mons[pokemon_id]
         
         # Initialize EV allocation
         ev_allocation = {'hp': 0, 'atk': 0, 'def': 0, 'spatk': 0, 'spdef': 0, 'speed': 0}
@@ -1838,11 +1863,14 @@ class RandomizeGymsStep(Step):
             )
             
             # After selecting a Pokemon, check for cosmetic forms and randomly select one
-            final_species_id = select_cosmetic_variant(
+            final_species = select_cosmetic_variant(
                 context, mondata, new_species.pokemon_id, 
                 ["gymtrainer", trainer.info.name, "team", i, "cosmetic_form"]
             )
-            pokemon.species_id = final_species_id
+            
+            # Encode for trainer data using monwithform format
+            encoded_species = encode_species_for_encounter(final_species)
+            pokemon.species_id = encoded_species
         
     
 
@@ -1860,10 +1888,12 @@ class FormCategoryFilter(SimpleFilter):
         """Allow base Pokemon and forms from allowed categories."""
         # Always allow base Pokemon (non-forms)
         if candidate.is_form_of is None:
-            return True
+            return True  
         
         # For forms, check if their category is allowed
         return candidate.form_category in self.allowed_categories
+
+
 
 
 
@@ -1926,11 +1956,14 @@ class RandomizeOrdinaryTrainersStep(Step):
             )
             
             # After selecting a Pokemon, check for cosmetic forms and randomly select one
-            final_species_id = select_cosmetic_variant(
+            final_species = select_cosmetic_variant(
                 context, mondata, new_species.pokemon_id, 
                 ["trainer", trainer.info.name, "team", i, "cosmetic_form"]
             )
-            pokemon.species_id = final_species_id
+            
+            # Encode for trainer data using monwithform format
+            encoded_species = encode_species_for_encounter(final_species)
+            pokemon.species_id = encoded_species
             
             # If this is an Eviolite user, give it the Eviolite item
             if eviolite_users and hasattr(pokemon, 'item') and new_species in eviolite_users.eviolite_mondata:
@@ -1958,7 +1991,7 @@ class ConsistentRivalStarter(Step):
         
         
         # Get the current starter Pokemon (use the updated starter_id values)
-        current_starters = [mons.data[starter_id] for starter_id in starters.data.starter_id]
+        current_starters = [mons[starter_id] for starter_id in starters.data.starter_id]
         
         # Print the new starters being used
         print("\n=== ConsistentRivalStarter: New Starter Assignments ===")
@@ -1994,7 +2027,7 @@ class ConsistentRivalStarter(Step):
                         )
                         
                         # Update the Pokemon
-                        old_name = mons.data[target_pokemon.species_id].name
+                        old_name = mons[target_pokemon.species_id].name
                         target_pokemon.species_id = final_species.pokemon_id
                         group_updated += 1
                         total_updated += 1
@@ -2392,11 +2425,11 @@ class ReadTypeList(Extractor):
                     base_name, form_name = entry
                     pokemon_id = self.monnames.get_by_name(base_name)
                     # For now, just use base Pokemon - form handling can be added later
-                    data[ty].append(self.mons.data[pokemon_id])
+                    data[ty].append(self.mons[pokemon_id])
                 else:
                     # Handle string names
                     pokemon_id = self.monnames.get_by_name(entry)
-                    data[ty].append(self.mons.data[pokemon_id])
+                    data[ty].append(self.mons[pokemon_id])
         return data
 
 

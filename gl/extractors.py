@@ -313,6 +313,16 @@ class Mons(NarcExtractor):
         "Slaking": 550,     
         "Regigigas": 580,   
         "Archeops": 550,    
+        ("Greninja", "BATTLE_BOND"): 600,
+        ("Floette", "ETERNAL_FLOWER"): 551,
+        ("Rotom", "WASH"): 520,
+        ("Rotom", "HEAT"): 520,
+        ("Rotom", "FROST"): 520,
+        ("Rotom", "FAN"): 520,
+        ("Rotom", "MOW"): 520,
+        ("Calyrex", "ICE_RIDER"): 680,
+        ("Calyrex", "SHADOW_RIDER"): 680,
+        
     }
     
     def __init__(self, context):
@@ -352,6 +362,7 @@ class Mons(NarcExtractor):
             "is_form_of" / Computed(lambda ctx: form_mapping.get_base_species(ctx._.narc_index)),
             "forms" / Computed(lambda ctx: form_mapping.get_all_forms(ctx._.narc_index) if form_mapping.get_base_species(ctx._.narc_index) is None else None),
             "form_category" / Computed(lambda ctx: form_mapping.get_form_category(ctx._.narc_index)),
+            "form_number" / Computed(lambda ctx: form_mapping.form_to_base_lookup[ctx._.narc_index][1] if ctx._.narc_index in form_mapping.form_to_base_lookup else None),
             "original_name" / Computed(lambda ctx: pokemon_names_step.get_by_id(ctx._.narc_index)),
             "name" / Computed(lambda ctx: form_mapping.get_display_name(ctx._.narc_index, pokemon_names_step)),
             "pokemon_id" / Computed(lambda ctx: ctx._.narc_index)
@@ -363,13 +374,30 @@ class Mons(NarcExtractor):
     
     def _get_adjusted_bst(self, ctx):
         """Get adjusted BST for Pokemon, applying overrides for special cases."""
-        # Get the Pokemon name
+        # Get the Pokemon names and form mapping
         pokemon_names_step = self.context.get(LoadPokemonNamesStep)
-        pokemon_name = pokemon_names_step.get_by_id(ctx._.narc_index)
+        form_mapping = self.context.get(FormMapping)
         
-        # Check if this Pokemon has a BST override
-        if pokemon_name in self.BST_OVERRIDES:
-            return self.BST_OVERRIDES[pokemon_name]
+        # Get both the original name and the form-aware display name
+        original_name = pokemon_names_step.get_by_id(ctx._.narc_index)
+        
+        # Check for tuple-based form override first (e.g., ("Greninja", "BATTLE_BOND"))
+        base_species_id = form_mapping.get_base_species(ctx._.narc_index)
+        if base_species_id is not None:  # This is a form
+            base_name = pokemon_names_step.get_by_id(base_species_id)
+            form_name = form_mapping.form_names_lookup[ctx._.narc_index]
+            form_tuple = (base_name, form_name)
+            if form_tuple in self.BST_OVERRIDES:
+                return self.BST_OVERRIDES[form_tuple]
+        
+        # Check for string-based override (display name like "Greninja-BATTLE_BOND")
+        display_name = form_mapping.get_display_name(ctx._.narc_index, pokemon_names_step)
+        if display_name in self.BST_OVERRIDES:
+            return self.BST_OVERRIDES[display_name]
+        
+        # Then check for base Pokemon override (e.g., "Deoxys")
+        if original_name in self.BST_OVERRIDES:
+            return self.BST_OVERRIDES[original_name]
         
         # Default: return raw BST calculation
         return ctx.hp + ctx.attack + ctx.defense + ctx.speed + ctx.sp_attack + ctx.sp_defense
@@ -383,6 +411,48 @@ class Mons(NarcExtractor):
     
     def serialize_file(self, data, index):
         return self.mondata_struct.build(data, narc_index=index)
+    
+    def get(self, species_id):
+        """
+        Get Pokemon data by species ID, handling binary-packed form encoding.
+        
+        The species_id may be binary-packed with form information:
+        - High 5 bits (bits 11-15): form number (0 for base Pokemon)
+        - Low 11 bits (bits 0-10): base species ID
+        
+        Args:
+            species_id: Integer species ID, possibly with form encoding
+            
+        Returns:
+            Pokemon data object from the data array
+            
+        Raises:
+            IndexError: If the resolved data index is out of bounds
+            ValueError: If form mapping fails
+        """
+        # Use FormMapping to resolve the encoded species ID to actual data index
+        form_mapping = self.context.get(FormMapping)
+        data_index = form_mapping.resolve_data_index(species_id)
+        
+        # Bounds check
+        if data_index >= len(self.data):
+            raise IndexError(f"Data index {data_index} is out of bounds (max: {len(self.data) - 1})")
+        
+        return self.data[data_index]
+    
+    def __getitem__(self, species_id):
+        """
+        Support bracket notation for accessing Pokemon data.
+        
+        This delegates to the get() method to handle form encoding.
+        
+        Args:
+            species_id: Integer species ID, possibly with form encoding
+            
+        Returns:
+            Pokemon data object from the data array
+        """
+        return self.get(species_id)
 
 class TMHM(Extractor):
     def __init__(self, context):
@@ -417,7 +487,7 @@ class StarterExtractor(Extractor):
         # Define the structure for just the starter data (3 × 4-byte integers)
         self.starter_struct = Struct(
             "starter_id" / Array(3, Int32ul),
-            "starters" / Computed(lambda ctx: [mons.data[s] for s in ctx.starter_id])
+            "starters" / Computed(lambda ctx: [mons[s] for s in ctx.starter_id])
         )
         
         # Read starter data from the specific offset in ARM9
