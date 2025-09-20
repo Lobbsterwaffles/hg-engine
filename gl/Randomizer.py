@@ -65,7 +65,7 @@ if __name__ == "__main__":
     verbosity_overrides = [([], vbase)] + parse_verbosity_overrides(args.verbosity or [])
     
     # Load ROM
-    with open("recompiletest.nds", "rb") as f:
+    with open("test.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
@@ -96,15 +96,17 @@ if __name__ == "__main__":
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
         RandomizeEncountersStep(encounter_filter, args.independent_encounters),
+        RandomizeWildItemsStep(),
         *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
-        *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
         *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
+        *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
         ChangeTrainerDataTypeStep(target_flags = TrainerDataType.MOVES | TrainerDataType.ITEMS | TrainerDataType.IV_EV_SET),
         *([] if not args.no_enemy_battle_items else [NoEnemyBattleItems()]),
         GeneralEVStep(),
         GeneralIVStep(mode="ScalingIVs"),
         SetTrainerMovesStep(),
-        RandomizeAbilitiesStep(mode="randomability_with_hidden"),
+        RandomizeTrainerAbilities(mode="randomability_with_hidden"),
+        AssignCustomSetsStep(mode="late_game_bosses"),
         TrainerHeldItem(),
         PrintEvioliteUsersStep()
         
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     ctx.write_all()
     
     # Save modified ROM
-    modified_rom_path = "hgeLanceCanary_gym_randomized.nds"
+    modified_rom_path = "Randomized.nds"
     with open(modified_rom_path, "wb") as f:
         s = rom.save()
         print(f"Writing {len(s)} bytes to {repr(modified_rom_path)} ...")

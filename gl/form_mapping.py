@@ -162,7 +162,7 @@ class FormMapping(Extractor):
         1359: ("Tatsugiri", "DROOPY", FormCategory.COSMETIC),  # PALDEAN_FORMS_START + 5
         1360: ("Tatsugiri", "STRETCHY", FormCategory.COSMETIC),  # PALDEAN_FORMS_START + 6
         1361: ("Dudunspars", "THREE_SEGMENT", FormCategory.COSMETIC),  # PALDEAN_FORMS_START + 7
-        1362: ("Gimmighoul", "ROAMING", FormCategory.OUT_OF_BATTLE_CHANGE),  # PALDEAN_FORMS_START + 8
+        1362: ("Gimmighoul", "ROAMING", FormCategory.DISCRETE),  # PALDEAN_FORMS_START + 8
         1363: ("Wooper", "PALDEAN", FormCategory.DISCRETE),  # PALDEAN_FORMS_START + 9
         1364: ("Tauros", "COMBAT", FormCategory.DISCRETE),  # PALDEAN_FORMS_START + 10
         1365: ("Tauros", "BLAZE", FormCategory.DISCRETE),  # PALDEAN_FORMS_START + 11
@@ -383,7 +383,6 @@ class FormMapping(Extractor):
         
         # Note: Pumpkaboo and Gourgeist forms moved to avoid conflicts with gender dimorphism forms
         
-        # Note: Floette Eternal Flower and Basculin White Striped already added above
         
         # TODO: Add other form categories below
         # Examples for cosmetic forms:

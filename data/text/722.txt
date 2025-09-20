@@ -1,7 +1,8 @@
- -
+-
 The stench helps keep\nwild Pokémon away.
 The Pokémon makes it rain\nif it appears in battle.
 Its Speed stat is\ngradually boosted.
+The Pokémon is protected\nagainst critical hits.
 It is protected against\n1-hit KO attacks.
 Prevents combatants\nfrom self-destructing.
 The Pokémon is protected\nfrom paralysis.
@@ -69,6 +70,9 @@ Powers up Bug-type\nmoves in a pinch.
 Protects the Pokémon\nfrom recoil damage.
 The Pokémon makes it\nsunny if it is in battle.
 Prevents the foe from\nfleeing.
+Prevents the Pokémon\nfrom falling asleep.
+Prevents its stats from\nbeing lowered.
+Boosts the power of\nphysical attacks.
 The Pokémon is protected\nagainst critical hits.
 Eliminates the effects of\nweather.
 Raises evasion if the\nPokémon is confused.
@@ -105,11 +109,12 @@ Senses the foe’s\ndangerous moves.
 Determines what moves\nthe foe has.
 Ignores any change in\nability by the foe.
 Powers up “not very\neffective” moves.
+Reduces damage from\nsupereffective attacks
 Temporarily halves\nAttack and Speed.
 Enables moves to hit\nGhost-type foes.
 The Pokémon draws in all\nWater-type moves.
 The Pokémon regains HP in\na hailstorm.
-Reduces damage from\nsupereffective attacks
+Reduces damage from\nsuper-effective attacks.
 The Pokémon summons a\nhailstorm in battle.
 The Pokémon may gather\nHoney from somewhere.
 The Pokémon can check\nthe foe’s held item.
@@ -293,26 +298,14 @@ Reduces effects of weather\nand terrain to zero.
 Pokémon poisoned by Pecharunt\nwill also become confused.
 Makes foes unable to\nuse priority attacks.
 Makes foes unable to\nuse priority attacks.
-The Pokémon is protected\nagainst critical hits.
-Prevents its stats from\nbeing lowered.
 Contact with it lowers\nthe attacker’s Speed.
 It changes type to that\nof the move it’s about to use.
 Moves can be used\nregardless of Abilities.
 Moves can be used\nregardless of Abilities.
 Copies the Ability of\na defeated ally.
-Prevents the Pokémon\nfrom falling asleep.
 Resists damage while\nits HP is full.
 Inflicts damage to\nthe Pokémon on contact.
 This Pokémon’s moves\ncannot be redirected.
-Reduces damage from\nsuper-effective attacks.
 The Wellspring Mask shines,\nboosting the Sp. Def stat.
 The Hearthflame Mask shines,\nboosting the Attack stat.
 The Cornerstone Mask shines,\nboosting the Defense stat.
-Boosts the power of\nphysical attacks.
-
-
-
-
-
-
-

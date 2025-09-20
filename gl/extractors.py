@@ -303,7 +303,7 @@ class Trainers(Extractor):
             for i in range(len(trainer_data_extractor.data))
         ]
 
-class Mons(NarcExtractor):
+class Mons(Writeback, NarcExtractor):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
     # BST overrides for Pokemon whose power level is not accurately represented by raw BST

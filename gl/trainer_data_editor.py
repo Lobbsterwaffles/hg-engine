@@ -735,15 +735,17 @@ class CustomSetReader(Extractor):
         super().__init__(context)
         self.moves = context.get(Moves)
         self.mons = context.get(Mons)
+        self.ability_names = context.get(LoadAbilityNames)
         
         # Build lookup tables for efficient conversion
         self.move_name_to_id = {move.name: move.move_id for move in self.moves.data if move.name}
+        self.ability_name_to_id = {name: ability_id for ability_id, name in self.ability_names.id_to_name.items()}
         # Note: Pokemon data structure uses 'name' field, not 'species_name'
         
         # Set the base directory for Pokemon sets
         self.pokemon_sets_dir = os.path.join(os.path.dirname(__file__), '..', 'pokemon_sets')
         
-        print(f"CustomSetReader initialized with {len(self.move_name_to_id)} moves")
+        print(f"CustomSetReader initialized with {len(self.move_name_to_id)} moves and {len(self.ability_name_to_id)} abilities")
     
     def find_pokemon_json_file(self, pokemon_id):
         """Find the JSON file for a given Pokemon ID.
@@ -829,11 +831,16 @@ class CustomSetReader(Extractor):
                         'display_name': display_name
                     })
             
+            # Convert ability from name to ID
+            ability_name = data['ability'].get('name', '')
+            ability_id = self._find_ability_by_name(ability_name, os.path.basename(json_file))
+            
             return {
                 'species_id': pokemon_id,
                 'name': data['name'],
                 'moves': converted_moves,
-                'ability_name': data['ability'].get('name', 'Unknown'),
+                'ability_name': ability_name,
+                'ability_id': ability_id,
                 'filename': os.path.basename(json_file)
             }
         
@@ -935,6 +942,44 @@ class CustomSetReader(Extractor):
             previous_row = current_row
         
         return previous_row[-1]
+    
+    def _find_ability_by_name(self, ability_name, filename):
+        """Find an ability by its name.
+        
+        Args:
+            ability_name (str): Ability name from JSON (e.g., 'ABILITY_HYDRATION')
+            filename (str): JSON filename for error reporting
+            
+        Returns:
+            int: Ability ID, or None if not found
+        """
+        if not ability_name:
+            return None
+        
+        # Try exact match first
+        if ability_name in self.ability_name_to_id:
+            return self.ability_name_to_id[ability_name]
+        
+        # Try without ABILITY_ prefix if present
+        if ability_name.startswith('ABILITY_'):
+            clean_name = ability_name[8:]  # Remove 'ABILITY_' prefix
+            
+            # Try direct match with clean name
+            if clean_name in self.ability_name_to_id:
+                return self.ability_name_to_id[clean_name]
+            
+            # Try converting underscores to spaces and proper case
+            formatted_name = clean_name.replace('_', ' ').title()
+            if formatted_name in self.ability_name_to_id:
+                return self.ability_name_to_id[formatted_name]
+            
+            # Try converting underscores to nothing (CompoundEyes style)
+            no_underscore_name = clean_name.replace('_', '').title()
+            if no_underscore_name in self.ability_name_to_id:
+                return self.ability_name_to_id[no_underscore_name]
+        
+        print(f"Warning: Ability '{ability_name}' not found in {filename}")
+        return None
 
 
 class AssignCustomSetsStep(Step):
@@ -945,14 +990,26 @@ class AssignCustomSetsStep(Step):
     and provides complete competitive movesets.
     """
     
-    def __init__(self):
+    def __init__(self, mode="all"):
+        """Initialize the AssignCustomSets step.
+        
+        Args:
+            mode (str): "all" to apply to all trainers with custom sets,
+                       "late_game_bosses" to apply only to EndGame tier bosses
+        """
         # Step classes don't need to call super().__init__()
         # Context will be provided during run()
+        
+        if mode not in ["all", "late_game_bosses"]:
+            raise ValueError(f"Invalid mode: {mode}. Must be 'all' or 'late_game_bosses'")
+        
+        self.mode = mode
         
         # Track assignment statistics
         self.assignments_made = 0
         self.sets_not_found = 0
         self.assignment_log = []
+        self.missing_sets = set()  # Track Pokemon species without custom sets
         
     def run(self, context):
         """Run the step to assign custom sets to trainer Pokemon.
@@ -963,27 +1020,74 @@ class AssignCustomSetsStep(Step):
         # Get required extractors from context
         self.custom_sets = context.get(CustomSetReader)
         self.moves = context.get(Moves)
-        trainers = context.get(TrainerData)
+        trainers = context.get(Trainers)
         
-        print(f"AssignCustomSetsStep: Assigning custom sets to trainer Pokemon...")
+        # Get filtering data based on mode
+        if self.mode == "late_game_bosses":
+            tier_data = context.get(IdentifyTier)
+            boss_data = context.get(IdentifyBosses)
+            
+            # Create a set of boss trainer IDs for quick lookup
+            boss_trainer_ids = set()
+            for boss_category in boss_data.data.values():
+                for trainer in boss_category.trainers:
+                    boss_trainer_ids.add(trainer.info.trainer_id)
+            
+            print(f"AssignCustomSetsStep: Assigning custom sets to EndGame tier bosses only...")
+        else:
+            print(f"AssignCustomSetsStep: Assigning custom sets to all trainer Pokemon...")
         
-        # Process all trainers
-        for trainer in trainers.data:
+        # Process trainers based on mode
+        for trainer_id, trainer in enumerate(trainers.data):
+            # Check if we should process this trainer based on mode
+            if self.mode == "late_game_bosses":
+                # Only process if trainer is both a boss AND in end game tier
+                trainer_tier = tier_data.data.get(trainer_id)
+                is_boss = trainer_id in boss_trainer_ids
+                
+                if not (is_boss and trainer_tier == Tier.END_GAME):
+                    continue
+                
+                # Print trainer name when we identify an end game boss
+                trainer_name = getattr(trainer.info, 'name', f'Trainer {trainer_id}')
+                print(f"  Processing EndGame boss: {trainer_name} (ID: {trainer_id})")
+            
             # Process each Pokemon in trainer's team
             for pokemon in trainer.team:
                 # Try to assign a custom set if the pokemon has a species_id
                 if hasattr(pokemon, 'species_id') and pokemon.species_id:
                     current_moves = [getattr(pokemon, f'move{i}', None) for i in range(1, 5)]
-                    new_moves = self.assign_custom_set_to_pokemon(pokemon.species_id, current_moves)
+                    custom_set = self.custom_sets.read_custom_set(pokemon.species_id)
                     
-                    # If we got new moves, update the pokemon
-                    if new_moves:
-                        for i, move_id in enumerate(new_moves):
-                            if move_id is not None:
-                                setattr(pokemon, f'move{i+1}', move_id)
+                    if custom_set:
+                        # Apply moves from custom set
+                        new_moves = self.assign_custom_set_to_pokemon(pokemon.species_id, current_moves)
+                        if new_moves:
+                            for i, move_id in enumerate(new_moves):
+                                if move_id is not None:
+                                    setattr(pokemon, f'move{i+1}', move_id)
+                        
+                        # Apply ability from custom set if available
+                        if custom_set.get('ability_id') is not None:
+                            # Set ability slot to 3 (hidden ability slot) to use the custom ability
+                            pokemon.abilityslot = 3
+                            # Note: The actual ability ID will be looked up from the hidden ability table
+                            # This is handled by the game engine based on the ability slot
         
         # Print summary
-        print(f"AssignCustomSetsStep: Completed {self.assignments_made} assignments, {self.sets_not_found} sets not found")
+        mode_desc = "EndGame tier bosses" if self.mode == "late_game_bosses" else "all trainers"
+        print(f"AssignCustomSetsStep: Completed {self.assignments_made} assignments to {mode_desc}, {self.sets_not_found} sets not found")
+        
+        # Print Pokemon species that don't have custom sets
+        if self.missing_sets:
+            print(f"Pokemon species without custom sets:")
+            mons = context.get(Mons)
+            for species_id in sorted(self.missing_sets):
+                if species_id < len(mons.data):
+                    pokemon_name = mons.data[species_id].name
+                    print(f"  Species {species_id}: {pokemon_name}")
+                else:
+                    print(f"  Species {species_id}: Unknown")
     
     def assign_custom_set_to_pokemon(self, pokemon_id, current_moves=None):
         """Assign a custom set to a Pokemon.
@@ -999,6 +1103,7 @@ class AssignCustomSetsStep(Step):
         
         if not custom_set:
             self.sets_not_found += 1
+            self.missing_sets.add(pokemon_id)  # Track this species as missing a custom set
             return None
         
         # Extract move IDs from custom set
@@ -1158,6 +1263,14 @@ class TrainerHeldItem(Step):
         
         if pokemon_name == "Marowak":
             obligate_items.append(Item.THICK_CLUB)
+        if pokemon_name == ("Marowak", "ALOLAN"):
+            obligate_items.append(Item.THICK_CLUB)
+        if pokemon_name == "Farfetch’d":
+            obligate_items.append(Item.STICK)
+        if pokemon_name == ("Farfetch’d", "GALARIAN"):
+            obligate_items.append(Item.STICK)
+        if pokemon_name == "Sirfetch’d":
+            obligate_items.append(Item.STICK)
         if pokemon_name == "Zacian":
             obligate_items.append(Item.RUSTED_SWORD)
         if pokemon_name == "Zamazenta":

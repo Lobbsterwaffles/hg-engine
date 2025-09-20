@@ -337,6 +337,8 @@ class LoadAbilityNames(NameTableReader):
     filename = "data/text/720.txt"
 
 
+
+
     
 
         

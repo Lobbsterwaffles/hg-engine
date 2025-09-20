@@ -81,7 +81,7 @@ class UpdateTrainerTeamDataStep(Step):
                     
                     # Add default moves if missing
                     if not hasattr(pokemon, 'moves'):
-                        pokemon.moves = [0, 0, 0, 0]  # No moves (will be set by move selection)
+                        pokemon.moves = [6, 6, 6, 6]  # pay day only baybeee
                         updated = True
                     
                     if updated:
@@ -245,6 +245,8 @@ class RestrictedPokemon(PokemonListBase):
         "Reshiram",
         "Zekrom",
         "Kyurem",
+        ("Kyurem", "WHITE"),
+        ("Kyurem", "BLACK"),
         "Cosmog",
         "Cosmoem",
         "Solgaleo",
@@ -260,6 +262,8 @@ class RestrictedPokemon(PokemonListBase):
         "Xerneas",
         "Yveltal",
         "Zygarde",
+        ("Zygarde", "50_POWER_CONSTRUCT"),
+        ("Zygarde", "50_COMPLETE"),
         "Arceus",
         ("Dialga", "ORIGIN"),
         ("Palkia", "ORIGIN"),
@@ -303,6 +307,7 @@ class SubLegendaryPokemon(PokemonListBase):
         "Tapu Bulu",
         "Tapu Fini",
         "Urshifu",
+        ("Urshifu", "Rapid-Strike"),
         "Kubfu",
         "Regieleki",
         "Regidrago",
@@ -487,7 +492,8 @@ class RandomizeStartersStep(Step):
                 filter=self.filter
             )
             starter_extractor.data.starter_id[i] = new_starter.pokemon_id
-            
+
+
 
 
 class LoadEncounterNamesStep(Extractor):
@@ -733,7 +739,9 @@ class ExpandTrainerTeamsStep(Step):
                  tier4_boss_team_size=6,
                  # Fixed mode parameters - global minimum team sizes
                  fixed_trainer_team_size=3,
-                 fixed_boss_team_size=6):
+                 fixed_boss_team_size=6,
+                 # Exclusion list - lvl 5 rival fights
+                 excluded_trainer_ids={265, 495, 2, 496, 3, 497}):
         
         # Validate parameters
         if mode not in ["ScalingTrainerTeamSize", "FixedTrainerTeamSize"]:
@@ -743,6 +751,8 @@ class ExpandTrainerTeamsStep(Step):
         
         # Core parameters
         self.bosses_only = bosses_only
+        
+        self.excluded_trainer_ids = excluded_trainer_ids
         
         # New tier-based parameters
         self.mode = mode
@@ -783,6 +793,10 @@ class ExpandTrainerTeamsStep(Step):
         
         # Process all trainers with tier-based team sizing
         for trainer in trainers.data:
+            # Skip excluded trainer IDs
+            if trainer.info.trainer_id in self.excluded_trainer_ids:
+                continue
+                
             is_boss = trainer.info.trainer_id in boss_trainer_ids
             
             # Skip if bosses_only is True and this isn't a boss
@@ -1465,30 +1479,61 @@ class SetTrainerMovesStep(Step):
     def run(self, context):
         trainers = context.get(Trainers)
         learnsets = context.get(Learnsets)
+        pokemon_names = context.get(LoadPokemonNamesStep)
+        moves = context.get(Moves)
+        form_mapping = context.get(FormMapping)
+        
+        moves_assigned_count = 0
         
         for trainer in trainers.data:
+            print(f"\nTrainer: {trainer.info.name}")
+            
             for pokemon in trainer.team:
+                index = form_mapping.resolve_data_index(pokemon.species_id)
+                if index > len(learnsets.data):
+                    raise ValueError(f"Pokemon {index} is out of bounds for learnsets data!")
                 # Get the learnset for this Pokemon species
-                if pokemon.species_id < len(learnsets.data):
-                    learnset = learnsets.data[pokemon.species_id]
+                learnset = learnsets.data[index]
                     
-                    # Find all moves this Pokemon can learn up to its current level
-                    available_moves = []
-                    for learn_entry in learnset:
-                        if learn_entry.level <= pokemon.level:
-                            available_moves.append(learn_entry.move_id)
+                # Find all moves this Pokemon can learn up to its current level
+                available_moves = []
+                for learn_entry in learnset:
+                    if learn_entry.level <= pokemon.level:
+                        available_moves.append(learn_entry.move_id)
                     
-                    # Get the last four moves (or all available if less than 4)
-                    if available_moves:
-                        last_four_moves = available_moves[-4:]
+                # Crash if no moves available
+                if not available_moves:
+                    pokemon_name = pokemon_names.get_by_id(index) if index < len(pokemon_names.id_to_name) else f"ID_{index}"
+                    raise RuntimeError(f"Pokemon {pokemon_name} (ID {index}) at level {pokemon.level} in trainer {trainer.info.name} has no available moves!")
+                    
+                # Get the last four moves (or all available if less than 4)
+                last_four_moves = available_moves[-4:]
+                    
+                # Pad with 0 if we have fewer than 4 moves
+                while len(last_four_moves) < 4:
+                    last_four_moves.insert(0, 0)
+                    
+                # Set the moves if this Pokemon has a moves array
+                if hasattr(pokemon, 'moves'):
+                    pokemon.moves = last_four_moves
+                    moves_assigned_count += 1
                         
-                        # Pad with 0 if we have fewer than 4 moves
-                        while len(last_four_moves) < 4:
-                            last_four_moves.insert(0, 0)
+                # Get Pokemon name
+                pokemon_name = pokemon_names.get_by_id(index) if index < len(pokemon_names.id_to_name) else f"ID_{index}"
                         
-                        # Set the moves if this Pokemon has a moves array
-                        if hasattr(pokemon, 'moves'):
-                            pokemon.moves = last_four_moves
+                # Get move names
+                move_names = []
+                for move_id in last_four_moves:
+                    if move_id == 0:
+                        move_names.append("(None)")
+                    elif move_id < len(moves.data):
+                        move_names.append(moves.data[move_id].name)
+                    else:
+                        move_names.append(f"Move_{move_id}")
+                        
+                print(f"  {pokemon_name} (Lv.{pokemon.level}): {', '.join(move_names)}")
+        
+        print(f"\nSetTrainerMovesStep: Successfully assigned moves to {moves_assigned_count} Pokemon")
 
 
 class IdentifyGymTrainers(Extractor):
@@ -1507,7 +1552,7 @@ class IdentifyGymTrainers(Extractor):
         
         gym_definitions = {
             "Violet City": ["Falkner", "Abe", "Rod"],
-            "Azalea Town": ["Bugsy", "Al", "Benny", "Amy & Mimi"],
+            "Azalea Town": ["Bugsy", "Al", "Benny", "Amy & Mimi", "Josh"],
             "Goldenrod City": ["Victoria", "Samantha", "Carrie", "Cathy", "Whitney"],
             "Ecruteak City": ["Georgina", "Grace", "Edith", "Martha", "Morty"],
             "Cianwood City": ["Yoshi", "Lao", "Lung", "Nob", "Chuck"],
@@ -1516,7 +1561,7 @@ class IdentifyGymTrainers(Extractor):
             "Blackthorn City": ["Paulo", "Lola", "Cody", "Fran", "Mike", "Clair"],
             "Pewter City": ["Jerry", "Edwin", "Brock"],
             "Cerulean City": ["Parker", "Eddie", (TrainerClass.SWIMMER_F, "Diana"), "Joy", "Briana", "Misty"],
-            "Vermillion City": ["Horton", "Vincent", "Gregory", "Lt. Surge"],
+            "Vermilion City": ["Horton", "Vincent", "Gregory", "Lt. Surge"],
             "Celadon City": ["Jo & Zoe", "Michelle", "Tanya", "Julia", "Erika"],
             "Fuchsia City": ["Cindy", "Barry", "Alice", "Linda", "Janine"],
             "Saffron City": ["Rebecca", "Jared", "Darcy", "Franklin", "Sabrina"],
@@ -1572,7 +1617,7 @@ class IdentifyBosses(Extractor):
             "Gym leaders" : ["Falkner", "Bugsy", "Whitney", "Morty", "Chuck", "Jasmine", "Pryce", "Clair", "Brock", "Misty", "Sabrina", "Blaine", "Janine", "Lt. Surge", "Erika", "Blue",],
             "Team Rocket Executives": ["Archer", "Ariana", "Petrel", "Proton"],
             "Giovanni": ["Giovanni"],
-            "Red": ["Red"],
+            "Red": ["Red"], #add Leaf later
             "Rival": ["Silver"],  # Main rival battles
             "Champion": ["Lance"],  # Final champion battle
             "Elite Four": ["Will", "Koga", "Bruno", "Karen"],  # Elite Four 
@@ -1600,15 +1645,18 @@ class IdentifyRivals(Extractor):
     # Define starter group trainer IDs as class properties
     @property
     def chikorita_group_ids(self):
+        #Player chose Totodile
         """Trainer IDs for rivals who originally had Chikorita-line starters (Starter slot 0)."""
         return [1, 263, 264, 265, 285, 288, 489, 495, 735]
     
     @property
+    #Player chose Chikorita
     def cyndaquil_group_ids(self):
         """Trainer IDs for rivals who originally had Cyndaquil-line starters (Starter slot 1)."""
         return [2, 266, 267, 268, 286, 289, 490, 496, 736]
     
     @property
+    #Player chose Cyndaquil
     def totodile_group_ids(self):
         """Trainer IDs for rivals who originally had Totodile-line starters (Starter slot 2)."""
         return [3, 269, 270, 271, 272, 287, 491, 497, 737]
@@ -1909,7 +1957,6 @@ class RandomizeOrdinaryTrainersStep(Step):
     def run(self, context):
         trainers = context.get(Trainers)
         gyms = context.get(IdentifyGymTrainers)
-        rivals = context.get(IdentifyRivals)
         mondata = context.get(Mons)
         self.context = context
         
@@ -1920,7 +1967,7 @@ class RandomizeOrdinaryTrainersStep(Step):
         except:
             has_eviolite_users = False
         
-        # Create a set of trainer IDs to exclude (gym trainers and rivals)
+        # Create a set of trainer IDs to exclude (gym trainers)
         excluded_trainer_ids = set()
         
         # Add gym trainer IDs
@@ -1928,10 +1975,6 @@ class RandomizeOrdinaryTrainersStep(Step):
             for trainer in gym.trainers:
                 excluded_trainer_ids.add(trainer.info.trainer_id)
         
-        # Add rival trainer IDs
-        rival_ids = rivals.get_rival_trainer_ids()
-        excluded_trainer_ids.update(rival_ids)
-        print(f"Excluding {len(rival_ids)} rival trainer IDs: {sorted(rival_ids)}")
         
         # Randomize all trainers that aren't in the excluded set
         for trainer in trainers.data:
@@ -1985,9 +2028,9 @@ class ConsistentRivalStarter(Step):
         
         # Rival starter logic: rival gets the starter that's strong against the player's choice
         rival_battle_groups = {
-            0: (rivals.chikorita_group_ids, 2),  #I dont know why this needs to be offset this way. I've searched and I just don't know.
-            1: (rivals.cyndaquil_group_ids, 0),  
-            2: (rivals.totodile_group_ids, 1),   
+            0: (rivals.chikorita_group_ids, 0), 
+            1: (rivals.cyndaquil_group_ids, 1),  
+            2: (rivals.totodile_group_ids, 2),   
         }
         
         
@@ -2103,6 +2146,113 @@ class ConsistentRivalStarter(Step):
                 break
         
         return current_species
+
+class RandomizeWildItemsStep(Step):
+    """
+    Randomizes wild Pokemon held items with special logic for evolution items.
+    
+    
+    Logic:
+    1. If Pokemon evolves with an item (like Fire Stone), there's a 50% chance to place
+       that evolution item in slot 1, otherwise in slot 2
+    2. If Pokemon doesn't evolve with items, assigns random items from allowed categories:
+       HELD, MED, EVO, OBO, VAL, BALL, BER, TM, GEM
+    """
+        
+    def run(self, context):
+        """Execute the wild item randomization."""
+        # Get required extractors
+        mons = context.get(Mons)
+        evolution_data = context.get(EvolutionData)
+        
+        # Get all available items with allowed ItemParam types
+        allowed_item_params = {
+            ItemParam.HELD, ItemParam.MED, ItemParam.EVO, ItemParam.OBO, 
+            ItemParam.VAL, ItemParam.BALL, ItemParam.BER, ItemParam.TM, ItemParam.GEM
+        }
+        
+        # Build list of allowed items (excluding NONE item)
+        allowed_items = []
+        for item in Item:
+            if (hasattr(item, 'item_param') and 
+                item.item_param in allowed_item_params and 
+                item != Item.NONE):
+                allowed_items.append(item)
+        
+        print(f"RandomizeWildItemsStep: Found {len(allowed_items)} allowed items for random assignment")
+        
+        # Track statistics
+        evolution_item_assignments = 0
+        random_assignments = 0
+        
+        # Process each Pokemon
+        for pokemon_id, pokemon in enumerate(mons.data):
+            if pokemon_id >= len(evolution_data.data):
+                continue
+                
+            pokemon_evolution_data = evolution_data.data[pokemon_id]
+            
+            # First, assign random items to both slots for all Pokemon
+            pokemon.item1 = context.decide(["wild_items", pokemon.name, "item1"], pokemon, allowed_items).value if allowed_items else 0
+            pokemon.item2 = context.decide(["wild_items", pokemon.name, "item2"], pokemon, allowed_items).value if allowed_items else 0
+            
+            # Then check if this Pokemon has item-based evolutions and override one slot
+            evolution_items = self._get_evolution_items(pokemon_evolution_data)
+            
+            if evolution_items:
+                # Pokemon evolves with items - override one slot with evolution item
+                selected_item = random.choice(evolution_items)
+                
+                # 50% chance for item1, 50% chance for item2
+                if random.random() < 0.5:
+                    pokemon.item1 = selected_item
+                else:
+                    pokemon.item2 = selected_item
+                
+                evolution_item_assignments += 1
+                
+                print(f"  {pokemon.name}: Evolution item {selected_item} assigned (has {len(evolution_items)} evolution items)")
+            else:
+                random_assignments += 1
+        
+        print(f"RandomizeWildItemsStep completed:")
+        print(f"  - {evolution_item_assignments} Pokemon received evolution items")
+        print(f"  - {random_assignments} Pokemon received random items")
+    
+    def _get_evolution_items(self, pokemon_evolution_data):
+        """
+        Get list of evolution items for a Pokemon.
+        
+        Args:
+            pokemon_evolution_data: Evolution data for a single Pokemon
+            
+        Returns:
+            list: List of item IDs that this Pokemon uses for evolution
+        """
+        evolution_items = []
+        
+        for evolution in pokemon_evolution_data.valid_evolutions:
+            # Check if this evolution method uses items
+            if evolution.method in self._get_item_evolution_methods():
+                evolution_items.append(evolution.parameter)
+        
+        return evolution_items
+    
+    def _get_item_evolution_methods(self):
+        """
+        Get set of evolution method IDs that use items.
+        
+        Returns:
+            set: Set of evolution method values that have EvoParam.ITEM
+        """
+        item_methods = set()
+        
+        for method in EvolutionMethod:
+            if method.param_type == EvoParam.ITEM:
+                item_methods.add(method.value)
+        
+        return item_methods
+
 
 
 class ForceEvolvedTrainerPokemon(Step):
@@ -2438,7 +2588,7 @@ class TypeMimics(ReadTypeList):
     from type_mimics import type_mimics_data
     mons_by_type = type_mimics_data
 
-class RandomizeAbilitiesStep(Step):
+class RandomizeTrainerAbilities(Step):
     """Pipeline step to randomize trainer Pokemon abilities.
     
     Supports two modes:

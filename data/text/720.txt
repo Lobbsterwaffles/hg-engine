@@ -1,7 +1,8 @@
- -
+-
 Stench
 Drizzle
 Speed Boost
+Battle Armor
 Sturdy
 Damp
 Limber
@@ -69,6 +70,9 @@ Swarm
 Rock Head
 Drought
 Arena Trap
+Vital Spirit
+White Smoke
+Pure Power
 Shell Armor
 Air Lock
 Tangled Feet
@@ -105,11 +109,12 @@ Anticipation
 Forewarn
 Unaware
 Tinted Lens
+Filter
 Slow Start
 Scrappy
 Storm Drain
 Ice Body
-Filter
+Solid Rock
 Snow Warning
 Honey Gather
 Frisk
@@ -293,19 +298,14 @@ Teraform Zero
 Poison Puppeteer
 Queenly Majesty
 Armor Tail
-Battle Armor
-White Smoke
 Tangling Hair
 Libero
 Turboblaze
 Teravolt
 Power of Alchemy
-Vital Spirit
 Shadow Shield
 Iron Barbs
 Propeller Tail
-Solid Rock
 Embody Aspect
 Embody Aspect
 Embody Aspect
-Pure Power
