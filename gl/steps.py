@@ -491,9 +491,23 @@ class RandomizeStartersStep(Step):
                 candidates=candidates,
                 filter=self.filter
             )
-            starter_extractor.data.starter_id[i] = new_starter.pokemon_id
+            starter_extractor.data.starter_id[i] = encode_species_for_encounter(new_starter)
 
 
+class DebugForceGalarianDarumakaStarterStep(Step):
+    """Temporary debugging step to force slot 0 starter to be Galarian Darumaka."""
+    
+    def run(self, context):
+        starter_extractor = context.get(StarterExtractor)
+        mons = context.get(Mons)
+        
+        # Force slot 0 starter to be Galarian Darumaka (ID 1171)
+        galarian_darumaka_id = 1171
+        starter_extractor.data.starter_id[0] = galarian_darumaka_id
+        
+        # Log the change for debugging
+        galarian_darumaka = mons.data[galarian_darumaka_id]
+        print(f"DEBUG: Forced starter slot 0 to Galarian Darumaka (ID: {galarian_darumaka_id}, Name: {galarian_darumaka.name})")
 
 
 class LoadEncounterNamesStep(Extractor):
@@ -1922,6 +1936,300 @@ class RandomizeGymsStep(Step):
             pokemon.species_id = encoded_species
         
     
+
+class AddPivotStep(Step):
+    """Adds a Pivot Pokémon to gym trainers based on the gym type.
+    
+    Condition: only apply if the trainer has at least 4 Pokémon.
+    Replaces one non-ace Pokémon with a mon matching a type combination (or ability) from pivots_type_data.
+    Records the replaced slot as trainer._pivot_slot for later steps.
+    """
+    
+    def __init__(self, filter):
+        """Initialize with filter for candidate selection.
+        
+        Args:
+            filter: Filter to apply for Pokemon selection (should include BST filtering)
+        """
+        # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
+        form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
+        self.filter = AllFilters([filter, form_filter])
+    
+    def run(self, context):
+        gyms = context.get(IdentifyGymTrainers)
+        mondata = context.get(Mons)
+        ability_names = context.get(LoadAbilityNames)
+        self.context = context
+        
+        # Build reverse ability lookup: name -> id(s)
+        ability_name_to_ids = ability_names.name_to_ids
+        
+        for gym_name, gym in gyms.data.items():
+            if gym.type is None:
+                continue
+            for trainer in gym.trainers:
+                if not trainer.team or len(trainer.team) < 4:
+                    continue
+                # Choose a non-ace slot that hasn't been used by previous steps
+                used_slots = set()
+                if hasattr(trainer, '_pivot_slot') and trainer._pivot_slot is not None:
+                    used_slots.add(trainer._pivot_slot)
+                if hasattr(trainer, '_fulcrum_slot') and trainer._fulcrum_slot is not None:
+                    used_slots.add(trainer._fulcrum_slot)
+                if hasattr(trainer, '_mimic_slot') and trainer._mimic_slot is not None:
+                    used_slots.add(trainer._mimic_slot)
+                slot = self._choose_replacement_slot(trainer, used_slots)
+                if slot is None:
+                    continue
+                # Get the original Pokemon being replaced for BST matching
+                # Decode species_id in case it contains form encoding (species | (formid<<11))
+                raw_species_id = trainer.team[slot].species_id & 0x7FF
+                original_pokemon = mondata.data[raw_species_id]
+                candidate = self._pick_pivot_candidate(mondata, ability_name_to_ids, gym.type, original_pokemon)
+                if candidate is None:
+                    continue
+                final_species = select_cosmetic_variant(
+                    context, mondata, candidate.pokemon_id,
+                    ["gyms", gym_name, trainer.info.name, "pivot", "cosmetic_form"]
+                )
+                trainer.team[slot].species_id = encode_species_for_encounter(final_species)
+                trainer._pivot_slot = slot
+
+    def _choose_replacement_slot(self, trainer, used_slots):
+        # Prefer non-ace, non-used slots
+        indices = list(range(len(trainer.team)))
+        if trainer.ace_index is not None:
+            indices = [i for i in indices if i != trainer.ace_index]
+        # Remove used slots
+        indices = [i for i in indices if i not in used_slots]
+        if not indices:
+            return None
+        # Use decide to select slot with proper logging
+        selected_slot = self.context.decide(
+            path=["gyms", "pivot", trainer.info.name, "replacement_slot"],
+            original=0,  # Default to first slot as original
+            candidates=indices
+        )
+        return selected_slot
+
+    def _pick_pivot_candidate(self, mondata, ability_name_to_ids, gym_type, original_pokemon):
+        from pivots import pivots_type_data, HasAbility
+        desired = pivots_type_data.get(gym_type, [])
+        # Use decide to select requirement order instead of random.shuffle
+        if desired:
+            selected_req = self.context.decide(
+                path=["gyms", "pivot", gym_type, "requirement_order"],
+                original=desired[0],
+                candidates=desired
+            )
+            # Move selected requirement to front, keep others in original order
+            desired = [selected_req] + [req for req in desired if req != selected_req]
+        
+        # Build candidate list once
+        candidates = [m for m in mondata.data if m.name]
+        
+        for req in desired:
+            if isinstance(req, HasAbility):
+                # ability match
+                ability_ids = ability_name_to_ids.get(req.ability_name, [])
+                pool = [m for m in candidates if (m.ability1 in ability_ids or m.ability2 in ability_ids)]
+            else:
+                (t1, t2) = req
+                pool = [m for m in candidates if self._matches_type_pair(m, t1, t2)]
+            if pool:
+                # Debug logging for filtering
+                print(f"DEBUG: Original Pokemon: {original_pokemon.name} (BST: {original_pokemon.bst})")
+                print(f"DEBUG: Pool size before filter: {len(pool)}")
+                print(f"DEBUG: Pool candidates: {[f'{p.name}({p.bst})' for p in pool[:5]]}")  # Show first 5
+                
+                return self.context.decide(
+                    path=["gyms", "pivot", gym_type, "candidate"],
+                    original=original_pokemon,  # Use original Pokemon for BST matching
+                    candidates=pool,
+                    filter=self.filter
+                )
+        return None
+
+    def _matches_type_pair(self, mon, t1, t2):
+        # Match types ignoring order. Mono-type represented by same type twice also OK.
+        mtypes = {int(mon.type1), int(mon.type2)}
+        req = {int(t1), int(t2)}
+        return req == mtypes or (len(req) == 1 and list(req)[0] in mtypes)
+
+
+class AddFulcrumStep(Step):
+    """Adds a Fulcrum Pokémon to gym trainers based on the gym type.
+    
+    Condition: only if the trainer has at least 5 Pokémon.
+    Replaces one non-ace, non-pivot Pokémon using fulcrums_type_data.
+    Records the replaced slot as trainer._fulcrum_slot.
+    """
+    
+    def __init__(self, filter):
+        """Initialize with filter for candidate selection.
+        
+        Args:
+            filter: Filter to apply for Pokemon selection (should include BST filtering)
+        """
+        # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
+        form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
+        self.filter = AllFilters([filter, form_filter])
+
+    def run(self, context):
+        gyms = context.get(IdentifyGymTrainers)
+        mondata = context.get(Mons)
+        self.context = context
+        
+        for gym_name, gym in gyms.data.items():
+            if gym.type is None:
+                continue
+            for trainer in gym.trainers:
+                if not trainer.team or len(trainer.team) < 5:
+                    continue
+                used_slots = set()
+                if hasattr(trainer, '_pivot_slot') and trainer._pivot_slot is not None:
+                    used_slots.add(trainer._pivot_slot)
+                if hasattr(trainer, '_fulcrum_slot') and trainer._fulcrum_slot is not None:
+                    used_slots.add(trainer._fulcrum_slot)
+                if hasattr(trainer, '_mimic_slot') and trainer._mimic_slot is not None:
+                    used_slots.add(trainer._mimic_slot)
+                slot = AddPivotStep._choose_replacement_slot(self, trainer, used_slots)
+                if slot is None:
+                    continue
+                # Get the original Pokemon being replaced for BST matching
+                # Decode species_id in case it contains form encoding (species | (formid<<11))
+                raw_species_id = trainer.team[slot].species_id & 0x7FF
+                original_pokemon = mondata.data[raw_species_id]
+                candidate = self._pick_fulcrum_candidate(mondata, gym.type, original_pokemon)
+                if candidate is None:
+                    continue
+                final_species = select_cosmetic_variant(
+                    context, mondata, candidate.pokemon_id,
+                    ["gyms", gym_name, trainer.info.name, "fulcrum", "cosmetic_form"]
+                )
+                trainer.team[slot].species_id = encode_species_for_encounter(final_species)
+                trainer._fulcrum_slot = slot
+
+    def _pick_fulcrum_candidate(self, mondata, gym_type, original_pokemon):
+        from fulcrums import fulcrums_type_data
+        desired = fulcrums_type_data.get(gym_type, [])
+        # Use decide to select requirement order instead of random.shuffle
+        if desired:
+            selected_req = self.context.decide(
+                path=["gyms", "fulcrum", gym_type, "requirement_order"],
+                original=desired[0],
+                candidates=desired
+            )
+            # Move selected requirement to front, keep others in original order
+            desired = [selected_req] + [req for req in desired if req != selected_req]
+        
+        candidates = [m for m in mondata.data if m.name]
+        
+        for (t1, t2) in desired:
+            pool = [m for m in candidates if AddPivotStep._matches_type_pair(self, m, t1, t2)]
+            if pool:
+                return self.context.decide(
+                    path=["gyms", "fulcrum", gym_type, "candidate"],
+                    original=original_pokemon,  # Use original Pokemon for BST matching
+                    candidates=pool,
+                    filter=self.filter
+                )
+        return None
+
+
+class AddTypeMimicStep(Step):
+    """Adds a Type Mimic Pokémon based on the gym type.
+    
+    Condition: trainer must have exactly 6 Pokémon.
+    Replaces one non-ace, non-pivot, non-fulcrum Pokémon using type_mimics_data.
+    Records the replaced slot as trainer._mimic_slot.
+    """
+    
+    def __init__(self, filter):
+        """Initialize with filter for candidate selection.
+        
+        Args:
+            filter: Filter to apply for Pokemon selection (should include BST filtering)
+        """
+        # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
+        form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
+        self.filter = AllFilters([filter, form_filter])
+
+    def run(self, context):
+        gyms = context.get(IdentifyGymTrainers)
+        mondata = context.get(Mons)
+        pokemon_names = context.get(LoadPokemonNamesStep)
+        form_mapping = context.get(FormMapping)
+        self.context = context
+        
+        for gym_name, gym in gyms.data.items():
+            if gym.type is None:
+                continue
+            for trainer in gym.trainers:
+                if not trainer.team or len(trainer.team) != 6:
+                    continue
+                used_slots = set()
+                if hasattr(trainer, '_pivot_slot') and trainer._pivot_slot is not None:
+                    used_slots.add(trainer._pivot_slot)
+                if hasattr(trainer, '_fulcrum_slot') and trainer._fulcrum_slot is not None:
+                    used_slots.add(trainer._fulcrum_slot)
+                if hasattr(trainer, '_mimic_slot') and trainer._mimic_slot is not None:
+                    used_slots.add(trainer._mimic_slot)
+                slot = AddPivotStep._choose_replacement_slot(self, trainer, used_slots)
+                if slot is None:
+                    continue
+                # Get the original Pokemon being replaced for BST matching
+                # Decode species_id in case it contains form encoding (species | (formid<<11))
+                raw_species_id = trainer.team[slot].species_id & 0x7FF
+                original_pokemon = mondata.data[raw_species_id]
+                candidate = self._pick_mimic_candidate(mondata, pokemon_names, form_mapping, gym.type, original_pokemon)
+                if candidate is None:
+                    continue
+                final_species = select_cosmetic_variant(
+                    context, mondata, candidate.pokemon_id,
+                    ["gyms", gym_name, trainer.info.name, "mimic", "cosmetic_form"]
+                )
+                trainer.team[slot].species_id = encode_species_for_encounter(final_species)
+                trainer._mimic_slot = slot
+
+    def _pick_mimic_candidate(self, mondata, pokemon_names, form_mapping, gym_type, original_pokemon):
+        from type_mimics import type_mimics_data
+        names = type_mimics_data.get(gym_type, [])
+        if not names:
+            return None
+        # Resolve names (string or (base, form)) to species IDs
+        ids = []
+        for entry in names:
+            if isinstance(entry, tuple) and len(entry) == 2:
+                # form tuple
+                form_id = self._find_form_by_names(entry[0], entry[1], form_mapping)
+                if form_id is not None:
+                    ids.append(form_id)
+            else:
+                try:
+                    ids.append(pokemon_names.get_by_name(entry))
+                except KeyError:
+                    pass
+        if not ids:
+            return None
+        # Build allowed candidates set
+        id_set = set(ids)
+        pool = [m for m in mondata.data if m.name and m.pokemon_id in id_set]
+        if not pool:
+            return None
+        
+        return self.context.decide(
+            path=["gyms", "mimic", gym_type, "candidate"],
+            original=original_pokemon,  # Use original Pokemon for BST matching
+            candidates=pool,
+            filter=self.filter
+        )
+
+    def _find_form_by_names(self, base_name, form_name, form_mapper):
+        for form_id, (mapped_base_name, mapped_form_name, form_category) in form_mapper.ALL_FORMS.items():
+            if mapped_base_name == base_name and mapped_form_name == form_name:
+                return form_id
+        return None
 
 class FormCategoryFilter(SimpleFilter):
     """Filter that only allows forms from specified categories."""
