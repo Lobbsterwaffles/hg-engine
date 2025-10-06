@@ -1585,7 +1585,7 @@ class IdentifyGymTrainers(Extractor):
             "Koga": ["Koga",],
             "Bruno": ["Bruno",],
             "Karen": ["Karen",],
-            "Lance": ["Lance",],
+            #"Lance": ["Lance",],
             
             #champion should be separate entity that we can modify without touching "gyms", as should rival fights
             
