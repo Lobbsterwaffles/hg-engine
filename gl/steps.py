@@ -4,6 +4,53 @@ from form_mapping import FormMapping, FormCategory
 from extractors import *
 import random
 
+class DebugChikoritaWonderGuardStep(Step):
+    """Temporary debugging step that gives Chikorita Wonder Guard ability."""
+    
+    def run(self, context):
+        mondata = context.get(Mons)
+        ability_names = context.get(LoadAbilityNames)
+        
+        # Find Chikorita (Pokemon ID 152)
+        chikorita_id = 152
+        if chikorita_id < len(mondata.data):
+            chikorita = mondata.data[chikorita_id]
+            if chikorita.name == "Chikorita":
+                # Wonder Guard is ability ID 25 (from data/text/720.txt)
+                wonder_guard_id = 25
+                
+                print(f"DEBUG: Changing {chikorita.name} ability1 from {chikorita.ability1} to {wonder_guard_id} (Wonder Guard)")
+                chikorita.ability1 = wonder_guard_id
+                print(f"DEBUG: {chikorita.name} now has ability1={chikorita.ability1}, ability2={chikorita.ability2}")
+            else:
+                print(f"DEBUG: Pokemon at ID {chikorita_id} is {chikorita.name}, not Chikorita")
+        else:
+            print(f"DEBUG: Pokemon ID {chikorita_id} is out of range")
+
+class DebugHootHootMasterBallStep(Step):
+    """Temporary debugging step that gives HootHoot Master Ball items."""
+    
+    def run(self, context):
+        mondata = context.get(Mons)
+        
+        # Find HootHoot - it should be Pokemon ID 163 (Gen 2)
+        hoothoot_id = 163
+        if hoothoot_id < len(mondata.data):
+            hoothoot = mondata.data[hoothoot_id]
+            if hoothoot.name == "Hoothoot":
+                # Master Ball is item ID 1 (from enums.py)
+                master_ball_id = Item.MASTER_BALL.value  # This is 1
+                
+                print(f"DEBUG: Changing {hoothoot.name} item1 from {hoothoot.item1} to {master_ball_id} (Master Ball)")
+                print(f"DEBUG: Changing {hoothoot.name} item2 from {hoothoot.item2} to {master_ball_id} (Master Ball)")
+                hoothoot.item1 = master_ball_id
+                hoothoot.item2 = master_ball_id
+                print(f"DEBUG: {hoothoot.name} now has item1={hoothoot.item1}, item2={hoothoot.item2}")
+            else:
+                print(f"DEBUG: Pokemon at ID {hoothoot_id} is {hoothoot.name}, not Hoothoot")
+        else:
+            print(f"DEBUG: Pokemon ID {hoothoot_id} is out of range")
+
 def select_cosmetic_variant(context, mondata, base_species_id, decision_path):
     """Select a random cosmetic variant (including base form) for the given Pokemon."""
     
@@ -2501,25 +2548,42 @@ class RandomizeWildItemsStep(Step):
             pokemon_evolution_data = evolution_data.data[pokemon_id]
             
             # First, assign random items to both slots for all Pokemon
-            pokemon.item1 = context.decide(["wild_items", pokemon.name, "item1"], pokemon, allowed_items).value if allowed_items else 0
-            pokemon.item2 = context.decide(["wild_items", pokemon.name, "item2"], pokemon, allowed_items).value if allowed_items else 0
+            if allowed_items:
+                item1 = context.decide(["wild_items", pokemon.name, "item1"], allowed_items[0], allowed_items)
+                item2 = context.decide(["wild_items", pokemon.name, "item2"], allowed_items[0], allowed_items)
+                pokemon.item1 = item1.value
+                pokemon.item2 = item2.value
+            else:
+                pokemon.item1 = 0
+                pokemon.item2 = 0
             
             # Then check if this Pokemon has item-based evolutions and override one slot
             evolution_items = self._get_evolution_items(pokemon_evolution_data)
             
             if evolution_items:
                 # Pokemon evolves with items - override one slot with evolution item
-                selected_item = random.choice(evolution_items)
+                # Use context.decide for consistent randomization
+                selected_item_id = context.decide(
+                    ["wild_items", pokemon.name, "evolution_item"], 
+                    evolution_items[0], 
+                    evolution_items
+                )
                 
-                # 50% chance for item1, 50% chance for item2
-                if random.random() < 0.5:
-                    pokemon.item1 = selected_item
+                # Use context.decide to choose which slot (item1 or item2)
+                slot_choice = context.decide(
+                    ["wild_items", pokemon.name, "evolution_slot"],
+                    0,  # original: item1 (0)
+                    [0, 1]  # candidates: item1 (0) or item2 (1)
+                )
+                
+                if slot_choice == 0:
+                    pokemon.item1 = selected_item_id
                 else:
-                    pokemon.item2 = selected_item
+                    pokemon.item2 = selected_item_id
                 
                 evolution_item_assignments += 1
                 
-                print(f"  {pokemon.name}: Evolution item {selected_item} assigned (has {len(evolution_items)} evolution items)")
+                print(f"  {pokemon.name}: Evolution item {selected_item_id} assigned (has {len(evolution_items)} evolution items)")
             else:
                 random_assignments += 1
         
