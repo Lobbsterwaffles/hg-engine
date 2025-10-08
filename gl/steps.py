@@ -4,52 +4,60 @@ from form_mapping import FormMapping, FormCategory
 from extractors import *
 import random
 
-class DebugChikoritaWonderGuardStep(Step):
-    """Temporary debugging step that gives Chikorita Wonder Guard ability."""
+class DebugHootHootToGrowlitheStep(Step):
+    """Temporary debugging step that forces all HootHoot encounters to be replaced by Growlithe."""
     
     def run(self, context):
+        encounters = context.get(Encounters)
         mondata = context.get(Mons)
-        ability_names = context.get(LoadAbilityNames)
         
-        # Find Chikorita (Pokemon ID 152)
-        chikorita_id = 152
-        if chikorita_id < len(mondata.data):
-            chikorita = mondata.data[chikorita_id]
-            if chikorita.name == "Chikorita":
-                # Wonder Guard is ability ID 25 (from data/text/720.txt)
-                wonder_guard_id = 25
-                
-                print(f"DEBUG: Changing {chikorita.name} ability1 from {chikorita.ability1} to {wonder_guard_id} (Wonder Guard)")
-                chikorita.ability1 = wonder_guard_id
-                print(f"DEBUG: {chikorita.name} now has ability1={chikorita.ability1}, ability2={chikorita.ability2}")
-            else:
-                print(f"DEBUG: Pokemon at ID {chikorita_id} is {chikorita.name}, not Chikorita")
-        else:
-            print(f"DEBUG: Pokemon ID {chikorita_id} is out of range")
+        # Find HootHoot and Growlithe IDs
+        hoothoot_id = None
+        growlithe_id = None
+        
+        for pokemon_id, pokemon in enumerate(mondata.data):
+            if pokemon.name == "Hoothoot":
+                hoothoot_id = pokemon_id
+            elif pokemon.name == "Growlithe":
+                growlithe_id = pokemon_id
+        
+        if hoothoot_id is None:
+            print("DEBUG: Could not find Hoothoot in mondata")
+            return
+        if growlithe_id is None:
+            print("DEBUG: Could not find Growlithe in mondata")
+            return
+            
+        print(f"DEBUG: Replacing all Hoothoot (ID {hoothoot_id}) encounters with Growlithe (ID {growlithe_id})")
+        
+        replacements_made = 0
+        
+        # Process all encounter locations
+        for location_id, encounter in enumerate(encounters.data):
+            # Check morning encounters
+            for i, species_id in enumerate(encounter.morning):
+                if species_id == hoothoot_id:
+                    encounter.morning[i] = growlithe_id
+                    replacements_made += 1
+                    print(f"DEBUG: Location {location_id} morning slot {i}: Hoothoot -> Growlithe")
+            
+            # Check day encounters  
+            for i, species_id in enumerate(encounter.day):
+                if species_id == hoothoot_id:
+                    encounter.day[i] = growlithe_id
+                    replacements_made += 1
+                    print(f"DEBUG: Location {location_id} day slot {i}: Hoothoot -> Growlithe")
+            
+            # Check night encounters
+            for i, species_id in enumerate(encounter.night):
+                if species_id == hoothoot_id:
+                    encounter.night[i] = growlithe_id
+                    replacements_made += 1
+                    print(f"DEBUG: Location {location_id} night slot {i}: Hoothoot -> Growlithe")
+        
+        print(f"DEBUG: Made {replacements_made} HootHoot -> Growlithe replacements")
 
-class DebugHootHootMasterBallStep(Step):
-    """Temporary debugging step that gives HootHoot Master Ball items."""
-    
-    def run(self, context):
-        mondata = context.get(Mons)
-        
-        # Find HootHoot - it should be Pokemon ID 163 (Gen 2)
-        hoothoot_id = 163
-        if hoothoot_id < len(mondata.data):
-            hoothoot = mondata.data[hoothoot_id]
-            if hoothoot.name == "Hoothoot":
-                # Master Ball is item ID 1 (from enums.py)
-                master_ball_id = Item.MASTER_BALL.value  # This is 1
-                
-                print(f"DEBUG: Changing {hoothoot.name} item1 from {hoothoot.item1} to {master_ball_id} (Master Ball)")
-                print(f"DEBUG: Changing {hoothoot.name} item2 from {hoothoot.item2} to {master_ball_id} (Master Ball)")
-                hoothoot.item1 = master_ball_id
-                hoothoot.item2 = master_ball_id
-                print(f"DEBUG: {hoothoot.name} now has item1={hoothoot.item1}, item2={hoothoot.item2}")
-            else:
-                print(f"DEBUG: Pokemon at ID {hoothoot_id} is {hoothoot.name}, not Hoothoot")
-        else:
-            print(f"DEBUG: Pokemon ID {hoothoot_id} is out of range")
+
 
 def select_cosmetic_variant(context, mondata, base_species_id, decision_path):
     """Select a random cosmetic variant (including base form) for the given Pokemon."""
@@ -2549,8 +2557,12 @@ class RandomizeWildItemsStep(Step):
             
             # First, assign random items to both slots for all Pokemon
             if allowed_items:
-                item1 = context.decide(["wild_items", pokemon.name, "item1"], allowed_items[0], allowed_items)
-                item2 = context.decide(["wild_items", pokemon.name, "item2"], allowed_items[0], allowed_items)
+                # Use current item values as originals, or NONE if no current item
+                original_item1 = next((item for item in Item if item.value == pokemon.item1), Item.NONE)
+                original_item2 = next((item for item in Item if item.value == pokemon.item2), Item.NONE)
+                
+                item1 = context.decide(["wild_items", pokemon.name, "item1"], original_item1, allowed_items)
+                item2 = context.decide(["wild_items", pokemon.name, "item2"], original_item2, allowed_items)
                 pokemon.item1 = item1.value
                 pokemon.item2 = item2.value
             else:
@@ -2576,14 +2588,21 @@ class RandomizeWildItemsStep(Step):
                     [0, 1]  # candidates: item1 (0) or item2 (1)
                 )
                 
+                print(f"DEBUG: About to assign evolution item - selected_item_id={selected_item_id} (type: {type(selected_item_id)}), slot_choice={slot_choice}")
+                print(f"DEBUG: Before assignment - item1={pokemon.item1}, item2={pokemon.item2}")
+                
                 if slot_choice == 0:
                     pokemon.item1 = selected_item_id
+                    print(f"DEBUG: Assigned to item1 - new value={pokemon.item1}")
                 else:
                     pokemon.item2 = selected_item_id
+                    print(f"DEBUG: Assigned to item2 - new value={pokemon.item2}")
                 
                 evolution_item_assignments += 1
                 
-                print(f"  {pokemon.name}: Evolution item {selected_item_id} assigned (has {len(evolution_items)} evolution items)")
+                # Find the item name for display
+                item_name = next((item.name for item in Item if item.value == selected_item_id), f"Unknown_Item_{selected_item_id}")
+                print(f"  {pokemon.name}: Evolution item {item_name} (ID {selected_item_id}) assigned (has {len(evolution_items)} evolution items)")
             else:
                 random_assignments += 1
         
