@@ -113,6 +113,89 @@ class EvolutionMethod(enum.IntEnum):
     AMOUNT_OF_CRITICAL_HITS = 36, EvoParam.OTHER
     HURT_IN_BATTLE_AMOUNT = 37, EvoParam.OTHER
 
+class Nature(enum.IntEnum):
+    NATURE_HARDY = 0
+    NATURE_LONELY = 1
+    NATURE_BRAVE = 2
+    NATURE_ADAMANT = 3
+    NATURE_NAUGHTY = 4
+    NATURE_BOLD = 5
+    NATURE_DOCILE = 6
+    NATURE_RELAXED = 7
+    NATURE_IMPISH = 8
+    NATURE_LAX = 9
+    NATURE_TIMID = 10
+    NATURE_HASTY = 11
+    NATURE_SERIOUS = 12
+    NATURE_JOLLY = 13
+    NATURE_NAIVE = 14
+    NATURE_MODEST = 15
+    NATURE_MILD = 16
+    NATURE_QUIET = 17
+    NATURE_BASHFUL = 18
+    NATURE_RASH = 19
+    NATURE_CALM = 20
+    NATURE_GENTLE = 21
+    NATURE_SASSY = 22
+    NATURE_CAREFUL = 23
+    NATURE_QUIRKY = 24
+ 
+class Stat(enum.IntEnum):
+    """Pokemon battle stats that can be modified by natures."""
+    HP = 0
+    ATTACK = 1
+    DEFENSE = 2
+    SP_ATTACK = 3
+    SP_DEFENSE = 4
+    SPEED = 5
+
+
+class NatureData(enum.IntEnum):
+    """Nature stat modifications.
+    
+    Each nature has:
+    - raised_stat: Which stat gets +10% (None for neutral natures)
+    - lowered_stat: Which stat gets -10% (None for neutral natures)
+    """
+    
+    def __new__(cls, value, raised_stat=None, lowered_stat=None):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.raised_stat = raised_stat
+        obj.lowered_stat = lowered_stat
+        return obj
+    
+    # Neutral natures (no stat changes)
+    HARDY = 0, None, None
+    DOCILE = 6, None, None
+    SERIOUS = 12, None, None
+    BASHFUL = 18, None, None
+    QUIRKY = 24, None, None
+    
+    LONELY = 1, Stat.ATTACK, Stat.DEFENSE
+    BRAVE = 2, Stat.ATTACK, Stat.SPEED
+    ADAMANT = 3, Stat.ATTACK, Stat.SP_ATTACK
+    NAUGHTY = 4, Stat.ATTACK, Stat.SP_DEFENSE
+    
+    BOLD = 5, Stat.DEFENSE, Stat.ATTACK
+    RELAXED = 7, Stat.DEFENSE, Stat.SPEED
+    IMPISH = 8, Stat.DEFENSE, Stat.SP_ATTACK
+    LAX = 9, Stat.DEFENSE, Stat.SP_DEFENSE
+    
+    TIMID = 10, Stat.SPEED, Stat.ATTACK
+    HASTY = 11, Stat.SPEED, Stat.DEFENSE
+    JOLLY = 13, Stat.SPEED, Stat.SP_ATTACK
+    NAIVE = 14, Stat.SPEED, Stat.SP_DEFENSE
+    
+    MODEST = 15, Stat.SP_ATTACK, Stat.ATTACK
+    MILD = 16, Stat.SP_ATTACK, Stat.DEFENSE
+    QUIET = 17, Stat.SP_ATTACK, Stat.SPEED
+    RASH = 19, Stat.SP_ATTACK, Stat.SP_DEFENSE
+    
+    CALM = 20, Stat.SP_DEFENSE, Stat.ATTACK
+    GENTLE = 21, Stat.SP_DEFENSE, Stat.DEFENSE
+    SASSY = 22, Stat.SP_DEFENSE, Stat.SPEED
+    CAREFUL = 23, Stat.SP_DEFENSE, Stat.SP_ATTACK
 
 class TrainerDataType(enum.IntFlag):
     NOTHING = 0x00

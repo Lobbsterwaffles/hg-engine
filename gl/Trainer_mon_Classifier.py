@@ -30,6 +30,11 @@ class TrainerMonClassifier:
     FRAIL = "Frail"              # highest Defensive stat < 86 and HP < 86 OR has a 4x weakness
     BALANCED = "Balanced"          # highest offensive stat and lowest defensive stat within 20%
     
+    # Speed classifications
+    FAST = "Fast"                # Base Speed >= 100
+    MIDSPEED = "Midspeed"        # Base Speed 65-99
+    SLOW = "Slow"                # Base Speed < 65
+    
     def __init__(self, context):
         """
         Initialize the classifier with randomization context.
@@ -183,11 +188,11 @@ class TrainerMonClassifier:
         classifications = {}
         
         # Get species data
-        if not self.pokemon_data or pokemon.species_id not in self.pokemon_data.data:
+        try:
+            mon = self.pokemon_data[pokemon.species_id]
+        except (KeyError, IndexError):
             print(f"Warning: No species data for Pokémon ID {pokemon.species_id}")
             return classifications
-        
-        mon = self.pokemon_data[pokemon.species_id]
         
         # Stat-based classifications
         self._classify_by_stats(pokemon, mon, classifications)
@@ -244,6 +249,14 @@ class TrainerMonClassifier:
         ratio = highest_offensive / lowest_defensive
         if 0.8 <= ratio <= 1.2:  # Within 20% of each other
             classifications[self.BALANCED] = True
+        
+        # Speed classifications
+        if mon.speed >= 100:
+            classifications[self.FAST] = True
+        elif mon.speed >= 65:
+            classifications[self.MIDSPEED] = True
+        else:
+            classifications[self.SLOW] = True
     
 
     def _classify_by_moves(self, pokemon, classifications):
@@ -339,18 +352,18 @@ class TrainerMonClassifier:
         # For primary type
         if type1 is not None:
             classifications['Type1'] = {
-                'id': type1.value,
-                'name': type1.name
+                'id': type1,
+                'name': str(type1)
             }
         # For secondary type
         if type2 is not None and type2 != type1:  # Avoid duplicate types
             classifications['Type2'] = {
-                'id': type2.value,
-                'name': type2.name
-         }
+                'id': type2,
+                'name': str(type2)
+            }
         
         # Calculate weaknesses using TypeEffectiveness module
-        weaknesses = self.get_weaknesses(pokemon, mon)
+        weaknesses = self.get_weaknesses(pokemon)
         
         if weaknesses:
             classifications['Weaknesses'] = {
@@ -364,16 +377,16 @@ class TrainerMonClassifier:
                 if effectiveness > 1.0:
                     if effectiveness >= 4.0:
                         classifications['Weaknesses']['very_weak'].append({
-                            'type_id': attack_type.value,
-                            'type_name': attack_type.name,
+                            'type_id': attack_type,
+                            'type_name': str(attack_type),
                             'effectiveness': effectiveness
                         })
                         # If a Pokémon has a 4x weakness, it's considered Frail
                         classifications[self.FRAIL] = True
                     elif effectiveness >= 2.0:
                         classifications['Weaknesses']['weak'].append({
-                            'type_id': attack_type.value,
-                            'type_name': attack_type.name,
+                            'type_id': attack_type,
+                            'type_name': str(attack_type),
                             'effectiveness': effectiveness
                         })
             
@@ -538,24 +551,24 @@ class TrainerMonClassifier:
         """
         # Type name to ID mapping
         type_map = {
-            'NORMAL': TYPE_NORMAL,
-            'FIGHTING': TYPE_FIGHTING,
-            'FLYING': TYPE_FLYING,
-            'POISON': TYPE_POISON,
-            'GROUND': TYPE_GROUND,
-            'ROCK': TYPE_ROCK,
-            'BUG': TYPE_BUG,
-            'GHOST': TYPE_GHOST,
-            'STEEL': TYPE_STEEL,
-            'FIRE': TYPE_FIRE,
-            'WATER': TYPE_WATER,
-            'GRASS': TYPE_GRASS,
-            'ELECTRIC': TYPE_ELECTRIC,
-            'PSYCHIC': TYPE_PSYCHIC,
-            'ICE': TYPE_ICE,
-            'DRAGON': TYPE_DRAGON,
-            'DARK': TYPE_DARK,
-            'FAIRY': TYPE_FAIRY
+            'NORMAL': Type.NORMAL,
+            'FIGHTING': Type.FIGHTING,
+            'FLYING': Type.FLYING,
+            'POISON': Type.POISON,
+            'GROUND': Type.GROUND,
+            'ROCK': Type.ROCK,
+            'BUG': Type.BUG,
+            'GHOST': Type.GHOST,
+            'STEEL': Type.STEEL,
+            'FIRE': Type.FIRE,
+            'WATER': Type.WATER,
+            'GRASS': Type.GRASS,
+            'ELECTRIC': Type.ELECTRIC,
+            'PSYCHIC': Type.PSYCHIC,
+            'ICE': Type.ICE,
+            'DRAGON': Type.DRAGON,
+            'DARK': Type.DARK,
+            'FAIRY': Type.FAIRY
         }
         
         try:
@@ -598,11 +611,11 @@ class TrainerMonClassifier:
             dict: A dictionary of type IDs to weakness multipliers.
                   Or None if type effectiveness data is not available.
         """
-        if not self.pokemon_data or pokemon.species_id not in self.pokemon_data.data:
+        try:
+            mon = self.pokemon_data[pokemon.species_id]
+        except (KeyError, IndexError):
             print(f"Warning: No species data for Pokémon ID {pokemon.species_id}")
             return None
-        
-        mon = self.pokemon_data[pokemon.species_id]
         type1 = mon.type1
         type2 = mon.type2
         

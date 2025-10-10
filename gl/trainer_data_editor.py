@@ -8,7 +8,7 @@ for trainer Pokemon based on various criteria like attacker type, level, etc.
 from framework import Extractor, Step
 from steps import Mons, Moves, EggMoves, Learnsets, TMHM, TrainerData, IdentifyTier, LoadPokemonNamesStep, LoadAbilityNames, LoadMoveNamesStep, Trainers, IdentifyBosses
 from extractors import EvioliteUser
-from enums import Split, Item, Type, Tier
+from enums import Split, Item, Type, Tier, Nature, NatureData, Stat
 from TypeEffectiveness import sup_eff, get_4x_weaknesses
 from Trainer_mon_Classifier import TrainerMonClassifier
 import json
@@ -1084,7 +1084,7 @@ class AssignCustomSetsStep(Step):
             mons = context.get(Mons)
             for species_id in sorted(self.missing_sets):
                 if species_id < len(mons.data):
-                    pokemon_name = mons.data[species_id].name
+                    pokemon_name = mons[species_id].name
                     print(f"  Species {species_id}: {pokemon_name}")
                 else:
                     print(f"  Species {species_id}: Unknown")
@@ -2217,3 +2217,265 @@ class TrainerHeldItem(Step):
                     return self._select_item_for_pokemon(pokemon, trainer=trainer, trainer_tier=trainer_tier, set_a=True, set_c=True)
                 else:  # Choose B+C
                     return self._select_item_for_pokemon(pokemon, trainer=trainer, trainer_tier=trainer_tier, set_b=True, set_c=True)
+
+
+class AssignNatureStep(Step):
+    """Assigns natures to trainer Pokémon based on their classifications and tier scaling.
+    
+    Nature assignment follows tier-based progression:
+    - Early Game: Random natures
+    - Mid Game: Random non-harmful natures
+    - Late Game: Random helpful natures  
+    - End Game: Random optimal natures
+    
+    Classifications determine what constitutes harmful/helpful/optimal:
+    - OFFENSIVE: Focus on Attack/Sp.Attack/Speed stats
+    - DEFENSIVE: Focus on Defense/Sp.Defense stats
+    - BALANCED: Balanced approach based on attacker type
+    """
+    
+    def __init__(self):
+        pass
+    
+    def run(self, context):
+        """Assign natures to all trainer Pokémon based on their tier and classification."""
+        trainers = context.get(Trainers)
+        identify_tier = context.get(IdentifyTier)
+        classifier = TrainerMonClassifier(context)
+        mons = context.get(Mons)
+        
+        total_assignments = 0
+        
+        for trainer in trainers.data:
+            if not trainer.team:
+                continue
+                
+            trainer_tier = identify_tier.get_tier_for_trainer(trainer.info.trainer_id)
+            
+            for pokemon in trainer.team:
+                # Get Pokemon data and classifications
+                species = mons[pokemon.species_id]
+                classifications = classifier.classify_pokemon(pokemon)
+                
+                # Determine appropriate nature based on tier and classifications
+                nature_candidates = self._get_nature_candidates(classifications, trainer_tier)
+                
+                if nature_candidates:
+                    # Use context.decide for consistent randomization
+                    selected_nature = context.decide(
+                        path=["trainer_natures", trainer.info.name, species.name],
+                        original=Nature.NATURE_HARDY,  # Default nature
+                        candidates=nature_candidates
+                    )
+                    
+                    # Assign the nature (convert from NatureData to Nature enum value)
+                    pokemon.nature = selected_nature.value
+                    total_assignments += 1
+        
+        print(f"Assigned natures to {total_assignments} trainer Pokémon")
+    
+    def _get_nature_candidates(self, classifications, tier):
+        """Get appropriate nature candidates based on classifications and tier.
+        
+        Args:
+            classifications (list): Pokemon classification flags
+            tier (Tier): Trainer's tier
+            
+        Returns:
+            list: List of NatureData enum values that are appropriate
+        """
+        if tier == Tier.EARLY_GAME:
+            # Early game: All natures are valid
+            return list(NatureData)
+        
+        # Determine primary classification for nature selection
+        is_offensive = TrainerMonClassifier.OFFENSIVE in classifications
+        is_defensive = TrainerMonClassifier.DEFENSIVE in classifications  
+        is_balanced = TrainerMonClassifier.BALANCED in classifications
+        is_physical = TrainerMonClassifier.PHYSICAL_ATTACKER in classifications
+        is_special = TrainerMonClassifier.SPECIAL_ATTACKER in classifications
+        is_fast = TrainerMonClassifier.FAST in classifications
+        is_midspeed = TrainerMonClassifier.MIDSPEED in classifications
+        is_slow = TrainerMonClassifier.SLOW in classifications
+        
+        if tier == Tier.MID_GAME:
+            # Mid game: Exclude harmful natures
+            return self._get_non_harmful_natures(is_offensive, is_defensive, is_balanced, 
+                                               is_physical, is_special, is_fast, is_midspeed, is_slow)
+        elif tier == Tier.LATE_GAME:
+            # Late game: Only helpful natures
+            return self._get_helpful_natures(is_offensive, is_defensive, is_balanced,
+                                           is_physical, is_special, is_fast, is_midspeed, is_slow)
+        else:  # END_GAME
+            # End game: Only optimal natures
+            return self._get_optimal_natures(is_offensive, is_defensive, is_balanced,
+                                           is_physical, is_special, is_fast, is_midspeed, is_slow)
+    
+    def _get_non_harmful_natures(self, is_offensive, is_defensive, is_balanced, 
+                                is_physical, is_special, is_fast, is_midspeed, is_slow):
+        """Get all natures except harmful ones."""
+        harmful = self._get_harmful_natures(is_offensive, is_defensive, is_balanced,
+                                          is_physical, is_special, is_fast, is_midspeed, is_slow)
+        return [nature for nature in NatureData if nature not in harmful]
+    
+    def _get_harmful_natures(self, is_offensive, is_defensive, is_balanced,
+                           is_physical, is_special, is_fast, is_midspeed, is_slow):
+        """Get harmful natures based on classifications."""
+        harmful = []
+        
+        if is_defensive:
+            # Harmful: decreases Def or Sp Def
+            for nature in NatureData:
+                if nature.lowered_stat in [Stat.DEFENSE, Stat.SP_DEFENSE]:
+                    harmful.append(nature)
+        
+        if is_offensive:
+            # Harmful: Decreases key offensive stats
+            for nature in NatureData:
+                if is_physical and nature.lowered_stat == Stat.ATTACK:
+                    harmful.append(nature)
+                elif is_special and nature.lowered_stat == Stat.SP_ATTACK:
+                    harmful.append(nature)
+                elif (is_fast or is_midspeed) and nature.lowered_stat == Stat.SPEED:
+                    harmful.append(nature)
+        
+        if is_balanced:
+            # Harmful: Reduces key stats based on attacker type
+            for nature in NatureData:
+                if is_physical and nature.lowered_stat == Stat.ATTACK:
+                    harmful.append(nature)
+                elif is_special and nature.lowered_stat == Stat.SP_ATTACK:
+                    harmful.append(nature)
+                elif is_fast and nature.lowered_stat == Stat.SPEED:
+                    harmful.append(nature)
+        
+        return list(set(harmful))  # Remove duplicates
+    
+    def _get_helpful_natures(self, is_offensive, is_defensive, is_balanced,
+                           is_physical, is_special, is_fast, is_midspeed, is_slow):
+        """Get helpful natures based on classifications."""
+        helpful = []
+        
+        if is_defensive:
+            # Helpful: Increases Def or Sp Def, doesn't decrease Def or Sp Def
+            # Doesn't reduce Speed if Fast
+            for nature in NatureData:
+                if nature.raised_stat in [Stat.DEFENSE, Stat.SP_DEFENSE]:
+                    if nature.lowered_stat not in [Stat.DEFENSE, Stat.SP_DEFENSE]:
+                        if not (is_fast and nature.lowered_stat == Stat.SPEED):
+                            helpful.append(nature)
+        
+        if is_offensive:
+            helpful.extend(self._get_offensive_helpful_natures(is_physical, is_special, 
+                                                             is_fast, is_midspeed, is_slow))
+        
+        if is_balanced:
+            # Helpful: Reduces opposite attacking stat
+            for nature in NatureData:
+                if is_special and nature.lowered_stat == Stat.ATTACK:
+                    helpful.append(nature)
+                elif is_physical and nature.lowered_stat == Stat.SP_ATTACK:
+                    helpful.append(nature)
+        
+        return list(set(helpful))  # Remove duplicates
+    
+    def _get_offensive_helpful_natures(self, is_physical, is_special, is_fast, is_midspeed, is_slow):
+        """Get helpful natures for offensive Pokemon."""
+        helpful = []
+        
+        for nature in NatureData:
+            if is_physical and not is_special:
+                # Pure physical attacker
+                if is_fast or is_midspeed:
+                    # Increases Attack or Speed, doesn't reduce Attack or Speed
+                    if nature.raised_stat in [Stat.ATTACK, Stat.SPEED]:
+                        if nature.lowered_stat not in [Stat.ATTACK, Stat.SPEED]:
+                            helpful.append(nature)
+                else:  # is_slow
+                    # Increases Attack
+                    if nature.raised_stat == Stat.ATTACK:
+                        helpful.append(nature)
+            
+            elif is_special and not is_physical:
+                # Pure special attacker
+                if is_fast or is_midspeed:
+                    # Increases Sp Attack or Speed, doesn't reduce Sp Attack or Speed
+                    if nature.raised_stat in [Stat.SP_ATTACK, Stat.SPEED]:
+                        if nature.lowered_stat not in [Stat.SP_ATTACK, Stat.SPEED]:
+                            helpful.append(nature)
+                else:  # is_slow
+                    # Increases Sp Attack, Def, or Sp Def but doesn't reduce Sp Attack
+                    if nature.raised_stat in [Stat.SP_ATTACK, Stat.DEFENSE, Stat.SP_DEFENSE]:
+                        if nature.lowered_stat != Stat.SP_ATTACK:
+                            helpful.append(nature)
+            
+            elif is_physical and is_special:
+                # Mixed attacker
+                if is_fast:
+                    # Increases Attack, Sp Attack, or Speed and reduces Def or Sp Def
+                    if nature.raised_stat in [Stat.ATTACK, Stat.SP_ATTACK, Stat.SPEED]:
+                        if nature.lowered_stat in [Stat.DEFENSE, Stat.SP_DEFENSE]:
+                            helpful.append(nature)
+                elif is_midspeed:
+                    # Increases Attack or Sp Attack but doesn't reduce Speed
+                    if nature.raised_stat in [Stat.ATTACK, Stat.SP_ATTACK]:
+                        if nature.lowered_stat != Stat.SPEED:
+                            helpful.append(nature)
+                else:  # is_slow
+                    # Increases Attack or Sp Attack
+                    if nature.raised_stat in [Stat.ATTACK, Stat.SP_ATTACK]:
+                        helpful.append(nature)
+        
+        return helpful
+    
+    def _get_optimal_natures(self, is_offensive, is_defensive, is_balanced,
+                           is_physical, is_special, is_fast, is_midspeed, is_slow):
+        """Get optimal natures based on classifications."""
+        optimal = []
+        
+        if is_defensive:
+            if is_fast:
+                # Fast: Bold, Impish
+                optimal.extend([NatureData.BOLD, NatureData.IMPISH])
+            else:  # Midspeed or slow
+                # Midspeed or slow: Relaxed, Sassy
+                optimal.extend([NatureData.RELAXED, NatureData.SASSY])
+        
+        if is_offensive:
+            if is_physical and not is_special:
+                # Pure physical attacker
+                if is_fast or is_midspeed:
+                    # Fast or Midspeed: Jolly or Adamant
+                    optimal.extend([NatureData.JOLLY, NatureData.ADAMANT])
+                else:  # is_slow
+                    # Slow: Brave
+                    optimal.append(NatureData.BRAVE)
+            
+            elif is_special and not is_physical:
+                # Pure special attacker
+                if is_fast or is_midspeed:
+                    # Fast or Midspeed: Timid or Modest
+                    optimal.extend([NatureData.TIMID, NatureData.MODEST])
+                else:  # is_slow
+                    # Slow: Quiet
+                    optimal.append(NatureData.QUIET)
+        
+        if is_balanced:
+            # Same as helpful for balanced
+            return self._get_helpful_natures(is_offensive, is_defensive, is_balanced,
+                                           is_physical, is_special, is_fast, is_midspeed, is_slow)
+        
+        # Special case for DEFENSIVE + SPECIAL_ATTACKER or DEFENSIVE + PHYSICAL_ATTACKER
+        if is_defensive and (is_special or is_physical):
+            if is_special:
+                # Bold or Calm for Special Attacker
+                optimal.extend([NatureData.BOLD, NatureData.CALM])
+            if is_physical:
+                # Impish or Careful for Physical Attacker
+                optimal.extend([NatureData.IMPISH, NatureData.CAREFUL])
+            if is_balanced:
+                # All defensive natures for Balanced
+                optimal.extend([NatureData.BOLD, NatureData.CALM, NatureData.IMPISH, 
+                              NatureData.CAREFUL, NatureData.SASSY, NatureData.RELAXED])
+        
+        return list(set(optimal))  # Remove duplicates

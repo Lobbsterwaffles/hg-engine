@@ -4,6 +4,7 @@ from form_mapping import FormMapping, FormCategory
 from extractors import *
 import random
 
+
 class DebugHootHootToGrowlitheStep(Step):
     """Temporary debugging step that forces all HootHoot encounters to be replaced by Growlithe."""
     
@@ -733,7 +734,7 @@ class RandomizeEncountersStep(Step):
                 replacement_key = species_id
             
             if replacement_key not in self.replacements:
-                mon = self.mondata.data[species_id]
+                mon = self.mondata[species_id]
                 
                 # Use location-specific path for area-independent replacements
                 if self.independent_by_area:
@@ -1111,7 +1112,7 @@ class GeneralEVStep(Step):
         self.default_ev_budget = min(ev_budget, 510)  # Clamp to maximum
         
         self.tier_budgets = tier_budgets or {
-            Tier.EARLY_GAME: 252,
+            Tier.EARLY_GAME: 0,
             Tier.MID_GAME: 510,
             Tier.LATE_GAME: 510,
             Tier.END_GAME: 510
@@ -1660,7 +1661,7 @@ class IdentifyGymTrainers(Extractor):
         
         for trainer in trainers:
             for pokemon in trainer.team:
-                species = mondata.data[pokemon.species_id]
+                species = mondata[pokemon.species_id]
                 type_counts[Type(int(species.type1))] += 1
                 if species.type2 != species.type1:
                     type_counts[Type(int(species.type2))] += 1
@@ -1975,7 +1976,7 @@ class RandomizeGymsStep(Step):
         for i, pokemon in enumerate(trainer.team):
             new_species = context.decide(
                 path=["gym", trainer.info.name, "team", i, "species"],
-                original=mondata.data[pokemon.species_id],
+                original=mondata[pokemon.species_id],
                 candidates=list(mondata.data),
                 filter=filter
             )
@@ -2357,7 +2358,7 @@ class RandomizeOrdinaryTrainersStep(Step):
             # Decide which Pokemon to use
             new_species = context.decide(
                 path=["trainer", trainer.info.name, "team", i, "species"],
-                original=mondata.data[pokemon.species_id],
+                original=mondata[pokemon.species_id],
                 candidates=candidates,
                 filter=filter
             )

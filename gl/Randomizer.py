@@ -95,10 +95,8 @@ if __name__ == "__main__":
         WildMult(multiplier=args.wild_level_mult),
         RandomizeGymTypesStep(),
         RandomizeGymsStep(gym_filter),
-       # RandomizeEncountersStep(encounter_filter, args.independent_encounters),
+        RandomizeEncountersStep(encounter_filter, args.independent_encounters),
         RandomizeWildItemsStep(),
-        DebugHootHootToGrowlitheStep(),  # Temporary debug step
-
         *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
         #DebugForceGalarianDarumakaStarterStep(),
         *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
@@ -113,6 +111,7 @@ if __name__ == "__main__":
         SetTrainerMovesStep(),
         RandomizeTrainerAbilities(mode="randomability_with_hidden"),
         AssignCustomSetsStep(mode="late_game_bosses"),
+        AssignNatureStep(),
         TrainerHeldItem(),
         PrintEvioliteUsersStep()
         
