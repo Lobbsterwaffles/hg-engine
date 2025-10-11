@@ -320,9 +320,9 @@ class FormMapping(Extractor):
         1323: ("Calyrex", "ICE_RIDER", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 148
         1324: ("Calyrex", "SHADOW_RIDER", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 149
         
-        1275: ("Oricorio", "POM_POM", FormCategory.DISCRETE),  # MISC_FORM_START + 100
-        1276: ("Oricorio", "PAU", FormCategory.DISCRETE),  # MISC_FORM_START + 101
-        1277: ("Oricorio", "SENSU", FormCategory.DISCRETE),  # MISC_FORM_START + 102
+        1275: ("Oricorio", "POM_POM", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 100
+        1276: ("Oricorio", "PAU", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 101
+        1277: ("Oricorio", "SENSU", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 102
         
         1278: ("Rockruff", "OWN_TEMPO", FormCategory.DISCRETE),  # MISC_FORM_START + 103
         1279: ("Lycanroc", "MIDNIGHT", FormCategory.DISCRETE),  # MISC_FORM_START + 104

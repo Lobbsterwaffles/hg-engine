@@ -1261,6 +1261,10 @@ class TrainerHeldItem(Step):
             # EvioliteUser class doesn't exist or isn't available - continue without Eviolite
             pass
         
+        # Check if this Pokemon has Harvest ability - give Sitrus Berry
+        if self._pokemon_has_ability(pokemon, "Harvest"):
+            obligate_items.append(Item.SITRUS_BERRY)
+        
         if pokemon_name == "Marowak":
             obligate_items.append(Item.THICK_CLUB)
         if pokemon_name == ("Marowak", "ALOLAN"):

@@ -86,6 +86,7 @@ if __name__ == "__main__":
     encounter_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
     starter_filter = AllFilters(legendary_filters)
     trainer_filter = AllFilters(legendary_filters + [BstWithinFactor(args.bst_factor)])
+    champion_filter = AllFilters(legendary_filters)  
 
     type_mimics = ctx.get(TypeMimics)
     # Do everything
@@ -100,6 +101,7 @@ if __name__ == "__main__":
         *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
         #DebugForceGalarianDarumakaStarterStep(),
         *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
+        RandomizeChampion(champion_filter),
         *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
         ChangeTrainerDataTypeStep(target_flags = TrainerDataType.MOVES | TrainerDataType.ITEMS | TrainerDataType.IV_EV_SET),
         *([] if not args.no_enemy_battle_items else [NoEnemyBattleItems()]),
@@ -113,7 +115,7 @@ if __name__ == "__main__":
         AssignCustomSetsStep(mode="late_game_bosses"),
         AssignNatureStep(),
         TrainerHeldItem(),
-        PrintEvioliteUsersStep()
+        PrintEvioliteUsersStep(),
         
     ])
     

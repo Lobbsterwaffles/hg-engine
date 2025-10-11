@@ -3163,7 +3163,132 @@ class SetAbilityStep(Step):
         print(f"Total Pokemon modified: {self.total_pokemon_modified}")
 
 
-#add class for champion only
+class RandomizeChampion(Step):
+    """Randomize the Champion (trainer ID 244) with special BST rules and update trainer ID 675 with ChampAce."""
+    
+    def __init__(self, filter):
+        # Combine the provided filter with form category filter for Discrete and Out-of-Battle forms
+        form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
+        self.base_filter = AllFilters([filter, form_filter])
+    
+    def run(self, context):
+        trainers = context.get(Trainers)
+        mondata = context.get(Mons)
+        
+        # Find trainer ID 244 (Champion)
+        champion_trainer = None
+        trainer_675 = None
+        
+        for trainer in trainers.data:
+            if trainer.info.trainer_id == 244:
+                champion_trainer = trainer
+            elif trainer.info.trainer_id == 675:
+                trainer_675 = trainer
+        
+        if champion_trainer is None:
+            raise RuntimeError("Champion trainer (ID 244) not found")
+        
+        if trainer_675 is None:
+            raise RuntimeError("Trainer ID 675 not found")
+        
+        print(f"Randomizing Champion (ID 244) with special BST rules...")
+        
+        # Get Eviolite users for integration
+        try:
+            eviolite_users = context.get(EvioliteUser)
+            has_eviolite_users = True
+        except:
+            has_eviolite_users = False
+        
+        champ_ace_species = None
+        
+        # Randomize the champion's team
+        for i, pokemon in enumerate(champion_trainer.team):
+            if i < 5:  # First 5 Pokemon: BST 515-601
+                # Create filter for BST range 515-601
+                bst_filter = AllFilters([
+                    self.base_filter,
+                    BstRange515to601()
+                ])
+                
+                new_species = self._select_pokemon(context, mondata, champion_trainer, pokemon, bst_filter, eviolite_users if has_eviolite_users else None, i, "regular")
+            else:  # 6th Pokemon (ChampAce): BST exactly 600
+                # Create filter for BST exactly 600
+                bst_filter = AllFilters([
+                    self.base_filter,
+                    BstExact600()
+                ])
+                
+                new_species = self._select_pokemon(context, mondata, champion_trainer, pokemon, bst_filter, eviolite_users if has_eviolite_users else None, i, "ace")
+                champ_ace_species = new_species
+        
+        # Update trainer ID 675 with the ChampAce species
+        if champ_ace_species and trainer_675.team:
+            # Replace the first Pokemon in trainer 675's team with ChampAce
+            final_species = select_cosmetic_variant(
+                context, mondata, champ_ace_species.pokemon_id,
+                ["champion", "trainer_675", "champ_ace", "cosmetic_form"]
+            )
+            encoded_species = encode_species_for_encounter(final_species)
+            trainer_675.team[0].species_id = encoded_species
+            print(f"Updated trainer ID 675 with ChampAce: {champ_ace_species.name}")
+    
+    def _select_pokemon(self, context, mondata, trainer, pokemon, filter, eviolite_users, slot_index, slot_type):
+        """Select a Pokemon using the provided filter."""
+        # Create candidate list from all mondata
+        candidates = list(mondata.data)
+        
+        # Add Eviolite variants if available and trainer uses items
+        if eviolite_users and TrainerDataType.ITEMS in trainer.info.trainermontype:
+            candidates.extend(eviolite_users.eviolite_mondata)
+        
+        # Decide which Pokemon to use
+        new_species = context.decide(
+            path=["champion", "team", slot_index, "species", slot_type],
+            original=mondata[pokemon.species_id],
+            candidates=candidates,
+            filter=filter
+        )
+        
+        # After selecting a Pokemon, check for cosmetic forms and randomly select one
+        final_species = select_cosmetic_variant(
+            context, mondata, new_species.pokemon_id,
+            ["champion", "team", slot_index, "cosmetic_form"]
+        )
+        
+        # Encode for trainer data using monwithform format
+        encoded_species = encode_species_for_encounter(final_species)
+        pokemon.species_id = encoded_species
+        
+        # If this is an Eviolite user, give it the Eviolite item
+        if eviolite_users and hasattr(pokemon, 'item') and new_species in eviolite_users.eviolite_mondata:
+            pokemon.item = EvioliteUser.EVIOLITE_ITEM_ID
+        
+        print(f"Champion slot {slot_index + 1} ({slot_type}): {new_species.name} (BST: {new_species.bst})")
+        
+        return new_species
+
+
+class BstRange515to601(SimpleFilter):
+    """Filter Pokemon that have BST between 515 and 601 (inclusive)."""
+    
+    def check(self, context, original, candidate) -> bool:
+        return 515 <= candidate.bst <= 601
+    
+    def __repr__(self):
+        return "BstRange515to601()"
+
+
+class BstExact600(SimpleFilter):
+    """Filter Pokemon that have BST exactly 600."""
+    
+    def check(self, context, original, candidate) -> bool:
+        return candidate.bst == 600
+    
+    def __repr__(self):
+        return "BstExact600()"
+
+
 #add class for rival fights
 #add class for red
 #####################################################################################################
