@@ -61,7 +61,7 @@ type_mimics_data = {
             "Carkol", "Coalossal", "Rolycoly",
             "Cryogonal",
             "Pelipper", "Politoed",
-            "Porygon2", "Porygon-Z",
+            "Porygon2", "Porygon-Z", "Porygon",
             "Castform",
             "Wooloo", "Dubwool", "Stufful", "Bewear",
             "Persian", ("Persian", "ALOLAN"), "Furfrou",
@@ -103,13 +103,18 @@ type_mimics_data = {
         
         Type.FLYING: [
             "Baltoy", "Claydol",
+            "Torchic", "Combusken", "Blaziken",
+            "Piplup", "Prinplup", "Empoleon",
             "Charjabug", "Grubbin", "Vikavolt", "Larvesta", "Volcarona",
             "Venomoth", "Venonat",
             "Deino", "Hydreigon", "Zweilous", "Flygon", "Trapinch", "Vibrava",
             "Eiscue", "Frosmoth", "Snom",
             "Espathra", "Flittle",
+            "Decidueye",
             ("Rotom", "FROST"), ("Rotom", "HEAT"), ("Rotom", "MOW"), ("Rotom", "WASH"),
-            ("Farfetch’d", "GALARIAN"), "Sirfetch’d"
+            ("Farfetch’d", "GALARIAN"), "Sirfetch’d",
+            "Porygon2", "Porygon-Z", "Porygon"
+            
         ],
         
         Type.GHOST: [
@@ -122,7 +127,8 @@ type_mimics_data = {
             "Seviper", "Toxel", "Toxtricity",
             "Weavile",
             "Zoroark", "Zorua", "Unown",
-            "Chingling", "Chimecho", "Bronzor", "Bronzong"
+            "Chingling", "Chimecho", "Bronzor", "Bronzong",
+            "Jynx", "Smoochum", 
         ],
         
         Type.GRASS: [
@@ -181,7 +187,12 @@ type_mimics_data = {
             "Serperior", "Servine", "Snivy",
             "Toedscool", "Toedscruel",
             "Zangoose", "Dunsparce", "Dudunspars",
-            "Quagsire", "Wooper"
+            "Quagsire", "Wooper",
+            "Horsea", "Seadra", "Kingdra",
+            "Drowzee", "Hypno",
+            "Bellossom",
+            "Umbreon", "Shuckle", "Vespiquen", "Goomy", "Sliggoo", "Goodra", ("Goodra", "HISUIAN"), ("Sliggoo", "HISUIAN"),
+           
         ],
         
         Type.PSYCHIC: [
@@ -211,7 +222,9 @@ type_mimics_data = {
             "Sableye", "Spiritomb",
             "Sandshrew", "Sandslash",
             "Starmie",
-            "Steelix"
+            "Steelix", "Cubone", "Marowak", ("Marowak", "ALOLAN"),
+            "Bergmite", "Avalugg", ("Avalugg", "HISUIAN")
+            
         ],
         
         Type.STEEL: [
@@ -239,7 +252,9 @@ type_mimics_data = {
             "Revavroom",
             "Solrock",
             "Swellow", "Taillow",
-            "Tyrantrum", "Tyrunt"
+            "Tyrantrum", "Tyrunt",
+            
+            
         ],
         
         Type.NORMAL: [

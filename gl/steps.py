@@ -3177,18 +3177,18 @@ class RandomizeChampion(Step):
         
         # Find trainer ID 244 (Champion)
         champion_trainer = None
-        trainer_675 = None
+        lance_mahogany = None
         
         for trainer in trainers.data:
             if trainer.info.trainer_id == 244:
                 champion_trainer = trainer
             elif trainer.info.trainer_id == 675:
-                trainer_675 = trainer
+                lance_mahogany = trainer
         
         if champion_trainer is None:
             raise RuntimeError("Champion trainer (ID 244) not found")
         
-        if trainer_675 is None:
+        if lance_mahogany is None:
             raise RuntimeError("Trainer ID 675 not found")
         
         print(f"Randomizing Champion (ID 244) with special BST rules...")
@@ -3223,14 +3223,14 @@ class RandomizeChampion(Step):
                 champ_ace_species = new_species
         
         # Update trainer ID 675 with the ChampAce species
-        if champ_ace_species and trainer_675.team:
+        if champ_ace_species and lance_mahogany.team:
             # Replace the first Pokemon in trainer 675's team with ChampAce
             final_species = select_cosmetic_variant(
                 context, mondata, champ_ace_species.pokemon_id,
                 ["champion", "trainer_675", "champ_ace", "cosmetic_form"]
             )
             encoded_species = encode_species_for_encounter(final_species)
-            trainer_675.team[0].species_id = encoded_species
+            lance_mahogany.team[0].species_id = encoded_species
             print(f"Updated trainer ID 675 with ChampAce: {champ_ace_species.name}")
     
     def _select_pokemon(self, context, mondata, trainer, pokemon, filter, eviolite_users, slot_index, slot_type):

@@ -12,7 +12,7 @@ import sys
 import re
 from framework import Step
 from steps import Trainers, TrainerData, TrainerInfo, Mons, IdentifyTier, Moves, LoadAbilityNames
-from enums import Type, TrainerClass, Tier, Item
+from enums import Type, TrainerClass, Tier, Item, MonClass
 from TypeEffectiveness import get_all_weaknesses, get_4x_weaknesses, get_type_effectiveness
 
 
@@ -22,18 +22,6 @@ class TrainerMonClassifier:
     A class to classify trainer Pokémon based on different criteria.
     """
     
-    # Classification flags - these will be used as keys in the classification dictionary
-    OFFENSIVE = "Offensive"          # highest Offensive stat > 104
-    DEFENSIVE = "Defensive"        # lowest Defensive stat > 95 or HP > 120
-    PHYSICAL_ATTACKER = "PhysicalAttacker"  # Atk > 105
-    SPECIAL_ATTACKER = "SpecialAttacker"  # Sp Atk > 105
-    FRAIL = "Frail"              # highest Defensive stat < 86 and HP < 86 OR has a 4x weakness
-    BALANCED = "Balanced"          # highest offensive stat and lowest defensive stat within 20%
-    
-    # Speed classifications
-    FAST = "Fast"                # Base Speed >= 100
-    MIDSPEED = "Midspeed"        # Base Speed 65-99
-    SLOW = "Slow"                # Base Speed < 65
     
     def __init__(self, context):
         """
@@ -183,7 +171,7 @@ class TrainerMonClassifier:
             pokemon: The Pokémon to classify.
             
         Returns:
-            dict: A dictionary of classifications that apply to this Pokémon.
+            dict: A dictionary containing detailed classifications and a set of MonClass enum values.
         """
         classifications = {}
         
@@ -219,28 +207,32 @@ class TrainerMonClassifier:
             mon: The species data for this Pokémon.
             classifications: Dictionary to add classifications to.
         """
+        # Initialize MonClass set if not present
+        if 'MonClass' not in classifications:
+            classifications['MonClass'] = set()
+        
         # Calculate directly using mon attributes
         
         # Offensive: highest Offensive stat (atk or sp atk) > 104
         if max(mon.attack, mon.sp_attack) > 104:
-            classifications[self.OFFENSIVE] = True
+            classifications['MonClass'].add(MonClass.OFFENSIVE)
             
         # Defensive: lowest Defensive stat (Def or sp Def) > 95 or HP > 120
         if min(mon.defense, mon.sp_defense) > 95 or mon.hp > 120:
-            classifications[self.DEFENSIVE] = True
+            classifications['MonClass'].add(MonClass.DEFENSIVE)
             
         # Physical Attacker: Atk > 105
         if mon.attack > 105:
-            classifications[self.PHYSICAL_ATTACKER] = True
+            classifications['MonClass'].add(MonClass.PHYSICAL_ATTACKER)
             
         # Special Attacker: Sp Atk > 105
         if mon.sp_attack > 105:
-            classifications[self.SPECIAL_ATTACKER] = True
+            classifications['MonClass'].add(MonClass.SPECIAL_ATTACKER)
             
         # Frail: highest Defensive stat (def or sp Def) < 86 and HP < 86
         # (The 4x weakness part is handled in _classify_by_types)
         if max(mon.defense, mon.sp_defense) < 86 and mon.hp < 86:
-            classifications[self.FRAIL] = True
+            classifications['MonClass'].add(MonClass.FRAIL)
             
         # Balanced: highest offensive stat and lowest defensive stat are within 20% of each other
         highest_offensive = max(mon.attack, mon.sp_attack)
@@ -248,15 +240,15 @@ class TrainerMonClassifier:
         
         ratio = highest_offensive / lowest_defensive
         if 0.8 <= ratio <= 1.2:  # Within 20% of each other
-            classifications[self.BALANCED] = True
+            classifications['MonClass'].add(MonClass.BALANCED)
         
         # Speed classifications
         if mon.speed >= 100:
-            classifications[self.FAST] = True
+            classifications['MonClass'].add(MonClass.FAST)
         elif mon.speed >= 65:
-            classifications[self.MIDSPEED] = True
+            classifications['MonClass'].add(MonClass.MIDSPEED)
         else:
-            classifications[self.SLOW] = True
+            classifications['MonClass'].add(MonClass.SLOW)
     
 
     def _classify_by_moves(self, pokemon, classifications):
@@ -382,7 +374,9 @@ class TrainerMonClassifier:
                             'effectiveness': effectiveness
                         })
                         # If a Pokémon has a 4x weakness, it's considered Frail
-                        classifications[self.FRAIL] = True
+                        if 'MonClass' not in classifications:
+                            classifications['MonClass'] = set()
+                        classifications['MonClass'].add(MonClass.FRAIL)
                     elif effectiveness >= 2.0:
                         classifications['Weaknesses']['weak'].append({
                             'type_id': attack_type,
@@ -390,16 +384,6 @@ class TrainerMonClassifier:
                             'effectiveness': effectiveness
                         })
             
-            # Add debug info about frail classification
-            if self.FRAIL in classifications and len(classifications['Weaknesses']['very_weak']) > 0:
-                print(f"Species {pokemon.species_id} is frail due to 4x weaknesses to: " + 
-                     ", ".join([w['type_name'] for w in classifications['Weaknesses']['very_weak']]))
-                # Add frail reason to classifications
-                classifications[f"{self.FRAIL}_reason"] = "4x weakness"
-                
-            if self.FRAIL in classifications and 'FRAIL_reason' not in classifications:
-                # If frail but not due to 4x weakness, it's due to low defensive stats
-                classifications[f"{self.FRAIL}_reason"] = "Low defensive stats"
     
     def _classify_by_moves(self, pokemon, classifications):
         """
@@ -407,7 +391,7 @@ class TrainerMonClassifier:
         
         Args:
             pokemon: The Pokémon to classify.
-            classifications: Dictionary to add classifications to.
+            classifications: Set to add MonClass classifications to.
         """
         if not hasattr(pokemon, 'moves') or not pokemon.moves:
             return

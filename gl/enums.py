@@ -196,6 +196,119 @@ class NatureData(enum.IntEnum):
     GENTLE = 21, Stat.SP_DEFENSE, Stat.DEFENSE
     SASSY = 22, Stat.SP_DEFENSE, Stat.SPEED
     CAREFUL = 23, Stat.SP_DEFENSE, Stat.SP_ATTACK
+    
+    @classmethod
+    def get_helpful_natures(cls, mon_classes):
+        """Get helpful natures based on MonClass flags.
+        
+        Args:
+            mon_classes: Set of MonClass values
+            
+        Returns:
+            list: List of helpful NatureData values
+        """
+        helpful = []
+        
+        if MonClass.DEFENSIVE in mon_classes:
+            # Helpful: Increases Def or Sp Def, doesn't decrease Def or Sp Def
+            # Doesn't reduce Speed if Fast
+            for nature in cls:
+                if nature.raised_stat in [Stat.DEFENSE, Stat.SP_DEFENSE]:
+                    if nature.lowered_stat not in [Stat.DEFENSE, Stat.SP_DEFENSE]:
+                        if not (MonClass.FAST in mon_classes and nature.lowered_stat == Stat.SPEED):
+                            helpful.append(nature)
+        
+        if MonClass.OFFENSIVE in mon_classes:
+            helpful.extend(cls._get_offensive_helpful_natures(mon_classes))
+        
+        if MonClass.BALANCED in mon_classes:
+            # Helpful: Reduces opposite attacking stat
+            for nature in cls:
+                if MonClass.SPECIAL_ATTACKER in mon_classes and nature.lowered_stat == Stat.ATTACK:
+                    helpful.append(nature)
+                elif MonClass.PHYSICAL_ATTACKER in mon_classes and nature.lowered_stat == Stat.SP_ATTACK:
+                    helpful.append(nature)
+        
+        return list(set(helpful))  # Remove duplicates
+    
+    @classmethod
+    def get_harmful_natures(cls, mon_classes):
+        """Get harmful natures based on MonClass flags.
+        
+        Args:
+            mon_classes: Set of MonClass values
+            
+        Returns:
+            list: List of harmful NatureData values
+        """
+        harmful = []
+        
+        # Harmful natures reduce key stats
+        for nature in cls:
+            if nature.lowered_stat is None:  # Skip neutral natures
+                continue
+                
+            # Harmful if reduces defensive stats for defensive Pokemon
+            if MonClass.DEFENSIVE in mon_classes:
+                if nature.lowered_stat in [Stat.DEFENSE, Stat.SP_DEFENSE, Stat.HP]:
+                    harmful.append(nature)
+            
+            # Harmful if reduces offensive stats for offensive Pokemon
+            if MonClass.OFFENSIVE in mon_classes:
+                if MonClass.PHYSICAL_ATTACKER in mon_classes and nature.lowered_stat == Stat.ATTACK:
+                    harmful.append(nature)
+                elif MonClass.SPECIAL_ATTACKER in mon_classes and nature.lowered_stat == Stat.SP_ATTACK:
+                    harmful.append(nature)
+                elif MonClass.FAST in mon_classes and nature.lowered_stat == Stat.SPEED:
+                    harmful.append(nature)
+        
+        return list(set(harmful))  # Remove duplicates
+    
+    @classmethod
+    def _get_offensive_helpful_natures(cls, mon_classes):
+        """Get helpful natures for offensive Pokemon."""
+        helpful = []
+        
+        for nature in cls:
+            if MonClass.PHYSICAL_ATTACKER in mon_classes and MonClass.SPECIAL_ATTACKER not in mon_classes:
+                # Pure physical attacker
+                if MonClass.FAST in mon_classes or MonClass.MIDSPEED in mon_classes:
+                    # Increases Attack or Speed, doesn't reduce Attack or Speed
+                    if nature.raised_stat in [Stat.ATTACK, Stat.SPEED]:
+                        if nature.lowered_stat not in [Stat.ATTACK, Stat.SPEED]:
+                            helpful.append(nature)
+                elif MonClass.SLOW in mon_classes:
+                    # Increases Attack
+                    if nature.raised_stat == Stat.ATTACK:
+                        helpful.append(nature)
+            
+            elif MonClass.SPECIAL_ATTACKER in mon_classes and MonClass.PHYSICAL_ATTACKER not in mon_classes:
+                # Pure special attacker
+                if MonClass.FAST in mon_classes or MonClass.MIDSPEED in mon_classes:
+                    # Increases Sp Attack or Speed, doesn't reduce Sp Attack or Speed
+                    if nature.raised_stat in [Stat.SP_ATTACK, Stat.SPEED]:
+                        if nature.lowered_stat not in [Stat.SP_ATTACK, Stat.SPEED]:
+                            helpful.append(nature)
+                elif MonClass.SLOW in mon_classes:
+                    # Increases Sp Attack, Def, or Sp Def but doesn't reduce Sp Attack
+                    if nature.raised_stat in [Stat.SP_ATTACK, Stat.DEFENSE, Stat.SP_DEFENSE]:
+                        if nature.lowered_stat != Stat.SP_ATTACK:
+                            helpful.append(nature)
+            
+            elif MonClass.PHYSICAL_ATTACKER in mon_classes and MonClass.SPECIAL_ATTACKER in mon_classes:
+                # Mixed attacker
+                if MonClass.FAST in mon_classes:
+                    # Increases Attack, Sp Attack, or Speed and reduces Def or Sp Def
+                    if nature.raised_stat in [Stat.ATTACK, Stat.SP_ATTACK, Stat.SPEED]:
+                        if nature.lowered_stat in [Stat.DEFENSE, Stat.SP_DEFENSE]:
+                            helpful.append(nature)
+                else:  # MIDSPEED or SLOW
+                    # Increases Attack or Sp Attack, doesn't reduce either
+                    if nature.raised_stat in [Stat.ATTACK, Stat.SP_ATTACK]:
+                        if nature.lowered_stat not in [Stat.ATTACK, Stat.SP_ATTACK]:
+                            helpful.append(nature)
+        
+        return helpful
 
 class TrainerDataType(enum.IntFlag):
     NOTHING = 0x00
@@ -352,6 +465,20 @@ class Tier(enum.IntEnum):
     LATE_GAME = 3
     END_GAME = 4
 
+class MonClass(enum.IntEnum):
+    """Pokemon classification flags for categorizing Pokemon by their battle roles and stats."""
+    # Stat-based classifications
+    OFFENSIVE = 1        # highest Offensive stat > 104
+    DEFENSIVE = 2        # lowest Defensive stat > 95 or HP > 120
+    PHYSICAL_ATTACKER = 3 # Atk > 105
+    SPECIAL_ATTACKER = 4  # Sp Atk > 105
+    FRAIL = 5            # highest Defensive stat < 86 and HP < 86 OR has a 4x weakness
+    BALANCED = 6         # highest offensive stat and lowest defensive stat within 20%
+    
+    # Speed classifications
+    FAST = 7             # Base Speed >= 100
+    MIDSPEED = 8         # Base Speed 65-99
+    SLOW = 9             # Base Speed < 65
 
 class ItemParam(enum.Enum):
     """Item parameter categories for classifying items by their usage and function."""

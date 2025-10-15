@@ -139,7 +139,7 @@ class FormMapping(Extractor):
         
         # Other discrete forms from MISC_FORM_START (1175+)
         1175: ("Pikachu", "COSPLAY", FormCategory.DISCRETE),
-        1176: ("Pikachu", "ROCK_STAR", FormCategory.DISCRETE),
+        1176: ("Pikachu", "ROCK_STAR", FormCategory.OUT_OF_BATTLE_CHANGE),
         1177: ("Pikachu", "BELLE", FormCategory.OUT_OF_BATTLE_CHANGE),
         1178: ("Pikachu", "POP_STAR", FormCategory.OUT_OF_BATTLE_CHANGE),
         1179: ("Pikachu", "PH_D", FormCategory.OUT_OF_BATTLE_CHANGE),
@@ -286,10 +286,10 @@ class FormMapping(Extractor):
         1274: ("Hoopa", "UNBOUND", FormCategory.DISCRETE),  # MISC_FORM_START + 99
         
         # Kyurem forms (MISC_FORM_START + 35, 36)
-        1210: ("Kyurem", "WHITE", FormCategory.DISCRETE),  # MISC_FORM_START + 35
-        1211: ("Kyurem", "BLACK", FormCategory.DISCRETE),  # MISC_FORM_START + 36
+        1210: ("Kyurem", "WHITE", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 35
+        1211: ("Kyurem", "BLACK", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 36
         
-        1212: ("Keldeo", "RESOLUTE", FormCategory.HELD_ITEM),  # MISC_FORM_START + 37
+        1212: ("Keldeo", "RESOLUTE", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 37
         1213: ("Meloetta", "PIROUETTE", FormCategory.BATTLE_ONLY),  # MISC_FORM_START + 38
         
         # Genesect drive forms (MISC_FORM_START + 39 to 42)
