@@ -17,6 +17,8 @@ b.c
 dump.py
 dumpitem.py
 *_DSPRE_contents/*
+/tools/*.s
+/tools/dumped_armips/*
 
 # pycache files
 *.pyc
@@ -78,6 +80,7 @@ armips/asm/offset.s
 .vs/
 .vscode/
 rom_gen*.ld
+.idea/
 
 sdat/*
 *.swav
@@ -105,3 +108,6 @@ HGE_randomized_detailed_changes.txt
 pokemon_data_cache.txt
 pokemon_stats_dump.txt
 randomizer.log
+/data/generated/
+/armips/include/generated/
+/include/constants/generated/
