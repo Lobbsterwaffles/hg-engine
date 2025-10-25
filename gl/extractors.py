@@ -306,7 +306,7 @@ class Trainers(Extractor):
 class Mons(Writeback, NarcExtractor):
     """Extractor for Pokemon data from ROM with full mondata structure."""
     
-    # BST overrides for Pokemon whose power level is not accurately represented by raw BST
+    
     BST_OVERRIDES = {
         "Wishiwashi": 550, 
         "Shedinja": 400,    
@@ -322,6 +322,9 @@ class Mons(Writeback, NarcExtractor):
         ("Rotom", "MOW"): 520,
         ("Calyrex", "ICE_RIDER"): 680,
         ("Calyrex", "SHADOW_RIDER"): 680,
+        "Diggersby" : 479,
+        "Azumarill" : 470,
+        "Medicham" : 470,
         
     }
     
