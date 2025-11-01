@@ -1548,7 +1548,7 @@ class SetTrainerMovesStep(Step):
     
     def run(self, context):
         trainers = context.get(Trainers)
-        learnsets = context.get(Learnsets)
+        learnsets = context.get(Levelups)
         pokemon_names = context.get(LoadPokemonNamesStep)
         moves = context.get(Moves)
         form_mapping = context.get(FormMapping)
@@ -1561,8 +1561,7 @@ class SetTrainerMovesStep(Step):
             for pokemon in trainer.team:
                 index = form_mapping.resolve_data_index(pokemon.species_id)
                 if index > len(learnsets.data):
-                    raise ValueError(f"Pokemon {index} is out of bounds for learnsets data!")
-                # Get the learnset for this Pokemon species
+                    raise ValueError(f"Pokemon {index} is out of bounds for learnsets data! {len(learnsets.data)}")
                 learnset = learnsets.data[index]
                     
                 # Find all moves this Pokemon can learn up to its current level

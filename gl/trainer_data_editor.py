@@ -6,7 +6,7 @@ for trainer Pokemon based on various criteria like attacker type, level, etc.
 """
 
 from framework import Extractor, Step
-from steps import Mons, Moves, EggMoves, Learnsets, TMHM, TrainerData, IdentifyTier, LoadPokemonNamesStep, LoadAbilityNames, LoadMoveNamesStep, Trainers, IdentifyBosses
+from steps import Mons, Moves, EggMoves, Levelups, TMHM, TrainerData, IdentifyTier, LoadPokemonNamesStep, LoadAbilityNames, LoadMoveNamesStep, Trainers, IdentifyBosses
 from extractors import EvioliteUser
 from enums import Split, Item, Type, Tier, Nature, NatureData, Stat, MonClass
 from TypeEffectiveness import sup_eff, get_4x_weaknesses
@@ -301,7 +301,7 @@ class FindEstPower(Extractor):
 class GetAllAvailableMoves(Extractor):
     def __init__(self, context):
         super().__init__(context)
-        self.learnsets = context.get(Learnsets)
+        self.learnsets = context.get(Levelups)
         self.egg_moves = context.get(EggMoves)
         self.mons = context.get(Mons)
         self.tmhm = context.get(TMHM)
@@ -355,7 +355,7 @@ class FindDamagingStab(Extractor):
         super().__init__(context)
         self.mons = context.get(Mons)
         self.moves = context.get(Moves)
-        self.learnsets = context.get(Learnsets)
+        self.learnsets = context.get(Levelups)
         self.egg_moves = context.get(EggMoves)
         self.tmhm = context.get(TMHM)
         self.attacker_categories = context.get(IdentifyAttackerCategory)

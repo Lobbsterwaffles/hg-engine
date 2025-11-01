@@ -41,28 +41,42 @@ class Moves(NarcExtractor):
         return self.move_struct.build(data, narc_index=index)
 
 
-class Learnsets(NarcExtractor):
+class Levelups(NarcExtractor):
     def __init__(self, context):
         super().__init__(context)
         moves = context.get(Moves).data
 
-        self.struct = GreedyRange(Struct(
+        # Single learnset entry structure (move_id + level)
+        learnset_entry = Struct(
             "move_id" / Int16ul,
             "level" / Int16ul,
-            Check(lambda ctx: ctx.move_id != 0xffff),
             "move" / Computed(lambda ctx: moves[ctx.move_id] if ctx.move_id < len(moves) else None),
-        ))
+        )
         
-        self.data = self.load_narc()
+        # Giant file structure: GreedyRange of Arrays (41 entries each)
+        self.struct = GreedyRange(Array(41, learnset_entry))
+        self.data = [[e for e in s if e.move_id != 0xFFFF] for s in self.load_narc()]
     
     def get_narc_path(self):
         return "a/0/3/3"
     
+    def parse_narc(self, narc_data):
+        # Parse the first file as the giant learnset structure
+        return self.struct.parse(narc_data.files[0])
+    
+    def serialize_narc(self, data):
+        # Serialize back to a single-file NARC
+        narc_data = ndspy.narc.NARC()
+        narc_data.files = [self.struct.build(data)]
+        return narc_data
+    
     def parse_file(self, file_data, index):
-        return self.struct.parse(file_data, narc_index=index)
+        # Not used in new format, but required by abstract base class
+        return []
     
     def serialize_file(self, data, index):
-        return self.struct.build(data, narc_index=index)
+        # Not used in new format, but required by abstract base class
+        return b''
 
 
 class EggMoves(NarcExtractor):

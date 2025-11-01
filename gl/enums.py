@@ -648,7 +648,7 @@ class Item(enum.IntEnum):
     DAWN_STONE = 109, ItemParam.EVO
     OVAL_STONE = 110, ItemParam.EVO
     ODD_KEYSTONE = 111, ItemParam.EXTRA
-    GRISEOUS_ORB = 112, ItemParam.EXTRA
+    GRISEOUS_ORB = 112, ItemParam.HELD
 
     #UNKNOWN ITEMS
     ITEM_UNKNOWN_71 = 113, ItemParam.EXTRA
@@ -675,8 +675,8 @@ class Item(enum.IntEnum):
     ITEM_UNKNOWN_86 = 134, ItemParam.EXTRA
 
 #CONT'D
-    ADAMANT_ORB = 135, ItemParam.EXTRA
-    LUSTROUS_ORB = 136, ItemParam.EXTRA
+    ADAMANT_ORB = 135, ItemParam.HELD
+    LUSTROUS_ORB = 136, ItemParam.HELD
 
     
     # Mail
@@ -780,7 +780,7 @@ class Item(enum.IntEnum):
     SCOPE_LENS = 232, ItemParam.HELD
     METAL_COAT = 233, ItemParam.HELD
     LEFTOVERS = 234, ItemParam.HELD
-    DRAGON_SCALE = 235, ItemParam.HELD
+    DRAGON_SCALE = 235, ItemParam.EVO
     LIGHT_BALL = 236, ItemParam.HELD
     SOFT_SAND = 237, ItemParam.HELD
     HARD_STONE = 238, ItemParam.HELD
@@ -1184,8 +1184,8 @@ class Item(enum.IntEnum):
     ADRENALINE_ORB = 613, ItemParam.HELD
     BEAST_BALL = 614, ItemParam.BALL
     BIG_MALASADA = 615, ItemParam.MED
-    BOTTLE_CAP = 616, ItemParam.VAL
-    GOLD_BOTTLE_CAP = 617, ItemParam.VAL
+    BOTTLE_CAP = 616, ItemParam.OBO
+    GOLD_BOTTLE_CAP = 617, ItemParam.OBO
     ELECTRIC_SEED = 618, ItemParam.HELD
     GRASSY_SEED = 619, ItemParam.HELD
     MISTY_SEED = 620, ItemParam.HELD

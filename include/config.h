@@ -179,4 +179,6 @@
 // Park Ball, and Lure Ball.  Comment this line to make the balls behave as they do in Gen 9
 #define INCLUDE_LURE_PARK_SPORTS_BALL_CALCULATION
 
+#define HIDDEN_ABILITY_WILD_CHANCE 10
+
 #endif

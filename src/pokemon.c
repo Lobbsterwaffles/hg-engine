@@ -490,12 +490,13 @@ void LONG_CALL SetBoxMonAbility(struct BoxPokemon *boxmon) // actually takes box
     ability1 = PokeFormNoPersonalParaGet(mons_no, form, PERSONAL_ABILITY_1);
     ability2 = PokeFormNoPersonalParaGet(mons_no, form, PERSONAL_ABILITY_2);
 
-    if (CheckScriptFlag(HIDDEN_ABILITIES_FLAG) == 1)
+    //if (CheckScriptFlag(HIDDEN_ABILITIES_FLAG) == 1)
+    if (0 == gf_rand() % HIDDEN_ABILITY_WILD_CHANCE)
     {
         SET_BOX_MON_HIDDEN_ABILITY_BIT(boxmon)
         has_hidden_ability = 1;
         // need to clear this script flag because this function is used for in-battle form change ability resets as well, which shouldn't happen normally
-        ClearScriptFlag(HIDDEN_ABILITIES_FLAG);
+        //ClearScriptFlag(HIDDEN_ABILITIES_FLAG);
     }
     else
     {
@@ -1484,11 +1485,11 @@ BOOL LONG_CALL GiveMon(int heapId, void *saveData, int species, int level, int f
 
     RecalcPartyPokemonStats(pokemon); // recalculate stats
 
-    if (CheckScriptFlag(HIDDEN_ABILITIES_FLAG) == 1)
+    if (0 == gf_rand() % HIDDEN_ABILITY_WILD_CHANCE)
     {
         SET_MON_HIDDEN_ABILITY_BIT(pokemon)
         // need to clear this script flag because this function is used for in-battle form change ability resets as well, which shouldn't happen normally
-        ClearScriptFlag(HIDDEN_ABILITIES_FLAG);
+        //ClearScriptFlag(HIDDEN_ABILITIES_FLAG);
     }
 
     if (ability != 0) {

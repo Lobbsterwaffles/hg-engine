@@ -116,7 +116,6 @@ if __name__ == "__main__":
         AssignCustomSetsStep(mode="late_game_bosses"),
         AssignNatureStep(),
         TrainerHeldItem(),
-        PrintEvioliteUsersStep(),
         
     ])
     
