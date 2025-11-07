@@ -1605,6 +1605,96 @@ class SetTrainerMovesStep(Step):
         print(f"\nSetTrainerMovesStep: Successfully assigned moves to {moves_assigned_count} Pokemon")
 
 
+class AddStabMovesStep(Step):
+    """Step to add damaging STAB moves to trainer Pokemon movesets.
+    
+    Replaces the 4th move with a primary type STAB move and the 3rd move with 
+    a secondary type STAB move (for dual-type Pokemon). Uses FindDamagingStab 
+    extractor logic for move selection.
+    
+    This step is filtered to only apply to Whitney.
+    """
+    
+    def __init__(self, target_trainer_name="Whitney"):
+        self.target_trainer_name = target_trainer_name
+    
+    def run(self, context):
+        trainers = context.get(Trainers)
+        pokemon_names = context.get(LoadPokemonNamesStep)
+        moves = context.get(Moves)
+        form_mapping = context.get(FormMapping)
+        mons = context.get(Mons)
+        
+        # Import and initialize the FindDamagingStab extractor
+        from trainer_data_editor import FindDamagingStab
+        stab_finder = FindDamagingStab(context)
+        
+        moves_assigned_count = 0
+        trainers_processed = 0
+        
+        for trainer in trainers.data:
+            # Filter: Only apply to the target trainer (default: Whitney)
+            if trainer.info.name != self.target_trainer_name:
+                continue
+                
+            print(f"\nTrainer: {trainer.info.name} (STAB moves being added)")
+            trainers_processed += 1
+            
+            for pokemon in trainer.team:
+                index = form_mapping.resolve_data_index(pokemon.species_id)
+                if index >= len(mons.data):
+                    continue  # Skip if Pokemon index is out of bounds
+                
+                # Skip if Pokemon doesn't have moves array
+                if not hasattr(pokemon, 'moves'):
+                    continue
+                
+                pokemon_data = mons.data[index]
+                current_moves = list(pokemon.moves) if pokemon.moves else [0, 0, 0, 0]
+                
+                # Ensure we have 4 move slots
+                while len(current_moves) < 4:
+                    current_moves.append(0)
+                
+                # Get Pokemon name for logging
+                pokemon_name = pokemon_names.get_by_id(index) if index < len(pokemon_names.id_to_name) else f"ID_{index}"
+                
+                # Find primary type STAB move (for 4th slot)
+                primary_stab = stab_finder.find_stab_move(index, pokemon.level, current_moves)
+                if primary_stab:
+                    current_moves[3] = primary_stab  # Replace 4th move
+                    moves_assigned_count += 1
+                    
+                    # Get move name for logging
+                    import sys
+                    sys.stderr.write(f"  {pokemon_name}: Added primary STAB move {repr(primary_stab)} to slot 4\n")
+
+                    print(f"  {pokemon_name}: Added primary STAB move {primary_stab.name} to slot 4")
+                
+                # For dual-type Pokemon, find secondary type STAB move (for 3rd slot)
+                if pokemon_data.type2 != pokemon_data.type1:  # Dual-type Pokemon
+                    # Temporarily modify Pokemon types to find secondary type STAB
+                    original_type1 = pokemon_data.type1
+                    pokemon_data.type1 = pokemon_data.type2  # Set primary to secondary type
+                    
+                    secondary_stab = stab_finder.find_stab_move(index, pokemon.level, current_moves)
+                    
+                    # Restore original type
+                    pokemon_data.type1 = original_type1
+                    
+                    if secondary_stab and secondary_stab != primary_stab:  # Don't duplicate moves
+                        current_moves[2] = secondary_stab  # Replace 3rd move
+                        moves_assigned_count += 1
+                        
+                        # Get move name for logging
+                        print(f"  {pokemon_name}: Added secondary STAB move {secondary_stab.name} to slot 3")
+                
+                # Update Pokemon's moves
+                pokemon.moves = current_moves
+        
+        print(f"\nAddStabMovesStep: Successfully assigned STAB moves to {moves_assigned_count} Pokemon across {trainers_processed} trainer(s) (Target: {self.target_trainer_name})")
+
+
 class IdentifyGymTrainers(Extractor):
     class Gym:
         def __init__(self, name, trainers, gym_type=None):

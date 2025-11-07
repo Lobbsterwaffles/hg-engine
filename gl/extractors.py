@@ -778,6 +778,115 @@ class EvioliteUser(Extractor):
         return pokemon in self.eviolite_mondata
 
 
+class MachineLearnsets(Extractor):
+    def __init__(self, context):
+        super().__init__(context)
+        
+        mons = context.get(Mons)
+        tmhm = context.get(TMHM)
+        
+        # Calculate bitfield size based on TMHM data (same as build_learnsets.py)
+        num_tms = len(tmhm.tm) - 1  # -1 for None at index 0
+        num_hms = len(tmhm.hm) - 1  # -1 for None at index 0
+        num_machine_moves = num_tms + num_hms
+        print(f"Number of TMs: {num_tms}, Number of HMs: {num_hms}, Total machine moves: {num_machine_moves}")  
+        bitfield_word_count = (num_machine_moves + 31) // 32
+        bitfield_bit_count = bitfield_word_count * 32
+        
+        narc_file_id = self.rom.filenames.idOf("a/0/2/8")
+        narc_file = self.rom.files[narc_file_id]
+        narc_data = ndspy.narc.NARC(narc_file)
+        file_14_data = narc_data.files[14]
+        print(f"File 14 size: {len(file_14_data)}")
+
+        # Will crash naturally if size mismatch
+        struct = Struct("pokemon_data" / Array(len(mons.data), 
+            Struct("tm_bitmap" / BitsSwapped(Bitwise(Array(bitfield_bit_count, Flag))))
+        ))
+        
+        parsed_data = struct.parse(file_14_data)
+        self.data = [[None] + p.tm_bitmap for p in parsed_data.pokemon_data]
+        
+        # Store machine move counts for API methods
+        self.num_tms = num_tms
+        self.num_hms = num_hms
+        self.num_machine_moves = num_machine_moves
+        
+    def can_learn_tm(self, species_id, tm_number):
+        """Check if a Pokemon species can learn a specific TM.
+        
+        Args:
+            species_id: Pokemon species ID (1-based, 1 = Bulbasaur)
+            tm_number: TM number (1-based, 1 = TM01)
+            
+        Returns:
+            bool: True if Pokemon can learn the TM
+        """
+        if species_id < 1 or species_id >= len(self.data):
+            return False
+        if tm_number < 1 or tm_number > self.num_tms:  # Dynamic TM count
+            return False
+            
+        # Convert to 0-based indexing for internal array access
+        machine_index = tm_number - 1  # TMs are 0-91 internally
+        return self.data[species_id][machine_index + 1]  # +1 because data[0] is None
+        
+    def can_learn_hm(self, species_id, hm_number):
+        """Check if a Pokemon species can learn a specific HM.
+        
+        Args:
+            species_id: Pokemon species ID (1-based, 1 = Bulbasaur)
+            hm_number: HM number (1-based, 1 = HM01)
+            
+        Returns:
+            bool: True if Pokemon can learn the HM
+        """
+        if species_id < 1 or species_id >= len(self.data):
+            return False
+        if hm_number < 1 or hm_number > self.num_hms:  # Dynamic HM count
+            return False
+            
+        # Convert to 0-based indexing for internal array access
+        machine_index = self.num_tms + hm_number - 1  # HMs start after TMs
+        return self.data[species_id][machine_index + 1]  # +1 because data[0] is None
+        
+    def get_learnable_tms(self, species_id):
+        """Get list of TM numbers that a Pokemon species can learn.
+        
+        Args:
+            species_id: Pokemon species ID (1-based, 1 = Bulbasaur)
+            
+        Returns:
+            list: List of TM numbers (1-based) that the Pokemon can learn
+        """
+        if species_id < 1 or species_id >= len(self.data):
+            return []
+            
+        learnable_tms = []
+        for tm_num in range(1, self.num_tms + 1):  # Dynamic TM range
+            if self.can_learn_tm(species_id, tm_num):
+                learnable_tms.append(tm_num)
+        return learnable_tms
+        
+    def get_learnable_hms(self, species_id):
+        """Get list of HM numbers that a Pokemon species can learn.
+        
+        Args:
+            species_id: Pokemon species ID (1-based, 1 = Bulbasaur)
+            
+        Returns:
+            list: List of HM numbers (1-based) that the Pokemon can learn
+        """
+        if species_id < 1 or species_id >= len(self.data):
+            return []
+            
+        learnable_hms = []
+        for hm_num in range(1, self.num_hms + 1):  # Dynamic HM range
+            if self.can_learn_hm(species_id, hm_num):
+                learnable_hms.append(hm_num)
+        return learnable_hms
+
+
 class HiddenAbilityTable(NarcExtractor):
     """Extractor for hidden ability data from ROM."""
     

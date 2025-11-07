@@ -4,6 +4,7 @@ import random
 import ndspy.rom
 from steps import *
 from trainer_data_editor import *
+from trainer_held_items import TrainerHeldItem, AssignNatureStep
 from print_eviolite_users_step import PrintEvioliteUsersStep
 
 # Set UTF-8 encoding for console output on Windows
@@ -113,6 +114,7 @@ if __name__ == "__main__":
         GeneralIVStep(mode="ScalingIVs"),
         SetTrainerMovesStep(),
         RandomizeTrainerAbilities(mode="randomability_with_hidden"),
+        AddStabMovesStep(),
         AssignCustomSetsStep(mode="late_game_bosses"),
         AssignNatureStep(),
         TrainerHeldItem(),

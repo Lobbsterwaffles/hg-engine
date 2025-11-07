@@ -189,6 +189,9 @@ def write_machine_data(species_dict, species_learnsets, machine_moves, output_pa
                     move_index = i
                 else:
                     continue
+                if species_id == 150:
+                    print(f"{species_name}: {move} move_index: {move_index}")
+
 
                 word = move_index // 32
                 bit = move_index % 32
