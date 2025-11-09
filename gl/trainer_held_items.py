@@ -134,11 +134,11 @@ class TrainerHeldItem(Step):
         
         if pokemon_name == "Marowak":
             obligate_items.append(Item.THICK_CLUB)
-        if pokemon_name == ("Marowak", "ALOLAN"):
+        if pokemon_name == ("Marowak-ALOLAN"):
             obligate_items.append(Item.THICK_CLUB)
         if pokemon_name == "Farfetch’d":
             obligate_items.append(Item.STICK)
-        if pokemon_name == ("Farfetch’d", "GALARIAN"):
+        if pokemon_name == ("Farfetch’d-GALARIAN"):
             obligate_items.append(Item.STICK)
         if pokemon_name == "Sirfetch’d":
             obligate_items.append(Item.STICK)
@@ -148,6 +148,10 @@ class TrainerHeldItem(Step):
             obligate_items.append(Item.RUSTED_SHIELD)
         if pokemon_name == "Genesect":
             obligate_items+=[Item.DOUSE_DRIVE, Item.SHOCK_DRIVE, Item.BURN_DRIVE, Item.CHILL_DRIVE]
+        if pokemon_name == "Cubone":
+            obligate_items.append(Item.THICK_CLUB)
+        if pokemon_name == "Pikachu":
+            obligate_items.append(Item.LIGHT_BALL)
         # when memories implemented
         # if pokemon_name == "Silvally":
         #     obligate_items+=[Item.BUG_MEMORY, Item.DARK_MEMORY, Item.DRAGON_MEMORY, Item.ELECTRIC_MEMORY, Item. FIGHTING_MEMORY, Item.FIRE_MEMORY, 
@@ -270,6 +274,11 @@ class TrainerHeldItem(Step):
         if self._pokemon_has_ability(pokemon, "Sheer Force"):
             favored_items.append(Item.LIFE_ORB)
         
+        # Toxic Orb - Specific abilities
+        toxic_orb_abilities = ["Toxic Boost", "Poison Heal", "Magic Guard", "Quick Feet"]
+        if any(self._pokemon_has_ability(pokemon, ability) for ability in toxic_orb_abilities):
+            favored_items.append(Item.TOXIC_ORB)
+        
         # Air Balloon - pokemon has 4x weakness to Ground
         if self._has_4x_ground_weakness(pokemon):
             favored_items.append(Item.AIR_BALLOON)
@@ -302,12 +311,12 @@ class TrainerHeldItem(Step):
             self._pokemon_has_ability(pokemon, "Sand Spit") or 
             self._pokemon_knows_move(pokemon, "Sandstorm")):
             favored_items.append(Item.SMOOTH_ROCK)
-        # Flame Orb - Has Guts ability and is not Fire-type
+        # Flame Orb - Has Guts ability and is not Fire-type aka not Flareon
         if (self._pokemon_has_ability(pokemon, "Guts") and 
             not self._pokemon_is_fire_type(pokemon)):
             favored_items.append(Item.FLAME_ORB)
         
-        # Toxic Orb - Has Guts ability and is Fire-type
+        # Toxic Orb - Has Guts ability and is Fire-type aka is Flareon
         if (self._pokemon_has_ability(pokemon, "Guts") and 
             self._pokemon_is_fire_type(pokemon)):
             favored_items.append(Item.TOXIC_ORB)
@@ -386,6 +395,10 @@ class TrainerHeldItem(Step):
         if MonClass.FRAIL in classifications.get('MonClass', set()) or self._pokemon_has_4x_weakness(pokemon):
             item_set_b.append(Item.FOCUS_SASH)
         
+        if MonClass.OFFENSIVE in classifications.get('MonClass', set()):
+            item_set_b.append(Item.LIFE_ORB)
+
+        
         # Light Clay - Screen moves
         screen_moves = ["Light Screen", "Reflect", "Aurora Veil"]
         for move_name in screen_moves:
@@ -396,6 +409,16 @@ class TrainerHeldItem(Step):
         # Mental Herb - Multiple status moves
         if self._count_moves_by_split(pokemon, Split.STATUS) > 1:
             item_set_b.append(Item.MENTAL_HERB)
+        
+        # White Herb - Moves that lower user's stats
+        stat_lowering_moves = ["Superpower", "Overheat", "Leaf Storm", "Draco Meteor", "Close Combat", 
+                              "Dragon Ascent", "Armor Cannon", "Clanging Scales", "Headlong Rush", 
+                              "Hyperspace Fury", "Scale Shot", "V-Create", "Fleur Cannon", "Make It Rain", 
+                              "Psycho Boost", "Spin Out"]
+        for move_name in stat_lowering_moves:
+            if self._pokemon_knows_move(pokemon, move_name):
+                item_set_b.append(Item.WHITE_HERB)
+                break
         
         # Punching Glove - Punch moves
         punch_moves = ["Mega Punch", "Fire Punch", "Comet Punch", "Dizzy Punch", "Ice Punch", 
@@ -458,10 +481,6 @@ class TrainerHeldItem(Step):
         if self._pokemon_is_poison_type(pokemon):
             item_set_b.append(Item.BLACK_SLUDGE)
         
-        # Toxic Orb - Specific abilities
-        toxic_orb_abilities = ["Toxic Boost", "Poison Heal", "Magic Guard", "Quick Feet"]
-        if any(self._pokemon_has_ability(pokemon, ability) for ability in toxic_orb_abilities):
-            item_set_b.append(Item.TOXIC_ORB)
         
         # Leftovers - Defensive or Balanced
         if (MonClass.DEFENSIVE in classifications.get('MonClass', set()) or 
@@ -572,13 +591,13 @@ class TrainerHeldItem(Step):
         # Initialize TrainerMonClassifier for predicate evaluation
         self.classifier = TrainerMonClassifier(context)
         
-        # Obligate Items - pokemon MUST get these if they qualify
+        # Obligate Items - pokemon MUST get one these if they qualify
         self.base_obligate_items = []
         
         # Favored Items - pokemon have 50% chance to get these if they qualify
         self.base_favored_items = []
         
-        # Sensible Items plus Plates. No Custap. You're welcome.
+        # Meh Items plus Plates. No Custap. You're welcome.
         self.base_item_set_a = [
             Item.ASPEAR_BERRY,
             Item.PERSIM_BERRY,
@@ -597,7 +616,7 @@ class TrainerHeldItem(Step):
             Item.METRONOME,
         ]
         
-        # Set B: better items plus supereffective berries
+        # Set B: good items
         self.item_set_b = [
             # Type enhancers
             Item.MIRROR_HERB,
@@ -609,17 +628,13 @@ class TrainerHeldItem(Step):
             Item.HEAVY_DUTY_BOOTS,
             Item.LUM_BERRY,
            
-            # Special case items
-            
-            # Weather items#####################################################################
             
             
         ]
         
-        # Set C: Common/universal items
+        # Set C: always in pool
         self.item_set_c = [
-            # Berries
-            Item.SITRUS_BERRY,    # Restore HP at 50%
+            Item.SITRUS_BERRY,    
         ]
         
         # Item assignment probabilities by tier (default mode)
@@ -630,6 +645,7 @@ class TrainerHeldItem(Step):
             Tier.MID_GAME: (0.45, 0.50, 0.05),    # Mid Game: Mostly A+C, rarely B+C
             Tier.LATE_GAME: (0.00, 0.50, 0.50),   # Late Game: Equal chance A+C or B+C
             Tier.END_GAME: (0.00, 0.00, 1.00),    # End Game: Only B+C
+            Tier.POST_GAME: (0.00, 0.00, 1.00),    # Post Game: Only B+C
         }
         
         # needs to be even probability for all items on base lists plus an appended items
@@ -639,6 +655,7 @@ class TrainerHeldItem(Step):
                 Tier.MID_GAME: (0.00, 0.50, 0.50),
                 Tier.LATE_GAME: (0.00, 0.50, 0.50),
                 Tier.END_GAME: (0.00, 0.50, 0.50),
+                Tier.POST_GAME: (0.00, 0.50, 0.50),
             }
         elif self.mode == "good":
             self.tier_probabilities = {
@@ -646,6 +663,7 @@ class TrainerHeldItem(Step):
                 Tier.MID_GAME: (0.00, 0.00, 1.00),
                 Tier.LATE_GAME: (0.00, 0.00, 1.00),
                 Tier.END_GAME: (0.00, 0.00, 1.00),
+                Tier.POST_GAME: (0.00, 0.00, 1.00),
             }
         
         # Set up item sets for easy access
@@ -781,23 +799,7 @@ class TrainerHeldItem(Step):
         
         # Add items from enabled sets
         if set_a and self.item_set_a:
-            # For set A, consider attacker type
-            if hasattr(species, 'attack') and hasattr(species, 'sp_attack'):
-                if species.attack > species.sp_attack * 1.2:
-                    # Physical attacker - prioritize physical items
-                    physical_items = [Item.CHOICE_BAND.value, Item.MUSCLE_BAND.value, 
-                                     Item.EXPERT_BELT.value, Item.LIFE_ORB.value]
-                    candidate_items.extend(physical_items)
-                elif species.sp_attack > species.attack * 1.2:
-                    # Special attacker - prioritize special items
-                    special_items = [Item.CHOICE_SPECS.value, Item.WISE_GLASSES.value, 
-                                    Item.EXPERT_BELT.value, Item.LIFE_ORB.value]
-                    candidate_items.extend(special_items)
-                else:
-                    # Mixed attacker or balanced
-                    candidate_items.extend(self.item_set_a)
-            else:
-                candidate_items.extend(self.item_set_a)
+            candidate_items.extend([item.value for item in self.item_set_a])
         
         if set_b:
             # Get Set B items based on Pokemon characteristics
@@ -849,30 +851,6 @@ class TrainerHeldItem(Step):
         
         return 0
     
-    def _get_special_case_item(self, species):
-        """Check if this Pokemon should get a special species-specific item.
-        
-        Args:
-            species: Pokemon species data
-            
-        Returns:
-            int: Item ID for special case, or 0 if none applies
-        """
-        # Map of species names to their special items
-        special_items = {
-            "Pikachu": Item.LIGHT_BALL.value,
-            "Cubone": Item.THICK_CLUB.value,
-            "Marowak": Item.THICK_CLUB.value,
-            "Latios": Item.SOUL_DEW.value,
-            "Latias": Item.SOUL_DEW.value,
-            "Clamperl": Item.DEEP_SEA_TOOTH.value,  # Could be either tooth or scale
-            "Ditto": Item.QUICK_POWDER.value
-        }
-        
-        if hasattr(species, 'name') and species.name in special_items:
-            return special_items[species.name]
-        
-        return 0
     
     def _get_type_enhancing_item(self, type_id):
         """Get the type-enhancing item for a specific type.

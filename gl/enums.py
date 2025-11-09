@@ -464,6 +464,7 @@ class Tier(enum.IntEnum):
     MID_GAME = 2
     LATE_GAME = 3
     END_GAME = 4
+    POST_GAME = 5
 
 class MonClass(enum.IntEnum):
     """Pokemon classification flags for categorizing Pokemon by their battle roles and stats."""
@@ -1354,9 +1355,9 @@ class Item(enum.IntEnum):
     REINS_OF_UNITY = 755, ItemParam.KEY
     WOODEN_CROWN = 756, ItemParam.KEY
     ROTOM_CATALOG = 757, ItemParam.KEY
-    ADAMANT_CRYSTAL = 758, ItemParam.KEY
-    LUSTROUS_GLOBE = 759, ItemParam.KEY
-    GRISOUS_CORE = 760, ItemParam.KEY  
+    ADAMANT_CRYSTAL = 758, ItemParam.HELD
+    LUSTROUS_GLOBE = 759, ItemParam.HELD
+    GRISEOUS_CORE = 760, ItemParam.HELD
     SCROLL_OF_DARKNESS = 761, ItemParam.KEY
     SCROLL_OF_WATERS = 762, ItemParam.KEY
     MEGA_RING = 763, ItemParam.KEY
@@ -1400,7 +1401,7 @@ class Item(enum.IntEnum):
     SYRUPY_APPLE = 793, ItemParam.EVO
     UNREMARKABLE_TEACUP = 794, ItemParam.EVO
     MASTERPIECE_TEACUP = 795, ItemParam.EVO
-    CORNERSTONE_MASK = 796, ItemParam.HELD
-    WELLSPRING_MASK = 797, ItemParam.HELD
-    HEARTHFLAME_MASK = 798, ItemParam.HELD
+    CORNERSTONE_MASK = 796, ItemParam.UNIMPL
+    WELLSPRING_MASK = 797, ItemParam.UNIMPL
+    HEARTHFLAME_MASK = 798, ItemParam.UNIMPL
     METAL_ALLOY = 799, ItemParam.EVO

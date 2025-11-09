@@ -590,7 +590,7 @@ class FormMapping(Extractor):
             pokemon_names_step: LoadPokemonNamesStep instance
             
         Returns:
-            Display name (e.g., "Rotom-Heat" for forms, original name for base)
+            Display name (e.g., "Rotom-HEAT" for forms, original name for base)
         """
         original_name = pokemon_names_step.get_by_id(pokemon_id)
         

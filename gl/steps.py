@@ -801,12 +801,14 @@ class ExpandTrainerTeamsStep(Step):
                  # Scaling mode parameters - tier-based minimum team sizes
                  tier1_trainer_team_size=2,
                  tier2_trainer_team_size=3, 
-                 tier3_trainer_team_size=4,
-                 tier4_trainer_team_size=5,
+                 tier3_trainer_team_size=3,
+                 tier4_trainer_team_size=3,
+                 tier5_trainer_team_size=4,
                  tier1_boss_team_size=4,
                  tier2_boss_team_size=6,
                  tier3_boss_team_size=6,
                  tier4_boss_team_size=6,
+                 tier5_boss_team_size=6,
                  # Fixed mode parameters - global minimum team sizes
                  fixed_trainer_team_size=3,
                  fixed_boss_team_size=6,
@@ -833,14 +835,16 @@ class ExpandTrainerTeamsStep(Step):
             Tier.EARLY_GAME: tier1_trainer_team_size,
             Tier.MID_GAME: tier2_trainer_team_size,
             Tier.LATE_GAME: tier3_trainer_team_size,
-            Tier.END_GAME: tier4_trainer_team_size
+            Tier.END_GAME: tier4_trainer_team_size,
+            Tier.POST_GAME: tier5_trainer_team_size
         }
         
         self.tier_boss_sizes = {
             Tier.EARLY_GAME: tier1_boss_team_size,
             Tier.MID_GAME: tier2_boss_team_size,
             Tier.LATE_GAME: tier3_boss_team_size,
-            Tier.END_GAME: tier4_boss_team_size
+            Tier.END_GAME: tier4_boss_team_size,
+            Tier.POST_GAME: tier5_boss_team_size
         }
         
         # Fixed mode - global minimum team sizes
@@ -1115,7 +1119,8 @@ class GeneralEVStep(Step):
             Tier.EARLY_GAME: 0,
             Tier.MID_GAME: 510,
             Tier.LATE_GAME: 510,
-            Tier.END_GAME: 510
+            Tier.END_GAME: 510,
+            Tier.POST_GAME: 510,
         }
         
         self.trainer_filter = trainer_filter
@@ -1523,7 +1528,8 @@ class GeneralIVStep(Step):
             Tier.EARLY_GAME: 1,
             Tier.MID_GAME: 2,
             Tier.LATE_GAME: 3,
-            Tier.END_GAME: 4
+            Tier.END_GAME: 4,
+            Tier.POST_GAME: 4
         }
         if trainer_tier not in tier_map:
             raise ValueError(f"Invalid tier: {trainer_tier}! Valid tiers: {list(tier_map.keys())}")
@@ -1893,7 +1899,8 @@ class IdentifyTier(Extractor):
     - EarlyGame: Level 1 to Whitney's ace level
     - MidGame: Whitney's ace level to Jasmine's ace level  
     - Tier.LATE_GAME: Jasmine's ace level to Will's ace level
-    - EndGame: Will's ace level to Level 100
+    - EndGame: Will's ace level to Lt. Surge's ace level
+    - PostGame: Lt. Surge's ace level to Level 100
     """
     
     def __init__(self, context):
@@ -1907,13 +1914,15 @@ class IdentifyTier(Extractor):
         whitney_ace_level = self._find_lowest_ace_level(trainers, index, "Whitney")
         jasmine_ace_level = self._find_lowest_ace_level(trainers, index, "Jasmine")
         will_ace_level = self._find_lowest_ace_level(trainers, index, "Will")
+        lt_surge_ace_level = self._find_lowest_ace_level(trainers, index, "Lt. Surge")
         
         # Define tier boundaries
         self.tier_boundaries = {
             Tier.EARLY_GAME: (1, whitney_ace_level),
             Tier.MID_GAME: (whitney_ace_level, jasmine_ace_level),
             Tier.LATE_GAME: (jasmine_ace_level, will_ace_level),
-            Tier.END_GAME: (will_ace_level, 100)
+            Tier.END_GAME: (will_ace_level, lt_surge_ace_level),
+            Tier.POST_GAME: (lt_surge_ace_level, 100)
         }
         
         # Assign each trainer to a tier
@@ -1933,9 +1942,7 @@ class IdentifyTier(Extractor):
                 trainer_ids.append(trainer_id)
         
         if not trainer_ids:
-            # Fallback values if trainer not found
-            fallback_levels = {"Whitney": 20, "Jasmine": 35, "Will": 50}
-            return fallback_levels.get(trainer_name, 50)
+            raise ValueError(f"Trainer '{trainer_name}' not found in trainer index! Cannot determine tier boundaries.")
         
         lowest_ace_level = float('inf')
         
@@ -1964,8 +1971,8 @@ class IdentifyTier(Extractor):
                 return tier_name
         
         # Handle edge case for level 100
-        if level >= self.tier_boundaries[Tier.END_GAME][0]:
-            return Tier.END_GAME
+        if level >= self.tier_boundaries[Tier.POST_GAME][0]:
+            return Tier.POST_GAME
         
         # NO FALLBACKS! Every trainer must have a tier!
         raise ValueError(f"No tier found for level {level}! Tier boundaries: {self.tier_boundaries}")
@@ -2951,7 +2958,7 @@ class ForceEvolvedTrainerPokemon(Step):
             else:
                 # No evolution possible
                 return full_path[0]
-        elif trainer_tier in [Tier.LATE_GAME, Tier.END_GAME]:
+        elif trainer_tier in [Tier.LATE_GAME, Tier.END_GAME, Tier.POST_GAME]:
             # Tier 3 & 4: Evolve all families to final form
             return full_path[-1]  # Final evolution
         else:

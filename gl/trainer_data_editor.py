@@ -121,7 +121,7 @@ class MoveBlacklist(MoveList):
     move_names = [
         "Focus Punch", "Feint", "Snore", "Dream Eater", "Razor Wind", "Electro Shot", "Meteor Beam", "Skull Bash", 
         "Sky Attack", "Sky Drop", "Solar Beam", "Solar Blade", "Spit Up", "Synchronoise", "Future Sight", "Belch",
-        "Fake Out", "Last Resort", 
+        "Fake Out", "Last Resort", "Spit Up", "Swallow", 
     ]
     
     def is_blacklisted(self, move_id):
@@ -136,7 +136,7 @@ class MoveWhitelist(MoveList):
         # Add moves you want to always consider good here
         "Double Hit", "Double Kick", "Dragon Darts", "Bonemerang", "Dual Chop", "Dual Wingbeat", "Gear Grind", "Surging Strikes", 
         "Tachyon Cutter", "Triple Dive", "Twin Beam", "Water Shuriken", "Bone Rush", "Bullet Seed", "Icicle Spear", 
-        "Pin Missile", "Rock Blast", "Scale Shot", "Tail Slap",        
+        "Pin Missile", "Rock Blast", "Scale Shot", "Tail Slap", "Water Spout", "Eruption",      
     ]
     
     def is_whitelisted(self, move_id):
