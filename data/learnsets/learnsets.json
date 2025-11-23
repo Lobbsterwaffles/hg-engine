@@ -930,10 +930,6 @@
       },
       {
         "Level": 1,
-        "Move": "MOVE_KINESIS"
-      },
-      {
-        "Level": 1,
         "Move": "MOVE_DISABLE"
       },
       {
@@ -4413,7 +4409,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_NIGHT_SLASH",
       "MOVE_SLASH",
       "MOVE_THRASH"
@@ -6393,7 +6388,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_NIGHT_SLASH",
       "MOVE_SLASH",
       "MOVE_THRASH"
@@ -9932,7 +9926,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_ENDEAVOR",
       "MOVE_SYNTHESIS"
     ],
@@ -14467,10 +14460,6 @@
       {
         "Level": 1,
         "Move": "MOVE_NIGHT_SHADE"
-      },
-      {
-        "Level": 1,
-        "Move": "MOVE_MINIMIZE"
       },
       {
         "Level": 1,
@@ -25646,10 +25635,6 @@
         "Move": "MOVE_UPROAR"
       },
       {
-        "Level": 30,
-        "Move": "MOVE_ACUPRESSURE"
-      },
-      {
         "Level": 34,
         "Move": "MOVE_SWORDS_DANCE"
       },
@@ -25744,10 +25729,6 @@
       {
         "Level": 27,
         "Move": "MOVE_UPROAR"
-      },
-      {
-        "Level": 30,
-        "Move": "MOVE_ACUPRESSURE"
       },
       {
         "Level": 33,
@@ -27368,10 +27349,6 @@
         "Move": "MOVE_X_SCISSOR"
       },
       {
-        "Level": 49,
-        "Move": "MOVE_ACUPRESSURE"
-      },
-      {
         "Level": 54,
         "Move": "MOVE_CRUNCH"
       }
@@ -27736,10 +27713,6 @@
         "Move": "MOVE_FOCUS_ENERGY"
       },
       {
-        "Level": 1,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
         "Level": 12,
         "Move": "MOVE_PAYBACK"
       },
@@ -27848,10 +27821,6 @@
   },
   "SPECIES_DRIFLOON": {
     "LevelMoves": [
-      {
-        "Level": 1,
-        "Move": "MOVE_MINIMIZE"
-      },
       {
         "Level": 1,
         "Move": "MOVE_ASTONISH"
@@ -41887,7 +41856,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_AQUA_TAIL",
       "MOVE_HAZE",
       "MOVE_MUD_SLAP",
@@ -45053,10 +45021,6 @@
         "Move": "MOVE_MUD_SHOT"
       },
       {
-        "Level": 21,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
         "Level": 26,
         "Move": "MOVE_TOXIC"
       },
@@ -45181,10 +45145,6 @@
       {
         "Level": 18,
         "Move": "MOVE_POISON_FANG"
-      },
-      {
-        "Level": 21,
-        "Move": "MOVE_MINIMIZE"
       },
       {
         "Level": 26,
@@ -52156,8 +52116,7 @@
     ],
     "EggMoves": [
       "MOVE_DISABLE",
-      "MOVE_DESTINY_BOND",
-      "MOVE_ACUPRESSURE"
+      "MOVE_DESTINY_BOND"
     ],
     "TutorMoves": []
   },
@@ -54977,10 +54936,6 @@
       {
         "Level": 1,
         "Move": "MOVE_CONFUSION"
-      },
-      {
-        "Level": 1,
-        "Move": "MOVE_KINESIS"
       },
       {
         "Level": 1,
@@ -58616,10 +58571,6 @@
       },
       {
         "Level": 1,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
-        "Level": 1,
         "Move": "MOVE_SMOG"
       },
       {
@@ -61550,10 +61501,6 @@
       {
         "Level": 4,
         "Move": "MOVE_EMBER"
-      },
-      {
-        "Level": 8,
-        "Move": "MOVE_MINIMIZE"
       },
       {
         "Level": 12,
@@ -66615,10 +66562,6 @@
         "Move": "MOVE_SOLAR_BEAM"
       },
       {
-        "Level": 52,
-        "Move": "MOVE_ACUPRESSURE"
-      },
-      {
         "Level": 56,
         "Move": "MOVE_PETAL_DANCE"
       },
@@ -68055,10 +67998,6 @@
         "Move": "MOVE_PSYCH_UP"
       },
       {
-        "Level": 33,
-        "Move": "MOVE_ACUPRESSURE"
-      },
-      {
         "Level": 36,
         "Move": "MOVE_POWER_TRICK"
       },
@@ -68199,10 +68138,6 @@
       {
         "Level": 31,
         "Move": "MOVE_PSYCH_UP"
-      },
-      {
-        "Level": 33,
-        "Move": "MOVE_ACUPRESSURE"
       },
       {
         "Level": 36,
@@ -73716,10 +73651,6 @@
         "Move": "MOVE_MUD_SHOT"
       },
       {
-        "Level": 21,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
         "Level": 26,
         "Move": "MOVE_TOXIC"
       },
@@ -73856,10 +73787,6 @@
       {
         "Level": 18,
         "Move": "MOVE_POISON_FANG"
-      },
-      {
-        "Level": 21,
-        "Move": "MOVE_MINIMIZE"
       },
       {
         "Level": 26,
@@ -79108,10 +79035,6 @@
         "Move": "MOVE_FELL_STINGER"
       },
       {
-        "Level": 16,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
         "Level": 20,
         "Move": "MOVE_SPIKES"
       },
@@ -79146,10 +79069,6 @@
       {
         "Level": 48,
         "Move": "MOVE_CRUNCH"
-      },
-      {
-        "Level": 52,
-        "Move": "MOVE_ACUPRESSURE"
       },
       {
         "Level": 56,
@@ -83700,10 +83619,6 @@
         "Move": "MOVE_ZING_ZAP"
       },
       {
-        "Level": 55,
-        "Move": "MOVE_ACUPRESSURE"
-      },
-      {
         "Level": 60,
         "Move": "MOVE_DISCHARGE"
       }
@@ -87831,10 +87746,6 @@
         "Move": "MOVE_FELL_STINGER"
       },
       {
-        "Level": 16,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
         "Level": 20,
         "Move": "MOVE_SPIKES"
       },
@@ -87869,10 +87780,6 @@
       {
         "Level": 48,
         "Move": "MOVE_AQUA_TAIL"
-      },
-      {
-        "Level": 52,
-        "Move": "MOVE_ACUPRESSURE"
       },
       {
         "Level": 56,
@@ -87969,10 +87876,6 @@
         "Move": "MOVE_FELL_STINGER"
       },
       {
-        "Level": 16,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
         "Level": 20,
         "Move": "MOVE_SPIKES"
       },
@@ -88007,10 +87910,6 @@
       {
         "Level": 48,
         "Move": "MOVE_CRUNCH"
-      },
-      {
-        "Level": 52,
-        "Move": "MOVE_ACUPRESSURE"
       },
       {
         "Level": 56,
@@ -94635,10 +94534,6 @@
       },
       {
         "Level": 1,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
-        "Level": 1,
         "Move": "MOVE_BRUTAL_SWING"
       },
       {
@@ -97281,7 +97176,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_AQUA_TAIL",
       "MOVE_HAZE",
       "MOVE_MUD_SLAP",
@@ -99979,7 +99873,6 @@
     ],
     "EggMoves": [
       "MOVE_ACID",
-      "MOVE_ACUPRESSURE",
       "MOVE_COVET",
       "MOVE_DEFENSE_CURL",
       "MOVE_FINAL_GAMBIT",
@@ -100240,10 +100133,6 @@
       {
         "Level": 1,
         "Move": "MOVE_WRAP"
-      },
-      {
-        "Level": 5,
-        "Move": "MOVE_MINIMIZE"
       },
       {
         "Level": 10,
@@ -102002,10 +101891,6 @@
       {
         "Level": 42,
         "Move": "MOVE_X_SCISSOR"
-      },
-      {
-        "Level": 45,
-        "Move": "MOVE_ACUPRESSURE"
       },
       {
         "Level": 48,
@@ -107787,10 +107672,6 @@
       },
       {
         "Level": 1,
-        "Move": "MOVE_MINIMIZE"
-      },
-      {
-        "Level": 1,
         "Move": "MOVE_SWIFT"
       },
       {
@@ -107914,10 +107795,6 @@
       {
         "Level": 12,
         "Move": "MOVE_RAPID_SPIN"
-      },
-      {
-        "Level": 16,
-        "Move": "MOVE_MINIMIZE"
       },
       {
         "Level": 20,
@@ -108240,7 +108117,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_ENDEAVOR",
       "MOVE_SYNTHESIS"
     ],
@@ -112646,7 +112522,6 @@
       "MOVE_MIRROR_COAT",
       "MOVE_KNOCK_OFF",
       "MOVE_TICKLE",
-      "MOVE_ACUPRESSURE",
       "MOVE_AQUA_RING"
     ],
     "TutorMoves": []
@@ -114333,7 +114208,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_KNOCK_OFF",
       "MOVE_LEECH_SEED",
       "MOVE_MIRROR_COAT",
@@ -114467,7 +114341,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_KNOCK_OFF",
       "MOVE_LEECH_SEED",
       "MOVE_MIRROR_COAT",
@@ -117308,7 +117181,6 @@
       "MOVE_HIDDEN_POWER"
     ],
     "EggMoves": [
-      "MOVE_ACUPRESSURE",
       "MOVE_ENDEAVOR",
       "MOVE_SYNTHESIS"
     ],

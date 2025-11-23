@@ -459,11 +459,11 @@ movedata MOVE_ROLLING_KICK, "Rolling Kick"
     movedescription MOVE_ROLLING_KICK, "The user lashes \nout with a quick,\nspinning kick. It\nmay also make the\ntarget flinch."
 
 movedata MOVE_SAND_ATTACK, "Sand Attack"
-    battleeffect MOVE_EFFECT_ACC_DOWN
+    battleeffect MOVE_EFFECT_SPEED_DOWN
     pss SPLIT_STATUS
     basepower 0
     type TYPE_GROUND
-    accuracy 100
+    accuracy 95
     pp 15
     effectchance 0
     target RANGE_SINGLE_TARGET
@@ -1675,7 +1675,7 @@ movedata MOVE_SCREECH, "Screech"
     movedescription MOVE_SCREECH, "An earsplitting\nscreech is emitted to\nsharply reduce the\nfoe’s Defense stat.\n"
 
 movedata MOVE_DOUBLE_TEAM, "Double Team"
-    battleeffect MOVE_EFFECT_EVA_UP
+    battleeffect MOVE_EFFECT_SPEED_UP
     pss SPLIT_STATUS
     basepower 0
     type TYPE_NORMAL
@@ -1739,7 +1739,7 @@ movedata MOVE_MINIMIZE, "Minimize"
     movedescription MOVE_MINIMIZE, "The user compresses\nits body to make\nitself look smaller.\nThe user’s evasion\nstat is boosted."
 
 movedata MOVE_SMOKESCREEN, "Smokescreen"
-    battleeffect MOVE_EFFECT_ACC_DOWN
+    battleeffect MOVE_EFFECT_SP_DEF_DOWN
     pss SPLIT_STATUS
     basepower 0
     type TYPE_NORMAL
@@ -3035,13 +3035,13 @@ movedata MOVE_SLUDGE_BOMB, "Sludge Bomb"
     movedescription MOVE_SLUDGE_BOMB, "The user attacks by\nhurling filthy sludge\nat the foe.\nIt may also poison\nthe target."
 
 movedata MOVE_MUD_SLAP, "Mud-Slap"
-    battleeffect MOVE_EFFECT_LOWER_ACCURACY_HIT
+    battleeffect MOVE_EFFECT_LOWER_SPEED_HIT
     pss SPLIT_SPECIAL
-    basepower 20
+    basepower 40
     type TYPE_GROUND
     accuracy 100
-    pp 10
-    effectchance 100
+    pp 15
+    effectchance 10
     target RANGE_SINGLE_TARGET
     priority 0
     flags FLAG_MIRROR_MOVE | FLAG_PROTECT

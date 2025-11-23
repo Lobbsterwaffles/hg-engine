@@ -6,6 +6,7 @@ from steps import *
 from trainer_data_editor import *
 from trainer_held_items import TrainerHeldItem, AssignNatureStep
 from print_eviolite_users_step import PrintEvioliteUsersStep
+from script_extractor import *
 
 # Set UTF-8 encoding for console output on Windows
 if sys.platform == 'win32':
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     verbosity_overrides = [([], vbase)] + parse_verbosity_overrides(args.verbosity or [])
     
     # Load ROM
-    with open("test.nds", "rb") as f:
+    with open("reextractvanilla.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
@@ -118,6 +119,7 @@ if __name__ == "__main__":
         AssignCustomSetsStep(mode="late_game_bosses"),
         AssignNatureStep(),
         TrainerHeldItem(),
+        RandomizeGroundItems(),
         
     ])
     

@@ -12,7 +12,7 @@ import ndspy.narc
 import os
 import re
 import random
-from construct import Struct, Int8ul, Int8sl, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container, GreedyRange, StopIf, Check, BitsSwapped, Bitwise, Flag
+from construct import Struct, Int8ul, Int8sl, Int16ul, Int32ul, Array, Padding, Computed, this, Enum, FlagsEnum, RawCopy, Container, GreedyRange, StopIf, Check, BitsSwapped, Bitwise, Flag, Bytes
 
 from enums import (
     Type,

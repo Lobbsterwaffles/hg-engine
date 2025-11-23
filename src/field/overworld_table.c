@@ -1678,10 +1678,14 @@ struct OVERWORLD_TAG gOWTagToFileNum[] = // skip down a bit to see the parts tha
     { .tag = 1797, .gfx = 1547, .callback_params = OVERWORLD_SIZE_SMALL}, // SPECIES_PECHARUNT
    
    
-    NEW_NPC_ENTRY(0), // Wallace
-    NEW_NPC_ENTRY(1), // Juan
-    NEW_NPC_ENTRY(2), // Iris
-    NEW_NPC_ENTRY(3), // Lorelei
+    NEW_NPC_ENTRY(0), // Wallace 1553
+    NEW_NPC_ENTRY(1), // Juan 1554
+    NEW_NPC_ENTRY(2), // Iris 1555
+    NEW_NPC_ENTRY(3), // Lorelei 1556
+    NEW_NPC_ENTRY(4), // Pyroclast 1557
+    NEW_NPC_ENTRY(5), // Cache 1558
+    NEW_NPC_ENTRY(6), // Glint 1559
+    NEW_NPC_ENTRY(7), // Ball Tiers 1560
     { 0xFFFF, 0, 0},
 };
 

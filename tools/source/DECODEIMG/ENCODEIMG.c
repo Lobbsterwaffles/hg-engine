@@ -155,7 +155,7 @@ void ReadPng(char *path, struct Image *image)
     int color_type = png_get_color_type(png_ptr, info_ptr);
 
     if (color_type != PNG_COLOR_TYPE_GRAY && color_type != PNG_COLOR_TYPE_PALETTE)
-        FATAL_ERROR("\"%s\" has an unsupported color type.\n", path);
+        FATAL_ERROR("\"%s\" has an unsupported color type (expected GRAY or PALETTE, got %d).\n", path, color_type);
 
     // Check if the image has a palette so that we can tell if the colors need to be inverted later.
     // Don't read the palette because it's not needed for now.

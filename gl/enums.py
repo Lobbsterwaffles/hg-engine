@@ -652,12 +652,12 @@ class Item(enum.IntEnum):
     GRISEOUS_ORB = 112, ItemParam.HELD
 
     #UNKNOWN ITEMS
-    ITEM_UNKNOWN_71 = 113, ItemParam.EXTRA
-    ITEM_UNKNOWN_72 = 114, ItemParam.EXTRA
-    ITEM_UNKNOWN_73 = 115, ItemParam.EXTRA
-    ITEM_UNKNOWN_74 = 116, ItemParam.EXTRA
-    ITEM_UNKNOWN_75 = 117, ItemParam.EXTRA
-    ITEM_UNKNOWN_76 = 118, ItemParam.EXTRA
+    TEA = 113, ItemParam.KEY
+    AUTOGRAPH = 114, ItemParam.EXTRA
+    DOUSE_DRIVE = 115, ItemParam.UNIMPL
+    SHOCK_DRIVE = 116, ItemParam.UNIMPL
+    BURN_DRIVE = 117, ItemParam.UNIMPL
+    CHILL_DRIVE = 118, ItemParam.UNIMPL
     ITEM_UNKNOWN_77 = 119, ItemParam.EXTRA
     ITEM_UNKNOWN_78 = 120, ItemParam.EXTRA
     ITEM_UNKNOWN_79 = 121, ItemParam.EXTRA
@@ -877,98 +877,98 @@ class Item(enum.IntEnum):
    
    
     # TMs
-    TM01 = 328, ItemParam.TM
-    TM02 = 329, ItemParam.TM
-    TM03 = 330, ItemParam.TM
-    TM04 = 331, ItemParam.TM
-    TM05 = 332, ItemParam.TM
-    TM06 = 333, ItemParam.TM
-    TM07 = 334, ItemParam.TM
-    TM08 = 335, ItemParam.TM
-    TM09 = 336, ItemParam.TM
-    TM10 = 337, ItemParam.TM
-    TM11 = 338, ItemParam.TM
-    TM12 = 339, ItemParam.TM
-    TM13 = 340, ItemParam.TM
-    TM14 = 341, ItemParam.TM
-    TM15 = 342, ItemParam.TM
-    TM16 = 343, ItemParam.TM
-    TM17 = 344, ItemParam.TM
-    TM18 = 345, ItemParam.TM
-    TM19 = 346, ItemParam.TM
-    TM20 = 347, ItemParam.TM
-    TM21 = 348, ItemParam.TM
-    TM22 = 349, ItemParam.TM
-    TM23 = 350, ItemParam.TM
-    TM24 = 351, ItemParam.TM
-    TM25 = 352, ItemParam.TM
-    TM26 = 353, ItemParam.TM
-    TM27 = 354, ItemParam.TM
-    TM28 = 355, ItemParam.TM
-    TM29 = 356, ItemParam.TM
-    TM30 = 357, ItemParam.TM
-    TM31 = 358, ItemParam.TM
-    TM32 = 359, ItemParam.TM
-    TM33 = 360, ItemParam.TM
-    TM34 = 361, ItemParam.TM
-    TM35 = 362, ItemParam.TM
-    TM36 = 363, ItemParam.TM
-    TM37 = 364, ItemParam.TM
-    TM38 = 365, ItemParam.TM
-    TM39 = 366, ItemParam.TM
-    TM40 = 367, ItemParam.TM
-    TM41 = 368, ItemParam.TM
-    TM42 = 369, ItemParam.TM
-    TM43 = 370, ItemParam.TM
-    TM44 = 371, ItemParam.TM
-    TM45 = 372, ItemParam.TM
-    TM46 = 373, ItemParam.TM
-    TM47 = 374, ItemParam.TM
-    TM48 = 375, ItemParam.TM
-    TM49 = 376, ItemParam.TM
-    TM50 = 377, ItemParam.TM
-    TM51 = 378, ItemParam.TM
-    TM52 = 379, ItemParam.TM
-    TM53 = 380, ItemParam.TM
-    TM54 = 381, ItemParam.TM
-    TM55 = 382, ItemParam.TM
-    TM56 = 383, ItemParam.TM
-    TM57 = 384, ItemParam.TM
-    TM58 = 385, ItemParam.TM
-    TM59 = 386, ItemParam.TM
-    TM60 = 387, ItemParam.TM
-    TM61 = 388, ItemParam.TM
-    TM62 = 389, ItemParam.TM
-    TM63 = 390, ItemParam.TM
-    TM64 = 391, ItemParam.TM
-    TM65 = 392, ItemParam.TM
-    TM66 = 393, ItemParam.TM
-    TM67 = 394, ItemParam.TM
-    TM68 = 395, ItemParam.TM
-    TM69 = 396, ItemParam.TM
-    TM70 = 397, ItemParam.TM
-    TM71 = 398, ItemParam.TM
-    TM72 = 399, ItemParam.TM
-    TM73 = 400, ItemParam.TM
-    TM74 = 401, ItemParam.TM
-    TM75 = 402, ItemParam.TM
-    TM76 = 403, ItemParam.TM
-    TM77 = 404, ItemParam.TM
-    TM78 = 405, ItemParam.TM
-    TM79 = 406, ItemParam.TM
-    TM80 = 407, ItemParam.TM
-    TM81 = 408, ItemParam.TM
-    TM82 = 409, ItemParam.TM
-    TM83 = 410, ItemParam.TM
-    TM84 = 411, ItemParam.TM
-    TM85 = 412, ItemParam.TM
-    TM86 = 413, ItemParam.TM
-    TM87 = 414, ItemParam.TM
-    TM88 = 415, ItemParam.TM
-    TM89 = 416, ItemParam.TM
-    TM90 = 417, ItemParam.TM
-    TM91 = 418, ItemParam.TM
-    TM92 = 419, ItemParam.TM
+    TM001 = 328, ItemParam.TM
+    TM002 = 329, ItemParam.TM
+    TM003 = 330, ItemParam.TM
+    TM004 = 331, ItemParam.TM
+    TM005 = 332, ItemParam.TM
+    TM006 = 333, ItemParam.TM
+    TM007 = 334, ItemParam.TM
+    TM008 = 335, ItemParam.TM
+    TM009 = 336, ItemParam.TM
+    TM010 = 337, ItemParam.TM
+    TM011 = 338, ItemParam.TM
+    TM012 = 339, ItemParam.TM
+    TM013 = 340, ItemParam.TM
+    TM014 = 341, ItemParam.TM
+    TM015 = 342, ItemParam.TM
+    TM016 = 343, ItemParam.TM
+    TM017 = 344, ItemParam.TM
+    TM018 = 345, ItemParam.TM
+    TM019 = 346, ItemParam.TM
+    TM020 = 347, ItemParam.TM
+    TM021 = 348, ItemParam.TM
+    TM022 = 349, ItemParam.TM
+    TM023 = 350, ItemParam.TM
+    TM024 = 351, ItemParam.TM
+    TM025 = 352, ItemParam.TM
+    TM026 = 353, ItemParam.TM
+    TM027 = 354, ItemParam.TM
+    TM028 = 355, ItemParam.TM
+    TM029 = 356, ItemParam.TM
+    TM030 = 357, ItemParam.TM
+    TM031 = 358, ItemParam.TM
+    TM032 = 359, ItemParam.TM
+    TM033 = 360, ItemParam.TM
+    TM034 = 361, ItemParam.TM
+    TM035 = 362, ItemParam.TM
+    TM036 = 363, ItemParam.TM
+    TM037 = 364, ItemParam.TM
+    TM038 = 365, ItemParam.TM
+    TM039 = 366, ItemParam.TM
+    TM040 = 367, ItemParam.TM
+    TM041 = 368, ItemParam.TM
+    TM042 = 369, ItemParam.TM
+    TM043 = 370, ItemParam.TM
+    TM044 = 371, ItemParam.TM
+    TM045 = 372, ItemParam.TM
+    TM046 = 373, ItemParam.TM
+    TM047 = 374, ItemParam.TM
+    TM048 = 375, ItemParam.TM
+    TM049 = 376, ItemParam.TM
+    TM050 = 377, ItemParam.TM
+    TM051 = 378, ItemParam.TM
+    TM052 = 379, ItemParam.TM
+    TM053 = 380, ItemParam.TM
+    TM054 = 381, ItemParam.TM
+    TM055 = 382, ItemParam.TM
+    TM056 = 383, ItemParam.TM
+    TM057 = 384, ItemParam.TM
+    TM058 = 385, ItemParam.TM
+    TM059 = 386, ItemParam.TM
+    TM060 = 387, ItemParam.TM
+    TM061 = 388, ItemParam.TM
+    TM062 = 389, ItemParam.TM
+    TM063 = 390, ItemParam.TM
+    TM064 = 391, ItemParam.TM
+    TM065 = 392, ItemParam.TM
+    TM066 = 393, ItemParam.TM
+    TM067 = 394, ItemParam.TM
+    TM068 = 395, ItemParam.TM
+    TM069 = 396, ItemParam.TM
+    TM070 = 397, ItemParam.TM
+    TM071 = 398, ItemParam.TM
+    TM072 = 399, ItemParam.TM
+    TM073 = 400, ItemParam.TM
+    TM074 = 401, ItemParam.TM
+    TM075 = 402, ItemParam.TM
+    TM076 = 403, ItemParam.TM
+    TM077 = 404, ItemParam.TM
+    TM078 = 405, ItemParam.TM
+    TM079 = 406, ItemParam.TM
+    TM080 = 407, ItemParam.TM
+    TM081 = 408, ItemParam.TM
+    TM082 = 409, ItemParam.TM
+    TM083 = 410, ItemParam.TM
+    TM084 = 411, ItemParam.TM
+    TM085 = 412, ItemParam.TM
+    TM086 = 413, ItemParam.TM
+    TM087 = 414, ItemParam.TM
+    TM088 = 415, ItemParam.TM
+    TM089 = 416, ItemParam.TM
+    TM090 = 417, ItemParam.TM
+    TM091 = 418, ItemParam.TM
+    TM092 = 419, ItemParam.TM
     
     # HMs
     HM01 = 420, ItemParam.HM
@@ -986,10 +986,10 @@ class Item(enum.IntEnum):
     RULE_BOOK = 430, ItemParam.KEY
     POKE_RADAR = 431, ItemParam.KEY
     POINT_CARD = 432, ItemParam.KEY
-    JOURNAL = 433, ItemParam.KEY
+    GUIDEBOOK = 433, ItemParam.KEY
     SEAL_CASE = 434, ItemParam.KEY
     FASHION_CASE = 435, ItemParam.KEY
-    SEAL_BAG = 436, ItemParam.KEY
+    STICKER_BAG = 436, ItemParam.KEY
     PAL_PAD = 437, ItemParam.KEY
     WORKS_KEY = 438, ItemParam.KEY
     OLD_CHARM = 439, ItemParam.KEY
@@ -1003,10 +1003,10 @@ class Item(enum.IntEnum):
     SUPER_ROD = 447, ItemParam.KEY
     SPRAYDUCK = 448, ItemParam.KEY
     POFFIN_CASE = 449, ItemParam.KEY
-    BICYCLE = 450, ItemParam.KEY
+    BIKE = 450, ItemParam.KEY
     SUITE_KEY = 451, ItemParam.KEY
     OAKS_LETTER = 452, ItemParam.KEY
-    LUNAR_WING = 453, ItemParam.KEY
+    LUNAR_FEATHER = 453, ItemParam.KEY
     MEMBER_CARD = 454, ItemParam.KEY
     AZURE_FLUTE = 455, ItemParam.KEY
     SS_TICKET = 456, ItemParam.KEY
@@ -1024,7 +1024,7 @@ class Item(enum.IntEnum):
     APRICORN_BOX = 468, ItemParam.KEY
     UNOWN_REPORT = 469, ItemParam.KEY
     BERRY_POTS = 470, ItemParam.KEY
-    DOWSING_MCHN = 471, ItemParam.KEY
+    DOWSING_MACHINE = 471, ItemParam.KEY
     BLUE_CARD = 472, ItemParam.KEY
     SLOWPOKE_TAIL = 473, ItemParam.KEY
     CLEAR_BELL = 474, ItemParam.KEY
@@ -1035,8 +1035,8 @@ class Item(enum.IntEnum):
     LOST_ITEM = 479, ItemParam.KEY
     PASS = 480, ItemParam.KEY
     MACHINE_PART = 481, ItemParam.KEY
-    SILVER_WING = 482, ItemParam.KEY
-    RAINBOW_WING = 483, ItemParam.KEY
+    SILVER_FEATHER = 482, ItemParam.KEY
+    RAINBOW_FEATHER = 483, ItemParam.KEY
     MYSTERY_EGG = 484, ItemParam.KEY
     
     # Apricorns
@@ -1096,312 +1096,661 @@ class Item(enum.IntEnum):
     RED_ORB = 534, ItemParam.KEY
     BLUE_ORB = 535, ItemParam.KEY
     ENIGMA_STONE = 536, ItemParam.KEY
+
+    #GEN V ADDITIONS (reordered :D)
+    PRISM_SCALE = 537, ItemParam.EVO
+    EVIOLITE = 538, ItemParam.HELD
+    FLOAT_STONE = 539, ItemParam.HELD
+    ROCKY_HELMET = 540, ItemParam.HELD
+    AIR_BALLOON = 541, ItemParam.HELD
+    RED_CARD = 542, ItemParam.HELD
+    RING_TARGET = 543, ItemParam.HELD
+    BINDING_BAND = 544, ItemParam.HELD
+    ABSORB_BULB = 545, ItemParam.HELD
+    CELL_BATTERY = 546, ItemParam.HELD
+    EJECT_BUTTON = 547, ItemParam.HELD
+    FIRE_GEM = 548, ItemParam.GEM
+    WATER_GEM = 549, ItemParam.GEM
+    ELECTRIC_GEM = 550, ItemParam.GEM
+    GRASS_GEM = 551, ItemParam.GEM
+    ICE_GEM = 552, ItemParam.GEM
+    FIGHTING_GEM = 553, ItemParam.GEM
+    POISON_GEM = 554, ItemParam.GEM
+    GROUND_GEM = 555, ItemParam.GEM
+    FLYING_GEM = 556, ItemParam.GEM
+    PSYCHIC_GEM = 557, ItemParam.GEM
+    BUG_GEM = 558, ItemParam.GEM
+    ROCK_GEM = 559, ItemParam.GEM
+    GHOST_GEM = 560, ItemParam.GEM
+    DRAGON_GEM = 561, ItemParam.GEM
+    DARK_GEM = 562, ItemParam.GEM
+    STEEL_GEM = 563, ItemParam.GEM
+    NORMAL_GEM = 564, ItemParam.GEM
+
+    HEALTH_FEATHER = 565, ItemParam.OBO
+    MUSCLE_FEATHER = 566, ItemParam.OBO
+    RESIST_FEATHER = 567, ItemParam.OBO
+    GENIUS_FEATHER = 568, ItemParam.OBO
+    CLEVER_FEATHER = 569, ItemParam.OBO
+    SWIFT_FEATHER = 570, ItemParam.OBO
+    PRETTY_FEATHER = 571, ItemParam.VAL
+
+    COVER_FOSSIL = 572, ItemParam.VAL
+    PLUME_FOSSIL = 573, ItemParam.VAL
+    LIBERTY_PASS = 574, ItemParam.VAL
+    PASS_ORB = 575, ItemParam.KEY
+    DREAM_BALL = 576, ItemParam.BALL
+    POKE_TOY = 577, ItemParam.BAT
+    PROP_CASE = 578, ItemParam.KEY
+    DRAGON_SKULL = 579, ItemParam.KEY
+    BALM_MUSHROOM = 580, ItemParam.VAL
+    BIG_NUGGET = 581, ItemParam.VAL
+    PEARL_STRING = 582, ItemParam.VAL
+    COMET_SHARD = 583, ItemParam.VAL
+    RELIC_COPPER = 584, ItemParam.VAL
+    RELIC_SILVER = 585, ItemParam.VAL
+    RELIC_GOLD = 586, ItemParam.VAL
+    RELIC_VASE = 587, ItemParam.VAL
+    RELIC_BAND = 588, ItemParam.VAL
+    RELIC_STATUE = 589, ItemParam.VAL
+    RELIC_CROWN = 590, ItemParam.VAL
+    CASTELIACONE = 591, ItemParam.MED
+   
+   #GEN V GARBAGE
+
+    DIRE_HIT_2 = 592, ItemParam.UNIMPL
+    X_SPEED_2 = 593, ItemParam.UNIMPL
+    X_SP_ATK_2 = 594, ItemParam.UNIMPL
+    X_SP_DEF_2 = 595, ItemParam.UNIMPL
+    X_DEFENSE_2 = 596, ItemParam.UNIMPL
+    X_ATTACK_2 = 597, ItemParam.UNIMPL
+    X_ACCURACY_2 = 598, ItemParam.UNIMPL
+    X_SPEED_3 = 599, ItemParam.UNIMPL
+    X_SP_ATK_3 = 600, ItemParam.UNIMPL
+    X_SP_DEF_3 = 601, ItemParam.UNIMPL
+    X_DEFENSE_3 = 602, ItemParam.UNIMPL
+    X_ATTACK_3 = 603, ItemParam.UNIMPL
+    X_ACCURACY_3 = 604, ItemParam.UNIMPL
+    X_SPEED_6 = 605, ItemParam.UNIMPL
+    X_SP_ATK_6 = 606, ItemParam.UNIMPL
+    X_SP_DEF_6 = 607, ItemParam.UNIMPL
+    X_DEFENSE_6 = 608, ItemParam.UNIMPL
+    X_ATTACK_6 = 609, ItemParam.UNIMPL
+    X_ACCURACY_6 = 610, ItemParam.UNIMPL
+    ABILITY_URGE = 611, ItemParam.UNIMPL
+    ITEM_DROP = 612, ItemParam.UNIMPL
+    ITEM_URGE = 613, ItemParam.UNIMPL
+    RESET_URGE = 614, ItemParam.UNIMPL
+    DIRE_HIT_3 = 615, ItemParam.UNIMPL
+    LIGHT_STONE = 616, ItemParam.KEY
+    DARK_STONE = 617, ItemParam.KEY
+    TM093 = 618, ItemParam.TM
+    TM094 = 619, ItemParam.TM
+    TM095 = 620, ItemParam.TM
+    XTRANSCEIVER_BW = 621, ItemParam.KEY
+    UNKNOWN_622 = 622, ItemParam.UNIMPL
+    GRAM_1 = 623, ItemParam.KEY
+    GRAM_2 = 624, ItemParam.KEY
+    GRAM_3 = 625, ItemParam.KEY
+    XTRANSCEIVER_BW2 = 626, ItemParam.KEY
+    MEDAL_BOX = 627, ItemParam.KEY
+    DNA_SPLICERS_FUSE = 628, ItemParam.KEY
+    DNA_SPLICERS_UNFUSE = 629, ItemParam.KEY
+    PERMIT = 630, ItemParam.KEY
+    OVAL_CHARM = 631, ItemParam.KEY
+    SHINY_CHARM = 632, ItemParam.KEY
+    PLASMA_CARD = 633, ItemParam.KEY
+    GRUBBY_HANKY = 634, ItemParam.KEY
+    COLRESS_MACHINE = 635, ItemParam.KEY
+    DROPPED_ITEM_CURTIS = 636, ItemParam.KEY
+    DROPPED_ITEM_YANCY = 637, ItemParam.KEY
     
-    # Mega stones
-    VENUSAURITE = 537, ItemParam.MEGA
-    CHARIZARDITE_X = 538, ItemParam.MEGA
-    CHARIZARDITE_Y = 539, ItemParam.MEGA
-    BLASTOISINITE = 540, ItemParam.MEGA
-    BEEDRILLITE = 541, ItemParam.MEGA
-    PIDGEOTITE = 542, ItemParam.MEGA
-    ALAKAZITE = 543, ItemParam.MEGA
-    SLOWBRONITE = 544, ItemParam.MEGA
-    GENGARITE = 545, ItemParam.MEGA
-    KANGASKHANITE = 546, ItemParam.MEGA
-    PINSIRITE = 547, ItemParam.MEGA
-    GYARADOSITE = 548, ItemParam.MEGA
-    AERODACTYLITE = 549, ItemParam.MEGA
-    MEWTWONITE_X = 550, ItemParam.MEGA
-    MEWTWONITE_Y = 551, ItemParam.MEGA
-    AMPHAROSITE = 552, ItemParam.MEGA
-    STEELIXITE = 553, ItemParam.MEGA
-    SCIZORITE = 554, ItemParam.MEGA
-    HERACRONITE = 555, ItemParam.MEGA
-    HOUNDOOMINITE = 556, ItemParam.MEGA
-    TYRANITARITE = 557, ItemParam.MEGA
-    SCEPTILITE = 558, ItemParam.MEGA
-    BLAZIKENITE = 559, ItemParam.MEGA
-    SWAMPERTITE = 560, ItemParam.MEGA
-    GARDEVOIRITE = 561, ItemParam.MEGA
-    SABLENITE = 562, ItemParam.MEGA
-    MAWILITE = 563, ItemParam.MEGA
-    AGGRONITE = 564, ItemParam.MEGA
-    MEDICHAMITE = 565, ItemParam.MEGA
-    MANECTITE = 566, ItemParam.MEGA
-    SHARPEDONITE = 567, ItemParam.MEGA
-    CAMERUPTITE = 568, ItemParam.MEGA
-    ALTARIANITE = 569, ItemParam.MEGA
-    BANETTITE = 570, ItemParam.MEGA
-    ABSOLITE = 571, ItemParam.MEGA
-    GLALITITE = 572, ItemParam.MEGA
-    SALAMENCITE = 573, ItemParam.MEGA
-    METAGROSSITE = 574, ItemParam.MEGA
-    LATIASITE = 575, ItemParam.MEGA
-    LATIOSITE = 576, ItemParam.MEGA
-    LOPUNNITE = 577, ItemParam.MEGA
-    GARCHOMPITE = 578, ItemParam.MEGA
-    LUCARIONITE = 579, ItemParam.MEGA
-    ABOMASITE = 580, ItemParam.MEGA
-    GALLADITE = 581, ItemParam.MEGA
-    AUDINITE = 582, ItemParam.MEGA
-    DIANCITE = 583, ItemParam.MEGA
+    REVEAL_GLASS = 638, ItemParam.KEY
+
+    WEAKNESS_POLICY = 639, ItemParam.HELD
+    ASSAULT_VEST = 640, ItemParam.HELD
+    HOLO_CASTER_MALE = 641, ItemParam.KEY
+    PROFS_LETTER = 642, ItemParam.KEY
+    ROLLER_SKATES = 643, ItemParam.KEY
+    PIXIE_PLATE = 644, ItemParam.HELD
+    ABILITY_CAPSULE = 645, ItemParam.OBO
+    WHIPPED_DREAM = 646, ItemParam.MED
+    SACHET = 647, ItemParam.EVO
+    LUMINOUS_MOSS = 648, ItemParam.HELD
+    SNOWBALL = 649, ItemParam.HELD
+    SAFETY_GOGGLES = 650, ItemParam.HELD
+    POKE_FLUTE = 651, ItemParam.KEY
+    RICH_MULCH = 652, ItemParam.UNIMPL
+    SURPRISE_MULCH = 653, ItemParam.UNIMPL
+    BOOST_MULCH = 654, ItemParam.UNIMPL
+    AMAZE_MULCH = 655, ItemParam.UNIMPL
+
+    # mega stones 1
+    GENGARITE = 656, ItemParam.MEGA
+    GARDEVOIRITE = 657, ItemParam.MEGA
+    AMPHAROSITE = 658, ItemParam.MEGA
+    VENUSAURITE = 659, ItemParam.MEGA
+    CHARIZARDITE_X = 660, ItemParam.MEGA
+    BLASTOISINITE = 661, ItemParam.MEGA
+    MEWTWONITE_X = 662, ItemParam.MEGA
+    MEWTWONITE_Y = 663, ItemParam.MEGA
+    BLAZIKENITE = 664, ItemParam.MEGA
+    MEDICHAMITE = 665, ItemParam.MEGA
+    HOUNDOOMINITE = 666, ItemParam.MEGA
+    AGGRONITE = 667, ItemParam.MEGA
+    BANETTITE = 668, ItemParam.MEGA
+    TYRANITARITE = 669, ItemParam.MEGA
+    SCIZORITE = 670, ItemParam.MEGA
+    PINSIRITE = 671, ItemParam.MEGA
+    AERODACTYLITE = 672, ItemParam.MEGA
+    LUCARIONITE = 673, ItemParam.MEGA
+    ABOMASITE = 674, ItemParam.MEGA
+    KANGASKHANITE = 675, ItemParam.MEGA
+    GYARADOSITE = 676, ItemParam.MEGA
+    ABSOLITE = 677, ItemParam.MEGA
+    CHARIZARDITE_Y = 678, ItemParam.MEGA
+    ALAKAZITE = 679, ItemParam.MEGA
+    HERACRONITE = 680, ItemParam.MEGA
+    MAWILITE = 681, ItemParam.MEGA
+    MANECTITE = 682, ItemParam.MEGA
+    GARCHOMPITE = 683, ItemParam.MEGA
+    LATIASITE = 684, ItemParam.MEGA
+    LATIOSITE = 685, ItemParam.MEGA
+
+    ROSELI_BERRY = 686, ItemParam.BER
+    KEE_BERRY = 687, ItemParam.BER
+    MARANGA_BERRY = 688, ItemParam.BER
+    SPRINKLOTAD = 689, ItemParam.KEY
+    TM096 = 690, ItemParam.TM
+    TM097 = 691, ItemParam.TM
+    TM098 = 692, ItemParam.TM
+    TM099 = 693, ItemParam.TM
+    TM100 = 694, ItemParam.TM
     
-    # Pixie plate lol
-    PIXIE_PLATE = 584, ItemParam.HELD
+#GEN VI RANDOM ISH
+
+    POWER_PLANT_PASS = 695, ItemParam.KEY
+    MEGA_RING = 696, ItemParam.KEY
+    INTRIGUING_STONE = 697, ItemParam.KEY
+    COMMON_STONE = 698, ItemParam.KEY
+    DISCOUNT_COUPON = 699, ItemParam.KEY
+    ELEVATOR_KEY = 700, ItemParam.KEY
+    TMV_PASS = 701, ItemParam.KEY
+    HONOR_OF_KALOS = 702, ItemParam.KEY
+    ADVENTURE_GUIDE = 703, ItemParam.KEY
+    STRANGE_SOUVENIR = 704, ItemParam.KEY
+    LENS_CASE = 705, ItemParam.KEY
+    MAKEUP_BAG = 706, ItemParam.KEY
+    TRAVEL_TRUNK = 707, ItemParam.KEY
+    LUMIOSE_GALETTE = 708, ItemParam.MED
+    SHALOUR_SABLE = 709, ItemParam.MED
+    JAW_FOSSIL = 710, ItemParam.VAL
+    SAIL_FOSSIL = 711, ItemParam.VAL
+    LOOKER_TICKET = 712, ItemParam.KEY
+    BIKE_XY = 713, ItemParam.UNIMPL
+    HOLO_CASTER_FEMALE = 714, ItemParam.UNIMPL
+
+    FAIRY_GEM = 715, ItemParam.GEM
+
+    MEGA_CHARM = 716, ItemParam.KEY
+    MEGA_GLOVE = 717, ItemParam.KEY
+    MACH_BIKE = 718, ItemParam.UNIMPL
+    ACRO_BIKE = 719, ItemParam.UNIMPL
+    WAILMER_PAIL = 720, ItemParam.UNIMPL
+    DEVON_PARTS = 721, ItemParam.UNIMPL
+    SOOT_SACK = 722, ItemParam.UNIMPL
+    BASEMENT_KEY_ORAS = 723, ItemParam.UNIMPL
+    POKEBLOCK_KIT = 724, ItemParam.UNIMPL
+    LETTER = 725, ItemParam.KEY
+    EON_TICKET = 726, ItemParam.KEY
+    SCANNER = 727, ItemParam.KEY
+    GO_GOGGLES = 728, ItemParam.KEY
+    METEORITE_ORAS_DEFAULT = 729, ItemParam.KEY
+    KEY_TO_ROOM_1 = 730, ItemParam.KEY
+    KEY_TO_ROOM_2 = 731, ItemParam.KEY
+    KEY_TO_ROOM_4 = 732, ItemParam.KEY
+    KEY_TO_ROOM_6 = 733, ItemParam.KEY
+    STORAGE_KEY_HOENN = 734, ItemParam.KEY
+    DEVON_SCOPE = 735, ItemParam.KEY
+    SS_TICKET_ORAS = 736, ItemParam.KEY
+    HM07_ORAS = 737, ItemParam.UNIMPL
+    DEVON_SCUBA_GEAR = 738, ItemParam.KEY
+    CONTEST_COSTUME_MALE = 739, ItemParam.KEY
+    CONTEST_COSTUME_FEMALE = 740, ItemParam.KEY
+    MAGMA_SUIT = 741, ItemParam.KEY
+    AQUA_SUIT = 742, ItemParam.KEY
+    PAIR_OF_TICKETS = 743, ItemParam.KEY
+    MEGA_BRACELET = 744, ItemParam.KEY
+    MEGA_PENDANT = 745, ItemParam.KEY
+    MEGA_GLASSES = 746, ItemParam.KEY
+    MEGA_ANCHOR = 747, ItemParam.KEY
+    MEGA_STICKPIN = 748, ItemParam.KEY
+    MEGA_TIARA = 749, ItemParam.KEY
+    MEGA_ANKLET = 750, ItemParam.KEY
+    METEORITE_ORAS_SECOND = 751, ItemParam.KEY
+
+# MEGA STONES 2 
+
+    SWAMPERTITE = 752, ItemParam.MEGA
+    SCEPTILITE = 753, ItemParam.MEGA
+    SABLENITE = 754, ItemParam.MEGA
+    ALTARIANITE = 755, ItemParam.MEGA
+    GALLADITE = 756, ItemParam.MEGA
+    AUDINITE = 757, ItemParam.MEGA
+    METAGROSSITE = 758, ItemParam.MEGA
+    SHARPEDONITE = 759, ItemParam.MEGA
+    SLOWBRONITE = 760, ItemParam.MEGA
+    STEELIXITE = 761, ItemParam.MEGA
+    PIDGEOTITE = 762, ItemParam.MEGA
+    GLALITITE = 763, ItemParam.MEGA
+    DIANCITE = 764, ItemParam.MEGA
+
+    PRISON_BOTTLE = 765, ItemParam.KEY
+    MEGA_CUFF = 766, ItemParam.KEY
+
+#MEGA STONES 3
+
+    CAMERUPTITE = 767, ItemParam.MEGA
+    LOPUNNITE = 768, ItemParam.MEGA
+    SALAMENCITE = 769, ItemParam.MEGA
+    BEEDRILLITE = 770, ItemParam.MEGA
+
+    METEORITE_ORAS_THIRD = 771, ItemParam.KEY
+    METEORITE_ORAS_FINAL = 772, ItemParam.KEY
+    KEY_STONE = 773, ItemParam.KEY
+    METEORITE_SHARD = 774, ItemParam.KEY
+    EON_FLUTE = 775, ItemParam.KEY
+    NORMALIUM_Z_HELD = 776, ItemParam.UNIMPL
+    FIRIUM_Z_HELD = 777, ItemParam.UNIMPL
+    WATERIUM_Z_HELD = 778, ItemParam.UNIMPL
+    ELECTRIUM_Z_HELD = 779, ItemParam.UNIMPL
+    GRASSIUM_Z_HELD = 780, ItemParam.UNIMPL
+    ICIUM_Z_HELD = 781, ItemParam.UNIMPL
+    FIGHTINIUM_Z_HELD = 782, ItemParam.UNIMPL
+    POISONIUM_Z_HELD = 783, ItemParam.UNIMPL
+    GROUNDIUM_Z_HELD = 784, ItemParam.UNIMPL
+    FLYINIUM_Z_HELD = 785, ItemParam.UNIMPL
+    PSYCHIUM_Z_HELD = 786, ItemParam.UNIMPL
+    BUGINIUM_Z_HELD = 787, ItemParam.UNIMPL
+    ROCKIUM_Z_HELD = 788, ItemParam.UNIMPL
+    GHOSTIUM_Z_HELD = 789, ItemParam.UNIMPL
+    DRAGONIUM_Z_HELD = 790, ItemParam.UNIMPL
+    DARKINIUM_Z_HELD = 791, ItemParam.UNIMPL
+    STEELIUM_Z_HELD = 792, ItemParam.UNIMPL
+    FAIRIUM_Z_HELD = 793, ItemParam.UNIMPL
+    PIKANIUM_Z_HELD = 794, ItemParam.UNIMPL
+
+    BOTTLE_CAP = 795, ItemParam.OBO
+    GOLD_BOTTLE_CAP = 796, ItemParam.OBO
+
+#gen VII stuff
+
+    Z_RING = 797, ItemParam.UNIMPL
+    DECIDIUM_Z_HELD = 798, ItemParam.UNIMPL
+    INCINIUM_Z_HELD = 799, ItemParam.UNIMPL
+    PRIMARIUM_Z_HELD = 800, ItemParam.UNIMPL
+    TAPUNIUM_Z_HELD = 801, ItemParam.UNIMPL
+    MARSHADIUM_Z_HELD = 802, ItemParam.UNIMPL
+    ALORAICHIUM_Z_HELD = 803, ItemParam.UNIMPL
+    SNORLIUM_Z_HELD = 804, ItemParam.UNIMPL
+    EEVIUM_Z_HELD = 805, ItemParam.UNIMPL
+    MEWNIUM_Z_HELD = 806, ItemParam.UNIMPL
+    NORMALIUM_Z_BAG = 807, ItemParam.UNIMPL
+    FIRIUM_Z_BAG = 808, ItemParam.UNIMPL
+    WATERIUM_Z_BAG = 809, ItemParam.UNIMPL
+    ELECTRIUM_Z_BAG = 810, ItemParam.UNIMPL
+    GRASSIUM_Z_BAG = 811, ItemParam.UNIMPL
+    ICIUM_Z_BAG = 812, ItemParam.UNIMPL
+    FIGHTINIUM_Z_BAG = 813, ItemParam.UNIMPL
+    POISONIUM_Z_BAG = 814, ItemParam.UNIMPL
+    GROUNDIUM_Z_BAG = 815, ItemParam.UNIMPL
+    FLYINIUM_Z_BAG = 816, ItemParam.UNIMPL
+    PSYCHIUM_Z_BAG = 817, ItemParam.UNIMPL
+    BUGINIUM_Z_BAG = 818, ItemParam.UNIMPL
+    ROCKIUM_Z_BAG = 819, ItemParam.UNIMPL
+    GHOSTIUM_Z_BAG = 820, ItemParam.UNIMPL
+    DRAGONIUM_Z_BAG = 821, ItemParam.UNIMPL
+    DARKINIUM_Z_BAG = 822, ItemParam.UNIMPL
+    STEELIUM_Z_BAG = 823, ItemParam.UNIMPL
+    FAIRIUM_Z_BAG = 824, ItemParam.UNIMPL
+    PIKANIUM_Z_BAG = 825, ItemParam.UNIMPL
+    DECIDIUM_Z_BAG = 826, ItemParam.UNIMPL
+    INCINIUM_Z_BAG = 827, ItemParam.UNIMPL
+    PRIMARIUM_Z_BAG = 828, ItemParam.UNIMPL
+    TAPUNIUM_Z_BAG = 829, ItemParam.UNIMPL
+    MARSHADIUM_Z_BAG = 830, ItemParam.UNIMPL
+    ALORAICHIUM_Z_BAG = 831, ItemParam.UNIMPL
+    SNORLIUM_Z_BAG = 832, ItemParam.UNIMPL
+    EEVIUM_Z_BAG = 833, ItemParam.UNIMPL
+    MEWNIUM_Z_BAG = 834, ItemParam.UNIMPL
+    PIKASHUNIUM_Z_HELD = 835, ItemParam.UNIMPL
+    PIKASHUNIUM_Z_BAG = 836, ItemParam.UNIMPL
     
-    # Gen V Items
-    ABSORB_BULB = 585, ItemParam.HELD
-    AIR_BALLOON = 586, ItemParam.HELD
-    BALM_MUSHROOM = 587, ItemParam.VAL
-    BIG_NUGGET = 588, ItemParam.VAL
-    BINDING_BAND = 589, ItemParam.HELD
-    CASTELIACONE = 590, ItemParam.MED
-    CELL_BATTERY = 591, ItemParam.HELD
-    COMET_SHARD = 592, ItemParam.VAL
-    DREAM_BALL = 593, ItemParam.BALL
-    EJECT_BUTTON = 594, ItemParam.HELD
-    EVIOLITE = 595, ItemParam.HELD
-    FLOAT_STONE = 596, ItemParam.HELD
-    PEARL_STRING = 597, ItemParam.VAL
-    PRISM_SCALE = 598, ItemParam.EVO
-    RED_CARD = 599, ItemParam.HELD
-    RING_TARGET = 600, ItemParam.HELD
-    ROCKY_HELMET = 601, ItemParam.HELD
-    SWEET_HEART = 602, ItemParam.EXTRA
+    UNKNOWN_837 = 837, ItemParam.UNIMPL
+    UNKNOWN_838 = 838, ItemParam.UNIMPL
+    UNKNOWN_839 = 839, ItemParam.UNIMPL
+    UNKNOWN_840 = 840, ItemParam.UNIMPL
+
+    FORAGE_BAG = 841, ItemParam.UNIMPL
+    FISHING_ROD_SM = 842, ItemParam.UNIMPL
+    PROFESSORS_MASK = 843, ItemParam.UNIMPL
+    FESTIVAL_TICKET = 844, ItemParam.UNIMPL
+    SPARKLING_STONE = 845, ItemParam.UNIMPL
+
+    ADRENALINE_ORB = 846, ItemParam.HELD
     
-    # Generation VI items
-    ABILITY_CAPSULE = 603, ItemParam.OBO
-    ASSAULT_VEST = 604, ItemParam.HELD
-    LUMINOUS_MOSS = 605, ItemParam.HELD
-    LUMIOSE_GALETTE = 606, ItemParam.MED
-    SACHET = 607, ItemParam.EVO
-    SAFETY_GOGGLES = 608, ItemParam.HELD
-    SHALOUR_SABLE = 609, ItemParam.MED
-    SNOWBALL = 610, ItemParam.HELD
-    WEAKNESS_POLICY = 611, ItemParam.HELD
-    WHIPPED_DREAM = 612, ItemParam.EVO
+    ZYGARDE_CUBE = 847, ItemParam.UNIMPL
+    UNKNOWN_848 = 848, ItemParam.UNIMPL
+
+    ICE_STONE = 849, ItemParam.EVO
+    RIDE_PAGER = 850, ItemParam.KEY
+    BEAST_BALL = 851, ItemParam.EXTRA
+
+    BIG_MALASADA = 852, ItemParam.MED
+
+    RED_NECTAR = 853, ItemParam.OBO
+    YELLOW_NECTAR = 854, ItemParam.OBO
+    PINK_NECTAR = 855, ItemParam.OBO
+    PURPLE_NECTAR = 856, ItemParam.OBO
+
+    SUN_FLUTE = 857, ItemParam.KEY
+    MOON_FLUTE = 858, ItemParam.KEY
+    ENIGMATIC_CARD = 859, ItemParam.KEY
+
+
+#HERE is where I stopped porting over every single item and started cherry-picking the ones that are actually in our game
+
+#SM items
+
+    TERRAIN_EXTENDER = 879, ItemParam.HELD
+    PROTECTIVE_PADS = 880, ItemParam.HELD
+    ELECTRIC_SEED = 881, ItemParam.HELD
+    PSYCHIC_SEED = 882, ItemParam.HELD
+    MISTY_SEED = 883, ItemParam.HELD
+    GRASSY_SEED = 884, ItemParam.HELD
+
+#lets go items
+
+    FIGHTING_MEMORY = 904, ItemParam.UNIMPL
+    FLYING_MEMORY = 905, ItemParam.UNIMPL
+    POISON_MEMORY = 906, ItemParam.UNIMPL
+    GROUND_MEMORY = 907, ItemParam.UNIMPL
+    ROCK_MEMORY = 908, ItemParam.UNIMPL
+    BUG_MEMORY = 909, ItemParam.UNIMPL
+    GHOST_MEMORY = 910, ItemParam.UNIMPL
+    STEEL_MEMORY = 911, ItemParam.UNIMPL
+    FIRE_MEMORY = 912, ItemParam.UNIMPL
+    WATER_MEMORY = 913, ItemParam.UNIMPL
+    GRASS_MEMORY = 914, ItemParam.UNIMPL
+    ELECTRIC_MEMORY = 915, ItemParam.UNIMPL
+    PSYCHIC_MEMORY = 916, ItemParam.UNIMPL
+    ICE_MEMORY = 917, ItemParam.UNIMPL
+    DRAGON_MEMORY = 918, ItemParam.UNIMPL
+    DARK_MEMORY = 919, ItemParam.UNIMPL
+    FAIRY_MEMORY = 920, ItemParam.UNIMPL
+
+#Some other z crystals, SM stuff, GO stuff
+
+#GEn VIII stuff
+
+
+    BERRY_SWEET = 1111, ItemParam.EVO
+    CLOVER_SWEET = 1112, ItemParam.EVO
+    FLOWER_SWEET = 1113, ItemParam.EVO
+    LOVE_SWEET = 1110, ItemParam.EVO
+    RIBBON_SWEET = 1115, ItemParam.EVO
+    STAR_SWEET = 1114, ItemParam.EVO
+    STRAWBERRY_SWEET = 1109, ItemParam.EVO
+    SWEET_APPLE = 1116, ItemParam.EVO
+    TART_APPLE = 1117, ItemParam.EVO
+    THROAT_SPRAY = 1118, ItemParam.HELD
+    EJECT_PACK = 1119, ItemParam.HELD
+    HEAVY_DUTY_BOOTS = 1120, ItemParam.HELD
+    BLUNDER_POLICY = 1121, ItemParam.HELD
+    ROOM_SERVICE = 1122, ItemParam.HELD
+
+    UTILITY_UMBRELLA = 1123, ItemParam.HELD
+
+# TRs and other Gen VIII stuff
+#Mints
+    LONELY_MINT = 1231, ItemParam.OBO
+    ADAMANT_MINT = 1232, ItemParam.OBO
+    NAUGHTY_MINT = 1233, ItemParam.OBO
+    BRAVE_MINT = 1234, ItemParam.OBO
+    BOLD_MINT = 1235, ItemParam.OBO
+    IMPISH_MINT = 1236, ItemParam.OBO
+    LAX_MINT = 1237, ItemParam.OBO
+    RELAXED_MINT = 1238, ItemParam.OBO
+    MODEST_MINT = 1239, ItemParam.OBO
+    MILD_MINT = 1240, ItemParam.OBO
+    RASH_MINT = 1241, ItemParam.OBO
+    QUIET_MINT = 1242, ItemParam.OBO
+    CALM_MINT = 1243, ItemParam.OBO
+    GENTLE_MINT = 1244, ItemParam.OBO
+    CAREFUL_MINT = 1245, ItemParam.OBO
+    SASSY_MINT = 1246, ItemParam.OBO
+    TIMID_MINT = 1247, ItemParam.OBO
+    HASTY_MINT = 1248, ItemParam.OBO
+    JOLLY_MINT = 1249, ItemParam.OBO
+    NAIVE_MINT = 1250, ItemParam.OBO
+    SERIOUS_MINT = 1251, ItemParam.OBO
+  
+
+
+
+
+
+    CHIPPED_POT = 1254, ItemParam.EVO
+    CRACKED_POT = 1253, ItemParam.EVO
+
+    ROTOM_CATALOG = 1278, ItemParam.KEY
+
+    GALARICA_CUFF = 1581, ItemParam.EVO
+    GALARICA_WREATH = 1592, ItemParam.EVO
+
+    ABILITY_PATCH = 1606, ItemParam.HELD
+
+    LINKING_CORD = 1611, ItemParam.EVO
+
+    #RECIPES GEN VIII, PLA STUFF
     
-    # Generation VII items
-    ADRENALINE_ORB = 613, ItemParam.HELD
-    BEAST_BALL = 614, ItemParam.BALL
-    BIG_MALASADA = 615, ItemParam.MED
-    BOTTLE_CAP = 616, ItemParam.OBO
-    GOLD_BOTTLE_CAP = 617, ItemParam.OBO
-    ELECTRIC_SEED = 618, ItemParam.HELD
-    GRASSY_SEED = 619, ItemParam.HELD
-    MISTY_SEED = 620, ItemParam.HELD
-    PSYCHIC_SEED = 621, ItemParam.HELD
-    ICE_STONE = 622, ItemParam.EVO
-    PROTECTIVE_PADS = 623, ItemParam.HELD
-    TERRAIN_EXTENDER = 624, ItemParam.HELD
+    #GEN VII CONT'D
+
+    BLACK_AUGURITE = 1691, ItemParam.EVO
+    PEAT_BLOCK = 1692, ItemParam.EVO
+
+    ADAMANT_CRYSTAL = 1777, ItemParam.HELD
+    LUSTROUS_GLOBE = 1778, ItemParam.HELD    
+    GRISEOUS_CORE = 1779, ItemParam.HELD
+ 
+ #GEN IX STUFF, TERA SHARDS ETC
+
+ #GEN IX ITEMS INCL
+
+    BOOSTER_ENERGY = 1880, ItemParam.HELD
+    ABILITY_SHIELD = 1881, ItemParam.HELD
+    CLEAR_AMULET = 1882, ItemParam.HELD
+    MIRROR_HERB = 1883, ItemParam.HELD
+    PUNCHING_GLOVE = 1884, ItemParam.HELD
+    COVERT_CLOAK = 1885, ItemParam.HELD
+    LOADED_DICE = 1886, ItemParam.HELD
+
+    TM101 = 2161, ItemParam.TM
+    TM102 = 2162, ItemParam.TM
+    TM103 = 2163, ItemParam.TM
+    TM104 = 2164, ItemParam.TM
+    TM105 = 2165, ItemParam.TM
+    TM106 = 2166, ItemParam.TM
+    TM107 = 2167, ItemParam.TM
+    TM108 = 2168, ItemParam.TM
+    TM109 = 2169, ItemParam.TM
+    TM110 = 2170, ItemParam.TM
+    TM111 = 2171, ItemParam.TM
+    TM112 = 2172, ItemParam.TM
+    TM113 = 2173, ItemParam.TM
+    TM114 = 2174, ItemParam.TM
+    TM115 = 2175, ItemParam.TM
+    TM116 = 2176, ItemParam.TM
+    TM117 = 2177, ItemParam.TM
+    TM118 = 2178, ItemParam.TM
+    TM119 = 2179, ItemParam.TM
+    TM120 = 2180, ItemParam.TM
+    TM121 = 2181, ItemParam.TM
+    TM122 = 2182, ItemParam.TM
+    TM123 = 2183, ItemParam.TM
+    TM124 = 2184, ItemParam.TM
+    TM125 = 2185, ItemParam.TM
+    TM126 = 2186, ItemParam.TM
+    TM127 = 2187, ItemParam.TM
+    TM128 = 2188, ItemParam.TM
+    TM129 = 2189, ItemParam.TM
+    TM130 = 2190, ItemParam.TM
+    TM131 = 2191, ItemParam.TM
+    TM132 = 2192, ItemParam.TM
+    TM133 = 2193, ItemParam.TM
+    TM134 = 2194, ItemParam.TM
+    TM135 = 2195, ItemParam.TM
+    TM136 = 2196, ItemParam.TM
+    TM137 = 2197, ItemParam.TM
+    TM138 = 2198, ItemParam.TM
+    TM139 = 2199, ItemParam.TM
+    TM140 = 2200, ItemParam.TM
+    TM141 = 2201, ItemParam.TM
+    TM142 = 2202, ItemParam.TM
+    TM143 = 2203, ItemParam.TM
+    TM144 = 2204, ItemParam.TM
+    TM145 = 2205, ItemParam.TM
+    TM146 = 2206, ItemParam.TM
+    TM147 = 2207, ItemParam.TM
+    TM148 = 2208, ItemParam.TM
+    TM149 = 2209, ItemParam.TM
+    TM150 = 2210, ItemParam.TM
+    TM151 = 2211, ItemParam.TM
+    TM152 = 2212, ItemParam.TM
+    TM153 = 2213, ItemParam.TM
+    TM154 = 2214, ItemParam.TM
+    TM155 = 2215, ItemParam.TM
+    TM156 = 2216, ItemParam.TM
+    TM157 = 2217, ItemParam.TM
+    TM158 = 2218, ItemParam.TM
+    TM159 = 2219, ItemParam.TM
+    TM160 = 2220, ItemParam.TM
+    TM161 = 2221, ItemParam.TM
+    TM162 = 2222, ItemParam.TM
+    TM163 = 2223, ItemParam.TM
+    TM164 = 2224, ItemParam.TM
+    TM165 = 2225, ItemParam.TM
+    TM166 = 2226, ItemParam.TM
+    TM167 = 2227, ItemParam.TM
+    TM168 = 2228, ItemParam.TM
+    TM169 = 2229, ItemParam.TM
+    TM170 = 2230, ItemParam.TM
+    TM171 = 2231, ItemParam.TM
+    TM172 = 2232, ItemParam.TM
+    TM173 = 2233, ItemParam.TM
+    TM174 = 2234, ItemParam.TM
+    TM175 = 2235, ItemParam.TM
+    TM176 = 2236, ItemParam.TM
+    TM177 = 2237, ItemParam.TM
+    TM178 = 2238, ItemParam.TM
+    TM179 = 2239, ItemParam.TM
+    TM180 = 2240, ItemParam.TM
+    TM181 = 2241, ItemParam.TM
+    TM182 = 2242, ItemParam.TM
+    TM183 = 2243, ItemParam.TM
+    TM184 = 2244, ItemParam.TM
+    TM185 = 2245, ItemParam.TM
+    TM186 = 2246, ItemParam.TM
+    TM187 = 2247, ItemParam.TM
+    TM188 = 2248, ItemParam.TM
+    TM189 = 2249, ItemParam.TM
+    TM190 = 2250, ItemParam.TM
+    TM191 = 2251, ItemParam.TM
+    TM192 = 2252, ItemParam.TM
+    TM193 = 2253, ItemParam.TM
+    TM194 = 2254, ItemParam.TM
+    TM195 = 2255, ItemParam.TM
+    TM196 = 2256, ItemParam.TM
+    TM197 = 2257, ItemParam.TM
+    TM198 = 2258, ItemParam.TM
+    TM199 = 2259, ItemParam.TM
+    TM200 = 2260, ItemParam.TM
+    TM201 = 2261, ItemParam.TM
+    TM202 = 2262, ItemParam.TM
+    TM203 = 2263, ItemParam.TM
+    TM204 = 2264, ItemParam.TM
+    TM205 = 2265, ItemParam.TM
+    TM206 = 2266, ItemParam.TM
+    TM207 = 2267, ItemParam.TM
+    TM208 = 2268, ItemParam.TM
+    TM209 = 2269, ItemParam.TM
+    TM210 = 2270, ItemParam.TM
+    TM211 = 2271, ItemParam.TM
+    TM212 = 2272, ItemParam.TM
+    TM213 = 2273, ItemParam.TM
+    TM214 = 2274, ItemParam.TM
+    TM215 = 2275, ItemParam.TM
+    TM216 = 2276, ItemParam.TM
+    TM217 = 2277, ItemParam.TM
+    TM218 = 2278, ItemParam.TM
+    TM219 = 2279, ItemParam.TM
+    TM220 = 2280, ItemParam.TM
+    TM221 = 2281, ItemParam.TM
+    TM222 = 2282, ItemParam.TM
+    TM223 = 2283, ItemParam.TM
+    TM224 = 2284, ItemParam.TM
+    TM225 = 2285, ItemParam.TM
+    TM226 = 2286, ItemParam.TM
+    TM227 = 2287, ItemParam.TM
+    TM228 = 2288, ItemParam.TM
+    TM229 = 2289, ItemParam.TM
+ 
+
+
+
+
+
+
+
     
-    # Generation VIII items
-    ABILITY_PATCH = 625, ItemParam.OBO
-    BLACK_AUGURITE = 626, ItemParam.EVO
-    BERRY_SWEET = 627, ItemParam.EVO
-    CLOVER_SWEET = 628, ItemParam.EVO
-    FLOWER_SWEET = 629, ItemParam.EVO
-    LOVE_SWEET = 630, ItemParam.EVO
-    RIBBON_SWEET = 631, ItemParam.EVO
-    STAR_SWEET = 632, ItemParam.EVO
-    STRAWBERRY_SWEET = 633, ItemParam.EVO
-    BLUNDER_POLICY = 634, ItemParam.HELD
-    CHIPPED_POT = 635, ItemParam.EVO
-    CRACKED_POT = 636, ItemParam.EVO
-    EJECT_PACK = 637, ItemParam.HELD
-    EXP_CANDY_S = 638, ItemParam.UNIMPL
-    EXP_CANDY_M = 639, ItemParam.UNIMPL
-    EXP_CANDY_L = 640, ItemParam.UNIMPL
-    EXP_CANDY_XS = 641, ItemParam.UNIMPL
-    EXP_CANDY_XL = 642, ItemParam.UNIMPL
-    GALARICA_CUFF = 643, ItemParam.EVO
-    GALARICA_TWIG = 644, ItemParam.EXTRA
-    GALARICA_WREATH = 645, ItemParam.EVO
-    HEAVY_DUTY_BOOTS = 646, ItemParam.HELD
-    LINKING_CORD = 647, ItemParam.EVO
-    MOOMOO_CHEESE = 648, ItemParam.EXTRA
-    PEAT_BLOCK = 649, ItemParam.EVO
-    ROOM_SERVICE = 650, ItemParam.HELD
-    RUSTED_SHIELD = 651, ItemParam.HELD
-    RUSTED_SWORD = 652, ItemParam.HELD
-    SWEET_APPLE = 653, ItemParam.EVO
-    TART_APPLE = 654, ItemParam.EVO
-    THROAT_SPRAY = 655, ItemParam.HELD
-    UTILITY_UMBRELLA = 656, ItemParam.HELD
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    
     
     # Generation IX items
-    ABILITY_SHIELD = 657, ItemParam.HELD
-    AUSPICIOUS_ARMOR = 658, ItemParam.EVO
-    BOOSTER_ENERGY = 659, ItemParam.UNIMPL
-    CLEAR_AMULET = 660, ItemParam.HELD
-    COVERT_CLOAK = 661, ItemParam.HELD
-    GIMMIGHOUL_COIN = 662, ItemParam.UNIMPL
-    LEADERS_CREST = 663, ItemParam.UNIMPL
-    LOADED_DICE = 664, ItemParam.HELD
-    MALICIOUS_ARMOR = 665, ItemParam.EVO
-    MIRROR_HERB = 666, ItemParam.HELD
-    PUNCHING_GLOVE = 667, ItemParam.HELD
+    AUSPICIOUS_ARMOR = 2344, ItemParam.EVO
+    LEADERS_CREST = 2345, ItemParam.UNIMPL
+    MALICIOUS_ARMOR = 1861, ItemParam.EVO
     
-    # Additional berries
-    ROSELI_BERRY = 668, ItemParam.BER
-    KEE_BERRY = 669, ItemParam.BER
-    MARANGA_BERRY = 670, ItemParam.BER
     
-    # Drives
-    BURN_DRIVE = 671, ItemParam.HELD
-    CHILL_DRIVE = 672, ItemParam.HELD
-    DOUSE_DRIVE = 673, ItemParam.HELD
-    SHOCK_DRIVE = 674, ItemParam.HELD
     
-    # Fossils
-    COVER_FOSSIL = 675, ItemParam.VAL
-    PLUME_FOSSIL = 676, ItemParam.VAL
-    JAW_FOSSIL = 677, ItemParam.VAL
-    SAIL_FOSSIL = 678, ItemParam.VAL
-    FOSSILIZED_BIRD = 679, ItemParam.VAL
-    FOSSILIZED_DINO = 680, ItemParam.VAL
-    FOSSILIZED_DRAKE = 681, ItemParam.VAL
-    FOSSILIZED_FISH = 682, ItemParam.VAL
 
-    #GEMS
 
-    NORMAL_GEM = 683, ItemParam.GEM
-    FIGHTING_GEM = 684, ItemParam.GEM
-    FLYING_GEM = 685, ItemParam.GEM
-    POISON_GEM = 686, ItemParam.GEM
-    GROUND_GEM = 687, ItemParam.GEM
-    ROCK_GEM = 688, ItemParam.GEM
-    BUG_GEM = 689, ItemParam.GEM
-    GHOST_GEM = 690, ItemParam.GEM
-    STEEL_GEM = 691, ItemParam.GEM
-    FIRE_GEM = 692, ItemParam.GEM
-    WATER_GEM = 693, ItemParam.GEM
-    GRASS_GEM = 694, ItemParam.GEM
-    ELECTRIC_GEM = 695, ItemParam.GEM
-    PSYCHIC_GEM = 696, ItemParam.GEM
-    ICE_GEM = 697, ItemParam.GEM
-    DRAGON_GEM = 698, ItemParam.GEM
-    DARK_GEM = 699, ItemParam.GEM
-    FAIRY_GEM = 700, ItemParam.GEM
 
-    #memories
 
-    FIGHTING_MEMORY = 701, ItemParam.HELD
-    FLYING_MEMORY = 702, ItemParam.HELD
-    POISON_MEMORY = 703, ItemParam.HELD
-    GROUND_MEMORY = 704, ItemParam.HELD
-    ROCK_MEMORY = 705, ItemParam.HELD
-    BUG_MEMORY = 706, ItemParam.HELD
-    GHOST_MEMORY = 707, ItemParam.HELD
-    STEEL_MEMORY = 708, ItemParam.HELD
-    FIRE_MEMORY = 709, ItemParam.HELD
-    WATER_MEMORY = 710, ItemParam.HELD
-    GRASS_MEMORY = 711, ItemParam.HELD
-    ELECTRIC_MEMORY = 712, ItemParam.HELD
-    PSYCHIC_MEMORY = 713, ItemParam.HELD
-    ICE_MEMORY = 714, ItemParam.HELD
-    DRAGON_MEMORY = 715, ItemParam.HELD
-    DARK_MEMORY = 716, ItemParam.HELD
-    FAIRY_MEMORY = 717, ItemParam.HELD
 
-    #NECTAR
 
-    RED_NECTAR = 718, ItemParam.OBO
-    YELLOW_NECTAR = 719, ItemParam.OBO
-    PINK_NECTAR = 720, ItemParam.OBO
-    PURPLE_NECTAR = 721, ItemParam.OBO
 
-    #NEW PLATES
-    BLANK_PLATE = 722, ItemParam.KEY
-    LEGEND_PLATE = 723, ItemParam.KEY
-
-    #RELIC ITEMS
-    RELIC_COPPER = 724, ItemParam.KEY
-    RELIC_SILVER = 725, ItemParam.KEY
-    RELIC_GOLD = 726, ItemParam.KEY
-    RELIC_VASE = 727, ItemParam.KEY
-    RELIC_BAND = 728, ItemParam.KEY
-    RELIC_STATUE = 729, ItemParam.KEY
-    RELIC_CROWN = 730, ItemParam.KEY
-
-    #WINGS
-
-    HEALTH_FEATHER = 731, ItemParam.OBO
-    MUSCLE_FEATHER = 732, ItemParam.OBO
-    RESIST_FEATHER = 733, ItemParam.OBO
-    GENIUS_FEATHER = 734, ItemParam.OBO
-    CLEVER_FEATHER = 735, ItemParam.OBO
-    SWIFT_FEATHER = 736, ItemParam.OBO
-    PRETTY_FEATHER = 737, ItemParam.VAL
-
-    #NEW KEY ITEMS
-    DNA_SPLICERS = 738, ItemParam.KEY
-    REVEAL_GLASS = 739, ItemParam.KEY
-    PRISON_BOTTLE = 740, ItemParam.KEY
-    CATCHING_CHARM = 741, ItemParam.KEY
-    EXP_CHARM = 742, ItemParam.KEY
-    OVAL_CHARM = 743, ItemParam.KEY
-    SHINY_CHARM = 744, ItemParam.KEY
-    N_SOLARIZER = 745, ItemParam.KEY
-    N_LUNARIZER = 746, ItemParam.KEY
-    POKEMON_BOX_LINK = 747, ItemParam.KEY
-    ZYGARDE_CUBE = 748, ItemParam.KEY
-    SUN_FLUTE = 749, ItemParam.KEY
-    MOON_FLUTE = 750, ItemParam.KEY
-    LIGHT_STONE = 751, ItemParam.KEY
-    DARK_STONE = 752, ItemParam.KEY
-    ICEROOT_CARROT = 753, ItemParam.KEY
-    SHADEROOT_CARROT = 754, ItemParam.KEY
-    REINS_OF_UNITY = 755, ItemParam.KEY
-    WOODEN_CROWN = 756, ItemParam.KEY
-    ROTOM_CATALOG = 757, ItemParam.KEY
-    ADAMANT_CRYSTAL = 758, ItemParam.HELD
-    LUSTROUS_GLOBE = 759, ItemParam.HELD
-    GRISEOUS_CORE = 760, ItemParam.HELD
-    SCROLL_OF_DARKNESS = 761, ItemParam.KEY
-    SCROLL_OF_WATERS = 762, ItemParam.KEY
-    MEGA_RING = 763, ItemParam.KEY
-
-    #LET'S GO ITEMS
-
-    AUTOGRAPH = 764, ItemParam.KEY
-    GOLD_TEETH = 765, ItemParam.KEY
-    KEY_STONE = 766, ItemParam.KEY
-    LIFT_KEY = 767, ItemParam.KEY
-    PEWTER_CRUNCHIES = 768, ItemParam.KEY
-    SYLPH_SCOPE = 769, ItemParam.KEY
-    TEA = 770, ItemParam.KEY
-
-    #MINTS
-    LONELY_MINT = 771, ItemParam.OBO
-    ADAMANT_MINT = 772, ItemParam.OBO
-    NAUGHTY_MINT = 773, ItemParam.OBO
-    BRAVE_MINT = 774, ItemParam.OBO
-    BOLD_MINT = 775, ItemParam.OBO
-    IMPISH_MINT = 776, ItemParam.OBO
-    LAX_MINT = 777, ItemParam.OBO
-    RELAXED_MINT = 778, ItemParam.OBO
-    MODEST_MINT = 779, ItemParam.OBO
-    MILD_MINT = 780, ItemParam.OBO
-    RASH_MINT = 781, ItemParam.OBO
-    QUIET_MINT = 782, ItemParam.OBO
-    CALM_MINT = 783, ItemParam.OBO
-    GENTLE_MINT = 784, ItemParam.OBO
-    CAREFUL_MINT = 785, ItemParam.OBO
-    SASSY_MINT = 786, ItemParam.OBO
-    TIMID_MINT = 787, ItemParam.OBO
-    HASTY_MINT = 788, ItemParam.OBO
-    JOLLY_MINT = 789, ItemParam.OBO
-    NAIVE_MINT = 790, ItemParam.OBO
-    SERIOUS_MINT = 791, ItemParam.OBO
 
     #GEN IX DLC
 
-    FAIRY_FEATHER = 792, ItemParam.HELD
-    SYRUPY_APPLE = 793, ItemParam.EVO
-    UNREMARKABLE_TEACUP = 794, ItemParam.EVO
-    MASTERPIECE_TEACUP = 795, ItemParam.EVO
-    CORNERSTONE_MASK = 796, ItemParam.UNIMPL
-    WELLSPRING_MASK = 797, ItemParam.UNIMPL
-    HEARTHFLAME_MASK = 798, ItemParam.UNIMPL
-    METAL_ALLOY = 799, ItemParam.EVO
+    FAIRY_FEATHER = 2401, ItemParam.HELD
+    SYRUPY_APPLE = 2402, ItemParam.EVO
+    UNREMARKABLE_TEACUP = 2403, ItemParam.EVO
+    MASTERPIECE_TEACUP = 2404, ItemParam.EVO
+    CORNERSTONE_MASK = 2406, ItemParam.UNIMPL
+    WELLSPRING_MASK = 2407, ItemParam.UNIMPL
+    HEARTHFLAME_MASK = 2408, ItemParam.UNIMPL
+    METAL_ALLOY = 2482, ItemParam.EVO
