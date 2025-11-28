@@ -3388,3 +3388,210 @@ class BstExact600(SimpleFilter):
 #add class for rival fights
 #add class for red
 #####################################################################################################
+
+
+class RandomizeHiddenItems(Step):
+    """Step that places random 'junk' rarity items from Ground_Item_Tier.csv into hidden item locations.
+    
+    This step:
+    1. Loads Ground_Item_Tier.csv to find all items marked as 'junk' rarity
+    2. Maps item names to Item enum IDs
+    3. Uses HiddenItemsExtractor to randomly assign junk items to hidden item locations
+    """
+    
+    def __init__(self):
+        pass
+    
+    def run(self, context):
+        """Execute the step to randomize hidden items with junk items."""
+        print("Running RandomizeHiddenItems...")
+        
+        # Get the hidden items extractor
+        hidden_items = context.get(HiddenItemsExtractor)
+        
+        # Load and parse the Ground_Item_Tier.csv file
+        junk_items = self._load_junk_items()
+        
+        if not junk_items:
+            print("Warning: No junk items found in Ground_Item_Tier.csv")
+            return
+        
+        print(f"Found {len(junk_items)} junk items to choose from")
+        
+        # Get all hidden item locations
+        all_hidden_items = hidden_items.get_all_hidden_items()
+        
+        if not all_hidden_items:
+            print("Warning: No hidden items found")
+            return
+        
+        print(f"Found {len(all_hidden_items)} hidden item locations")
+        
+        # Randomize each hidden item location with a junk item
+        items_randomized = 0
+        for i, hidden_item in enumerate(all_hidden_items):
+            if hidden_item:
+                # Pick a random junk item
+                random_junk_item = random.choice(junk_items)
+                item_id = random_junk_item['item_id']
+                item_name = random_junk_item['item_name']
+                
+                # Set the hidden item to the random junk item
+                if hidden_items.set_hidden_item(i, item_id):
+                    items_randomized += 1
+                    print(f"  Location {i} ({hidden_item['location']}): {hidden_item['item_name']} -> {item_name}")
+        
+        print(f"Successfully randomized {items_randomized} hidden items with junk items")
+    
+    def _load_junk_items(self):
+        """Load junk items from Ground_Item_Tier.csv and map them to Item enum IDs."""
+        import os
+        import csv
+        
+        # Path to the CSV file
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        csv_file_path = os.path.join(script_dir, "Ground_Item_Tier.csv")
+        
+        if not os.path.exists(csv_file_path):
+            print(f"Error: Ground_Item_Tier.csv not found at {csv_file_path}")
+            return []
+        
+        junk_items = []
+        
+        try:
+            with open(csv_file_path, 'r', encoding='utf-8') as f:
+                csv_reader = csv.reader(f)
+                
+                for row in csv_reader:
+                    if len(row) >= 2:
+                        item_name = row[0].strip()
+                        rarity = row[1].strip().lower()
+                        
+                        # Only process junk rarity items
+                        if rarity == 'junk':
+                            # Try to map item name to Item enum ID
+                            item_id = self._get_item_id_from_name(item_name)
+                            
+                            if item_id is not None:
+                                junk_items.append({
+                                    'item_name': item_name,
+                                    'item_id': item_id,
+                                    'rarity': rarity
+                                })
+                            else:
+                                print(f"Warning: Could not find Item enum for '{item_name}'")
+        
+        except Exception as e:
+            print(f"Error reading Ground_Item_Tier.csv: {e}")
+            return []
+        
+        return junk_items
+    
+    def _get_item_id_from_name(self, item_name):
+        """Map item name to Item enum ID.
+        
+        This handles the mapping from CSV item names to the Item enum constants.
+        """
+        # Create a mapping from item names to Item enum values
+        # Handle common name variations and formatting differences
+        
+        # Normalize the item name for comparison
+        normalized_name = item_name.upper().replace(' ', '_').replace('-', '_')
+        
+        # Try direct mapping first
+        try:
+            return getattr(Item, normalized_name)
+        except AttributeError:
+            pass
+        
+        # Handle special cases and common variations
+        name_mappings = {
+            'POKE_BALL': Item.POKE_BALL,
+            'GREAT_BALL': Item.GREAT_BALL,
+            'ULTRA_BALL': Item.ULTRA_BALL,
+            'NET_BALL': Item.NET_BALL,
+            'DIVE_BALL': Item.DIVE_BALL,
+            'NEST_BALL': Item.NEST_BALL,
+            'REPEAT_BALL': Item.REPEAT_BALL,
+            'TIMER_BALL': Item.TIMER_BALL,
+            'LUXURY_BALL': Item.LUXURY_BALL,
+            'PREMIER_BALL': Item.PREMIER_BALL,
+            'DUSK_BALL': Item.DUSK_BALL,
+            'HEAL_BALL': Item.HEAL_BALL,
+            'QUICK_BALL': Item.QUICK_BALL,
+            'CHERISH_BALL': Item.CHERISH_BALL,
+            'TINY_MUSHROOM': Item.TINY_MUSHROOM,
+            'BIG_MUSHROOM': Item.BIG_MUSHROOM,
+            'BIG_MUSHROON': Item.BIG_MUSHROOM,  # Handle typo in CSV
+            'PEARL': Item.PEARL,
+            'BIG_PEARL': Item.BIG_PEARL,
+            'STARDUST': Item.STARDUST,
+            'STAR_PIECE': Item.STAR_PIECE,
+            'NUGGET': Item.NUGGET,
+            'RARE_BONE': Item.RARE_BONE,
+            'EVERSTONE': Item.EVERSTONE,
+            'FOCUS_SASH': Item.FOCUS_SASH,
+            'DESTINY_KNOT': Item.DESTINY_KNOT,
+            'POKE_DOLL': Item.POKE_DOLL,
+            'FLUFFY_TAIL': Item.FLUFFY_TAIL,
+            'WHITE_HERB': Item.WHITE_HERB,
+            'MENTAL_HERB': Item.MENTAL_HERB,
+            'POWER_HERB': Item.POWER_HERB,
+            'ABSORB_BULB': Item.ABSORB_BULB,
+            'LUMINOUS_MOSS': Item.LUMINOUS_MOSS,
+            'MIRROR_HERB': Item.MIRROR_HERB,
+            'PSYCHIC_SEED': Item.PSYCHIC_SEED,
+            'MISTY_SEED': Item.MISTY_SEED,
+            'GRASSY_SEED': Item.GRASSY_SEED,
+            'ELECTRIC_SEED': Item.ELECTRIC_SEED,
+            'CELL_BATTERY': Item.CELL_BATTERY,
+            'EJECT_BUTTON': Item.EJECT_BUTTON,
+            'AIR_BALLOON': Item.AIR_BALLOON,
+            'IRON_BALL': Item.IRON_BALL,
+            'RING_TARGET': Item.RING_TARGET,
+            'RED_CARD': Item.RED_CARD,
+            'SNOWBALL': Item.SNOWBALL,
+            'WEAKNESS_POLICY': Item.WEAKNESS_POLICY,
+            'ADRENALINE_ORB': Item.ADRENALINE_ORB,
+            'BLUNDER_POLICY': Item.BLUNDER_POLICY,
+            'EJECT_PACK': Item.EJECT_PACK,
+            'ROOM_SERVICE': Item.ROOM_SERVICE,
+            'THROAT_SPRAY': Item.THROAT_SPRAY,
+            'ABILITY_CAPSULE': Item.ABILITY_CAPSULE,
+            'GRIP_CLAW': Item.GRIP_CLAW,
+            'STICKY_BARB': Item.STICKY_BARB,
+            'SHED_SHELL': Item.SHED_SHELL,
+            'ENERGY_POWDER': Item.ENERGY_POWDER,
+            'ENERGY_ROOT': Item.ENERGY_ROOT,
+            'HEAL_POWDER': Item.HEAL_POWDER,
+            'LAVA_COOKIE': Item.LAVA_COOKIE,
+            'SACRED_ASH': Item.SACRED_ASH,
+            'BERRY_JUICE': Item.BERRY_JUICE,
+            'LAGGING_TAIL': Item.LAGGING_TAIL,
+            'BINDING_BAND': Item.BINDING_BAND,
+            'FLOAT_STONE': Item.FLOAT_STONE,
+            'OLD_GATEAU': Item.OLD_GATEAU,
+            'FAST_BALL': Item.FAST_BALL,
+            'LEVEL_BALL': Item.LEVEL_BALL,
+            'LURE_BALL': Item.LURE_BALL,
+            'HEAVY_BALL': Item.HEAVY_BALL,
+            'LOVE_BALL': Item.LOVE_BALL,
+            'FRIEND_BALL': Item.FRIEND_BALL,
+            'MOON_BALL': Item.MOON_BALL,
+        }
+        
+        # Try the special mappings
+        if normalized_name in name_mappings:
+            return name_mappings[normalized_name]
+        
+        # If we still can't find it, try searching through all Item enum members
+        for item in Item:
+            if item.name == normalized_name:
+                return item
+        
+        # Last resort: try partial matching
+        for item in Item:
+            if normalized_name in item.name or item.name in normalized_name:
+                return item
+        
+        return None

@@ -488,7 +488,7 @@ class TMHM(Extractor):
         self.hm = [None] + [moves.data[move_ids[i + num_tms]] for i in range(num_hms)]
 
 
-class StarterExtractor(Extractor):
+class StarterExtractor(Writeback, Extractor):
     """Extractor for starter Pokemon data from ARM9 binary.
     
     Reads/writes the three starter species stored at address 0x02108514 in ARM9.
@@ -497,6 +497,7 @@ class StarterExtractor(Extractor):
     def __init__(self, context):
         super().__init__(context)
         mons = context.get(Mons)
+        self.arm9_manager = context.get(ARM9Manager)
         
         # ARM9 is loaded at 0x02000000, starters are at 0x02108514
         self.starter_offset = 0x108514
@@ -512,14 +513,166 @@ class StarterExtractor(Extractor):
         self.data = self.starter_struct.parse(starter_bytes)
     
     def write(self):
-        """Write starter data back to ARM9 binary."""
+        """Write starter data back to ARM9 binary via ARM9Manager."""
         # Build just the starter data
         starter_bytes = self.starter_struct.build(self.data)
         
-        # Replace the 12 bytes at the starter offset in ARM9
+        # Register modification with ARM9Manager instead of direct ARM9 access
+        self.arm9_manager.register_modification(self.starter_offset, starter_bytes)
+
+
+class ARM9Manager(Extractor):
+    """Centralized manager for ARM9 binary modifications.
+    
+    Prevents conflicts between multiple extractors that need to modify ARM9.
+    Collects all modifications and applies them atomically.
+    """
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.modifications = {}  # offset -> bytes mapping
+    
+    def register_modification(self, offset, data):
+        """Register a modification to be applied to ARM9 at the given offset."""
+        if isinstance(data, bytes):
+            self.modifications[offset] = data
+        else:
+            # Convert to bytes if needed
+            self.modifications[offset] = bytes(data)
+    
+    def apply_modifications(self):
+        """Apply all registered modifications to ARM9."""
+        if not self.modifications:
+            return
+        
         arm9_data = bytearray(self.rom.arm9)
-        arm9_data[self.starter_offset:self.starter_offset + 12] = starter_bytes
+        
+        for offset, data in self.modifications.items():
+            arm9_data[offset:offset + len(data)] = data
+        
         self.rom.arm9 = bytes(arm9_data)
+        self.modifications.clear()
+    
+    def write(self):
+        """Write method called by framework - applies all modifications."""
+        self.apply_modifications()
+
+
+class HiddenItemsExtractor(Extractor):
+    """Extractor for hidden items data from assembly file.
+    
+    Parses the hidden_items.s file to extract item locations and IDs,
+    then provides access to modify the items stored in ARM9.
+    """
+    
+    def __init__(self, context):
+        super().__init__(context)
+        self.arm9_manager = context.get(ARM9Manager)
+        
+        # Path to the hidden items assembly file
+        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.asm_file_path = os.path.join(script_dir, "armips", "asm", "hidden_items.s")
+        
+        # Parse the assembly file
+        self.hidden_items = self._parse_hidden_items_file()
+    
+    def _parse_hidden_items_file(self):
+        """Parse the hidden_items.s file using regex to extract item data."""
+        hidden_items = []
+        
+        if not os.path.exists(self.asm_file_path):
+            print(f"Warning: Hidden items file not found at {self.asm_file_path}")
+            return hidden_items
+        
+        with open(self.asm_file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Regex pattern to match .org and .halfword lines with comments
+        # Matches: .org 0x02000000 + 0xFA558 //New Bark Town
+        #          .halfword ITEM_POTION
+        org_pattern = r'\.org\s+0x02000000\s*\+\s*0x([0-9A-Fa-f]+)\s*//(.+)'
+        halfword_pattern = r'\.halfword\s+(ITEM_\w+)'
+        
+        lines = content.split('\n')
+        current_offset = None
+        current_location = None
+        
+        for line in lines:
+            line = line.strip()
+            
+            # Check for .org line
+            org_match = re.match(org_pattern, line)
+            if org_match:
+                current_offset = int(org_match.group(1), 16)
+                current_location = org_match.group(2).strip()
+                continue
+            
+            # Check for .halfword line
+            halfword_match = re.match(halfword_pattern, line)
+            if halfword_match and current_offset is not None:
+                item_name = halfword_match.group(1)
+                
+                hidden_items.append({
+                    'offset': current_offset,
+                    'location': current_location,
+                    'item_name': item_name,
+                    'arm9_offset': current_offset  # ARM9 offset is the same as the .org offset
+                })
+                
+                # Reset for next item
+                current_offset = None
+                current_location = None
+        
+        return hidden_items
+    
+    def get_hidden_item(self, index):
+        """Get hidden item data by index."""
+        if 0 <= index < len(self.hidden_items):
+            item = self.hidden_items[index]
+            # Read current item ID from ARM9
+            arm9_offset = item['arm9_offset']
+            item_bytes = self.rom.arm9[arm9_offset:arm9_offset + 2]
+            current_item_id = int.from_bytes(item_bytes, byteorder='little')
+            
+            return {
+                'index': index,
+                'offset': item['offset'],
+                'location': item['location'],
+                'item_name': item['item_name'],
+                'current_item_id': current_item_id
+            }
+        return None
+    
+    def set_hidden_item(self, index, item_id):
+        """Set hidden item by index to a new item ID."""
+        if 0 <= index < len(self.hidden_items):
+            item = self.hidden_items[index]
+            arm9_offset = item['arm9_offset']
+            
+            # Convert item ID to 16-bit little-endian bytes
+            item_bytes = item_id.to_bytes(2, byteorder='little')
+            
+            # Register modification with ARM9Manager
+            self.arm9_manager.register_modification(arm9_offset, item_bytes)
+            
+            return True
+        return False
+    
+    def get_all_hidden_items(self):
+        """Get all hidden items with their current values."""
+        return [self.get_hidden_item(i) for i in range(len(self.hidden_items))]
+    
+    def get_items_by_location(self, location_filter):
+        """Get hidden items filtered by location name (case-insensitive partial match)."""
+        matching_items = []
+        for i, item in enumerate(self.hidden_items):
+            if location_filter.lower() in item['location'].lower():
+                matching_items.append(self.get_hidden_item(i))
+        return matching_items
+    
+    def write(self):
+        """Write changes back to ROM via ARM9Manager."""
+        self.arm9_manager.apply_modifications()
 
 
 class EvolutionData(NarcExtractor):

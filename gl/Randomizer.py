@@ -51,8 +51,12 @@ if __name__ == "__main__":
     parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
     parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
     parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
-    parser.add_argument("--randomize-starters", action="store_true", help="Randomize starter Pokémon")
-    parser.add_argument("--consistent-rival-starters", action="store_true", help="Update rival teams to use starters consistent with the player's randomized choice")
+    parser.add_argument("--no-randomize-starters", action="store_false", 
+                       dest="randomize_starters", default=True,
+                       help="Disable randomization of starter Pokémon (default: enabled)")
+    parser.add_argument("--no-consistent-rival-starters", action="store_false", 
+                       dest="consistent_rival_starters", default=True,
+                       help="Disable updating rival teams to use starters consistent with the player's randomized choice (default: enabled)")
     parser.add_argument("--no-randomize-ordinary-trainers", action="store_false", 
                        dest="randomize_ordinary_trainers", default=True,
                        help="Disable randomization of ordinary trainers (default: enabled)")
@@ -120,6 +124,7 @@ if __name__ == "__main__":
         AssignNatureStep(),
         TrainerHeldItem(),
         RandomizeGroundItems(),
+        #RandomizeHiddenItems(),
         
     ])
     
