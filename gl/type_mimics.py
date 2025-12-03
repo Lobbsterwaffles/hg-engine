@@ -22,6 +22,7 @@ type_mimics_data = {
             "Accelgor", "Shelmet",
             "Carnivine",
             "Gastly", "Gengar", "Haunter", "Mimikyu",
+            "Shinx", "Luxio", "Luxray",
             "Glalie", "Snorunt",
             "Gorebyss",
             "Lunatone",
@@ -35,12 +36,13 @@ type_mimics_data = {
             "Shroodle", "Grafaiai",
             "Girafarig", "Farigiraf", "Kecleon",
             "Pansage", "Pansear", "Panpour", "Simipour", "Simisear", "Simisage",
-            "Whismur", "Loudred", "Exploud"
+            "Whismur", "Loudred", "Exploud",
+            ("Ratata", "ALOLAN"), ("Raticate", "ALOLAN"), 
         ],
         
         Type.DRAGON: [
             "Aerodactyl", "Amaura", "Aurorus", "Cranidos", "Rampardos",
-            "Tyrantrum", "Tyrunt",
+            "Tyrantrum", "Tyrunt", "Archen", "Archeops",
             "Charizard", "Charmander", "Charmeleon",
             "Croconaw", "Feraligatr", "Totodile",
             "Grovyle", "Sceptile", "Treecko",
@@ -50,8 +52,9 @@ type_mimics_data = {
             "Lapras", "Relicanth",
             "Larvitar", "Pupitar", "Tyranitar",
             "Salandit", "Salazzle", "Scrafty", "Scraggy",
-            "Steelix",
-            "Tropius"
+            "Onix", "Steelix",
+            "Tropius",
+            "Iron Jugulis", "Iron Thorns"
         ],
         
         Type.ELECTRIC: [
@@ -159,7 +162,9 @@ type_mimics_data = {
             "Shiftry",
             "Dunsparce", "Dudunspars",
             "Wiglett", "Wugtrio",
-            "Ninjask", "Shedinja"
+            "Ninjask", "Shedinja",
+            ("Sandslash", "ALOLAN"), ("Sandshrew", "ALOLAN"), ("Geodude", "ALOLAN"), ("Graveler", "ALOLAN"), ("Golem", "ALOLAN"),
+            ("Marowak", "ALOLAN")
         ],
         
         Type.ICE: [
@@ -250,9 +255,11 @@ type_mimics_data = {
             "Heliolisk",
             "Koffing", "Weezing", ("Weezing", "GALARIAN"), "Skuntank", "Stunky",
             "Revavroom",
-            "Solrock",
+            "Solrock", "Bronzor", "Bronzong", "Poltchageist", "Sinistcha", "Frigibax", "Arctibax", "Baxcalibur",
+            ("Ninetales", "ALOLAN"), ("Vulpix", "ALOLAN"), ("Ponyta", "GALARIAN"), ("Rapidash", "GALARIAN"),
             "Swellow", "Taillow",
             "Tyrantrum", "Tyrunt",
+            "Eternatus", "Walking Wake", "Roaring Moon"
             
             
         ],
@@ -269,7 +276,8 @@ type_mimics_data = {
             "Ponyta", "Rapidash", ("Ponyta", "GALARIAN"), ("Rapidash", "GALARIAN"),
             "Clefairy", "Clefable", "Cleffa", "Togepi", "Togetic", "Togekiss",
             "Snubbull", "Granbull",
-            "Pachirisu"
+            "Pachirisu", "Shinx", "Luxio", "Luxray",
+            ("Meowth", "ALOLAN"), ("Persian", "ALOLAN")
         ],
         
         Type.WATER: [
@@ -286,7 +294,7 @@ type_mimics_data = {
             "Serperior", "Servine", "Snivy",
             "Stunfisk",
             "Turtonator",
-            ("Wooper", "PALDEAN")
+            ("Wooper", "PALDEAN"), ("Slowpoke", "PALDEAN"), ("Slowbro", "PALDEAN"), ("Slowking", "PALDEAN")
         ]
     }
     

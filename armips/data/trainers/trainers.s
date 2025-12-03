@@ -5408,7 +5408,7 @@ trainerdata 167, "Steven"
         ballseal 0
     endparty
     
-trainerdata 168, "Mickey"
+trainerdata 168, "Cynthia"
       trainermontype TRAINER_DATA_TYPE_ITEMS | TRAINER_DATA_TYPE_MOVES
     trainerclass TRAINERCLASS_ACE_TRAINER_F
     nummons 6
@@ -5494,31 +5494,89 @@ trainerdata 168, "Mickey"
         ballseal 0
     endparty
 
-trainerdata 169, "Mickey"
-    trainermontype TRAINER_DATA_TYPE_NOTHING
-    trainerclass TRAINERCLASS_SWIMMER_M
-    nummons 2
-    item ITEM_NONE
-    item ITEM_NONE
-    item ITEM_NONE
-    item ITEM_NONE
-    aiflags F_PRIORITIZE_SUPER_EFFECTIVE | 0
+trainerdata 169, "Wallace"
+    trainermontype TRAINER_DATA_TYPE_ITEMS | TRAINER_DATA_TYPE_MOVES
+    trainerclass TRAINERCLASS_ACE_TRAINER_M
+    nummons 6
+    item ITEM_FULL_RESTORE
+    item ITEM_FULL_RESTORE
+    item ITEM_FULL_RESTORE
+    item ITEM_FULL_RESTORE
+    aiflags F_PRIORITIZE_SUPER_EFFECTIVE | F_EVALUATE_ATTACKS | F_EXPERT_ATTACKS | 0
     battletype SINGLE_BATTLE
     endentry
 
     party 169
         // mon 0
-        ivs 0
+        ivs 250
         abilityslot 0
-        level 27
-        pokemon SPECIES_PILOSWINE
+        level 88
+        pokemon SPECIES_WAILORD
+        item ITEM_NONE
+        move MOVE_RAIN_DANCE
+        move MOVE_WATER_SPOUT
+        move MOVE_DOUBLE_EDGE
+        move MOVE_BLIZZARD
         ballseal 0
 
         // mon 1
-        ivs 0
+        ivs 250
         abilityslot 0
-        level 27
-        pokemon SPECIES_PILOSWINE
+        level 88
+        pokemon SPECIES_TENTACRUEL
+        item ITEM_NONE
+        move MOVE_TOXIC
+        move MOVE_SLUDGE_BOMB
+        move MOVE_ICE_BEAM
+        move MOVE_HYDRO_PUMP
+        ballseal 0
+
+        // mon 2
+        ivs 250
+        abilityslot 0
+        level 88
+        pokemon SPECIES_LUDICOLO
+        item ITEM_NONE
+        move MOVE_GIGA_DRAIN
+        move MOVE_LEECH_SEED
+        move MOVE_SURF
+        move MOVE_DOUBLE_TEAM
+        ballseal 0
+
+        // mon 3
+        ivs 250
+        abilityslot 0
+        level 88
+        pokemon SPECIES_WHISCASH
+        item ITEM_NONE
+        move MOVE_EARTHQUAKE
+        move MOVE_AMNESIA
+        move MOVE_SURF
+        move MOVE_HYPER_BEAM
+        ballseal 0
+
+        // mon 4
+        ivs 250
+        abilityslot 0
+        level 88
+        pokemon SPECIES_MILOTIC
+        item ITEM_NONE
+        move MOVE_SURF
+        move MOVE_ICE_BEAM
+        move MOVE_MIRROR_COAT
+        move MOVE_RECOVER
+        ballseal 0
+
+        // mon 5
+        ivs 250
+        abilityslot 0
+        level 88
+        pokemon SPECIES_GYARADOS
+        item ITEM_NONE
+        move MOVE_EARTHQUAKE
+        move MOVE_DRAGON_DANCE
+        move MOVE_WATERFALL
+        move MOVE_HYPER_BEAM
         ballseal 0
     endparty
 
@@ -23833,7 +23891,7 @@ trainerdata 701, "Lance"
         // mon 0
         ivs 250
         abilityslot 0
-        level 81
+        level 83
         pokemon SPECIES_SALAMENCE
         item ITEM_LUM_BERRY
         move MOVE_FLAMETHROWER
@@ -23845,7 +23903,7 @@ trainerdata 701, "Lance"
         // mon 1
         ivs 250
         abilityslot 0
-        level 81
+        level 83
         pokemon SPECIES_GYARADOS
         item ITEM_NONE
         move MOVE_THUNDER_WAVE
@@ -23857,7 +23915,7 @@ trainerdata 701, "Lance"
         // mon 2
         ivs 250
         abilityslot 0
-        level 81
+        level 83
         pokemon SPECIES_GARCHOMP
         item ITEM_NONE
         move MOVE_SWORDS_DANCE
@@ -23869,7 +23927,7 @@ trainerdata 701, "Lance"
         // mon 3
         ivs 250
         abilityslot 0
-        level 81
+        level 83
         pokemon SPECIES_ALTARIA
         item ITEM_NONE
         move MOVE_PERISH_SONG
@@ -23881,7 +23939,7 @@ trainerdata 701, "Lance"
         // mon 4
         ivs 250
         abilityslot 0
-        level 81
+        level 83
         pokemon SPECIES_CHARIZARD
         item ITEM_NONE
         move MOVE_FLAMETHROWER
@@ -23893,7 +23951,7 @@ trainerdata 701, "Lance"
         // mon 5
         ivs 250
         abilityslot 0
-        level 81
+        level 83
         pokemon SPECIES_DRAGONITE
         item ITEM_SITRUS_BERRY
         move MOVE_FIRE_BLAST

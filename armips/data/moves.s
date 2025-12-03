@@ -472,7 +472,7 @@ movedata MOVE_SAND_ATTACK, "Sand Attack"
     appeal 0x13
     contesttype CONTEST_CUTE
     terminatedata
-    movedescription MOVE_SAND_ATTACK, "Sand is hurled in the\nfoe’s face, reducing\nits accuracy.\n\n"
+    movedescription MOVE_SAND_ATTACK, "Sand is hurled in the\nfoe’s face, reducing\nits speed.\n\n"
 
 movedata MOVE_HEADBUTT, "Headbutt"
     battleeffect MOVE_EFFECT_FLINCH_HIT
@@ -1688,7 +1688,7 @@ movedata MOVE_DOUBLE_TEAM, "Double Team"
     appeal 0x01
     contesttype CONTEST_COOL
     terminatedata
-    movedescription MOVE_DOUBLE_TEAM, "By moving rapidly, the\nuser makes illusory\ncopies of itself to\nraise its evasiveness.\n"
+    movedescription MOVE_DOUBLE_TEAM, "By moving rapidly, the\nuser makes illusory\ncopies of itself to\nraise its speed.\n"
 
 movedata MOVE_RECOVER, "Recover"
     battleeffect MOVE_EFFECT_RESTORE_HALF_HP
@@ -1752,7 +1752,7 @@ movedata MOVE_SMOKESCREEN, "Smokescreen"
     appeal 0x0A
     contesttype CONTEST_SMART
     terminatedata
-    movedescription MOVE_SMOKESCREEN, "The user releases an\nobscuring cloud of\nsmoke or ink.\nIt reduces the foe’s\naccuracy."
+    movedescription MOVE_SMOKESCREEN, "The user releases an\nobscuring cloud of\nsmoke or ink.\nIt reduces the foe’s\nSpecial Defense."
 
 movedata MOVE_CONFUSE_RAY, "Confuse Ray"
     battleeffect MOVE_EFFECT_STATUS_CONFUSE
@@ -3048,7 +3048,7 @@ movedata MOVE_MUD_SLAP, "Mud-Slap"
     appeal 0x05
     contesttype CONTEST_CUTE
     terminatedata
-    movedescription MOVE_MUD_SLAP, "The user hurls mud in\nthe foe’s face to\ninflict damage and\nlower its accuracy.\n"
+    movedescription MOVE_MUD_SLAP, "The user hurls mud in\nthe foe’s face to\ninflict damage. It\nmay also lower the\nfoe's speed.\n"
 
 movedata MOVE_OCTAZOOKA, "Octazooka"
     battleeffect MOVE_EFFECT_LOWER_ACCURACY_HIT
