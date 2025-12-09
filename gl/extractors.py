@@ -42,19 +42,34 @@ class Moves(NarcExtractor):
 
 
 class Levelups(NarcExtractor):
+    """Extractor for Pokemon level-up learnsets.
+    
+    New binary format (from build_learnsets.py):
+    - Each entry is a 32-bit value: (level << 16) | move_id
+    - Each Pokemon has exactly MAX_LEVELUP_MOVES (46) entries
+    - Terminator/padding entries use 0x0000FFFF (move_id=0xFFFF, level=0)
+    - Indexed by species ID
+    """
+    
+    MAX_LEVELUP_MOVES = 46  # From generated learnsets.h
+    
     def __init__(self, context):
         super().__init__(context)
         moves = context.get(Moves).data
 
-        # Single learnset entry structure (move_id + level)
+        # New format: 32-bit packed entry (level << 16 | move_id)
+        # We decode it into move_id and level for compatibility with existing code
         learnset_entry = Struct(
-            "move_id" / Int16ul,
-            "level" / Int16ul,
+            "raw" / Int32ul,
+            "move_id" / Computed(lambda ctx: ctx.raw & 0xFFFF),
+            "level" / Computed(lambda ctx: (ctx.raw >> 16) & 0xFFFF),
             "move" / Computed(lambda ctx: moves[ctx.move_id] if ctx.move_id < len(moves) else None),
         )
         
-        # Giant file structure: GreedyRange of Arrays (41 entries each)
-        self.struct = GreedyRange(Array(41, learnset_entry))
+        # Giant file structure: GreedyRange of Arrays (46 entries each)
+        self.struct = GreedyRange(Array(self.MAX_LEVELUP_MOVES, learnset_entry))
+        
+        # Filter out terminator entries (move_id == 0xFFFF)
         self.data = [[e for e in s if e.move_id != 0xFFFF] for s in self.load_narc()]
     
     def get_narc_path(self):

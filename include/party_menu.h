@@ -162,7 +162,6 @@ void LONG_CALL PartyMenu_ContextMenuAddFieldMove(struct PLIST_WORK *wk, u16 move
 BOOL LONG_CALL FieldSystem_MapIsBattleTowerMultiPartnerSelectRoom(void *fieldSystem);
 
 u8 LONG_CALL sub_0207B0B0(struct PLIST_WORK *wk, u8 *buf);
-
 void LONG_CALL sub_0207AFC4(struct PLIST_WORK *wk);
 void LONG_CALL ClearFrameAndWindow2(void *window, BOOL dont_copy_to_vram);
 u8 LONG_CALL sub_0207B23C(struct PLIST_WORK *wk, u8 *buf);

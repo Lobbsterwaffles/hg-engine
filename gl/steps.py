@@ -2,6 +2,7 @@ from framework import *
 from enums import *
 from form_mapping import FormMapping, FormCategory
 from extractors import *
+from script_extractor import GiftPokemon
 import random
 
 
@@ -58,6 +59,53 @@ class DebugHootHootToGrowlitheStep(Step):
         
         print(f"DEBUG: Made {replacements_made} HootHoot -> Growlithe replacements")
 
+
+class DebugAlolanMarowakGiftsStep(Step):
+    """Temporary debugging step that forces all gift Pokemon to be Alolan Marowak."""
+    
+    def run(self, context):
+        gift_pokemon = context.get(GiftPokemon)
+        mondata = context.get(Mons)
+        
+        # Find Alolan Marowak (name is "Marowak-ALOLAN")
+        alolan_marowak = None
+        for pokemon in mondata.data:
+            if pokemon.name == "Marowak-ALOLAN":
+                alolan_marowak = pokemon
+                break
+        
+        if alolan_marowak is None:
+            print("DEBUG: Could not find Alolan Marowak in mondata")
+            return
+        
+        # GivePokemon uses SEPARATE fields for species and form (NOT encoded like encounters)
+        # For forms: is_form_of = base species ID, form_number = form index
+        base_species_id = alolan_marowak.is_form_of  # 105 (Marowak)
+        form_number = alolan_marowak.form_number      # 1 (Alolan)
+        
+        # Set ability explicitly (hg-engine's ResetPartyPokemonAbility has bugs)
+        ability1 = alolan_marowak.ability1
+        ability2 = alolan_marowak.ability2
+        hidden_ability = getattr(alolan_marowak, 'hidden_ability', None)
+        
+        ability_choices = [ability1]
+        if ability2 and ability2 != ability1:
+            ability_choices.append(ability2)
+        if hidden_ability and hidden_ability not in ability_choices:
+            ability_choices.append(hidden_ability)
+        
+        chosen_ability = random.choice(ability_choices)
+        
+        print(f"DEBUG: Replacing all gift Pokemon with Alolan Marowak (species={base_species_id}, form={form_number}, ability={chosen_ability})")
+        
+        for gift in gift_pokemon.gifts:
+            original_id = gift.pokemon_id
+            gift.pokemon_id = base_species_id
+            gift.form = form_number
+            gift.ability = chosen_ability
+            print(f"DEBUG: File {gift.file_index} offset 0x{gift.offset:04X}: {original_id} -> species={base_species_id}, form={form_number} (Alolan Marowak)")
+        
+        print(f"DEBUG: Replaced {len(gift_pokemon.gifts)} gift Pokemon with Alolan Marowak")
 
 
 def select_cosmetic_variant(context, mondata, base_species_id, decision_path):
@@ -518,6 +566,69 @@ class LoadBlacklistStep(PokemonListBase):
 
         "Miraidon",
         "Koraidon",
+
+
+        #w/unimplemented sprites
+        "Bramblin",
+        "Munkidori",
+        "Naclstack",
+        "Nacli",
+        "Garganacl",
+        "Oinkologne",
+        ("Sinistcha", "MASTERPIECE" ),
+        ("Polchgeist", "MASTERPIECE" ),
+        ("Squawkbily", "BLUE_PLUMAGE"),
+        ("Squawkbily", "YELLOW_PLUMAGE"),
+        ("Squawkbily", "WHITE_PLUMAGE"),
+        ("Tauros", "COMBAT"),
+        ("Tauros", "BLAZE"),
+        ("Tauros", "AQUA"),
+        ("Wormadam", "SANDY"),
+        ("Wormadam", "TRASHY"),
+        "Bounsweet",
+        "Steenee",
+        "Tsareena",
+        "Cosmoem",
+        "Necrozma",
+        "Pincurchin",
+        "Arctovish",
+        "Bellibolt",
+        "Bramblgast",
+        "Orthworm",
+        "Terapagos",
+        ("Pikachu", "COSPLAY"),
+        ("Pikachu", "ORIGINAL_CAP"),
+        ("Pikachu", "HOENN_CAP"),
+        ("Pikachu", "UNOVA_CAP"),
+        ("Pikachu", "KALOS_CAP"),
+        ("Pikachu", "ALOLA_CAP"),
+        ("Pikachu", "PARTNER_CAP"),
+        ("Pikachu", "WORLD_CAP"),
+        ("Palkia", "ORIGIN"),
+        ("Dialga", "ORIGIN"),
+        ("Minior", "CORE_RED"),
+        ("Minior", "CORE_ORANGE"),
+        ("Minior", "CORE_YELLOW"),
+        ("Minior", "CORE_GREEN"),
+        ("Minior", "CORE_BLUE"),
+        ("Minior", "CORE_INDIGO"),
+        ("Minior", "CORE_VIOLET"),
+        ("Necrozma", "Dawn_Wings"),
+        ("Necrozma", "Dusk_Mane"),
+        ("Magearna", "ORIGINAL"),
+        "Cramorant",
+        "Eiscue",
+        "Morpeko",
+        "Zacian",
+        "Zamazenta",
+        ("Zarude", "DADA"),
+        ("Calyrex", "ICE_RIDER"),
+        ("Calyrex", "SHADOW_RIDER"),
+        ("Avalugg", "HISUIAN"),
+        ("Gimmighoul", "ROAMING"),
+        
+        
+
     ]
 
 
@@ -758,7 +869,116 @@ class RandomizeEncountersStep(Step):
                 self.replacements[replacement_key] = encoded_species
             
             slot_list[i] = self.replacements[replacement_key]
+
+
+class RandomizeGiftPokemonStep(Step):
+    """Randomize gift Pokemon species independently and apply wild level multiplier.
     
+    Each gift Pokemon is randomized independently (not shuffled/cached) using
+    BstWithinFactor filtering. Level is scaled by the wild level multiplier.
+    
+    Args:
+        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+        wild_level_mult: Multiplier to apply to gift Pokemon levels (default 1.0)
+    """
+    
+    def __init__(self, bst_factor=0.25, wild_level_mult=1.0):
+        self.bst_factor = bst_factor
+        self.wild_level_mult = wild_level_mult
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
+    def run(self, context):
+        self.mondata = context.get(Mons)
+        self.gift_pokemon = context.get(GiftPokemon)
+        self.context = context
+        
+        # Build filter with BST factor
+        self.filter = BstWithinFactor(self.bst_factor)
+        
+        # Build expanded candidate pool including Discrete forms
+        self.candidates = self._build_form_aware_candidates()
+        
+        for gift in self.gift_pokemon.gifts:
+            self._randomize_gift(gift)
+    
+    def _build_form_aware_candidates(self):
+        """Build candidate pool including base Pokemon and Discrete forms."""
+        candidates = []
+        
+        # Add all Pokemon (base and forms) that meet our criteria
+        for pokemon in self.mondata.data:
+            # Always include base Pokemon
+            if pokemon.is_form_of is None:
+                candidates.append(pokemon)
+            else:
+                # For forms, only include Discrete and Out-of-Battle forms
+                if pokemon.form_category in [FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE]:
+                    candidates.append(pokemon)
+        
+        return candidates
+    
+    def _randomize_gift(self, gift):
+        """Randomize a single gift Pokemon entry independently."""
+        original_species_id = gift.pokemon_id
+        
+        # Skip if species ID is 0 or invalid
+        if original_species_id == 0:
+            return
+        
+        original_mon = self.mondata[original_species_id]
+        
+        # Each gift gets its own independent randomization
+        path = ["gift_pokemon", f"file_{gift.file_index}", original_mon.name]
+        
+        # Select new species using BST filter
+        new_species = self.context.decide(
+            path=path,
+            original=original_mon,
+            candidates=self.candidates,
+            filter=self.filter
+        )
+        
+        # Check for cosmetic forms and randomly select one
+        final_species = select_cosmetic_variant(
+            self.context, 
+            self.mondata, 
+            new_species.pokemon_id, 
+            path + ["cosmetic_form"]
+        )
+        
+        # GivePokemon uses SEPARATE fields for species and form (NOT encoded like encounters)
+        if final_species.is_form_of is not None:
+            # This is a form - use base species ID and form number
+            gift.pokemon_id = final_species.is_form_of
+            gift.form = final_species.form_number
+        else:
+            # Base Pokemon - no form
+            gift.pokemon_id = final_species.pokemon_id
+            gift.form = 0
+        
+        # Set a valid ability for the new Pokemon
+        # hg-engine's ResetPartyPokemonAbility has bugs, so we explicitly set the ability
+        ability1 = final_species.ability1
+        ability2 = final_species.ability2
+        hidden_ability = getattr(final_species, 'hidden_ability', None)
+        
+        # Build list of unique valid abilities
+        ability_choices = [ability1]
+        if ability2 and ability2 != ability1:
+            ability_choices.append(ability2)
+        if hidden_ability and hidden_ability not in ability_choices:
+            ability_choices.append(hidden_ability)
+        
+        gift.ability = random.choice(ability_choices)
+        
+        # Apply wild level multiplier
+        if self.wild_level_mult != 1.0:
+            new_level = max(1, self._round_half_up(gift.level * self.wild_level_mult))
+            gift.level = min(100, new_level)
 
 
 class IndexTrainers(Extractor):

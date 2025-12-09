@@ -28,6 +28,10 @@
 .include "armips/asm/no_partner_double_battles.s" // allows no partner double battles
 
 //custom asm scripts
+.include "armips/asm/Custom/enable_surf_without_knowing_move.s"
+.include "armips/asm/Custom/pickup_table.s"
+.include "armips/asm/Custom/smashable_rock_items.s"
+.include "armips/asm/Custom/remove_obedience_check.s"
 
 .if FAIRY_TYPE_IMPLEMENTED == 1
 

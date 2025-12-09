@@ -37,7 +37,7 @@ type_mimics_data = {
             "Girafarig", "Farigiraf", "Kecleon",
             "Pansage", "Pansear", "Panpour", "Simipour", "Simisear", "Simisage",
             "Whismur", "Loudred", "Exploud",
-            ("Ratata", "ALOLAN"), ("Raticate", "ALOLAN"), 
+            ("Rattata", "ALOLAN"), ("Raticate", "ALOLAN"), 
         ],
         
         Type.DRAGON: [
@@ -54,7 +54,7 @@ type_mimics_data = {
             "Salandit", "Salazzle", "Scrafty", "Scraggy",
             "Onix", "Steelix",
             "Tropius",
-            "Iron Jugulis", "Iron Thorns"
+            "Iron Neck", "IronThorns"
         ],
         
         Type.ELECTRIC: [
@@ -255,11 +255,11 @@ type_mimics_data = {
             "Heliolisk",
             "Koffing", "Weezing", ("Weezing", "GALARIAN"), "Skuntank", "Stunky",
             "Revavroom",
-            "Solrock", "Bronzor", "Bronzong", "Poltchageist", "Sinistcha", "Frigibax", "Arctibax", "Baxcalibur",
+            "Solrock", "Bronzor", "Bronzong", "Polchgeist", "Sinistcha", "Frigibax", "Arctibax", "Baxcalibur",
             ("Ninetales", "ALOLAN"), ("Vulpix", "ALOLAN"), ("Ponyta", "GALARIAN"), ("Rapidash", "GALARIAN"),
             "Swellow", "Taillow",
             "Tyrantrum", "Tyrunt",
-            "Eternatus", "Walking Wake", "Roaring Moon"
+            "Eternatus", "WalkngWake", "RoarinMoon"
             
             
         ],

@@ -50,6 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--independent-encounters", action="store_true", help="Make encounter replacements independent by area")
     parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
     parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
+    parser.add_argument("--gift-level-mult", type=float, default=None, help="Multiplier for gift Pokémon levels (default: same as wild-level-mult)")
     parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
     parser.add_argument("--no-randomize-starters", action="store_false", 
                        dest="randomize_starters", default=True,
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     verbosity_overrides = [([], vbase)] + parse_verbosity_overrides(args.verbosity or [])
     
     # Load ROM
-    with open("reextractvanilla.nds", "rb") as f:
+    with open("Goldilockes.nds", "rb") as f:
         rom = ndspy.rom.NintendoDSRom(f.read())
     
     # Create context and load data
@@ -124,8 +125,9 @@ if __name__ == "__main__":
         AssignNatureStep(),
         TrainerHeldItem(),
         RandomizeGroundItems(),
-        #RandomizeHiddenItems(),
-        
+        RandomizeBerryPiles(),
+        RandomizeGiftPokemonStep(bst_factor=args.bst_factor, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
+        #DebugAlolanMarowakGiftsStep(),
     ])
     
     ctx.write_all()

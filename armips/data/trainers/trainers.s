@@ -16327,7 +16327,7 @@ trainerdata 479, "Ariana"
         // mon 1
         ivs 100
         abilityslot 0
-        level 334
+        level 34
         pokemon SPECIES_GLOOM
         move MOVE_MEGA_DRAIN
         move MOVE_SWEET_SCENT
@@ -16337,8 +16337,8 @@ trainerdata 479, "Ariana"
 
         // mon 2
         ivs 100
-        abilityslot 36
-        level 27
+        abilityslot 32
+        level 36
         pokemon SPECIES_MURKROW
         move MOVE_WING_ATTACK
         move MOVE_PURSUIT
