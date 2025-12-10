@@ -6,6 +6,7 @@ class GiftPokemon(Writeback, NarcExtractor):
     """Extractor for GivePokemon script commands in NARC a/0/1/2
     
     Finds all GivePokemon (0x0089) commands across all script files.
+    Uses construct library for parsing/serializing the command structure.
     
     Command structure (14 bytes total):
         - Command ID: 0x0089 (2 bytes)
@@ -28,158 +29,78 @@ class GiftPokemon(Writeback, NarcExtractor):
     
     def __init__(self, context):
         super().__init__(context)
+        
+        # Define the GivePokemon command structure using construct
+        # This is a 14-byte structure that appears within script files
+        # file_index and offset are added as Computed fields for tracking location
+        self.gift_struct = Struct(
+            "command_id" / Int16ul,      # Should be 0x0089
+            "pokemon_id" / Int16ul,       # Species ID
+            "level" / Int16ul,            # Pokemon level
+            "item" / Int16ul,             # Held item ID
+            "form" / Int16ul,             # Form number
+            "ability" / Int16ul,          # Ability slot
+            "result_var" / Int16ul        # Script variable for result
+        )
+        
         self.data = self.load_narc()  # Use self.data for compatibility with NarcExtractor.write_to_rom
-        self.gifts = self._find_all_gifts()
+        self.gifts = self._find_all_gifts()  # List of Container objects with file_index/offset added
         print(f"Found {len(self.gifts)} GivePokemon commands", file=sys.stderr)
     
     def get_narc_path(self):
         return "a/0/1/2"
     
     def parse_file(self, file_data, index):
-        # Return raw bytes - we parse commands manually
+        # Return raw bytes - we scan for commands within the file
         return file_data
     
     def serialize_file(self, data, index):
         return data
     
     def _find_all_gifts(self):
-        """Scan all script files for GivePokemon commands"""
+        """Scan all script files for GivePokemon commands.
+        
+        Returns list of construct Containers with file_index and offset added.
+        """
         gifts = []
         
         for file_idx, file_data in enumerate(self.data):
             if len(file_data) < self.COMMAND_SIZE:
                 continue
             
-            # Scan for command pattern
+            # Scan for command pattern (0x0089 as little-endian)
             for offset in range(len(file_data) - self.COMMAND_SIZE + 1):
                 if file_data[offset] == 0x89 and file_data[offset + 1] == 0x00:
-                    # Parse the command parameters
-                    pokemon_id = file_data[offset + 2] | (file_data[offset + 3] << 8)
-                    level = file_data[offset + 4] | (file_data[offset + 5] << 8)
-                    item = file_data[offset + 6] | (file_data[offset + 7] << 8)
-                    form = file_data[offset + 8] | (file_data[offset + 9] << 8)
-                    ability = file_data[offset + 10] | (file_data[offset + 11] << 8)
-                    result_var = file_data[offset + 12] | (file_data[offset + 13] << 8)
+                    # Parse using construct
+                    try:
+                        parsed = self.gift_struct.parse(file_data[offset:offset + self.COMMAND_SIZE])
+                    except Exception:
+                        continue
                     
                     # Validate: result_var should be in 0x8000+ range (script variable)
                     # and pokemon/level should be reasonable
-                    if (result_var >= 0x8000 and 
-                        1 <= pokemon_id <= 700 and 
-                        1 <= level <= 100):
+                    if (parsed.result_var >= 0x8000 and 
+                        1 <= parsed.pokemon_id <= 700 and 
+                        1 <= parsed.level <= 100):
                         
-                        gift = GiftPokemonEntry(
-                            file_index=file_idx,
-                            offset=offset,
-                            pokemon_id=pokemon_id,
-                            level=level,
-                            item=item,
-                            form=form,
-                            ability=ability,
-                            result_var=result_var,
-                            data=self.data  # Reference for writes
-                        )
-                        gifts.append(gift)
+                        # Add location metadata to the Container
+                        parsed.file_index = file_idx
+                        parsed.offset = offset
+                        gifts.append(parsed)
         
         return gifts
     
     def write_to_rom(self):
-        """Write all modified gift data back to ROM"""
-        # First, apply any pending changes from GiftPokemonEntry objects
+        """Write all gift data back to ROM"""
+        # Apply changes from each gift Container back to raw data
         for gift in self.gifts:
-            gift._write_to_raw()
+            command_bytes = self.gift_struct.build(gift)
+            file_data = bytearray(self.data[gift.file_index])
+            file_data[gift.offset:gift.offset + len(command_bytes)] = command_bytes
+            self.data[gift.file_index] = bytes(file_data)
         
         # Then use parent class to write NARC back to ROM
         super().write_to_rom()
-
-
-class GiftPokemonEntry:
-    """Represents a single GivePokemon command that can be read/modified"""
-    
-    def __init__(self, file_index, offset, pokemon_id, level, item, form, ability, result_var, data):
-        self.file_index = file_index
-        self.offset = offset
-        self._pokemon_id = pokemon_id
-        self._level = level
-        self._item = item
-        self._form = form
-        self._ability = ability
-        self._result_var = result_var
-        self._data = data  # Reference to the NARC file data list
-        self._dirty = False
-    
-    @property
-    def pokemon_id(self):
-        return self._pokemon_id
-    
-    @pokemon_id.setter
-    def pokemon_id(self, value):
-        self._pokemon_id = value
-        self._dirty = True
-    
-    @property
-    def level(self):
-        return self._level
-    
-    @level.setter
-    def level(self, value):
-        self._level = value
-        self._dirty = True
-    
-    @property
-    def item(self):
-        return self._item
-    
-    @item.setter
-    def item(self, value):
-        self._item = value
-        self._dirty = True
-    
-    @property
-    def form(self):
-        return self._form
-    
-    @form.setter
-    def form(self, value):
-        self._form = value
-        self._dirty = True
-    
-    @property
-    def ability(self):
-        return self._ability
-    
-    @ability.setter
-    def ability(self, value):
-        self._ability = value
-        self._dirty = True
-    
-    def _write_to_raw(self):
-        """Write current values back to the data buffer"""
-        if not self._dirty:
-            return
-        
-        # Get the file data as a mutable bytearray
-        file_data = bytearray(self._data[self.file_index])
-        
-        # Write each field (little-endian 16-bit)
-        file_data[self.offset + 2] = self._pokemon_id & 0xFF
-        file_data[self.offset + 3] = (self._pokemon_id >> 8) & 0xFF
-        file_data[self.offset + 4] = self._level & 0xFF
-        file_data[self.offset + 5] = (self._level >> 8) & 0xFF
-        file_data[self.offset + 6] = self._item & 0xFF
-        file_data[self.offset + 7] = (self._item >> 8) & 0xFF
-        file_data[self.offset + 8] = self._form & 0xFF
-        file_data[self.offset + 9] = (self._form >> 8) & 0xFF
-        file_data[self.offset + 10] = self._ability & 0xFF
-        file_data[self.offset + 11] = (self._ability >> 8) & 0xFF
-        
-        # Update the data reference
-        self._data[self.file_index] = bytes(file_data)
-        self._dirty = False
-    
-    def __repr__(self):
-        return (f"GiftPokemonEntry(file={self.file_index}, offset=0x{self.offset:04X}, "
-                f"pokemon={self._pokemon_id}, level={self._level}, item={self._item}, "
-                f"form={self._form}, ability={self._ability})")
 
 
 class ItemScript(Writeback, NarcExtractor):
