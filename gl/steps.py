@@ -2,7 +2,7 @@ from framework import *
 from enums import *
 from form_mapping import FormMapping, FormCategory
 from extractors import *
-from script_extractor import GiftPokemon
+from script_extractor import GiftPokemon, WildBattle, ShinyGyarados
 import random
 
 
@@ -979,6 +979,234 @@ class RandomizeGiftPokemonStep(Step):
         if self.wild_level_mult != 1.0:
             new_level = max(1, self._round_half_up(gift.level * self.wild_level_mult))
             gift.level = min(100, new_level)
+
+
+class RandomizeStaticPokemonStep(Step):
+    """Randomize static/scripted wild encounters (WildBattle commands).
+    
+    Each static encounter is randomized independently using BstWithinFactor filtering.
+    Level is scaled by the wild level multiplier.
+    
+    Args:
+        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+        wild_level_mult: Multiplier to apply to static Pokemon levels (default 1.0)
+    """
+    
+    def __init__(self, bst_factor=0.25, wild_level_mult=1.0):
+        self.bst_factor = bst_factor
+        self.wild_level_mult = wild_level_mult
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
+    def run(self, context):
+        self.mondata = context.get(Mons)
+        self.wild_battles = context.get(WildBattle)
+        self.context = context
+        
+        # Build filter with BST factor
+        self.filter = BstWithinFactor(self.bst_factor)
+        
+        # Build expanded candidate pool including Discrete forms
+        self.candidates = self._build_form_aware_candidates()
+        
+        for battle in self.wild_battles.battles:
+            self._randomize_battle(battle)
+    
+    def _build_form_aware_candidates(self):
+        """Build candidate pool including base Pokemon and Discrete forms."""
+        candidates = []
+        
+        for pokemon in self.mondata.data:
+            if pokemon.is_form_of is None:
+                candidates.append(pokemon)
+            else:
+                if pokemon.form_category in [FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE]:
+                    candidates.append(pokemon)
+        
+        return candidates
+    
+    def _randomize_battle(self, battle):
+        """Randomize a single static encounter independently."""
+        original_species_id = battle.pokemon_id
+        
+        if original_species_id == 0:
+            return
+        
+        original_mon = self.mondata[original_species_id]
+        
+        path = ["static_pokemon", f"file_{battle.file_index}", original_mon.name]
+        
+        new_species = self.context.decide(
+            path=path,
+            original=original_mon,
+            candidates=self.candidates,
+            filter=self.filter
+        )
+        
+        final_species = select_cosmetic_variant(
+            self.context, 
+            self.mondata, 
+            new_species.pokemon_id, 
+            path + ["cosmetic_form"]
+        )
+        
+        # Use encode_species_for_encounter for form encoding (species | form << 11)
+        encoded_species = encode_species_for_encounter(final_species)
+        battle.pokemon_id = encoded_species
+        
+        # Apply wild level multiplier
+        if self.wild_level_mult != 1.0:
+            new_level = max(1, self._round_half_up(battle.level * self.wild_level_mult))
+            battle.level = min(100, new_level)
+
+
+class DebugAlolanMarowakStaticStep(Step):
+    """Temporary debugging step that forces all static encounters to be Alolan Marowak.
+    
+    Tests using form encoding: species + (2048 * form_number)
+    For Alolan Marowak: 105 + (2048 * 1) = 2153
+    """
+    
+    def run(self, context):
+        wild_battles = context.get(WildBattle)
+        mondata = context.get(Mons)
+        
+        # Find Alolan Marowak
+        alolan_marowak = None
+        for pokemon in mondata.data:
+            if pokemon.name == "Marowak-ALOLAN":
+                alolan_marowak = pokemon
+                break
+        
+        if alolan_marowak is None:
+            print("DEBUG: Could not find Alolan Marowak in mondata")
+            return
+        
+        # Use encode_species_for_encounter for form encoding
+        encoded_id = encode_species_for_encounter(alolan_marowak)
+        
+        print(f"DEBUG: Replacing all static encounters with Alolan Marowak")
+        print(f"DEBUG: encoded_id={encoded_id}")
+        
+        for battle in wild_battles.battles:
+            original_id = battle.pokemon_id
+            battle.pokemon_id = encoded_id
+            print(f"DEBUG: File {battle.file_index} offset 0x{battle.offset:04X}: {original_id} -> {encoded_id} (Alolan Marowak)")
+        
+        print(f"DEBUG: Replaced {len(wild_battles.battles)} static encounters with Alolan Marowak")
+
+
+class StaticCries(Step):
+    """Sync PlayCry commands with randomized static encounter species.
+    
+    Reads the WildBattle extractor and updates associated PlayCry commands
+    to match the (base) species of the randomized encounter.
+    For forms, uses the base species ID since cries are shared.
+    
+    Must run AFTER RandomizeStaticPokemonStep or DebugAlolanMarowakStaticStep.
+    """
+    
+    def run(self, context):
+        wild_battles = context.get(WildBattle)
+        
+        updated_count = 0
+        for battle in wild_battles.battles:
+            if battle.playcry_offset is not None:
+                # Extract base species (strip form encoding: species | form << 11)
+                base_species = battle.pokemon_id & 0x7FF
+                
+                # Update the PlayCry in the raw data
+                file_data = bytearray(wild_battles.data[battle.file_index])
+                file_data[battle.playcry_offset + 2] = base_species & 0xFF
+                file_data[battle.playcry_offset + 3] = (base_species >> 8) & 0xFF
+                wild_battles.data[battle.file_index] = bytes(file_data)
+                
+                print(f"StaticCries: File {battle.file_index} PlayCry@0x{battle.playcry_offset:04X} -> species {base_species}")
+                updated_count += 1
+        
+        print(f"StaticCries: Updated {updated_count} PlayCry commands")
+
+
+class RandomizeShinyStatic(Step):
+    """Randomize the Shiny Gyarados encounter at Lake of Rage.
+    
+    Uses the same BST-based randomization as other static encounters.
+    Always keeps the shiny flag set to 1.
+    Also updates the associated PlayCry command.
+    
+    Args:
+        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+        wild_level_mult: Multiplier to apply to the encounter level (default 1.0)
+    """
+    
+    def __init__(self, bst_factor=0.25, wild_level_mult=1.0):
+        self.bst_factor = bst_factor
+        self.wild_level_mult = wild_level_mult
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
+    def run(self, context):
+        mondata = context.get(Mons)
+        shiny_encounter = context.get(ShinyGyarados)
+        
+        # Build filter with BST factor
+        filter = BstWithinFactor(self.bst_factor)
+        
+        # Build expanded candidate pool including Discrete forms
+        candidates = self._build_form_aware_candidates(mondata)
+        
+        original_species_id = shiny_encounter.encounter.pokemon_id
+        original_mon = mondata[original_species_id]
+        
+        path = ["shiny_static", original_mon.name]
+        
+        new_species = context.decide(
+            path=path,
+            original=original_mon,
+            candidates=candidates,
+            filter=filter
+        )
+        
+        final_species = select_cosmetic_variant(
+            context, 
+            mondata, 
+            new_species.pokemon_id, 
+            path + ["cosmetic_form"]
+        )
+        
+        # Use form encoding (species | form << 11)
+        encoded_species = encode_species_for_encounter(final_species)
+        shiny_encounter.encounter.pokemon_id = encoded_species
+        
+        # Always keep shiny flag set
+        shiny_encounter.encounter.shiny = 1
+        
+        # Apply wild level multiplier
+        if self.wild_level_mult != 1.0:
+            new_level = max(1, self._round_half_up(shiny_encounter.encounter.level * self.wild_level_mult))
+            shiny_encounter.encounter.level = min(100, new_level)
+        
+        base_species = encoded_species & 0x7FF
+        print(f"RandomizeShinyStatic: Shiny Gyarados -> {final_species.name} (encoded={encoded_species}, base={base_species}, shiny=1)")
+    
+    def _build_form_aware_candidates(self, mondata):
+        """Build candidate pool including base Pokemon and Discrete forms."""
+        candidates = []
+        
+        for pokemon in mondata.data:
+            if pokemon.is_form_of is None:
+                candidates.append(pokemon)
+            else:
+                if pokemon.form_category in [FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE]:
+                    candidates.append(pokemon)
+        
+        return candidates
 
 
 class IndexTrainers(Extractor):

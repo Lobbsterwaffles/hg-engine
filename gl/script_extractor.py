@@ -103,6 +103,184 @@ class GiftPokemon(Writeback, NarcExtractor):
         super().write_to_rom()
 
 
+class WildBattle(Writeback, NarcExtractor):
+    """Extractor for WildBattle script commands in NARC a/0/1/2
+    
+    Finds all WildBattle (0x00F9) commands across all script files.
+    These are static/scripted wild encounters (e.g., Lapras in Union Cave).
+    Also finds associated PlayCry (0x004C) commands within 20 bytes before.
+    
+    Command structure (6 bytes total):
+        - Command ID: 0x00F9 (2 bytes)
+        - Pokemon ID: 2 bytes (little-endian)
+        - Level: 2 bytes
+    
+    PlayCry structure (6 bytes total):
+        - Command ID: 0x004C (2 bytes)
+        - Pokemon ID: 2 bytes (little-endian)
+        - Unused: 2 bytes
+    
+    Usage:
+        wild_battles = context.get(WildBattle)
+        for battle in wild_battles.battles:
+            print(f"File {battle.file_index}: {battle.pokemon_id} at level {battle.level}")
+            battle.pokemon_id = 132  # Change to Ditto
+            # If battle.playcry_offset is not None, the cry will also be updated
+    """
+    
+    COMMAND_ID = 0x00F9  # WildBattle command
+    COMMAND_SIZE = 6     # 2 (cmd) + 4 (2 params * 2 bytes each)
+    PLAYCRY_CMD = 0x004C
+    PLAYCRY_DISTANCES = [12, 17]  # Known distances between PlayCry and WildBattle
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        self.battle_struct = Struct(
+            "command_id" / Int16ul,      # Should be 0x00F9
+            "pokemon_id" / Int16ul,       # Species ID
+            "level" / Int16ul,            # Pokemon level
+        )
+        
+        self.data = self.load_narc()
+        self.battles = self._find_all_battles()
+        print(f"Found {len(self.battles)} WildBattle commands", file=sys.stderr)
+    
+    def get_narc_path(self):
+        return "a/0/1/2"
+    
+    def parse_file(self, file_data, index):
+        return file_data
+    
+    def serialize_file(self, data, index):
+        return data
+    
+    def _find_playcry_before(self, file_data, wildbattle_offset):
+        """Search for PlayCry command at exactly 12 or 17 bytes before WildBattle."""
+        for dist in self.PLAYCRY_DISTANCES:
+            search_offset = wildbattle_offset - dist
+            if search_offset >= 0 and search_offset + 1 < len(file_data):
+                if file_data[search_offset] == 0x4C and file_data[search_offset + 1] == 0x00:
+                    return search_offset
+        return None
+    
+    def _find_all_battles(self):
+        """Scan all script files for WildBattle commands."""
+        battles = []
+        
+        for file_idx, file_data in enumerate(self.data):
+            if len(file_data) < self.COMMAND_SIZE:
+                continue
+            
+            # Scan for command pattern (0x00F9 as little-endian)
+            for offset in range(len(file_data) - self.COMMAND_SIZE + 1):
+                if file_data[offset] == 0xF9 and file_data[offset + 1] == 0x00:
+                    try:
+                        parsed = self.battle_struct.parse(file_data[offset:offset + self.COMMAND_SIZE])
+                    except Exception:
+                        continue
+                    
+                    # Validate: pokemon/level should be reasonable
+                    if 1 <= parsed.pokemon_id <= 2000 and 1 <= parsed.level <= 100:
+                        parsed.file_index = file_idx
+                        parsed.offset = offset
+                        # Find associated PlayCry command
+                        parsed.playcry_offset = self._find_playcry_before(file_data, offset)
+                        battles.append(parsed)
+        
+        return battles
+    
+    def write_to_rom(self):
+        """Write all battle data back to ROM, including associated PlayCry commands."""
+        for battle in self.battles:
+            file_data = bytearray(self.data[battle.file_index])
+            
+            # Write WildBattle command
+            command_bytes = self.battle_struct.build(battle)
+            file_data[battle.offset:battle.offset + len(command_bytes)] = command_bytes
+            
+            # Write PlayCry species if present (use base species for forms)
+            if battle.playcry_offset is not None:
+                # Extract base species from pokemon_id (remove form encoding)
+                # Form encoding is species | (form << 11), so base = species & 0x7FF
+                base_species = battle.pokemon_id & 0x7FF
+                # PlayCry species is at offset +2 from command start
+                file_data[battle.playcry_offset + 2] = base_species & 0xFF
+                file_data[battle.playcry_offset + 3] = (base_species >> 8) & 0xFF
+            
+            self.data[battle.file_index] = bytes(file_data)
+        
+        super().write_to_rom()
+
+
+class ShinyGyarados(Writeback, NarcExtractor):
+    """Extractor for the Shiny Gyarados encounter (WildBattleSp command) in file 938.
+    
+    This is specifically for the Lake of Rage shiny Gyarados encounter.
+    Uses WildBattleSp (0x024D) which has a shiny flag parameter.
+    
+    Command structure (7 bytes total):
+        - Command ID: 0x024D (2 bytes)
+        - Pokemon ID: 2 bytes (little-endian)
+        - Level: 2 bytes
+        - Shiny Flag: 1 byte (1 = shiny)
+    
+    Also tracks associated PlayCry command at 17 bytes before.
+    """
+    
+    FILE_INDEX = 938
+    COMMAND_OFFSET = 0x0098  # Known offset of WildBattleSp in file 938
+    PLAYCRY_OFFSET = 0x0087  # PlayCry is 17 bytes before (0x0098 - 17 = 0x0087)
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        self.battle_struct = Struct(
+            "command_id" / Int16ul,      # Should be 0x024D
+            "pokemon_id" / Int16ul,       # Species ID
+            "level" / Int16ul,            # Pokemon level
+            "shiny" / Int8ul,             # Shiny flag (1 = shiny)
+        )
+        
+        self.data = self.load_narc()
+        self.encounter = self._parse_encounter()
+        print(f"ShinyGyarados: Found encounter with species={self.encounter.pokemon_id}, level={self.encounter.level}, shiny={self.encounter.shiny}", file=sys.stderr)
+    
+    def get_narc_path(self):
+        return "a/0/1/2"
+    
+    def parse_file(self, file_data, index):
+        return file_data
+    
+    def serialize_file(self, data, index):
+        return data
+    
+    def _parse_encounter(self):
+        """Parse the Shiny Gyarados encounter from file 938."""
+        file_data = self.data[self.FILE_INDEX]
+        parsed = self.battle_struct.parse(file_data[self.COMMAND_OFFSET:self.COMMAND_OFFSET + 7])
+        parsed.file_index = self.FILE_INDEX
+        parsed.offset = self.COMMAND_OFFSET
+        parsed.playcry_offset = self.PLAYCRY_OFFSET
+        return parsed
+    
+    def write_to_rom(self):
+        """Write encounter data back to ROM, including PlayCry."""
+        file_data = bytearray(self.data[self.FILE_INDEX])
+        
+        # Write WildBattleSp command
+        command_bytes = self.battle_struct.build(self.encounter)
+        file_data[self.COMMAND_OFFSET:self.COMMAND_OFFSET + len(command_bytes)] = command_bytes
+        
+        # Write PlayCry species (use base species for forms)
+        base_species = self.encounter.pokemon_id & 0x7FF
+        file_data[self.PLAYCRY_OFFSET + 2] = base_species & 0xFF
+        file_data[self.PLAYCRY_OFFSET + 3] = (base_species >> 8) & 0xFF
+        
+        self.data[self.FILE_INDEX] = bytes(file_data)
+        super().write_to_rom()
+
+
 class ItemScript(Writeback, NarcExtractor):
     """Extractor for item script file in NARC a/0/1/2
     

@@ -128,6 +128,10 @@ if __name__ == "__main__":
         RandomizeBerryPiles(),
         RandomizeGiftPokemonStep(bst_factor=args.bst_factor, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
         #DebugAlolanMarowakGiftsStep(),
+        #DebugAlolanMarowakStaticStep(),
+        RandomizeStaticPokemonStep(),
+        StaticCries(),
+        RandomizeShinyStatic(),
     ])
     
     ctx.write_all()
