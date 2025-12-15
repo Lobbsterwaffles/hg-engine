@@ -315,6 +315,10 @@ class FormMapping(Extractor):
         496: ("Deoxys", "ATTACK", FormCategory.OUT_OF_BATTLE_CHANGE),
         497: ("Deoxys", "DEFENSE", FormCategory.OUT_OF_BATTLE_CHANGE),
         498: ("Deoxys", "SPEED", FormCategory.OUT_OF_BATTLE_CHANGE),
+
+        #Wormadam
+        499: ("Wormadam", "SANDY", FormCategory.DISCRETE),
+        500: ("Wormadam", "TRASHY", FormCategory.DISCRETE),
         
         # Calyrex riders (MISC_FORM_START + 148, 149)
         1323: ("Calyrex", "ICE_RIDER", FormCategory.OUT_OF_BATTLE_CHANGE),  # MISC_FORM_START + 148

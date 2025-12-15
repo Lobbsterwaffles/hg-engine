@@ -6,6 +6,55 @@ from script_extractor import GiftPokemon, WildBattle, ShinyGyarados
 import random
 
 
+class DebugForcePumpkabooLargeStep(Step):
+    """Temporary debugging step that forces a specific trainer's Pokemon to be Pumpkaboo-LARGE."""
+    
+    TARGET_POKEMON = "Pumpkaboo-LARGE"
+    TARGET_TRAINER_ID = 8  # Joey
+    
+    def run(self, context):
+        trainers = context.get(Trainers)
+        mondata = context.get(Mons)
+        
+        # Find target Pokemon by name
+        target_pokemon = None
+        for pokemon in mondata.data:
+            if pokemon.name == self.TARGET_POKEMON:
+                target_pokemon = pokemon
+                break
+        
+        if target_pokemon is None:
+            print(f"DEBUG: Could not find {self.TARGET_POKEMON} in mondata")
+            return
+        
+        # Encode for trainer data: base_species | (form_number << 11)
+        encoded_species = encode_species_for_encounter(target_pokemon)
+        
+        # Verify the encoding matches what C code expects
+        # C code: form_no = (species & 0xF800) >> 11; species &= 0x07FF;
+        decoded_form = (encoded_species & 0xF800) >> 11
+        decoded_species = encoded_species & 0x07FF
+        
+        print(f"DEBUG: {self.TARGET_POKEMON} info:")
+        print(f"  pokemon_id (NARC index): {target_pokemon.pokemon_id}")
+        print(f"  is_form_of (base species): {target_pokemon.is_form_of}")
+        print(f"  form_number: {target_pokemon.form_number}")
+        print(f"  encoded_species: {encoded_species} (0x{encoded_species:04X})")
+        print(f"  C decode check - species: {decoded_species}, form_no: {decoded_form}")
+        
+        # Only modify the target trainer
+        if self.TARGET_TRAINER_ID < len(trainers.data):
+            trainer = trainers.data[self.TARGET_TRAINER_ID]
+            trainer_name = trainer.info.name if hasattr(trainer.info, 'name') else f"Trainer {self.TARGET_TRAINER_ID}"
+            print(f"DEBUG: Modifying trainer ID {self.TARGET_TRAINER_ID} ({trainer_name})")
+            
+            for pokemon in trainer.team:
+                pokemon.species_id = encoded_species
+                print(f"  Changed Pokemon to {self.TARGET_POKEMON}")
+        else:
+            print(f"DEBUG: Trainer ID {self.TARGET_TRAINER_ID} not found")
+
+
 class DebugHootHootToGrowlitheStep(Step):
     """Temporary debugging step that forces all HootHoot encounters to be replaced by Growlithe."""
     
@@ -904,6 +953,9 @@ class RandomizeGiftPokemonStep(Step):
         
         for gift in self.gift_pokemon.gifts:
             self._randomize_gift(gift)
+        
+        # Apply changes to shared ScriptNarc data
+        self.gift_pokemon.apply_changes()
     
     def _build_form_aware_candidates(self):
         """Build candidate pool including base Pokemon and Discrete forms."""
@@ -1014,6 +1066,9 @@ class RandomizeStaticPokemonStep(Step):
         
         for battle in self.wild_battles.battles:
             self._randomize_battle(battle)
+        
+        # Apply changes to shared ScriptNarc data
+        self.wild_battles.apply_changes()
     
     def _build_form_aware_candidates(self):
         """Build candidate pool including base Pokemon and Discrete forms."""
@@ -1130,6 +1185,103 @@ class StaticCries(Step):
         print(f"StaticCries: Updated {updated_count} PlayCry commands")
 
 
+class RandomizeGiftItem(Step):
+    """Randomize NPC gift items.
+    
+    1. First handles gym leader TM gifts - matches TM type to randomized gym type
+    2. Then handles "TM" class gifts - draws from item pool
+    3. Finally handles "none" class gifts - draws from item pool by tier
+    
+    Uses ItemPool extractor to ensure TMs are only given once.
+    """
+    
+    # Map gym leader names to their gym location names (for IdentifyGymTrainers lookup)
+    LEADER_TO_GYM = {
+        "Falkner": "Violet City",
+        "Bugsy": "Azalea Town",
+        "Whitney": "Goldenrod City",
+        "Morty": "Ecruteak City",
+        "Chuck": "Cianwood City",
+        "Jasmine": "Olivine City",
+        "Pryce": "Mahogany Town",
+        "Clair": "Blackthorn City",
+        "Brock": "Pewter City",
+        "Misty": "Cerulean City",
+        "Lt. Surge": "Vermilion City",
+        "Erika": "Celadon City",
+        "Janine": "Fuchsia City",
+        "Sabrina": "Saffron City",
+        "Blaine": "Seafoam Islands",
+        "Blue": "Viridian City",
+    }
+    
+    def run(self, context):
+        from script_extractor import NpcGiftItems
+        
+        gift_items = context.get(NpcGiftItems)
+        item_pool = context.get(ItemPool)
+        gyms = context.get(IdentifyGymTrainers)
+        
+        gym_gifts_updated = 0
+        tm_gifts_updated = 0
+        none_gifts_updated = 0
+        
+        # Phase 1: Handle gym leader TM gifts (match gym type)
+        for gift in gift_items.gifts:
+            if gift['gift_class'] in self.LEADER_TO_GYM:
+                gym_name = self.LEADER_TO_GYM[gift['gift_class']]
+                gym = gyms.data.get(gym_name)
+                
+                if gym and gym.type is not None:
+                    # Try to find a TM of this gym's type
+                    new_item = item_pool.draw_tm_by_type(
+                        gym.type,
+                        tier=gift['tier'],
+                        context=context,
+                        path=["gift_item", "gym", gift['gift_class']]
+                    )
+                    
+                    if new_item is None:
+                        # No TM of this type available, expand search to +/- 1 tier
+                        # Try any TM from the pool
+                        new_item = item_pool.draw(
+                            gift['tier'],
+                            context=context,
+                            path=["gift_item", "gym_fallback", gift['gift_class']]
+                        )
+                    
+                    gift['item_id'] = new_item
+                    gym_gifts_updated += 1
+                    print(f"RandomizeGiftItem: {gift['gift_class']} gym TM -> item {new_item}")
+        
+        # Phase 2: Handle "TM" class gifts (generic TM gifts)
+        for gift in gift_items.gifts:
+            if gift['gift_class'] == 'TM':
+                new_item = item_pool.draw(
+                    gift['tier'],
+                    context=context,
+                    path=["gift_item", "tm", f"file_{gift['file_index']}"]
+                )
+                gift['item_id'] = new_item
+                tm_gifts_updated += 1
+        
+        # Phase 3: Handle "none" class gifts (regular items)
+        for gift in gift_items.gifts:
+            if gift['gift_class'] == 'none':
+                new_item = item_pool.draw(
+                    gift['tier'],
+                    context=context,
+                    path=["gift_item", "none", f"file_{gift['file_index']}"]
+                )
+                gift['item_id'] = new_item
+                none_gifts_updated += 1
+        
+        print(f"RandomizeGiftItem: Updated {gym_gifts_updated} gym TMs, {tm_gifts_updated} generic TMs, {none_gifts_updated} regular gifts")
+        
+        # Apply changes to shared ScriptNarc data
+        gift_items.apply_changes()
+
+
 class RandomizeShinyStatic(Step):
     """Randomize the Shiny Gyarados encounter at Lake of Rage.
     
@@ -1194,6 +1346,9 @@ class RandomizeShinyStatic(Step):
         
         base_species = encoded_species & 0x7FF
         print(f"RandomizeShinyStatic: Shiny Gyarados -> {final_species.name} (encoded={encoded_species}, base={base_species}, shiny=1)")
+        
+        # Apply changes to shared ScriptNarc data
+        shiny_encounter.apply_changes()
     
     def _build_form_aware_candidates(self, mondata):
         """Build candidate pool including base Pokemon and Discrete forms."""
@@ -2059,94 +2214,6 @@ class SetTrainerMovesStep(Step):
         print(f"\nSetTrainerMovesStep: Successfully assigned moves to {moves_assigned_count} Pokemon")
 
 
-class AddStabMovesStep(Step):
-    """Step to add damaging STAB moves to trainer Pokemon movesets.
-    
-    Replaces the 4th move with a primary type STAB move and the 3rd move with 
-    a secondary type STAB move (for dual-type Pokemon). Uses FindDamagingStab 
-    extractor logic for move selection.
-    
-    This step is filtered to only apply to Whitney.
-    """
-    
-    def __init__(self, target_trainer_name="Whitney"):
-        self.target_trainer_name = target_trainer_name
-    
-    def run(self, context):
-        trainers = context.get(Trainers)
-        pokemon_names = context.get(LoadPokemonNamesStep)
-        moves = context.get(Moves)
-        form_mapping = context.get(FormMapping)
-        mons = context.get(Mons)
-        
-        # Import and initialize the FindDamagingStab extractor
-        from trainer_data_editor import FindDamagingStab
-        stab_finder = FindDamagingStab(context)
-        
-        moves_assigned_count = 0
-        trainers_processed = 0
-        
-        for trainer in trainers.data:
-            # Filter: Only apply to the target trainer (default: Whitney)
-            if trainer.info.name != self.target_trainer_name:
-                continue
-                
-            print(f"\nTrainer: {trainer.info.name} (STAB moves being added)")
-            trainers_processed += 1
-            
-            for pokemon in trainer.team:
-                index = form_mapping.resolve_data_index(pokemon.species_id)
-                if index >= len(mons.data):
-                    continue  # Skip if Pokemon index is out of bounds
-                
-                # Skip if Pokemon doesn't have moves array
-                if not hasattr(pokemon, 'moves'):
-                    continue
-                
-                pokemon_data = mons.data[index]
-                current_moves = list(pokemon.moves) if pokemon.moves else [0, 0, 0, 0]
-                
-                # Ensure we have 4 move slots
-                while len(current_moves) < 4:
-                    current_moves.append(0)
-                
-                # Get Pokemon name for logging
-                pokemon_name = pokemon_names.get_by_id(index) if index < len(pokemon_names.id_to_name) else f"ID_{index}"
-                
-                # Find primary type STAB move (for 4th slot)
-                primary_stab = stab_finder.find_stab_move(index, pokemon.level, current_moves)
-                if primary_stab:
-                    current_moves[3] = primary_stab  # Replace 4th move
-                    moves_assigned_count += 1
-                    
-                    # Get move name for logging
-                    import sys
-                    sys.stderr.write(f"  {pokemon_name}: Added primary STAB move {repr(primary_stab)} to slot 4\n")
-
-                    print(f"  {pokemon_name}: Added primary STAB move {primary_stab.name} to slot 4")
-                
-                # For dual-type Pokemon, find secondary type STAB move (for 3rd slot)
-                if pokemon_data.type2 != pokemon_data.type1:  # Dual-type Pokemon
-                    # Temporarily modify Pokemon types to find secondary type STAB
-                    original_type1 = pokemon_data.type1
-                    pokemon_data.type1 = pokemon_data.type2  # Set primary to secondary type
-                    
-                    secondary_stab = stab_finder.find_stab_move(index, pokemon.level, current_moves)
-                    
-                    # Restore original type
-                    pokemon_data.type1 = original_type1
-                    
-                    if secondary_stab and secondary_stab != primary_stab:  # Don't duplicate moves
-                        current_moves[2] = secondary_stab  # Replace 3rd move
-                        moves_assigned_count += 1
-                        
-                        # Get move name for logging
-                        print(f"  {pokemon_name}: Added secondary STAB move {secondary_stab.name} to slot 3")
-                
-                # Update Pokemon's moves
-                pokemon.moves = current_moves
-        
-        print(f"\nAddStabMovesStep: Successfully assigned STAB moves to {moves_assigned_count} Pokemon across {trainers_processed} trainer(s) (Target: {self.target_trainer_name})")
 
 
 class IdentifyGymTrainers(Extractor):
@@ -3835,211 +3902,3 @@ class BstExact600(SimpleFilter):
 
 #add class for rival fights
 #add class for red
-#####################################################################################################
-
-
-class RandomizeHiddenItems(Step):
-    """Step that places random 'junk' rarity items from Ground_Item_Tier.csv into hidden item locations.
-    
-    This step:
-    1. Loads Ground_Item_Tier.csv to find all items marked as 'junk' rarity
-    2. Maps item names to Item enum IDs
-    3. Uses HiddenItemsExtractor to randomly assign junk items to hidden item locations
-    """
-    
-    def __init__(self):
-        pass
-    
-    def run(self, context):
-        """Execute the step to randomize hidden items with junk items."""
-        print("Running RandomizeHiddenItems...")
-        
-        # Get the hidden items extractor
-        hidden_items = context.get(HiddenItemsExtractor)
-        
-        # Load and parse the Ground_Item_Tier.csv file
-        junk_items = self._load_junk_items()
-        
-        if not junk_items:
-            print("Warning: No junk items found in Ground_Item_Tier.csv")
-            return
-        
-        print(f"Found {len(junk_items)} junk items to choose from")
-        
-        # Get all hidden item locations
-        all_hidden_items = hidden_items.get_all_hidden_items()
-        
-        if not all_hidden_items:
-            print("Warning: No hidden items found")
-            return
-        
-        print(f"Found {len(all_hidden_items)} hidden item locations")
-        
-        # Randomize each hidden item location with a junk item
-        items_randomized = 0
-        for i, hidden_item in enumerate(all_hidden_items):
-            if hidden_item:
-                # Pick a random junk item
-                random_junk_item = random.choice(junk_items)
-                item_id = random_junk_item['item_id']
-                item_name = random_junk_item['item_name']
-                
-                # Set the hidden item to the random junk item
-                if hidden_items.set_hidden_item(i, item_id):
-                    items_randomized += 1
-                    print(f"  Location {i} ({hidden_item['location']}): {hidden_item['item_name']} -> {item_name}")
-        
-        print(f"Successfully randomized {items_randomized} hidden items with junk items")
-    
-    def _load_junk_items(self):
-        """Load junk items from Ground_Item_Tier.csv and map them to Item enum IDs."""
-        import os
-        import csv
-        
-        # Path to the CSV file
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        csv_file_path = os.path.join(script_dir, "Ground_Item_Tier.csv")
-        
-        if not os.path.exists(csv_file_path):
-            print(f"Error: Ground_Item_Tier.csv not found at {csv_file_path}")
-            return []
-        
-        junk_items = []
-        
-        try:
-            with open(csv_file_path, 'r', encoding='utf-8') as f:
-                csv_reader = csv.reader(f)
-                
-                for row in csv_reader:
-                    if len(row) >= 2:
-                        item_name = row[0].strip()
-                        rarity = row[1].strip().lower()
-                        
-                        # Only process junk rarity items
-                        if rarity == 'junk':
-                            # Try to map item name to Item enum ID
-                            item_id = self._get_item_id_from_name(item_name)
-                            
-                            if item_id is not None:
-                                junk_items.append({
-                                    'item_name': item_name,
-                                    'item_id': item_id,
-                                    'rarity': rarity
-                                })
-                            else:
-                                print(f"Warning: Could not find Item enum for '{item_name}'")
-        
-        except Exception as e:
-            print(f"Error reading Ground_Item_Tier.csv: {e}")
-            return []
-        
-        return junk_items
-    
-    def _get_item_id_from_name(self, item_name):
-        """Map item name to Item enum ID.
-        
-        This handles the mapping from CSV item names to the Item enum constants.
-        """
-        # Create a mapping from item names to Item enum values
-        # Handle common name variations and formatting differences
-        
-        # Normalize the item name for comparison
-        normalized_name = item_name.upper().replace(' ', '_').replace('-', '_')
-        
-        # Try direct mapping first
-        try:
-            return getattr(Item, normalized_name)
-        except AttributeError:
-            pass
-        
-        # Handle special cases and common variations
-        name_mappings = {
-            'POKE_BALL': Item.POKE_BALL,
-            'GREAT_BALL': Item.GREAT_BALL,
-            'ULTRA_BALL': Item.ULTRA_BALL,
-            'NET_BALL': Item.NET_BALL,
-            'DIVE_BALL': Item.DIVE_BALL,
-            'NEST_BALL': Item.NEST_BALL,
-            'REPEAT_BALL': Item.REPEAT_BALL,
-            'TIMER_BALL': Item.TIMER_BALL,
-            'LUXURY_BALL': Item.LUXURY_BALL,
-            'PREMIER_BALL': Item.PREMIER_BALL,
-            'DUSK_BALL': Item.DUSK_BALL,
-            'HEAL_BALL': Item.HEAL_BALL,
-            'QUICK_BALL': Item.QUICK_BALL,
-            'CHERISH_BALL': Item.CHERISH_BALL,
-            'TINY_MUSHROOM': Item.TINY_MUSHROOM,
-            'BIG_MUSHROOM': Item.BIG_MUSHROOM,
-            'BIG_MUSHROON': Item.BIG_MUSHROOM,  # Handle typo in CSV
-            'PEARL': Item.PEARL,
-            'BIG_PEARL': Item.BIG_PEARL,
-            'STARDUST': Item.STARDUST,
-            'STAR_PIECE': Item.STAR_PIECE,
-            'NUGGET': Item.NUGGET,
-            'RARE_BONE': Item.RARE_BONE,
-            'EVERSTONE': Item.EVERSTONE,
-            'FOCUS_SASH': Item.FOCUS_SASH,
-            'DESTINY_KNOT': Item.DESTINY_KNOT,
-            'POKE_DOLL': Item.POKE_DOLL,
-            'FLUFFY_TAIL': Item.FLUFFY_TAIL,
-            'WHITE_HERB': Item.WHITE_HERB,
-            'MENTAL_HERB': Item.MENTAL_HERB,
-            'POWER_HERB': Item.POWER_HERB,
-            'ABSORB_BULB': Item.ABSORB_BULB,
-            'LUMINOUS_MOSS': Item.LUMINOUS_MOSS,
-            'MIRROR_HERB': Item.MIRROR_HERB,
-            'PSYCHIC_SEED': Item.PSYCHIC_SEED,
-            'MISTY_SEED': Item.MISTY_SEED,
-            'GRASSY_SEED': Item.GRASSY_SEED,
-            'ELECTRIC_SEED': Item.ELECTRIC_SEED,
-            'CELL_BATTERY': Item.CELL_BATTERY,
-            'EJECT_BUTTON': Item.EJECT_BUTTON,
-            'AIR_BALLOON': Item.AIR_BALLOON,
-            'IRON_BALL': Item.IRON_BALL,
-            'RING_TARGET': Item.RING_TARGET,
-            'RED_CARD': Item.RED_CARD,
-            'SNOWBALL': Item.SNOWBALL,
-            'WEAKNESS_POLICY': Item.WEAKNESS_POLICY,
-            'ADRENALINE_ORB': Item.ADRENALINE_ORB,
-            'BLUNDER_POLICY': Item.BLUNDER_POLICY,
-            'EJECT_PACK': Item.EJECT_PACK,
-            'ROOM_SERVICE': Item.ROOM_SERVICE,
-            'THROAT_SPRAY': Item.THROAT_SPRAY,
-            'ABILITY_CAPSULE': Item.ABILITY_CAPSULE,
-            'GRIP_CLAW': Item.GRIP_CLAW,
-            'STICKY_BARB': Item.STICKY_BARB,
-            'SHED_SHELL': Item.SHED_SHELL,
-            'ENERGY_POWDER': Item.ENERGY_POWDER,
-            'ENERGY_ROOT': Item.ENERGY_ROOT,
-            'HEAL_POWDER': Item.HEAL_POWDER,
-            'LAVA_COOKIE': Item.LAVA_COOKIE,
-            'SACRED_ASH': Item.SACRED_ASH,
-            'BERRY_JUICE': Item.BERRY_JUICE,
-            'LAGGING_TAIL': Item.LAGGING_TAIL,
-            'BINDING_BAND': Item.BINDING_BAND,
-            'FLOAT_STONE': Item.FLOAT_STONE,
-            'OLD_GATEAU': Item.OLD_GATEAU,
-            'FAST_BALL': Item.FAST_BALL,
-            'LEVEL_BALL': Item.LEVEL_BALL,
-            'LURE_BALL': Item.LURE_BALL,
-            'HEAVY_BALL': Item.HEAVY_BALL,
-            'LOVE_BALL': Item.LOVE_BALL,
-            'FRIEND_BALL': Item.FRIEND_BALL,
-            'MOON_BALL': Item.MOON_BALL,
-        }
-        
-        # Try the special mappings
-        if normalized_name in name_mappings:
-            return name_mappings[normalized_name]
-        
-        # If we still can't find it, try searching through all Item enum members
-        for item in Item:
-            if item.name == normalized_name:
-                return item
-        
-        # Last resort: try partial matching
-        for item in Item:
-            if normalized_name in item.name or item.name in normalized_name:
-                return item
-        
-        return None

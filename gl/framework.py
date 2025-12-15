@@ -153,7 +153,14 @@ class Extractor(ABC):
 
 
 class NarcExtractor(Extractor):
-    """Extractor that provides NARC parsing infrastructure"""
+    """Extractor that provides NARC parsing infrastructure
+    
+    Set PRESERVE_NARC_FORMAT = True (default) to use custom NARC writer that 
+    preserves exact binary format. Set to False to use ndspy's default save().
+    """
+    
+    # Toggle between format-preserving writer (True) and ndspy default (False)
+    PRESERVE_NARC_FORMAT = True
     
     @abstractmethod
     def write_to_rom(self):
@@ -180,21 +187,95 @@ class NarcExtractor(Extractor):
         return [self.parse_file(file_data, i) for i, file_data in enumerate(narc_data.files)]
     
     def serialize_narc(self, data_list):
-        """Serialize data back to NARC."""
-        narc_data = ndspy.narc.NARC()
-        narc_data.files = [self.serialize_file(item, i) for i, item in enumerate(data_list)]
-        return narc_data
+        """Serialize data back to NARC, preserving original NARC structure."""
+        # Update the original NARC's files instead of creating a new one
+        self._original_narc.files = [self.serialize_file(item, i) for i, item in enumerate(data_list)]
+        return self._original_narc
     
     def load_narc(self):
         narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
         narc_file = self.rom.files[narc_file_id]
+        # Store the original raw NARC bytes for exact reconstruction
+        self._original_narc_raw = bytes(narc_file)
         narc_data = ndspy.narc.NARC(narc_file)
+        self._original_narc = narc_data
         return self.parse_narc(narc_data)
     
+    def _rebuild_narc_preserving_format(self, new_files):
+        """Rebuild NARC with new file contents while preserving exact binary format."""
+        raw = bytearray(self._original_narc_raw)
+        
+        # Parse NARC header
+        # Bytes 0-3: "NARC"
+        # Bytes 4-5: BOM
+        # Bytes 6-7: Version
+        # Bytes 8-11: File size (will update)
+        # Bytes 12-13: Header size (16)
+        # Bytes 14-15: Section count (3)
+        
+        # BTAF section starts at offset 16
+        # Bytes 16-19: "BTAF"
+        # Bytes 20-23: Section size
+        # Bytes 24-27: File count
+        # Bytes 28+: File entries (8 bytes each: start offset, end offset)
+        
+        file_count = int.from_bytes(raw[24:28], 'little')
+        btaf_entries_start = 28
+        
+        # BTNF section follows BTAF
+        btaf_size = int.from_bytes(raw[20:24], 'little')
+        btnf_start = 16 + btaf_size
+        btnf_size = int.from_bytes(raw[btnf_start + 4:btnf_start + 8], 'little')
+        
+        # GMIF section follows BTNF (contains actual file data)
+        gmif_start = btnf_start + btnf_size
+        gmif_header_size = 8  # "GMIF" + size field
+        file_data_start = gmif_start + gmif_header_size
+        
+        # Build new file data section
+        new_file_data = bytearray()
+        new_offsets = []
+        
+        for i, file_bytes in enumerate(new_files):
+            start_offset = len(new_file_data)
+            new_file_data.extend(file_bytes)
+            end_offset = len(new_file_data)
+            new_offsets.append((start_offset, end_offset))
+        
+        # Update BTAF entries with new offsets
+        for i, (start, end) in enumerate(new_offsets):
+            entry_offset = btaf_entries_start + (i * 8)
+            raw[entry_offset:entry_offset + 4] = start.to_bytes(4, 'little')
+            raw[entry_offset + 4:entry_offset + 8] = end.to_bytes(4, 'little')
+        
+        # Replace file data section
+        old_gmif_data_size = len(raw) - file_data_start
+        new_gmif_size = gmif_header_size + len(new_file_data)
+        
+        # Rebuild the NARC with new GMIF section
+        result = bytearray()
+        result.extend(raw[:gmif_start])  # Everything up to GMIF
+        result.extend(b'GMIF')
+        result.extend(new_gmif_size.to_bytes(4, 'little'))
+        result.extend(new_file_data)
+        
+        # Update total file size in header
+        result[8:12] = len(result).to_bytes(4, 'little')
+        
+        return bytes(result)
+    
     def write_to_rom(self):
-        narc_data = self.serialize_narc(self.data)
         narc_file_id = self.rom.filenames.idOf(self.get_narc_path())
-        self.rom.files[narc_file_id] = narc_data.save()
+        
+        if self.PRESERVE_NARC_FORMAT:
+            # Use custom writer that preserves exact binary format
+            new_files = [self.serialize_file(item, i) for i, item in enumerate(self.data)]
+            narc_bytes = self._rebuild_narc_preserving_format(new_files)
+            self.rom.files[narc_file_id] = narc_bytes
+        else:
+            # Use ndspy's default save (may add 4 bytes to NARC)
+            narc_data = self.serialize_narc(self.data)
+            self.rom.files[narc_file_id] = narc_data.save()
 
 
 class Writeback:

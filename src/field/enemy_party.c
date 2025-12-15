@@ -149,6 +149,9 @@ void MakeTrainerPokemonParty(struct BATTLE_PARAM *bp, int num, int heapID)
         offset += 2;
         form_no = (species & 0xF800) >> 11;
         species &= 0x07FF;
+        
+        debug_printf("MakeTrainerPokemonParty: raw=0x%04X species=%d form_no=%d\n", 
+                     (species | (form_no << 11)), species, form_no);
 
         // item field - conditional
         if (bp->trainer_data[num].data_type & TRAINER_DATA_TYPE_ITEMS)
@@ -308,8 +311,10 @@ void MakeTrainerPokemonParty(struct BATTLE_PARAM *bp, int num, int heapID)
 
         //set default abilities
         adjustedSpecies = PokeOtherFormMonsNoGet(species, form_no);
+        debug_printf("MakeTrainerPokemonParty: adjustedSpecies=%d (from PokeOtherFormMonsNoGet)\n", adjustedSpecies);
         ab1 = PokePersonalParaGet(adjustedSpecies, PERSONAL_ABILITY_1);
         ab2 = PokePersonalParaGet(adjustedSpecies, PERSONAL_ABILITY_2);
+        debug_printf("MakeTrainerPokemonParty: ab1=%d ab2=%d\n", ab1, ab2);
         if (ab2 != 0)
         {
             if (abilityslot & 1 || abilityslot == 32) // abilityslot 32 gives second slot in vanilla

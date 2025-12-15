@@ -664,21 +664,8 @@ BOOL BattleScriptCommandHandler(void *bw, struct BattleStruct *sp)
         command = sp->SkillSeqWork[sp->skill_seq_no];
 
 #ifdef DEBUG_BATTLE_SCRIPT_COMMANDS
-        if (cmdAddress != (u32)&sp->SkillSeqWork[sp->skill_seq_no])
-        {
-            cmdAddress = (u32)&sp->SkillSeqWork[sp->skill_seq_no];
-            debug_printf("[BattleScriptCommandHandler] %s - 0x%02X", BattleScrCmdNames[command], command);
-            if (command == 0xE0 || command == 0x24)
-            {
-                debug_printf("\n");
-                cmdAddress = 0;
-            }
-            else if (command == 35) // GoToSubscript
-            {
-                debug_printf(" %d\n", sp->SkillSeqWork[sp->skill_seq_no+1]);
-            }
-            debug_printf("\n");
-        }
+        debug_printf("================================================================\n");
+        debug_printf("[BattleScriptCommandHandler] %s - 0x%02X\n", BattleScrCmdNames[command], command);
 #endif //DEBUG_BATTLE_SCRIPT_COMMANDS
 
         if (command < START_OF_NEW_BTL_SCR_CMDS)

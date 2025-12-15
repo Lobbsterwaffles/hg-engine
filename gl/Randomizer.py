@@ -98,6 +98,8 @@ if __name__ == "__main__":
     type_mimics = ctx.get(TypeMimics)
     # Do everything
     ctx.run_pipeline([
+        # DEBUG: Force all trainers to have Pumpkaboo LARGE
+        #DebugForcePumpkabooLargeStep(),
         TrainerMult(multiplier=args.trainer_level_mult),
         ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
         WildMult(multiplier=args.wild_level_mult),
@@ -124,6 +126,7 @@ if __name__ == "__main__":
         AssignCustomSetsStep(mode="late_game_bosses"),
         AssignNatureStep(),
         TrainerHeldItem(),
+        RandomizeGiftItem(),
         RandomizeGroundItems(),
         RandomizeBerryPiles(),
         RandomizeGiftPokemonStep(bst_factor=args.bst_factor, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
@@ -131,7 +134,7 @@ if __name__ == "__main__":
         #DebugAlolanMarowakStaticStep(),
         RandomizeStaticPokemonStep(),
         StaticCries(),
-        RandomizeShinyStatic(),
+       RandomizeShinyStatic(),
     ])
     
     ctx.write_all()

@@ -218,7 +218,7 @@ class FindStabMoves(Extractor):
         def tm_stab():
             learnable_tms = self.machine_learnsets.get_learnable_tms(species_id)
             for tm_num in learnable_tms:
-                tm_move = self.tmhm.tm[tm_num]
+                tm_move = self.tmhm.get_move_for_tm(tm_num, self.moves)
                 if (tm_move and tm_move.type == move_type and 
                     self.is_good_move(tm_move.move_id)):
                     yield tm_move.move_id
@@ -226,7 +226,7 @@ class FindStabMoves(Extractor):
         def hm_stab():
             learnable_hms = self.machine_learnsets.get_learnable_hms(species_id)
             for hm_num in learnable_hms:
-                hm_move = self.tmhm.hm[hm_num]
+                hm_move = self.tmhm.get_move_for_hm(hm_num, self.moves)
                 if (hm_move and hm_move.type == move_type and 
                     self.is_good_move(hm_move.move_id)):
                     yield hm_move.move_id
@@ -672,28 +672,34 @@ class AssignCustomSetsStep(Step):
 
 
 class AddStabMovesStep(Step):
-    """Step that adds STAB moves to trainer Pokemon teams."""
+    """Step that adds STAB moves to trainer Pokemon teams.
     
-    def __init__(self, target_trainer_name=None):
+    Only applies to trainers in MID_GAME, LATE_GAME, END_GAME, and POST_GAME tiers.
+    EARLY_GAME trainers are skipped.
+    """
+    
+    def __init__(self):
         super().__init__()
-        self.target_trainer_name = target_trainer_name
         self.processed_trainers = 0
         
     def run(self, context):
         trainers = context.get(Trainers)
         mons = context.get(Mons)
         stab_finder = context.get(FindStabMoves)
+        tier_data = context.get(IdentifyTier)
         
-        print(f"Adding STAB moves to trainer teams...")
-        if self.target_trainer_name:
-            print(f"Targeting trainer: {self.target_trainer_name}")
+        # Tiers that should receive STAB moves
+        allowed_tiers = {Tier.EARLY_GAME, Tier.MID_GAME, Tier.LATE_GAME, Tier.END_GAME, Tier.POST_GAME}
         
-        for trainer in trainers.data:
-            # Filter by trainer name if specified
-            if self.target_trainer_name and trainer.info.name != self.target_trainer_name:
+        print(f"Adding STAB moves to trainer teams (MID_GAME+ tiers only)...")
+        
+        for trainer_id, trainer in enumerate(trainers.data):
+            # Filter by tier - only process MID_GAME and above
+            trainer_tier = tier_data.data.get(trainer_id)
+            if trainer_tier not in allowed_tiers:
                 continue
                 
-            print(f"Processing trainer: {trainer.info.name}")
+            print(f"Processing trainer: {trainer.info.name} (Tier: {trainer_tier.name})")
             self.processed_trainers += 1
             
             for entry in trainer.team:

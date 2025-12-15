@@ -402,9 +402,83 @@ def update_sprites(args):
     return 0
 
 
-def build_parser():
-    parser = argparse.ArgumentParser(description="Unified TM/TR/HM tools (descriptions + sprites)")
+def export_machine_moves(args):
+    """Export TM/HM/TR to move mapping as JSON for randomizer use."""
+    import json
+    
+    machine_moves = load_machine_move_list(args.machines)
+    move_to_type = parse_moves_types(args.moves)
+    items = load_item_ids(args.items_header)
+    item_to_index = build_item_to_index_fn(items)
+    
+    # Build mapping: item_id -> {move_name, move_type, machine_kind, machine_number}
+    machine_data = []
+    
+    for item_name, item_id in items.items():
+        if not (item_name.startswith("ITEM_TM") or item_name.startswith("ITEM_HM") or item_name.startswith("ITEM_TR")):
+            continue
+        
+        idx = item_to_index(item_id)
+        if idx is None or idx >= len(machine_moves):
+            continue
+        
+        move_name = machine_moves[idx]
+        move_type = move_to_type.get(move_name, "TYPE_NORMAL")
+        
+        # Determine machine kind and number
+        if item_name.startswith("ITEM_TM"):
+            kind = "TM"
+            # Extract number from name (e.g., ITEM_TM001 -> 1, ITEM_TM00 -> 0, ITEM_TM100_SV -> 100)
+            num_part = item_name[7:]  # Remove "ITEM_TM"
+            if num_part.endswith("_SV"):
+                num_part = num_part[:-3]
+            try:
+                number = int(num_part)
+            except ValueError:
+                number = 0
+        elif item_name.startswith("ITEM_HM"):
+            kind = "HM"
+            num_part = item_name[7:]  # Remove "ITEM_HM"
+            if num_part.endswith("_ORAS"):
+                num_part = num_part[:-5]
+            try:
+                number = int(num_part)
+            except ValueError:
+                number = 0
+        elif item_name.startswith("ITEM_TR"):
+            kind = "TR"
+            try:
+                number = int(item_name[7:])
+            except ValueError:
+                number = 0
+        else:
+            continue
+        
+        machine_data.append({
+            "item_id": item_id,
+            "item_name": item_name,
+            "move_name": move_name,
+            "move_type": move_type,
+            "kind": kind,
+            "number": number,
+            "index": idx
+        })
+    
+    # Sort by item_id for consistency
+    machine_data.sort(key=lambda x: x["item_id"])
+    
+    # Write to output file
+    output_path = args.machine_export
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(machine_data, f, indent=2)
+    
+    print(f"[export] Wrote {len(machine_data)} machine moves to {output_path}")
+    return 0
 
+
+def build_parser():
+    parser = argparse.ArgumentParser(description="Unified TM/TR/HM tools (descriptions + sprites + export)")
+    
     # input
     parser.add_argument("--moves", default="armips/data/moves.s", type=Path, help="Path to moves.s")
     parser.add_argument("--machines", default="src/item.c", type=Path, help="C file defining sMachineMoves[]")
@@ -414,9 +488,11 @@ def build_parser():
     parser.add_argument("--text-root", default="data/text", type=Path, help="Root where <file_id>.txt files live")
     parser.add_argument("--base-sprites", default="data/graphics/item/base", type=Path, help="Base type sprites directory (fire.png, bug.png, etc.)")
     parser.add_argument("--out", default="data/graphics/item", type=Path, help="Output directory for generated sprites")
+    parser.add_argument("--machine-export", default="gl/machine_moves.json", type=Path, help="Output path for machine moves JSON export")
 
     parser.add_argument("--descriptions", action="store_true", help="Write item descriptions from movedescription lines")
     parser.add_argument("--sprites", action="store_true", help="Generate TM/TR/HM sprites based on move types")
+    parser.add_argument("--export", action="store_true", help="Export TM/HM/TR to move mapping as JSON for randomizer")
 
     parser.add_argument("--dry-run", action="store_true", help="Show actions without writing/copying")
 
@@ -428,11 +504,13 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     # Require at least one action
-    if not (args.descriptions or args.sprites):
-        print("[ERROR] Specify at least one of --descriptions or --sprites")
+    if not (args.descriptions or args.sprites or args.export):
+        print("[ERROR] Specify at least one of --descriptions, --sprites, or --export")
         exit(1)
 
     if args.descriptions:
         update_descriptions(args)
     if args.sprites:
         update_sprites(args)
+    if args.export:
+        export_machine_moves(args)

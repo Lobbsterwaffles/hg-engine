@@ -4,10 +4,10 @@
 // DEBUG_ADJUSTED_ACCURACY is used to debug the adjusted accuracy for testing abilities that affect accuracy.
 // this is used in combination with a lua script to dynamically display the adjusted accuracy.
 // uncomment the define to have the information written to 0x23DF000
-//#define DEBUG_ADJUSTED_ACCURACY
+#define DEBUG_ADJUSTED_ACCURACY
 
 // DEBUG_DAMAGE_ROLLS is used to print all of the damage rolls
-//#define DEBUG_DAMAGE_ROLLS
+#define DEBUG_DAMAGE_ROLLS
 
 // DEBUG_HIDDEN_ABILITIES is used to debug hidden abilities by forcing all generated mons to have the hidden ability bit set.
 // uncomment the define to activate
@@ -21,10 +21,10 @@
 //#define DEBUG_SCALED_EXPERIENCE
 
 // DEBUG_BATTLE_SCRIPT_COMMANDS prints out the battle script command names in the desmume window
-//#define DEBUG_BATTLE_SCRIPT_COMMANDS
+#define DEBUG_BATTLE_SCRIPT_COMMANDS
 
 // DEBUG_PRINT_OVERLAY_LOADS prints out overlay loads and unloads in the desmume window
-//#define DEBUG_PRINT_OVERLAY_LOADS
+#define DEBUG_PRINT_OVERLAY_LOADS
 
 // DEBUG_SOUND_SSEQ_LOADS prints out sseq loads from the SDAT and the free space left after the load.
 //#define DEBUG_SOUND_SSEQ_LOADS
@@ -48,7 +48,7 @@
 //#define DEBUG_CAPTURE_RATE_PERCENTAGES
 
 // DEBUG_SERVER_QUEUE prints debug information about the status of the server queue when the waitmessage script command
-//#define DEBUG_SERVER_QUEUE
+#define DEBUG_SERVER_QUEUE
 
 // DEBUG_INIT_PC_BOXES_WITH_MONS initializes pc boxes with mons on save creation.  inits with national dex num
 //#define DEBUG_INIT_PC_BOXES_WITH_MONS
@@ -66,7 +66,7 @@
 //#define DEBUG_ENDTURN_LOGIC
 
 // DEBUG_BEFORE_MOVE_LOGIC turns on a number of debug prints related to the before-move logic
-//#define DEBUG_BEFORE_MOVE_LOGIC
+#define DEBUG_BEFORE_MOVE_LOGIC
 
 // DEBUG_PRINT_HEAP_CREATION allows for debug prints on heap creation/deletion
 //#define DEBUG_PRINT_HEAP_CREATION
@@ -75,21 +75,21 @@
 //#define DEBUG_PRINT_HEAP_ALLOCATION
 
 // DEBUG_DAMAGE_CALC shows debug information related to calculating damage.
-//#define DEBUG_DAMAGE_CALC
+#define DEBUG_DAMAGE_CALC
 
 //DEBUG_SPEED_CALC shows debug information related to calculating speed. It is very slow and laggy.
-// #define DEBUG_SPEED_CALC
+ //#define DEBUG_SPEED_CALC
 
 // FANCY_PRINT_NICKNAME defines in progress implementations that may not necessarily function.
 // #define FANCY_PRINT_NICKNAME
 
 // DEBUG_ENABLE_UNIMPLEMENTED_MOVES shows debug information if a chosen move is not implemented/dexited
-//#define DEBUG_ENABLE_UNIMPLEMENTED_MOVES
+#define DEBUG_ENABLE_UNIMPLEMENTED_MOVES
 
 // DEBUG_BOXMONDATA_EDITED_CASES shows debug information for GetBoxMonData/SetBoxMonData when its cases are edited
 //#define DEBUG_BOXMONDATA_EDITED_CASES
 
 // NOCASH_GBA_PRINT swaps from desmume prints with the syscall to NO$GBA-style prints for use with i.e. melonDS
-#define NOCASH_GBA_PRINT
+//#define NOCASH_GBA_PRINT
 
 #endif // DEBUG_H
