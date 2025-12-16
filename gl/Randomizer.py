@@ -136,6 +136,7 @@ if __name__ == "__main__":
         StaticCries(),
        RandomizeShinyStatic(),
        RandomizeGiftEggsStep(),
+       UpdateStaticOverworldSprites(),
     ])
     
     ctx.write_all()

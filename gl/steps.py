@@ -3969,5 +3969,101 @@ class BstExact600(SimpleFilter):
         return "BstExact600()"
 
 
+class UpdateStaticOverworldSprites(Step):
+    """Update overworld sprites to match randomized static Pokemon.
+    
+    Reads the static_overworld_mapping.json file which defines the relationship
+    between script files (where WildBattle/ShinyGyarados commands are) and event files 
+    (where overworld sprites are defined).
+    
+    For each mapping entry, finds the corresponding battle in the randomized
+    data and updates the event file's overworld sprite tag to match the new species.
+    
+    Must run AFTER RandomizeStaticPokemonStep and RandomizeShinyStatic.
+    """
+    
+    def run(self, context):
+        import json
+        
+        # Load the mapping configuration
+        mapping_path = os.path.join(os.path.dirname(__file__), 'static_overworld_mapping.json')
+        with open(mapping_path, 'r') as f:
+            mappings = json.load(f)
+        
+        # Get extractors
+        wild_battles = context.get(WildBattle)
+        shiny_gyarados = context.get(ShinyGyarados)
+        event_files = context.get(EventFiles)
+        overworld_tags = context.get(OverworldTags)
+        mondata = context.get(Mons)
+        
+        updated_count = 0
+        
+        for mapping in mappings:
+            script_file = mapping['script_file']
+            event_file = mapping['event_file']
+            overworld_index = mapping['overworld_index']
+            name = mapping.get('name', f'Script {script_file}')
+            
+            # Find the battle for this script file
+            # Check WildBattle first
+            battle = None
+            for b in wild_battles.battles:
+                if b.file_index == script_file:
+                    battle = b
+                    break
+            
+            # Check ShinyGyarados if not found in WildBattle
+            if battle is None and shiny_gyarados.encounter.file_index == script_file:
+                battle = shiny_gyarados.encounter
+            
+            if battle is None:
+                print(f"UpdateStaticOverworldSprites: No battle found in script file {script_file} for '{name}'")
+                continue
+            
+            # Get the new species (decode form encoding: species | form << 11)
+            new_species_id = battle.pokemon_id & 0x7FF
+            
+            # Get the overworld tag for this species
+            new_tag = overworld_tags.get_tag(new_species_id)
+            
+            if new_tag is None:
+                # Try to get base species if this is a form
+                pokemon = mondata[new_species_id] if new_species_id < len(mondata.data) else None
+                if pokemon and pokemon.is_form_of is not None:
+                    base_species_id = pokemon.is_form_of
+                    new_tag = overworld_tags.get_tag(base_species_id)
+                    if new_tag:
+                        print(f"UpdateStaticOverworldSprites: Using base species {base_species_id} tag for form {new_species_id}")
+            
+            if new_tag is None:
+                print(f"UpdateStaticOverworldSprites: No overworld tag found for species {new_species_id} in '{name}'")
+                continue
+            
+            # Update the event file's overworld entry
+            if event_file < len(event_files.data):
+                event_data = event_files.data[event_file]
+                overworlds = event_data.get('overworlds', [])
+                
+                if overworld_index < len(overworlds):
+                    old_tag = overworlds[overworld_index].overlay_table_entry
+                    overworlds[overworld_index].overlay_table_entry = new_tag
+                    
+                    pokemon_name = mondata[new_species_id].name if new_species_id < len(mondata.data) else f"Species {new_species_id}"
+                    print(f"UpdateStaticOverworldSprites: '{name}' - tag {old_tag} -> {new_tag} ({pokemon_name})")
+                    updated_count += 1
+                else:
+                    print(f"UpdateStaticOverworldSprites: Overworld index {overworld_index} out of range for event file {event_file}")
+            else:
+                print(f"UpdateStaticOverworldSprites: Event file {event_file} not found")
+        
+        # Write changes back to ROM
+        if updated_count > 0:
+            event_files.write()
+            print(f"UpdateStaticOverworldSprites: Updated {updated_count} overworld sprites")
+        else:
+            print(f"UpdateStaticOverworldSprites: No overworld sprites updated")
+
+
 #add class for rival fights
 #add class for red
