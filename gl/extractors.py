@@ -276,9 +276,6 @@ class TrainerTeam(Writeback,NarcExtractor ):
         return Array(trainer.nummons, struct).parse(file_data)
     
     def serialize_file(self, data, index):
-        if not data:
-            # Return original file data if we have it, otherwise empty
-            return self._original_file_data.get(index, b'')
         
         trainer = self.context.get(TrainerData).data[index]
         struct = self._build_trainer_pokemon_struct(trainer.trainermontype.data)

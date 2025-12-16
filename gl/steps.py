@@ -2,7 +2,7 @@ from framework import *
 from enums import *
 from form_mapping import FormMapping, FormCategory
 from extractors import *
-from script_extractor import GiftPokemon, WildBattle, ShinyGyarados
+from script_extractor import GiftPokemon, WildBattle, ShinyGyarados, GiftEggs
 import random
 
 
@@ -1031,6 +1031,75 @@ class RandomizeGiftPokemonStep(Step):
         if self.wild_level_mult != 1.0:
             new_level = max(1, self._round_half_up(gift.level * self.wild_level_mult))
             gift.level = min(100, new_level)
+
+
+class RandomizeGiftEggsStep(Step):
+    """Randomize gift egg Pokemon species independently.
+    
+    Each gift egg is randomized independently (not shuffled/cached) using
+    BstWithinFactor filtering. Eggs hatch at level 1, so no level scaling is needed.
+    
+    Note: GivePokemonEgg command only has species and location fields - no form field.
+    Therefore we only randomize to base species (no alternate forms).
+    
+    Args:
+        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+    """
+    
+    def __init__(self, bst_factor=0.25):
+        self.bst_factor = bst_factor
+    
+    def run(self, context):
+        self.mondata = context.get(Mons)
+        self.gift_eggs = context.get(GiftEggs)
+        self.context = context
+        
+        # Build filter with BST factor
+        self.filter = BstWithinFactor(self.bst_factor)
+        
+        # Build candidate pool - base Pokemon only (no forms since command has no form field)
+        self.candidates = self._build_base_candidates()
+        
+        for egg in self.gift_eggs.eggs:
+            self._randomize_egg(egg)
+        
+        # Apply changes to shared ScriptNarc data
+        self.gift_eggs.apply_changes()
+    
+    def _build_base_candidates(self):
+        """Build candidate pool of base Pokemon only (no forms)."""
+        candidates = []
+        
+        for pokemon in self.mondata.data:
+            # Only include base Pokemon (not forms)
+            if pokemon.is_form_of is None:
+                candidates.append(pokemon)
+        
+        return candidates
+    
+    def _randomize_egg(self, egg):
+        """Randomize a single gift egg entry independently."""
+        original_species_id = egg.pokemon_id
+        
+        # Skip if species ID is 0 or invalid
+        if original_species_id == 0:
+            return
+        
+        original_mon = self.mondata[original_species_id]
+        
+        # Each egg gets its own independent randomization
+        path = ["gift_eggs", f"file_{egg.file_index}", original_mon.name]
+        
+        # Select new species using BST filter
+        new_species = self.context.decide(
+            path=path,
+            original=original_mon,
+            candidates=self.candidates,
+            filter=self.filter
+        )
+        
+        # GivePokemonEgg has no form field, so we use base species only
+        egg.pokemon_id = new_species.pokemon_id
 
 
 class RandomizeStaticPokemonStep(Step):

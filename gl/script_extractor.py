@@ -209,6 +209,96 @@ class WildBattle(Extractor):
             self.data[battle.file_index] = bytes(file_data)
 
 
+class GiftEggs(Extractor):
+    """Extractor for GivePokemonEgg script commands in NARC a/0/1/2
+    
+    Uses a whitelist of known egg locations from the base ROM.
+    
+    Command structure (6 bytes total):
+        - Command ID: 0x008A (2 bytes)
+        - Pokemon ID: 2 bytes (little-endian)
+        - Location: 2 bytes (text slot at text bank #281)
+    
+    Known eggs in HGSS:
+        - File 858: Togepi egg (species 175, location 0) - Mr. Pokemon
+        - File 860: Mareep egg (species 179, location 1) - Primo
+    
+    Usage:
+        gift_eggs = context.get(GiftEggs)
+        for egg in gift_eggs.eggs:
+            print(f"File {egg.file_index}: {egg.pokemon_id}")
+            egg.pokemon_id = 25  # Change to Pikachu egg
+    """
+    
+    COMMAND_ID = 0x008A  # GivePokemonEgg command
+    COMMAND_SIZE = 6     # 2 (cmd) + 4 (2 params * 2 bytes each)
+    
+    # Known egg locations: (file_index, pokemon_id, location)
+    # These are the base ROM values used to locate the commands
+    KNOWN_EGGS = [
+        (858, 175, 13),  # Togepi from Mr. Pokemon
+        (860, 179, 14),  # Mareep from Primo
+    ]
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        # Define the GivePokemonEgg command structure using construct
+        self.egg_struct = Struct(
+            "command_id" / Int16ul,      # Should be 0x008A
+            "pokemon_id" / Int16ul,       # Species ID
+            "location" / Int16ul,         # Location text slot
+        )
+        
+        # Use shared ScriptNarc instead of loading our own copy
+        self.script_narc = context.get(ScriptNarc)
+        self.data = self.script_narc.data  # Reference to shared data
+        self.eggs = self._find_all_eggs()
+        print(f"Found {len(self.eggs)} GivePokemonEgg commands", file=sys.stderr)
+    
+    def _find_all_eggs(self):
+        """Find GivePokemonEgg commands at known locations.
+        
+        Returns list of construct Containers with file_index and offset added.
+        """
+        eggs = []
+        
+        for file_idx, base_pokemon_id, base_location in self.KNOWN_EGGS:
+            if file_idx >= len(self.data):
+                print(f"GiftEggs: File {file_idx} not found in NARC", file=sys.stderr)
+                continue
+            
+            file_data = self.data[file_idx]
+            if len(file_data) < self.COMMAND_SIZE:
+                continue
+            
+            # Scan for command pattern (0x008A as little-endian) with matching location
+            for offset in range(len(file_data) - self.COMMAND_SIZE + 1):
+                if file_data[offset] == 0x8A and file_data[offset + 1] == 0x00:
+                    try:
+                        parsed = self.egg_struct.parse(file_data[offset:offset + self.COMMAND_SIZE])
+                    except Exception:
+                        continue
+                    
+                    # Match by location field (stable across randomization)
+                    if parsed.location == base_location:
+                        parsed.file_index = file_idx
+                        parsed.offset = offset
+                        eggs.append(parsed)
+                        print(f"GiftEggs: Found egg in file {file_idx} at offset 0x{offset:04X}: species={parsed.pokemon_id}, location={parsed.location}", file=sys.stderr)
+                        break  # Only one egg per known location
+        
+        return eggs
+    
+    def apply_changes(self):
+        """Apply egg changes to shared ScriptNarc data."""
+        for egg in self.eggs:
+            command_bytes = self.egg_struct.build(egg)
+            file_data = bytearray(self.data[egg.file_index])
+            file_data[egg.offset:egg.offset + len(command_bytes)] = command_bytes
+            self.data[egg.file_index] = bytes(file_data)
+
+
 class ShinyGyarados(Extractor):
     """Extractor for the Shiny Gyarados encounter at Lake of Rage.
     
