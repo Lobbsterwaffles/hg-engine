@@ -442,6 +442,27 @@ void MakeTrainerPokemonParty(struct BATTLE_PARAM *bp, int num, int heapID)
         TrainerMonHandleFrustration(mons[i]);
     }
 
+    // Debug: Print entire trainer team data
+    debug_printf("=== Trainer %d Team Loaded (%d Pokemon) ===\n", num, pokecount);
+    for (i = 0; i < pokecount; i++)
+    {
+        u16 mon_species = GetMonData(mons[i], MON_DATA_SPECIES, NULL);
+        u8 mon_form = GetMonData(mons[i], MON_DATA_FORM, NULL);
+        u8 mon_level = GetMonData(mons[i], MON_DATA_LEVEL, NULL);
+        u16 mon_ability = GetMonData(mons[i], MON_DATA_ABILITY, NULL);
+        u16 mon_item = GetMonData(mons[i], MON_DATA_HELD_ITEM, NULL);
+        u16 mon_move1 = GetMonData(mons[i], MON_DATA_MOVE1, NULL);
+        u16 mon_move2 = GetMonData(mons[i], MON_DATA_MOVE2, NULL);
+        u16 mon_move3 = GetMonData(mons[i], MON_DATA_MOVE3, NULL);
+        u16 mon_move4 = GetMonData(mons[i], MON_DATA_MOVE4, NULL);
+        u16 adjusted = PokeOtherFormMonsNoGet(mon_species, mon_form);
+        
+        debug_printf("  [%d] Species=%d Form=%d Adjusted=%d Lv=%d\n", i, mon_species, mon_form, adjusted, mon_level);
+        debug_printf("      Ability=%d Item=%d\n", mon_ability, mon_item);
+        debug_printf("      Moves: %d, %d, %d, %d\n", mon_move1, mon_move2, mon_move3, mon_move4);
+    }
+    debug_printf("=== End Trainer Team ===\n");
+
     for (i = 0; i < pokecount; i++)
     {
         PokeParty_Add(bp->poke_party[num], mons[partyOrder[i]]);
