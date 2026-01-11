@@ -81,6 +81,7 @@ void SetPartyPokemonParamsForEvoCutscene(struct PartyPokemon *mon, u16 *targetSp
  */
 int LONG_CALL PokeOtherFormMonsNoGet(int mons_no, int form_no)
 {
+    int original_mons_no = mons_no;
     switch (mons_no)
     {
     case SPECIES_DEOXYS:
@@ -120,6 +121,8 @@ int LONG_CALL PokeOtherFormMonsNoGet(int mons_no, int form_no)
         {
             u16 newSpecies;
             ArchiveDataLoadOfs(&newSpecies, ARC_CODE_ADDONS, CODE_ADDON_FORM_DATA, sizeof(u16)*(32*mons_no + form_no-1), sizeof(u16));
+            debug_printf("PokeOtherFormMonsNoGet: species=%d form=%d offset=%d rawNewSpecies=0x%04X\n", 
+                         mons_no, form_no, (32*mons_no + form_no-1), newSpecies);
             newSpecies &= ~(NEEDS_REVERSION);
             if (newSpecies != 0)
             {
@@ -128,6 +131,9 @@ int LONG_CALL PokeOtherFormMonsNoGet(int mons_no, int form_no)
             }
         }
         break;
+    }
+    if (form_no != 0) {
+        debug_printf("PokeOtherFormMonsNoGet: %d form %d -> %d\n", original_mons_no, form_no, mons_no);
     }
     return mons_no;
 }
@@ -881,6 +887,48 @@ u32 CanUseAbilityPatch(struct PartyPokemon *pp)
 }
 
 
+/**
+ *  @brief Set a party Pokemon's ability based on its existing flags WITHOUT rolling for hidden ability.
+ *         Use this for Ability Capsule and similar items where we don't want to change hidden ability status.
+ *
+ *  @param pp PartyPokemon whose ability to set
+ */
+void SetPartyPokemonAbilityNoRoll(struct PartyPokemon *pp)
+{
+    u32 species = GetMonData(pp, MON_DATA_SPECIES, NULL);
+    u32 form = GetMonData(pp, MON_DATA_FORM, NULL);
+    u32 pid = GetMonData(pp, MON_DATA_PERSONALITY, NULL);
+    u32 ability1 = PokeFormNoPersonalParaGet(species, form, PERSONAL_ABILITY_1);
+    u32 ability2 = PokeFormNoPersonalParaGet(species, form, PERSONAL_ABILITY_2);
+    u32 has_hidden_ability = GET_MON_HIDDEN_ABILITY_BIT(pp);
+    u32 ability_swapped = GET_MON_SWAP_ABILITY_SLOT_BIT(pp);
+    u32 hiddenability = GetMonHiddenAbilityAlreadySanitized(PokeOtherFormMonsNoGet(species, form));
+    u32 ability_to_set;
+
+    if (has_hidden_ability && hiddenability != 0)
+    {
+        ability_to_set = hiddenability;
+    }
+    else if (ability2 != 0)
+    {
+        if (pid & 1)
+        {
+            ability_to_set = ability_swapped ? ability1 : ability2;
+        }
+        else
+        {
+            ability_to_set = ability_swapped ? ability2 : ability1;
+        }
+    }
+    else
+    {
+        ability_to_set = ability1;
+    }
+
+    SetMonData(pp, MON_DATA_ABILITY, &ability_to_set);
+}
+
+
 u32 ALIGN4 partyMenuSignal = 0;
 
 u16 NatureToMintItem[] =
@@ -1035,7 +1083,7 @@ u32 LONG_CALL UseItemMonAttrChangeCheck(struct PLIST_WORK *wk, void *dat)
         sys_FreeMemoryEz(dat);
         PokeList_FormDemoOverlayLoad(wk);
         TOGGLE_MON_SWAP_ABILITY_SLOT_BIT(pp)
-        ResetPartyPokemonAbility(pp);
+        SetPartyPokemonAbilityNoRoll(pp); // Use no-roll version to avoid accidentally giving hidden ability
         Bag_TakeItem(bag, ITEM_ABILITY_CAPSULE, 1, 11);
         return TRUE;
     }
@@ -1480,8 +1528,9 @@ u16 LONG_CALL GetMonEvolution(struct Party *party, struct PartyPokemon *pokemon,
  */
 u32 LONG_CALL GrabSexFromSpeciesAndForm(u32 species, u32 pid, u32 form)
 {
-    u32 realSpecies = PokeOtherFormMonsNoGet(species, form);
-    u32 genderRatio = PokeFormNoPersonalParaGet(realSpecies, form, PERSONAL_GENDER_RATIO);
+    // Don't pre-convert species - PokeFormNoPersonalParaGet is a vanilla function
+    // that already calls PokeOtherFormMonsNoGet internally
+    u32 genderRatio = PokeFormNoPersonalParaGet(species, form, PERSONAL_GENDER_RATIO);
     switch (genderRatio)
     {
         case 0:   // fully male

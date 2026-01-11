@@ -193,6 +193,10 @@ loadExtension:
         return FALSE;
     }
 
+#ifdef DEBUG_PRINT_OVERLAY_LOADS
+    debug_printf("Successfully loaded overlay %d.\n", ovyId);
+#endif // DEBUG_PRINT_OVERLAY_LOADS
+
     for (i = 0; i < NELEMS(gLinkedOverlayList); i++)
     {
         if (gLinkedOverlayList[i].first_id == ovyId)
