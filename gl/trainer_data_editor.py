@@ -198,9 +198,13 @@ class FindStabMoves(Extractor):
         yield from moves
     
     def get_stab_moves(self, species_id, level, move_type):
+        # Decode form-encoded species ID (base_species | (form << 11))
+        # Learnset data is indexed by base species, not form-encoded ID
+        base_species_id = species_id & 0x7FF
+        
         def levelup_stab():
-            if species_id < len(self.levelups.data):
-                pokemon_learnset = self.levelups.data[species_id]
+            if base_species_id < len(self.levelups.data):
+                pokemon_learnset = self.levelups.data[base_species_id]
                 for entry in pokemon_learnset:
                     if (entry.level <= level and entry.move and 
                         entry.move.type == move_type and 
@@ -208,15 +212,15 @@ class FindStabMoves(Extractor):
                         yield entry.move_id
         
         def egg_stab():
-            if species_id in self.egg_moves.data:
-                for egg_move_entry in self.egg_moves.data[species_id]:
+            if base_species_id in self.egg_moves.data:
+                for egg_move_entry in self.egg_moves.data[base_species_id]:
                     move = egg_move_entry['move']
                     if (move and move.type == move_type and 
                         self.is_good_move(egg_move_entry['move_id'])):
                         yield egg_move_entry['move_id']
         
         def tm_stab():
-            learnable_tms = self.machine_learnsets.get_learnable_tms(species_id)
+            learnable_tms = self.machine_learnsets.get_learnable_tms(base_species_id)
             for tm_num in learnable_tms:
                 tm_move = self.tmhm.get_move_for_tm(tm_num, self.moves)
                 if (tm_move and tm_move.type == move_type and 
@@ -224,7 +228,7 @@ class FindStabMoves(Extractor):
                     yield tm_move.move_id
         
         def hm_stab():
-            learnable_hms = self.machine_learnsets.get_learnable_hms(species_id)
+            learnable_hms = self.machine_learnsets.get_learnable_hms(base_species_id)
             for hm_num in learnable_hms:
                 hm_move = self.tmhm.get_move_for_hm(hm_num, self.moves)
                 if (hm_move and hm_move.type == move_type and 
@@ -232,8 +236,8 @@ class FindStabMoves(Extractor):
                     yield hm_move.move_id
         
         def best_levelup():
-            if species_id < len(self.levelups.data):
-                pokemon_learnset = self.levelups.data[species_id]
+            if base_species_id < len(self.levelups.data):
+                pokemon_learnset = self.levelups.data[base_species_id]
                 available_moves = []
                 for entry in pokemon_learnset:
                     if (entry.level <= level and entry.move and 
@@ -689,7 +693,7 @@ class AddStabMovesStep(Step):
         tier_data = context.get(IdentifyTier)
         
         # Tiers that should receive STAB moves
-        allowed_tiers = {Tier.EARLY_GAME, Tier.MID_GAME, Tier.LATE_GAME, Tier.END_GAME, Tier.POST_GAME}
+        allowed_tiers = {Tier.MID_GAME, Tier.LATE_GAME, Tier.END_GAME, Tier.POST_GAME}
         
         print(f"Adding STAB moves to trainer teams (MID_GAME+ tiers only)...")
         
@@ -703,6 +707,10 @@ class AddStabMovesStep(Step):
             self.processed_trainers += 1
             
             for entry in trainer.team:
+                # Skip entries without custom moves
+                if not hasattr(entry, 'moves'):
+                    continue
+                    
                 pokemon = mons[entry.species_id]
                 new_moves = []
                 for t in set([pokemon.type1, pokemon.type2]):

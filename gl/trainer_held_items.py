@@ -745,11 +745,14 @@ class TrainerHeldItem(Step):
         Returns:
             int: Item ID (from Item enum) or 0 if no suitable item found
         """
-        # Get Pokemon species data
-        if not hasattr(pokemon, 'species_id') or pokemon.species_id >= len(self.mons.data):
+        # Get Pokemon species data (species_id may be form-encoded as base_species | (form << 11))
+        if not hasattr(pokemon, 'species_id'):
             return 0
         
-        species = self.mons[pokemon.species_id]
+        try:
+            species = self.mons[pokemon.species_id]
+        except (IndexError, ValueError, KeyError):
+            return 0
         classifications = {}  # TODO: Get actual classifications if needed
         
         # Check obligate and favored items based on mode and tier
@@ -898,10 +901,13 @@ class TrainerHeldItem(Step):
             from gl.framework import EvolutionData
             evo_data = self.context.get(EvolutionData)
             
+            # Decode form-encoded species ID (base_species | (form << 11))
+            base_species_id = species_id & 0x7FF
+            
             # Check if this species has any evolution entries
-            if species_id < len(evo_data.data) and evo_data.data[species_id]:
+            if base_species_id < len(evo_data.data) and evo_data.data[base_species_id]:
                 # Filter out empty evolution entries
-                valid_evos = [evo for evo in evo_data.data[species_id] if evo.method != 0]
+                valid_evos = [evo for evo in evo_data.data[base_species_id] if evo.method != 0]
                 return len(valid_evos) > 0
         except:
             # If evolution data is not available, use a simpler approach with common unevolved Pokémon

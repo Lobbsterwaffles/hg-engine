@@ -3207,7 +3207,7 @@ BOOL BattleController_CheckMoveFailures4_SingleTarget(struct BattleSystem *bsys 
         }
         case MOVE_GASTRO_ACID: {
             if ((ctx->battlemon[ctx->defence_client].effect_of_moves & MOVE_EFFECT_GASTRO_ACID)
-            && AbilityCantSupress(GetBattlerAbility(ctx, ctx->defence_client))) {
+            || AbilityCantSupress(GetBattlerAbility(ctx, ctx->defence_client))) {
                 butItFailedFlag = TRUE;
             }
             break;

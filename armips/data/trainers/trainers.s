@@ -7041,7 +7041,7 @@ trainerdata 217, "Denis"
     endparty
 
 trainerdata 218, "Grunt"
-    trainermontype TRAINER_DATA_TYPE_NOTHING
+    trainermontype TRAINER_DATA_TYPE_MOVES
     trainerclass TRAINERCLASS_TEAM_ROCKET
     nummons 1
     item ITEM_NONE

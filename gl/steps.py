@@ -55,6 +55,57 @@ class DebugForcePumpkabooLargeStep(Step):
             print(f"DEBUG: Trainer ID {self.TARGET_TRAINER_ID} not found")
 
 
+class DebugForceAlolanMarowakStep(Step):
+    """Temporary debugging step that forces ALL trainer Pokemon to be Rattata-ALOLAN.
+    
+    This tests form handling throughout the randomizer pipeline.
+    """
+    
+    TARGET_POKEMON = "Rattata-ALOLAN"
+    
+    def run(self, context):
+        print(f"DEBUG DebugForceAlolanMarowakStep: Starting...")
+        trainers = context.get(Trainers)
+        mondata = context.get(Mons)
+        
+        # Find target Pokemon by name
+        target_pokemon = None
+        print(f"DEBUG: Searching for '{self.TARGET_POKEMON}' in {len(mondata.data)} Pokemon...")
+        for pokemon in mondata.data:
+            if "Rattata" in pokemon.name:
+                print(f"DEBUG: Found Pokemon with 'Rattata' in name: '{pokemon.name}', pokemon_id={pokemon.pokemon_id}, is_form_of={pokemon.is_form_of}, form_number={pokemon.form_number}")
+            if pokemon.name == self.TARGET_POKEMON:
+                target_pokemon = pokemon
+                break
+        
+        if target_pokemon is None:
+            print(f"DEBUG: Could not find {self.TARGET_POKEMON} in mondata")
+            return
+        
+        # Encode for trainer data: base_species | (form_number << 11)
+        encoded_species = encode_species_for_encounter(target_pokemon)
+        
+        # Verify the encoding matches what C code expects
+        decoded_form = (encoded_species & 0xF800) >> 11
+        decoded_species = encoded_species & 0x07FF
+        
+        print(f"DEBUG DebugForceAlolanMarowakStep: {self.TARGET_POKEMON} info:")
+        print(f"  pokemon_id (NARC index): {target_pokemon.pokemon_id}")
+        print(f"  is_form_of (base species): {target_pokemon.is_form_of}")
+        print(f"  form_number: {target_pokemon.form_number}")
+        print(f"  encoded_species: {encoded_species} (0x{encoded_species:04X})")
+        print(f"  C decode check - species: {decoded_species}, form_no: {decoded_form}")
+        
+        # Modify ALL trainers
+        total_pokemon_changed = 0
+        for trainer_id, trainer in enumerate(trainers.data):
+            for pokemon in trainer.team:
+                pokemon.species_id = encoded_species
+                total_pokemon_changed += 1
+        
+        print(f"DEBUG: Changed {total_pokemon_changed} Pokemon across all trainers to {self.TARGET_POKEMON}")
+
+
 class DebugHootHootToGrowlitheStep(Step):
     """Temporary debugging step that forces all HootHoot encounters to be replaced by Growlithe."""
     
@@ -244,10 +295,20 @@ class UpdateTrainerTeamDataStep(Step):
 
 
 class TrainerMult(Step):
-    """Apply a multiplier to trainer Pokémon levels with special logic for bosses and aces."""
+    """Apply a multiplier to trainer Pokémon levels with special logic for bosses and aces.
     
-    def __init__(self, multiplier=1.0):
+    Args:
+        multiplier: Level multiplier for regular mode (default 1.0)
+        gauntlet_mode: If True, scale trainer levels based on their associated boss's ace level
+                       using TrainerToBoss.csv mapping. Level pattern:
+                       Mon 1 = boss_level - 1
+                       Mon 2 = boss_level - 2
+                       Mon 3-6 = boss_level - 3
+    """
+    
+    def __init__(self, multiplier=1.0, gauntlet_mode=False):
         self.multiplier = multiplier
+        self.gauntlet_mode = gauntlet_mode
     
     def _round_half_up(self, value):
         """Round to nearest integer, with .5 always rounding up."""
@@ -257,6 +318,7 @@ class TrainerMult(Step):
     def run(self, context):
         trainers = context.get(Trainers)
         bosses = context.get(IdentifyBosses)
+        rivals = context.get(IdentifyRivals)
         
         # Create a set of boss trainer IDs for quick lookup
         boss_trainer_ids = set()
@@ -264,11 +326,88 @@ class TrainerMult(Step):
             for trainer in boss_category.trainers:
                 boss_trainer_ids.add(trainer.info.trainer_id)
         
+        # Add all rival trainer IDs to boss set (they need boss multiplier too)
+        for rival_id in rivals.all_rival_trainer_ids:
+            boss_trainer_ids.add(rival_id)
+        
+        # Always apply boss multipliers first - this ensures gauntlet mode
+        # uses the modified boss levels when calculating trainer levels
         for trainer in trainers.data:
             if trainer.info.trainer_id in boss_trainer_ids:
                 self._apply_boss_multiplier(trainer)
-            else:
+        
+        if self.gauntlet_mode:
+            self._run_gauntlet_mode(context, trainers, boss_trainer_ids)
+        else:
+            for trainer in trainers.data:
+                if trainer.info.trainer_id not in boss_trainer_ids:
+                    self._apply_regular_multiplier(trainer)
+    
+    def _run_gauntlet_mode(self, context, trainers, boss_trainer_ids):
+        """Apply Gauntlet Mode level scaling based on boss ace levels.
+        
+        Note: Boss multipliers are already applied before this method is called,
+        so boss ace levels retrieved here reflect the modified values.
+        """
+        mapping = context.get(TrainerToBossMapping)
+        
+        gauntlet_count = 0
+        
+        for trainer in trainers.data:
+            trainer_id = trainer.info.trainer_id
+            
+            # Debug for Toby
+            if trainer_id == 82:
+                print(f"DEBUG Toby in gauntlet: trainer_id={trainer_id}, in boss_trainer_ids={trainer_id in boss_trainer_ids}")
+            
+            # Skip bosses - they already have their multipliers applied
+            if trainer_id in boss_trainer_ids:
+                continue
+            
+            # Check if this trainer has a boss mapping
+            boss_name = mapping.get_boss_for_trainer(trainer_id)
+            if trainer_id == 82:
+                print(f"DEBUG Toby in gauntlet: boss_name={boss_name}")
+            if boss_name is None:
+                # No mapping - apply regular multiplier
                 self._apply_regular_multiplier(trainer)
+                continue
+            
+            # Get the boss's ace level (already modified by boss multiplier)
+            boss_ace_level = mapping.get_boss_ace_level(boss_name, context)
+            if trainer_id == 82:
+                print(f"DEBUG Toby in gauntlet: boss_ace_level={boss_ace_level}")
+            if boss_ace_level is None:
+                print(f"TrainerMult Gauntlet: Could not find ace level for boss '{boss_name}'")
+                self._apply_regular_multiplier(trainer)
+                continue
+            
+            # Apply gauntlet level scaling
+            self._apply_gauntlet_scaling(trainer, boss_ace_level)
+            gauntlet_count += 1
+        
+        print(f"TrainerMult Gauntlet: Scaled {gauntlet_count} trainers, {len(boss_trainer_ids)} bosses")
+    
+    def _apply_gauntlet_scaling(self, trainer, boss_ace_level):
+        """Apply gauntlet level scaling to a trainer's team.
+        
+        Level pattern:
+        - Mon 1: boss_level - 1
+        - Mon 2: boss_level - 2
+        - Mon 3-6: boss_level - 3
+        """
+        if not trainer.team:
+            return
+        
+        for i, pokemon in enumerate(trainer.team):
+            if i == 0:
+                target_level = boss_ace_level - 1
+            elif i == 1:
+                target_level = boss_ace_level - 2
+            else:
+                target_level = boss_ace_level - 3
+            
+            pokemon.level = max(1, min(100, target_level))
     
     def _apply_boss_multiplier(self, trainer):
         """Apply special boss multiplier logic with ace-based level scaling."""
@@ -642,6 +781,7 @@ class LoadBlacklistStep(PokemonListBase):
         "Pincurchin",
         "Arctovish",
         "Bellibolt",
+        "Tadbulb",
         "Bramblgast",
         "Orthworm",
         "Terapagos",
@@ -750,9 +890,9 @@ class Encounters(Writeback,NarcExtractor):
         location_names_step = context.get(LoadEncounterNamesStep)
         
         EncounterSlot = Struct(
-            "species" / Int16ul,
             "minlevel" / Int8ul,
             "maxlevel" / Int8ul,
+            "species" / Int16ul,
         )
         
         self.encounter_struct = Struct(
@@ -881,6 +1021,13 @@ class RandomizeEncountersStep(Step):
         self._randomize_slot_list(encounter.morning, location_id)
         self._randomize_slot_list(encounter.day, location_id)
         self._randomize_slot_list(encounter.night, location_id)
+        
+        # Randomize water/rock smash encounters (EncounterSlot-based)
+        self._randomize_encounter_slots(encounter.surf, location_id)
+        self._randomize_encounter_slots(encounter.rocksmash, location_id)
+        self._randomize_encounter_slots(encounter.oldrod, location_id)
+        self._randomize_encounter_slots(encounter.goodrod, location_id)
+        self._randomize_encounter_slots(encounter.superrod, location_id)
     
     def _randomize_slot_list(self, slot_list, location_id):
         for i, species_id in enumerate(slot_list):
@@ -918,21 +1065,63 @@ class RandomizeEncountersStep(Step):
                 self.replacements[replacement_key] = encoded_species
             
             slot_list[i] = self.replacements[replacement_key]
+    
+    def _randomize_encounter_slots(self, slots, location_id):
+        """Randomize EncounterSlot-based encounters (surf, rocksmash, rods).
+        
+        These slots have a different structure with species embedded in each slot
+        along with minlevel/maxlevel.
+        """
+        for slot in slots:
+            if slot.species == 0:
+                continue
+            
+            # Create replacement key based on whether we want area independence
+            if self.independent_by_area:
+                replacement_key = (slot.species, location_id)
+            else:
+                replacement_key = slot.species
+            
+            if replacement_key not in self.replacements:
+                mon = self.mondata[slot.species]
+                
+                # Use location-specific path for area-independent replacements
+                if self.independent_by_area:
+                    path = ["encounters", f"area_{location_id}", mon.name]
+                else:
+                    path = ["encounters", mon.name]
+                
+                # Use expanded candidate pool that includes Discrete forms
+                new_species = self.context.decide(
+                    path=path,
+                    original=mon,
+                    candidates=self.candidates,
+                    filter=self.filter
+                )
+                
+                # After selecting a Pokemon, check for cosmetic forms and randomly select one
+                final_species = select_cosmetic_variant(self.context, self.mondata, new_species.pokemon_id, path + ["cosmetic_form"])
+                
+                # Encode for encounter data using monwithform format
+                encoded_species = encode_species_for_encounter(final_species)
+                self.replacements[replacement_key] = encoded_species
+            
+            slot.species = self.replacements[replacement_key]
 
 
 class RandomizeGiftPokemonStep(Step):
     """Randomize gift Pokemon species independently and apply wild level multiplier.
     
     Each gift Pokemon is randomized independently (not shuffled/cached) using
-    BstWithinFactor filtering. Level is scaled by the wild level multiplier.
+    the provided filter. Level is scaled by the wild level multiplier.
     
     Args:
-        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+        filter: Filter to apply for Pokemon selection (should include InvalidPokemon exclusion)
         wild_level_mult: Multiplier to apply to gift Pokemon levels (default 1.0)
     """
     
-    def __init__(self, bst_factor=0.25, wild_level_mult=1.0):
-        self.bst_factor = bst_factor
+    def __init__(self, filter, wild_level_mult=1.0):
+        self.filter = filter
         self.wild_level_mult = wild_level_mult
     
     def _round_half_up(self, value):
@@ -944,9 +1133,6 @@ class RandomizeGiftPokemonStep(Step):
         self.mondata = context.get(Mons)
         self.gift_pokemon = context.get(GiftPokemon)
         self.context = context
-        
-        # Build filter with BST factor
-        self.filter = BstWithinFactor(self.bst_factor)
         
         # Build expanded candidate pool including Discrete forms
         self.candidates = self._build_form_aware_candidates()
@@ -1037,25 +1223,22 @@ class RandomizeGiftEggsStep(Step):
     """Randomize gift egg Pokemon species independently.
     
     Each gift egg is randomized independently (not shuffled/cached) using
-    BstWithinFactor filtering. Eggs hatch at level 1, so no level scaling is needed.
+    the provided filter. Eggs hatch at level 1, so no level scaling is needed.
     
     Note: GivePokemonEgg command only has species and location fields - no form field.
     Therefore we only randomize to base species (no alternate forms).
     
     Args:
-        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+        filter: Filter to apply for Pokemon selection (should include InvalidPokemon exclusion)
     """
     
-    def __init__(self, bst_factor=0.25):
-        self.bst_factor = bst_factor
+    def __init__(self, filter):
+        self.filter = filter
     
     def run(self, context):
         self.mondata = context.get(Mons)
         self.gift_eggs = context.get(GiftEggs)
         self.context = context
-        
-        # Build filter with BST factor
-        self.filter = BstWithinFactor(self.bst_factor)
         
         # Build candidate pool - base Pokemon only (no forms since command has no form field)
         self.candidates = self._build_base_candidates()
@@ -1105,16 +1288,16 @@ class RandomizeGiftEggsStep(Step):
 class RandomizeStaticPokemonStep(Step):
     """Randomize static/scripted wild encounters (WildBattle commands).
     
-    Each static encounter is randomized independently using BstWithinFactor filtering.
+    Each static encounter is randomized independently using the provided filter.
     Level is scaled by the wild level multiplier.
     
     Args:
-        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+        filter: Filter to apply for Pokemon selection (should include InvalidPokemon exclusion)
         wild_level_mult: Multiplier to apply to static Pokemon levels (default 1.0)
     """
     
-    def __init__(self, bst_factor=0.25, wild_level_mult=1.0):
-        self.bst_factor = bst_factor
+    def __init__(self, filter, wild_level_mult=1.0):
+        self.filter = filter
         self.wild_level_mult = wild_level_mult
     
     def _round_half_up(self, value):
@@ -1126,9 +1309,6 @@ class RandomizeStaticPokemonStep(Step):
         self.mondata = context.get(Mons)
         self.wild_battles = context.get(WildBattle)
         self.context = context
-        
-        # Build filter with BST factor
-        self.filter = BstWithinFactor(self.bst_factor)
         
         # Build expanded candidate pool including Discrete forms
         self.candidates = self._build_form_aware_candidates()
@@ -1354,17 +1534,17 @@ class RandomizeGiftItem(Step):
 class RandomizeShinyStatic(Step):
     """Randomize the Shiny Gyarados encounter at Lake of Rage.
     
-    Uses the same BST-based randomization as other static encounters.
+    Uses the provided filter for randomization.
     Always keeps the shiny flag set to 1.
     Also updates the associated PlayCry command.
     
     Args:
-        bst_factor: BST tolerance factor for BstWithinFactor filter (default 0.25)
+        filter: Filter to apply for Pokemon selection (should include InvalidPokemon exclusion)
         wild_level_mult: Multiplier to apply to the encounter level (default 1.0)
     """
     
-    def __init__(self, bst_factor=0.25, wild_level_mult=1.0):
-        self.bst_factor = bst_factor
+    def __init__(self, filter, wild_level_mult=1.0):
+        self.filter = filter
         self.wild_level_mult = wild_level_mult
     
     def _round_half_up(self, value):
@@ -1375,9 +1555,7 @@ class RandomizeShinyStatic(Step):
     def run(self, context):
         mondata = context.get(Mons)
         shiny_encounter = context.get(ShinyGyarados)
-        
-        # Build filter with BST factor
-        filter = BstWithinFactor(self.bst_factor)
+        self.context = context
         
         # Build expanded candidate pool including Discrete forms
         candidates = self._build_form_aware_candidates(mondata)
@@ -1391,7 +1569,7 @@ class RandomizeShinyStatic(Step):
             path=path,
             original=original_mon,
             candidates=candidates,
-            filter=filter
+            filter=self.filter
         )
         
         final_species = select_cosmetic_variant(
@@ -1452,6 +1630,8 @@ class IndexTrainers(Extractor):
         return self._find(None, name_or_tuple)
 
     def _find(self, cls, name):
+        if name not in self.data:
+            return None
         rs = [tid for (tc, tid) in self.data[name] if cls is None or cls == tc]
         #if len(rs) != 1:
         #  This is fine
@@ -1590,7 +1770,11 @@ class ExpandTrainerTeamsStep(Step):
         mondata = context.get(Mons)
         total_bst = 0
         for pokemon in trainer.team:
-            species = mondata.data[pokemon.species_id]
+            # Use mondata[] which handles form-encoded species IDs
+            try:
+                species = mondata[pokemon.species_id]
+            except (IndexError, ValueError, KeyError):
+                continue
             total_bst += species.bst
         
         average_bst = total_bst / current_size
@@ -1735,6 +1919,60 @@ class ChangeTrainerDataTypeStep(Step):
             return 'NOTHING'
         
         return ' | '.join(flag_names)
+
+
+class DebugWeepinbellStep(Step):
+    """Debug step that sets ALL trainer Pokemon to Weepinbell with Gastro Acid moveset.
+    
+    This is used to test if the writeback process is working correctly.
+    All Pokemon will be:
+    - Species: Weepinbell (70)
+    - Level: 43
+    - Moves: Gastro Acid (380), Acid (51), Knock Off (282), Sweet Scent (230)
+    """
+    
+    def __init__(self):
+        super().__init__()
+        # Weepinbell species ID
+        self.species_id = 70
+        self.level = 43
+        # Gastro Acid, Acid, Knock Off, Sweet Scent
+        self.moves = [380, 51, 282, 230]
+    
+    def run(self, context):
+        trainer_data = context.get(TrainerData)
+        trainers = context.get(Trainers)
+        
+        modified_pokemon = 0
+        modified_trainers = 0
+        
+        print("DEBUG: Setting all trainer Pokemon to Weepinbell with Gastro Acid moveset...")
+        
+        for i, trainer in enumerate(trainer_data.data):
+            if i >= len(trainers.data):
+                continue
+            
+            team = trainers.data[i].team
+            if not team:
+                continue
+            
+            modified_trainers += 1
+            
+            for pokemon in team:
+                # Set species to Weepinbell
+                pokemon.species_id = self.species_id
+                
+                # Set level
+                pokemon.level = self.level
+                
+                # Set moves if the pokemon has moves attribute
+                if hasattr(pokemon, 'moves'):
+                    pokemon.moves[:] = self.moves
+                
+                modified_pokemon += 1
+        
+        print(f"DEBUG: Modified {modified_pokemon} Pokemon across {modified_trainers} trainers")
+        print(f"DEBUG: All Pokemon are now Weepinbell (70) Lv.43 with moves: Gastro Acid, Acid, Knock Off, Sweet Scent")
 
 
 class NoEnemyBattleItems(Step):
@@ -1913,17 +2151,18 @@ class GeneralEVStep(Step):
         
         Args:
             pokemon: Pokemon object to allocate EVs for
-            pokemon_id: Pokemon species ID
+            pokemon_id: Pokemon species ID (may be form-encoded as base_species | (form << 11))
             mons: Mons extractor with base stats
             ev_budget: Total EV budget to allocate (default 510)
         """
         import random
         
-        # Get base stats for the Pokemon
-        if pokemon_id >= len(mons.data):
+        # Get base stats for the Pokemon using mons[] which handles form-encoded species
+        try:
+            base_stats = mons[pokemon_id]
+        except (IndexError, ValueError, KeyError):
+            # Species not found (invalid ID or form mapping issue)
             return {'hp': 0, 'atk': 0, 'def': 0, 'spatk': 0, 'spdef': 0, 'speed': 0}
-        
-        base_stats = mons[pokemon_id]
         
         # Initialize EV allocation
         ev_allocation = {'hp': 0, 'atk': 0, 'def': 0, 'spatk': 0, 'spdef': 0, 'speed': 0}
@@ -2396,19 +2635,19 @@ class IdentifyRivals(Extractor):
     def chikorita_group_ids(self):
         #Player chose Totodile
         """Trainer IDs for rivals who originally had Chikorita-line starters (Starter slot 0)."""
-        return [1, 263, 264, 265, 285, 288, 489, 495, 735]
+        return [495, 1, 263, 288, 264, 489, 735, 285]
     
     @property
     #Player chose Chikorita
     def cyndaquil_group_ids(self):
         """Trainer IDs for rivals who originally had Cyndaquil-line starters (Starter slot 1)."""
-        return [2, 266, 267, 268, 286, 289, 490, 496, 736]
+        return [496, 266, 267, 289, 268, 490, 736, 286]
     
     @property
     #Player chose Cyndaquil
     def totodile_group_ids(self):
         """Trainer IDs for rivals who originally had Totodile-line starters (Starter slot 2)."""
-        return [3, 269, 270, 271, 272, 287, 491, 497, 737]
+        return [497, 269, 270, 271, 272, 491, 737, 287]
     
     @property
     def all_rival_trainer_ids(self):
@@ -2474,6 +2713,218 @@ class IdentifyRivals(Extractor):
         """Get the name of a starter group."""
         group_names = {0: "Chikorita", 1: "Cyndaquil", 2: "Totodile"}
         return group_names.get(starter_slot, "Unknown")
+
+
+class TrainerToBossMapping(Extractor):
+    """Maps trainers to their associated boss from TrainerToBoss.csv.
+    
+    Used by Gauntlet Mode in TrainerMult to scale trainer levels based on
+    the ace level of their associated boss.
+    
+    CSV Format: TrainerClass, TrainerName, Boss, [optional Trainer ID]
+    - TrainerClass: The trainer's class (e.g., "Youngster", "Bug Catcher")
+    - TrainerName: The trainer's name (e.g., "Joey", "Don")
+    - Boss: The boss name, can be "Rival n" for rival fights
+    - Trainer ID: Optional, used for duplicates (e.g., multiple "Grunt" trainers)
+    
+    Lookup priority:
+    1. If ID is provided, use it directly
+    2. Try to find by name alone (works for unique names)
+    3. If multiple matches, use class to disambiguate
+    """
+    
+    def __init__(self, context):
+        super().__init__(context)
+        import csv
+        
+        trainers = context.get(Trainers)
+        index = context.get(IndexTrainers)
+        rivals = context.get(IdentifyRivals)
+        
+        # Build class name -> class ID mapping
+        self.class_name_to_id = {}
+        for tc in TrainerClass:
+            # Convert SNAKE_CASE to display name
+            display_name = tc.name.replace('_', ' ').title()
+            self.class_name_to_id[display_name] = tc.value
+        # Add common aliases
+        self.class_name_to_id['Team Rocket'] = TrainerClass.TEAM_ROCKET.value
+        self.class_name_to_id['Poké Maniac'] = TrainerClass.POKE_MANIAC.value
+        self.class_name_to_id['Poke Maniac'] = TrainerClass.POKE_MANIAC.value
+        self.class_name_to_id['Pokéfan'] = TrainerClass.POKEFAN_M.value
+        self.class_name_to_id['Pokefan'] = TrainerClass.POKEFAN_M.value
+        self.class_name_to_id['Pokéfan M'] = TrainerClass.POKEFAN_M.value
+        self.class_name_to_id['Pokéfan F'] = TrainerClass.POKEFAN.value
+        self.class_name_to_id['Bug Catcher'] = TrainerClass.BUG_CATCHER.value
+        self.class_name_to_id['Bird Keeper'] = TrainerClass.BIRD_KEEPER.value
+        self.class_name_to_id['Bird Keeper GS'] = TrainerClass.BIRD_KEEPER_GS.value
+        self.class_name_to_id['Black Belt'] = TrainerClass.BLACK_BELT.value
+        self.class_name_to_id['Ace Trainer'] = TrainerClass.ACE_TRAINER_M.value
+        self.class_name_to_id['Ace Trainer M'] = TrainerClass.ACE_TRAINER_M.value
+        self.class_name_to_id['Ace Trainer F'] = TrainerClass.ACE_TRAINER_F.value
+        self.class_name_to_id['School Kid'] = TrainerClass.SCHOOL_KID_M.value
+        self.class_name_to_id['School Kid M'] = TrainerClass.SCHOOL_KID_M.value
+        self.class_name_to_id['Psychic M'] = TrainerClass.PSYCHIC_M.value
+        self.class_name_to_id['Scientist GS'] = TrainerClass.SCIENTIST_GS.value
+        self.class_name_to_id['Super Nerd'] = TrainerClass.SUPER_NERD.value
+        self.class_name_to_id['Kimono Girl'] = TrainerClass.KIMONO_GIRL.value
+        self.class_name_to_id['Young Couple'] = TrainerClass.YOUNG_COUPLE.value
+        self.class_name_to_id['Double Team'] = TrainerClass.DOUBLE_TEAM.value
+        self.class_name_to_id['Elder'] = TrainerClass.ELDER.value
+        
+        # Map class IDs to alternate gendered versions to try
+        self.alternate_class_ids = {
+            TrainerClass.ACE_TRAINER_M.value: [TrainerClass.ACE_TRAINER_F.value, TrainerClass.ACE_TRAINER_M_GS.value, TrainerClass.ACE_TRAINER_F_GS.value],
+            TrainerClass.ACE_TRAINER_F.value: [TrainerClass.ACE_TRAINER_M.value, TrainerClass.ACE_TRAINER_M_GS.value, TrainerClass.ACE_TRAINER_F_GS.value],
+            TrainerClass.POKEFAN_M.value: [TrainerClass.POKEFAN.value],
+            TrainerClass.POKEFAN.value: [TrainerClass.POKEFAN_M.value],
+            TrainerClass.SCHOOL_KID_M.value: [TrainerClass.SCHOOL_KID_F.value],
+            TrainerClass.SCHOOL_KID_F.value: [TrainerClass.SCHOOL_KID_M.value],
+            TrainerClass.BIRD_KEEPER.value: [TrainerClass.BIRD_KEEPER_GS.value],
+            TrainerClass.BIRD_KEEPER_GS.value: [TrainerClass.BIRD_KEEPER.value],
+            TrainerClass.TEAM_ROCKET.value: [TrainerClass.TEAM_ROCKET_F.value],
+            TrainerClass.TEAM_ROCKET_F.value: [TrainerClass.TEAM_ROCKET.value],
+            TrainerClass.PSYCHIC_M.value: [TrainerClass.PSYCHIC_F.value],
+            TrainerClass.PSYCHIC_F.value: [TrainerClass.PSYCHIC_M.value],
+            TrainerClass.SWIMMER_M.value: [TrainerClass.SWIMMER_F.value],
+            TrainerClass.SWIMMER_F.value: [TrainerClass.SWIMMER_M.value],
+            TrainerClass.PKMN_RANGER_M.value: [TrainerClass.PKMN_RANGER_F.value],
+            TrainerClass.PKMN_RANGER_F.value: [TrainerClass.PKMN_RANGER_M.value],
+            TrainerClass.CYCLIST_M.value: [TrainerClass.CYCLIST_F.value],
+            TrainerClass.CYCLIST_F.value: [TrainerClass.CYCLIST_M.value],
+            TrainerClass.TUBER_M.value: [TrainerClass.TUBER_F.value],
+            TrainerClass.TUBER_F.value: [TrainerClass.TUBER_M.value],
+            TrainerClass.PKMN_BREEDER_M.value: [TrainerClass.PKMN_BREEDER_F.value],
+            TrainerClass.PKMN_BREEDER_F.value: [TrainerClass.PKMN_BREEDER_M.value],
+            TrainerClass.SCIENTIST.value: [TrainerClass.SCIENTIST_GS.value],
+            TrainerClass.SCIENTIST_GS.value: [TrainerClass.SCIENTIST.value],
+        }
+        
+        # Build rival fight mapping: "Rival 1" -> list of trainer IDs
+        self.rival_fight_ids = {}
+        for fight_num in range(1, 9):  # Rival 1 through Rival 8
+            idx = fight_num - 1
+            ids = []
+            if idx < len(rivals.chikorita_group_ids):
+                ids.append(rivals.chikorita_group_ids[idx])
+            if idx < len(rivals.cyndaquil_group_ids):
+                ids.append(rivals.cyndaquil_group_ids[idx])
+            if idx < len(rivals.totodile_group_ids):
+                ids.append(rivals.totodile_group_ids[idx])
+            self.rival_fight_ids[f"Rival {fight_num}"] = ids
+        
+        # trainer_id -> boss_name mapping
+        self.trainer_to_boss = {}
+        # boss_name -> list of trainer_ids
+        self.boss_to_trainers = {}
+        
+        # Store references for get_boss_ace_level
+        self.trainers = trainers
+        self.index = index
+        
+        csv_path = os.path.join(os.path.dirname(__file__), 'TrainerToBoss.csv')
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if len(row) < 3:
+                    continue
+                trainer_class = row[0].strip()
+                trainer_name = row[1].strip()
+                boss_name = row[2].strip()
+                trainer_id_override = row[3].strip() if len(row) > 3 and row[3].strip() else None
+                
+                # Find trainer ID - check for explicit ID first, then fall back to name/class
+                trainer_id = None
+                
+                if trainer_id_override:
+                    # Explicit ID provided - use it directly
+                    trainer_id = int(trainer_id_override)
+                else:
+                    # No explicit ID - look up by class and name
+                    class_id = self.class_name_to_id.get(trainer_class)
+                    
+                    # Debug for Toby
+                    if trainer_name == "Toby":
+                        print(f"DEBUG Toby: class='{trainer_class}', class_id={class_id}, boss='{boss_name}'")
+                    
+                    if class_id is not None:
+                        # Try (class, name) lookup first for accuracy
+                        trainer_id = index.find((class_id, trainer_name))
+                        if trainer_name == "Toby":
+                            print(f"DEBUG Toby: after find((class_id, name)) -> trainer_id={trainer_id}")
+                        
+                        # Try alternate gendered class IDs if not found
+                        if trainer_id is None:
+                            for alt_class_id in self.alternate_class_ids.get(class_id, []):
+                                trainer_id = index.find((alt_class_id, trainer_name))
+                                if trainer_id is not None:
+                                    break
+                    
+                    # Fall back to name-only lookup if class lookup failed
+                    if trainer_id is None:
+                        trainer_id = index.find(trainer_name)
+                        if trainer_name == "Toby":
+                            print(f"DEBUG Toby: after name-only fallback -> trainer_id={trainer_id}")
+                
+                if trainer_id is None:
+                    print(f"TrainerToBossMapping: Could not find trainer '{trainer_class} {trainer_name}'")
+                    continue
+                
+                self.trainer_to_boss[trainer_id] = boss_name
+                if boss_name not in self.boss_to_trainers:
+                    self.boss_to_trainers[boss_name] = []
+                self.boss_to_trainers[boss_name].append(trainer_id)
+        
+        print(f"TrainerToBossMapping: Loaded {len(self.trainer_to_boss)} trainer->boss mappings")
+    
+    def get_boss_for_trainer(self, trainer_id):
+        """Get the boss name associated with a trainer ID."""
+        return self.trainer_to_boss.get(trainer_id)
+    
+    def get_trainers_for_boss(self, boss_name):
+        """Get all trainer IDs associated with a boss."""
+        return self.boss_to_trainers.get(boss_name, [])
+    
+    # Hardcoded boss trainer IDs for bosses with duplicate names
+    # Maps boss name -> trainer ID for the "main" fight
+    BOSS_TRAINER_IDS = {
+        "Rocket Proton": 486,  # First Proton fight (Slowpoke Well)
+    }
+    
+    def get_boss_ace_level(self, boss_name, context):
+        """Get the ace level for a boss.
+        
+        For "Rival n" bosses, returns the ace level of the first rival trainer
+        in that fight group.
+        """
+        # Handle "Rival n" references
+        if boss_name in self.rival_fight_ids:
+            rival_ids = self.rival_fight_ids[boss_name]
+            if rival_ids:
+                # Get ace level from first rival in the group
+                rival_trainer = self.trainers.data[rival_ids[0]]
+                if rival_trainer.team and rival_trainer.ace_index is not None:
+                    return rival_trainer.team[rival_trainer.ace_index].level
+                elif rival_trainer.team:
+                    return max(p.level for p in rival_trainer.team)
+            return None
+        
+        # Check hardcoded boss IDs first (for duplicates like Proton)
+        if boss_name in self.BOSS_TRAINER_IDS:
+            trainer_id = self.BOSS_TRAINER_IDS[boss_name]
+        else:
+            # Regular boss - find by name using IndexTrainers.find()
+            trainer_id = self.index.find(boss_name)
+        
+        if trainer_id is None:
+            return None
+        
+        boss_trainer = self.trainers.data[trainer_id]
+        if boss_trainer.team and boss_trainer.ace_index is not None:
+            return boss_trainer.team[boss_trainer.ace_index].level
+        elif boss_trainer.team:
+            return max(p.level for p in boss_trainer.team)
+        return None
 
 
 class IdentifyTier(Extractor):
@@ -2676,7 +3127,7 @@ class RandomizeGymsStep(Step):
 class AddPivotStep(Step):
     """Adds a Pivot Pokémon to gym trainers based on the gym type.
     
-    Condition: only apply if the trainer has at least 4 Pokémon.
+    Condition: only apply if the trainer has at least 5 Pokémon.
     Replaces one non-ace Pokémon with a mon matching a type combination (or ability) from pivots_type_data.
     Records the replaced slot as trainer._pivot_slot for later steps.
     """
@@ -2704,7 +3155,7 @@ class AddPivotStep(Step):
             if gym.type is None:
                 continue
             for trainer in gym.trainers:
-                if not trainer.team or len(trainer.team) < 4:
+                if not trainer.team or len(trainer.team) < 5:
                     continue
                 # Choose a non-ace slot that hasn't been used by previous steps
                 used_slots = set()
@@ -2796,7 +3247,7 @@ class AddPivotStep(Step):
 class AddFulcrumStep(Step):
     """Adds a Fulcrum Pokémon to gym trainers based on the gym type.
     
-    Condition: only if the trainer has at least 5 Pokémon.
+    Condition: only if the trainer has exactly 6 Pokémon.
     Replaces one non-ace, non-pivot Pokémon using fulcrums_type_data.
     Records the replaced slot as trainer._fulcrum_slot.
     """
@@ -2820,7 +3271,7 @@ class AddFulcrumStep(Step):
             if gym.type is None:
                 continue
             for trainer in gym.trainers:
-                if not trainer.team or len(trainer.team) < 5:
+                if not trainer.team or len(trainer.team) != 6:
                     continue
                 used_slots = set()
                 if hasattr(trainer, '_pivot_slot') and trainer._pivot_slot is not None:
@@ -2876,7 +3327,7 @@ class AddFulcrumStep(Step):
 class AddTypeMimicStep(Step):
     """Adds a Type Mimic Pokémon based on the gym type.
     
-    Condition: trainer must have exactly 6 Pokémon.
+    Condition: trainer must have at least 4 Pokémon.
     Replaces one non-ace, non-pivot, non-fulcrum Pokémon using type_mimics_data.
     Records the replaced slot as trainer._mimic_slot.
     """
@@ -2902,7 +3353,7 @@ class AddTypeMimicStep(Step):
             if gym.type is None:
                 continue
             for trainer in gym.trainers:
-                if not trainer.team or len(trainer.team) != 6:
+                if not trainer.team or len(trainer.team) < 4:
                     continue
                 used_slots = set()
                 if hasattr(trainer, '_pivot_slot') and trainer._pivot_slot is not None:

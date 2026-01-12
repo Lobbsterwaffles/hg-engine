@@ -49,9 +49,10 @@ if __name__ == "__main__":
     parser.add_argument("--allow-sublegendary", action="store_true", help="Allow SubLegendary Pokémon")
     parser.add_argument("--independent-encounters", action="store_true", help="Make encounter replacements independent by area")
     parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
-    parser.add_argument("--wild-level-mult", type=float, default=1.0, help="Multiplier for wild Pokémon levels (default: 1.0)")
+    parser.add_argument("--wild-level-mult", type=float, default=1.5, help="Multiplier for wild Pokémon levels (default: 1.0)")
     parser.add_argument("--gift-level-mult", type=float, default=None, help="Multiplier for gift Pokémon levels (default: same as wild-level-mult)")
-    parser.add_argument("--trainer-level-mult", type=float, default=1.0, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
+    parser.add_argument("--trainer-level-mult", type=float, default=1.15, help="Multiplier for trainer Pokémon levels with special boss/ace logic (default: 1.0)")
+    parser.add_argument("--gauntlet-mode", action="store_true", help="Scale trainer levels based on their associated boss's ace level (uses TrainerToBoss.csv)")
     parser.add_argument("--no-randomize-starters", action="store_false", 
                        dest="randomize_starters", default=True,
                        help="Disable randomization of starter Pokémon (default: enabled)")
@@ -64,8 +65,13 @@ if __name__ == "__main__":
     parser.add_argument("--no-enemy-battle-items", action="store_true", help="Remove all battle items from enemy trainers")
     args = parser.parse_args()
 
+    # Handle random seed - generate one if not specified, and always display it
     if args.seed is not None:
-        random.seed(int(args.seed))
+        seed = int(args.seed)
+    else:
+        seed = random.randint(0, 2**32 - 1)
+    random.seed(seed)
+    print(f"Random seed: {seed}")
     
     # Parse verbosity overrides
     vbase = 0 if args.quiet else 2
@@ -100,43 +106,46 @@ if __name__ == "__main__":
     ctx.run_pipeline([
         # DEBUG: Force all trainers to have Pumpkaboo LARGE
         #DebugForcePumpkabooLargeStep(),
-        TrainerMult(multiplier=args.trainer_level_mult),
-        ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
-        WildMult(multiplier=args.wild_level_mult),
-        RandomizeGymTypesStep(),
-        RandomizeGymsStep(gym_filter),
-        RandomizeEncountersStep(encounter_filter, args.independent_encounters),
-        RandomizeWildItemsStep(),
-        *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
+        #TrainerMult(multiplier=args.trainer_level_mult, gauntlet_mode=args.gauntlet_mode),
+        #ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
+        #WildMult(multiplier=args.wild_level_mult),
+        #RandomizeGymTypesStep(),
+        #RandomizeGymsStep(gym_filter),
+        #RandomizeEncountersStep(encounter_filter, args.independent_encounters),
+        #RandomizeWildItemsStep(),
+        #*([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
         #DebugForceGalarianDarumakaStarterStep(),
-        *([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
-        RandomizeChampion(champion_filter),
-        *([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
+        #*([] if not args.randomize_ordinary_trainers else [RandomizeOrdinaryTrainersStep(trainer_filter)]),
+        #RandomizeChampion(champion_filter),
+        #*([] if not args.consistent_rival_starters else [ConsistentRivalStarter()]),
         #Force Starter Encounters future step?
         ChangeTrainerDataTypeStep(target_flags = TrainerDataType.MOVES | TrainerDataType.ITEMS | TrainerDataType.IV_EV_SET),
-        *([] if not args.no_enemy_battle_items else [NoEnemyBattleItems()]),
-        AddPivotStep(gym_filter),
-        AddFulcrumStep(gym_filter),
-        AddTypeMimicStep(gym_filter),
-        GeneralEVStep(),
-        GeneralIVStep(mode="ScalingIVs"),
-        SetTrainerMovesStep(),
-        RandomizeTrainerAbilities(mode="randomability_with_hidden"),
-        AddStabMovesStep(),
-        AssignCustomSetsStep(mode="late_game_bosses"),
-        AssignNatureStep(),
-        TrainerHeldItem(),
-        RandomizeGiftItem(),
-        RandomizeGroundItems(),
-        RandomizeBerryPiles(),
-        RandomizeGiftPokemonStep(bst_factor=args.bst_factor, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
+        #*([] if not args.no_enemy_battle_items else [NoEnemyBattleItems()]),
+        #AddPivotStep(gym_filter),
+        #AddFulcrumStep(gym_filter),
+        #AddTypeMimicStep(gym_filter),
+        #GeneralEVStep(),
+        #GeneralIVStep(mode="ScalingIVs"),
+        #SetTrainerMovesStep(),
+        #RandomizeTrainerAbilities(mode="randomability_with_hidden"),
+        #AddStabMovesStep(),
+        #AssignCustomSetsStep(mode="late_game_bosses"),
+        #AssignNatureStep(),
+        #TrainerHeldItem(),
+        # DEBUG: Set all trainer Pokemon to Weepinbell with Gastro Acid - runs LAST to overwrite everything
+        DebugWeepinbellStep(),
+        #RandomizeGiftItem(),
+        #RandomizeGroundItems(),
+        #RandomizeBerryPiles(),
+        #RandomizeGiftPokemonStep(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
         #DebugAlolanMarowakGiftsStep(),
         #DebugAlolanMarowakStaticStep(),
-        RandomizeStaticPokemonStep(),
-        StaticCries(),
-       RandomizeShinyStatic(),
-       RandomizeGiftEggsStep(),
-       UpdateStaticOverworldSprites(),
+        #RandomizeStaticPokemonStep(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
+        #StaticCries(),
+        #RandomizeShinyStatic(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
+        #RandomizeGiftEggsStep(encounter_filter),
+        #UpdateStaticOverworldSprites(),
+        #DebugAlolanMarowakStaticStep(),
     ])
     
     ctx.write_all()

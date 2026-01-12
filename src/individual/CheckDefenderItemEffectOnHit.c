@@ -240,7 +240,7 @@ BOOL CheckDefenderItemEffectOnHit(void *bw, struct BattleStruct *sp, int *seq_no
             // gen6 effects
         case HOLD_EFFECT_BOOST_DEF_ON_PHYSICAL_HIT:             // Kee Berry
             // Defender is alive after the attack
-            if ((sp->battlemon[sp->attack_client].hp)
+            if ((sp->battlemon[sp->defence_client].hp)
                 // Attacker dealt physical damage
                 && (sp->oneSelfFlag[sp->defence_client].physical_damage)
                 // Defender has less than +6 stages to Defense
@@ -275,7 +275,7 @@ BOOL CheckDefenderItemEffectOnHit(void *bw, struct BattleStruct *sp, int *seq_no
 
         case HOLD_EFFECT_BOOST_SPDEF_ON_SPECIAL_HIT:            // Maranga Berry
             // Defender is alive after the attack
-            if ((sp->battlemon[sp->attack_client].hp)
+            if ((sp->battlemon[sp->defence_client].hp)
                 // Attacker dealt special damage
                 && (sp->oneSelfFlag[sp->defence_client].special_damage)
                 // Defender has less than +6 stages to Special Defense

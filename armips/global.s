@@ -32,6 +32,7 @@
 .include "armips/asm/Custom/pickup_table.s"
 .include "armips/asm/Custom/smashable_rock_items.s"
 .include "armips/asm/Custom/remove_obedience_check.s"
+.include "armips/asm/Custom/freeze_lake_of_rage.s"
 
 .if FAIRY_TYPE_IMPLEMENTED == 1
 
