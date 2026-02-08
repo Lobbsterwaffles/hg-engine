@@ -7041,7 +7041,7 @@ trainerdata 217, "Denis"
     endparty
 
 trainerdata 218, "Grunt"
-    trainermontype TRAINER_DATA_TYPE_MOVES
+    trainermontype TRAINER_DATA_TYPE_NOTHING
     trainerclass TRAINERCLASS_TEAM_ROCKET
     nummons 1
     item ITEM_NONE
@@ -16527,11 +16527,11 @@ trainerdata 485, "Archer"
         ivs 200
         abilityslot 0
         level 39
-        pokemon SPECIES_KOFFING
-        move MOVE_TACKLE
-        move MOVE_SLUDGE
-        move MOVE_SMOKESCREEN
-        move MOVE_HAZE
+        pokemon SPECIES_GOLBAT
+        move MOVE_CONFUSE_RAY
+        move MOVE_AIR_CUTTER
+        move MOVE_SLUDGE_BOMB
+        move MOVE_SHADOW_BALL
         ballseal 0
 
         // mon 2

@@ -81,7 +81,6 @@ void SetPartyPokemonParamsForEvoCutscene(struct PartyPokemon *mon, u16 *targetSp
  */
 int LONG_CALL PokeOtherFormMonsNoGet(int mons_no, int form_no)
 {
-    int original_mons_no = mons_no;
     switch (mons_no)
     {
     case SPECIES_DEOXYS:
@@ -121,8 +120,6 @@ int LONG_CALL PokeOtherFormMonsNoGet(int mons_no, int form_no)
         {
             u16 newSpecies;
             ArchiveDataLoadOfs(&newSpecies, ARC_CODE_ADDONS, CODE_ADDON_FORM_DATA, sizeof(u16)*(32*mons_no + form_no-1), sizeof(u16));
-            debug_printf("PokeOtherFormMonsNoGet: species=%d form=%d offset=%d rawNewSpecies=0x%04X\n", 
-                         mons_no, form_no, (32*mons_no + form_no-1), newSpecies);
             newSpecies &= ~(NEEDS_REVERSION);
             if (newSpecies != 0)
             {
@@ -131,9 +128,6 @@ int LONG_CALL PokeOtherFormMonsNoGet(int mons_no, int form_no)
             }
         }
         break;
-    }
-    if (form_no != 0) {
-        debug_printf("PokeOtherFormMonsNoGet: %d form %d -> %d\n", original_mons_no, form_no, mons_no);
     }
     return mons_no;
 }

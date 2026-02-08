@@ -692,6 +692,7 @@ class RandomizeGroundItems(Step):
         hidden_count = 0
         skipped_berry = 0
         skipped_cache = 0
+        skipped_skip = 0
         
         for i, slot in enumerate(item_script.slots):
             if i not in self.slot_to_area:
@@ -699,12 +700,15 @@ class RandomizeGroundItems(Step):
             
             tier = self.slot_to_area[i]
             
-            # Skip Berry and Cache slots
+            # Skip Berry, Cache, and Skip slots
             if tier == 'Berry':
                 skipped_berry += 1
                 continue
             if tier == 'Cache':
                 skipped_cache += 1
+                continue
+            if tier == 'Skip':
+                skipped_skip += 1
                 continue
             
             # Handle hidden items - assign random junk item (not from ItemPool)
@@ -728,7 +732,7 @@ class RandomizeGroundItems(Step):
             slot['item_id'] = selected_item_id
             ground_count += 1
         
-        print(f"RandomizeGroundItems: {ground_count} ground, {hidden_count} hidden, {skipped_berry} berry, {skipped_cache} cache skipped")
+        print(f"RandomizeGroundItems: {ground_count} ground, {hidden_count} hidden, {skipped_berry} berry, {skipped_cache} cache, {skipped_skip} skip skipped")
         
         # Apply changes to shared ScriptNarc data
         item_script.apply_changes()
