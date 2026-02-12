@@ -407,7 +407,7 @@ const u16 PunchingMovesTable[] = {
     MOVE_WICKED_BLOW,
 };
 
-#ifdef FANCY_PRINT_NICKNAME
+#if defined(FANCY_PRINT_NICKNAME) || defined(DEBUG_SPEED_CALC)
 
 // Supports only A-z for now
 void LoadNicknameToCharArray(u16 nickname[], char buf[]) {
@@ -434,7 +434,7 @@ void LoadNicknameToCharArray(u16 nickname[], char buf[]) {
     }
 }
 
-#endif
+#endif // FANCY_PRINT_NICKNAME || DEBUG_SPEED_CALC
 
 // set sp->waza_status_flag |= MOVE_STATUS_FLAG_MISS if a miss
 BOOL CalcAccuracy(void *bw, struct BattleStruct *sp, int attacker, int defender, int move_no) {

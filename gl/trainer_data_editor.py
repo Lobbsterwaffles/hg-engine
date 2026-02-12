@@ -8,7 +8,7 @@ for trainer Pokemon based on various criteria like attacker type, level, etc.
 from framework import Extractor, Step
 from steps import Mons, Moves, EggMoves, Levelups, TMHM, TrainerData, IdentifyTier, LoadPokemonNamesStep, LoadAbilityNames, LoadMoveNamesStep, Trainers, IdentifyBosses
 from extractors import MachineLearnsets
-from enums import Split, Tier
+from enums import Split, Tier, MoveFlags
 import json
 import os
 import glob
@@ -116,13 +116,25 @@ class MoveList(Extractor):
 
 
 class MoveBlacklist(MoveList):
-    """List of moves that should never be selected."""
+    """List of moves that should never be selected.
+    
+    Includes both manually specified moves and any move with the UNIMPLEMENTED flag.
+    """
     
     move_names = [
         "Focus Punch", "Feint", "Snore", "Dream Eater", "Razor Wind", "Electro Shot", "Meteor Beam", "Skull Bash", 
         "Sky Attack", "Sky Drop", "Solar Beam", "Solar Blade", "Spit Up", "Synchronoise", "Future Sight", "Belch",
         "Fake Out", "Last Resort", "Spit Up", "Swallow", 
     ]
+    
+    def __init__(self, context):
+        super().__init__(context)
+        # Also blacklist any move with the UNIMPLEMENTED flag
+        # FlagsEnum returns a Container where flags are boolean attributes
+        moves = context.get(Moves)
+        for move in moves.data:
+            if move.flags.UNIMPLEMENTED:
+                self.moves_set.add(move.move_id)
     
     def is_blacklisted(self, move_id):
         """Check if a move is blacklisted."""

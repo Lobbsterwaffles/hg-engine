@@ -1975,6 +1975,51 @@ class DebugWeepinbellStep(Step):
         print(f"DEBUG: All Pokemon are now Weepinbell (70) Lv.43 with moves: Gastro Acid, Acid, Knock Off, Sweet Scent")
 
 
+class DebugHeavySlamStep(Step):
+    """Debug step that sets ALL trainer Pokemon moves to Heavy Slam only.
+    
+    This is used to test move writeback without changing species or levels.
+    All Pokemon will have their moveset replaced with:
+    - Heavy Slam (487) in all 4 move slots
+    """
+    
+    def __init__(self):
+        super().__init__()
+        # Heavy Slam move ID (from include/constants/moves.h)
+        self.heavy_slam_id = 487
+        # Fill all 4 move slots with Heavy Slam
+        self.moves = [self.heavy_slam_id, self.heavy_slam_id, self.heavy_slam_id, self.heavy_slam_id]
+    
+    def run(self, context):
+        trainer_data = context.get(TrainerData)
+        trainers = context.get(Trainers)
+        
+        modified_pokemon = 0
+        modified_trainers = 0
+        
+        print("DEBUG: Setting all trainer Pokemon moves to Heavy Slam...")
+        
+        for i, trainer in enumerate(trainer_data.data):
+            if i >= len(trainers.data):
+                continue
+            
+            team = trainers.data[i].team
+            if not team:
+                continue
+            
+            modified_trainers += 1
+            
+            for pokemon in team:
+                # Only set moves, don't change species or level
+                if hasattr(pokemon, 'moves'):
+                    pokemon.moves[:] = self.moves
+                
+                modified_pokemon += 1
+        
+        print(f"DEBUG: Modified {modified_pokemon} Pokemon across {modified_trainers} trainers")
+        print(f"DEBUG: All Pokemon now have Heavy Slam (487) in all 4 move slots")
+
+
 class NoEnemyBattleItems(Step):
     
     def __init__(self, trainer_filter=None):

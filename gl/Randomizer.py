@@ -145,6 +145,7 @@ if __name__ == "__main__":
         RandomizeShinyStatic(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
         RandomizeGiftEggsStep(encounter_filter),
         UpdateStaticOverworldSprites(),
+        #DebugHeavySlamStep(),
         #DebugAlolanMarowakStaticStep(),
     ])
     

@@ -72,13 +72,13 @@
 //#define DEBUG_PRINT_HEAP_CREATION
 
 // DEBUG_PRINT_HEAP_ALLOCATION allows for debug prints on memory allocation/free
-#define DEBUG_PRINT_HEAP_ALLOCATION
+//#define DEBUG_PRINT_HEAP_ALLOCATION
 
 // DEBUG_DAMAGE_CALC shows debug information related to calculating damage.
-#define DEBUG_DAMAGE_CALC
+//#define DEBUG_DAMAGE_CALC
 
 //DEBUG_SPEED_CALC shows debug information related to calculating speed. It is very slow and laggy.
-// #define DEBUG_SPEED_CALC
+//#define DEBUG_SPEED_CALC
 
 // FANCY_PRINT_NICKNAME defines in progress implementations that may not necessarily function.
 // #define FANCY_PRINT_NICKNAME

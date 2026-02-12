@@ -1714,6 +1714,8 @@ BOOL Task_DistributeExp_capture_experience(void *arg0, void *work, u32 get_clien
 
     return ret;
 
+#else
+    return TRUE;
 #endif // IMPLEMENT_CAPTURE_EXPERIENCE
 }
 
@@ -3029,6 +3031,7 @@ BOOL btl_scr_cmd_FE_calcconfusiondamage(void *bsys, struct BattleStruct *ctx) {
     ctx->moveOutCheck[attacker].stoppedFromConfusion = TRUE;
     ctx->defence_client = attacker;
     ctx->battlerIdTemp = attacker;
+    debug_printf("Confusion damage\n");
     ctx->hp_calc_work = CalcBaseDamage(bsys, ctx, MOVE_STRUGGLE, 0, 0, 40, 0, attacker, attacker, 1);
     ctx->hp_calc_work = AdjustDamageForRoll(bsys, ctx, ctx->hp_calc_work);
     ctx->hp_calc_work *= -1;
@@ -3549,6 +3552,7 @@ BOOL BtlCmd_TryFutureSight(struct BattleSystem *bsys, struct BattleStruct *ctx) 
         ctx->fcc.future_prediction_count[ctx->defence_client] = 3;
         ctx->fcc.future_prediction_wazano[ctx->defence_client] = ctx->current_move_index;
         ctx->fcc.future_prediction_client_no[ctx->defence_client] = ctx->attack_client;
+        debug_printf("Future sight\n");
         int damage = CalcBaseDamage(bsys, ctx, ctx->current_move_index, ctx->side_condition[side], ctx->field_condition, 0, 0, ctx->attack_client, ctx->defence_client, 1) * -1;
         ctx->fcc.future_prediction_damage[ctx->defence_client] = AdjustDamageForRoll(bsys, ctx, damage);
         if (ctx->oneTurnFlag[ctx->attack_client].helping_hand_flag) {

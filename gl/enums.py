@@ -38,7 +38,7 @@ class MoveFlags(enum.IntFlag):
     MAGIC_COAT = 0x04
     SNATCH = 0x08
     MIRROR_MOVE = 0x10
-    KINGS_ROCK = 0x20
+    UNIMPLEMENTED = 0x20  # FLAG_UNUSABLE_UNIMPLEMENTED - move is not yet implemented
     KEEP_HP_BAR = 0x40
     HIDE_SHADOW = 0x80
 
