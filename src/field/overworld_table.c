@@ -1688,6 +1688,7 @@ struct OVERWORLD_TAG gOWTagToFileNum[] = // skip down a bit to see the parts tha
     NEW_NPC_ENTRY(7), // Ball Tiers 1560
     NEW_NPC_ENTRY(8), // Berry Pile
     NEW_NPC_ENTRY(9), // Junk Sack
+    NEW_NPC_ENTRY(10), // Rock Fall
     { 0xFFFF, 0, 0},
 };
 

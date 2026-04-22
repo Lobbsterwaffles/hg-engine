@@ -1093,7 +1093,7 @@ class RestrictedPokemon(PokemonListBase):
         ("Necrozma", "DUSK_MANE"),
 
         "Zacian",
-
+        
         "Zamazenta",
 
         "Eternatus",
@@ -1182,9 +1182,15 @@ class SubLegendaryPokemon(PokemonListBase):
 
         "Tornadus",
 
+        ("Tornadus", "THERIAN"),
+
         "Thundurus",
 
+        ("Thundurus", "THERIAN"),
+
         "Landorus",
+
+        ("Landorus", "THERIAN"),
 
         "Type: Null",
 
@@ -1213,6 +1219,7 @@ class SubLegendaryPokemon(PokemonListBase):
         "Spectrier",
 
         "Enamorus",
+        ("Enamorus", "THERIAN"),
 
         "Wo-Chien",
 
@@ -1229,6 +1236,9 @@ class SubLegendaryPokemon(PokemonListBase):
         "Fezanditi",
 
         "Ogerpon",
+        ("Ogerpon", "WELLSPRING_MASK"),
+        ("Ogerpon", "HEARTHFLAME_MASK"),
+        ("Ogerpon", "CORNERSTONE_MASK"),
 
         ("Greninja", "BATTLE_BOND"),
 
@@ -1265,6 +1275,9 @@ class MythicalPokemon(PokemonListBase):
         "Jirachi",
 
         "Deoxys",
+        ("Deoxys", "DEFENSE"),
+        ("Deoxys", "SPEED"),
+        ("Deoxys", "ATTACK"),
 
         "Phione",
 
@@ -1273,12 +1286,14 @@ class MythicalPokemon(PokemonListBase):
         "Darkrai",
 
         "Shaymin",
+        ("Shaymin", "SKY"),
 
         "Victini",
 
         "Genesect",
 
         "Keldeo",
+        ("Keldeo", "RESOLUTE"),
 
         "Meloetta",
 
@@ -9032,6 +9047,199 @@ class UpdateStaticOverworldSprites(Step):
 
 
 
+
+
+class BillGiftMegaStep(Step):
+    """Randomize Bill's gift Pokemon to a first-in-evo-line Pokemon that can mega evolve.
+    
+    Bill gives the player an Eevee in Goldenrod City. This step:
+    1. Picks a random non-legendary Pokemon that is first in its evolution line
+       AND whose fully evolved form can mega evolve
+    2. Sets the gift item to that Pokemon's corresponding mega stone
+    
+    The Pokemon and mega stone are paired, so the player receives a Pokemon
+    that can eventually use the mega stone they also receive.
+    
+    Bill's gift Pokemon is in script file 892.
+    Bill's gift item is in script file 9.
+    """
+    
+    # Bill's gift locations
+    BILL_POKEMON_FILE = 892
+    BILL_ITEM_FILE = 9
+    
+    # Mapping: (first_in_line_pokemon_name, mega_stone_item_id, mega_pokemon_name)
+    # Excludes legendaries (Mewtwo, Latias, Latios, Rayquaza, Diancie)
+    MEGA_POKEMON_DATA = [
+        # Gen 1
+        ("Bulbasaur", 659, "Venusaur"),      # VENUSAURITE
+        ("Charmander", 660, "Charizard"),    # CHARIZARDITE_X (also 678 for Y)
+        ("Squirtle", 661, "Blastoise"),      # BLASTOISINITE
+        ("Weedle", 770, "Beedrill"),         # BEEDRILLITE
+        ("Pidgey", 762, "Pidgeot"),          # PIDGEOTITE
+        ("Abra", 679, "Alakazam"),           # ALAKAZITE
+        ("Slowpoke", 760, "Slowbro"),        # SLOWBRONITE
+        ("Gastly", 656, "Gengar"),           # GENGARITE
+        ("Kangaskhan", 675, "Kangaskhan"),   # KANGASKHANITE (no pre-evo)
+        ("Pinsir", 671, "Pinsir"),           # PINSIRITE (no pre-evo)
+        ("Magikarp", 676, "Gyarados"),       # GYARADOSITE
+        ("Aerodactyl", 672, "Aerodactyl"),   # AERODACTYLITE (no pre-evo)
+        # Gen 2
+        ("Mareep", 658, "Ampharos"),         # AMPHAROSITE
+        ("Onix", 761, "Steelix"),            # STEELIXITE
+        ("Scyther", 670, "Scizor"),          # SCIZORITE
+        ("Heracross", 680, "Heracross"),     # HERACRONITE (no pre-evo)
+        ("Houndour", 666, "Houndoom"),       # HOUNDOOMINITE
+        ("Larvitar", 669, "Tyranitar"),      # TYRANITARITE
+        # Gen 3
+        ("Treecko", 753, "Sceptile"),        # SCEPTILITE
+        ("Torchic", 664, "Blaziken"),        # BLAZIKENITE
+        ("Mudkip", 752, "Swampert"),         # SWAMPERTITE
+        ("Ralts", 657, "Gardevoir"),         # GARDEVOIRITE (also Gallade 756)
+        ("Sableye", 754, "Sableye"),         # SABLENITE (no pre-evo)
+        ("Mawile", 681, "Mawile"),           # MAWILITE (no pre-evo)
+        ("Aron", 667, "Aggron"),             # AGGRONITE
+        ("Meditite", 665, "Medicham"),       # MEDICHAMITE
+        ("Electrike", 682, "Manectric"),     # MANECTITE
+        ("Carvanha", 759, "Sharpedo"),       # SHARPEDONITE
+        ("Numel", 767, "Camerupt"),          # CAMERUPTITE
+        ("Swablu", 755, "Altaria"),          # ALTARIANITE
+        ("Shuppet", 668, "Banette"),         # BANETTITE
+        ("Absol", 677, "Absol"),             # ABSOLITE (no pre-evo)
+        ("Snorunt", 763, "Glalie"),          # GLALITITE
+        ("Bagon", 769, "Salamence"),         # SALAMENCITE
+        ("Beldum", 758, "Metagross"),        # METAGROSSITE
+        # Gen 4
+        ("Buneary", 768, "Lopunny"),         # LOPUNNITE
+        ("Gible", 683, "Garchomp"),          # GARCHOMPITE
+        ("Riolu", 673, "Lucario"),           # LUCARIONITE
+        ("Snover", 674, "Abomasnow"),        # ABOMASITE
+        # Gen 5
+        ("Audino", 757, "Audino"),           # AUDINITE (no pre-evo)
+    ]
+    
+    def __init__(self):
+        pass
+    
+    def run(self, context):
+        from script_extractor import GiftPokemon, ScriptNarc
+        
+        gift_pokemon = context.get(GiftPokemon)
+        script_narc = context.get(ScriptNarc)
+        pokemon_names = context.get(LoadPokemonNamesStep)
+        mondata = context.get(Mons)
+        
+        # Find Bill's gift Pokemon in file 892
+        bill_gift = None
+        for gift in gift_pokemon.gifts:
+            if gift.file_index == self.BILL_POKEMON_FILE:
+                bill_gift = gift
+                break
+        
+        if bill_gift is None:
+            print(f"BillGiftMegaStep: ERROR - Could not find Bill's gift in file {self.BILL_POKEMON_FILE}")
+            return
+        
+        # Pick a random mega-capable first-in-line Pokemon
+        chosen = context.decide(
+            path=["bill_gift_mega", "pokemon_choice"],
+            original=None,
+            candidates=self.MEGA_POKEMON_DATA,
+            filter=NoFilter()
+        )
+        first_pokemon_name, mega_stone_id, mega_pokemon_name = chosen
+        
+        # Look up the first-in-line Pokemon's species ID
+        first_pokemon_ids = pokemon_names.get_all_by_name(first_pokemon_name)
+        if not first_pokemon_ids:
+            print(f"BillGiftMegaStep: ERROR - Could not find Pokemon '{first_pokemon_name}'")
+            return
+        
+        first_pokemon_id = first_pokemon_ids[0]
+        
+        # Update Bill's gift Pokemon
+        bill_gift.pokemon_id = first_pokemon_id
+        bill_gift.form = 0
+        bill_gift.item = 0  # No held item on the Pokemon itself
+        
+        # Set a valid ability for the new Pokemon
+        pokemon_data = mondata[first_pokemon_id]
+        ability1 = pokemon_data.ability1
+        ability2 = pokemon_data.ability2
+        hidden_ability = getattr(pokemon_data, 'hidden_ability', None)
+        
+        # Build list of unique valid abilities
+        ability_choices = [ability1]
+        if ability2 and ability2 != ability1:
+            ability_choices.append(ability2)
+        if hidden_ability and hidden_ability not in ability_choices:
+            ability_choices.append(hidden_ability)
+        
+        bill_gift.ability = random.choice(ability_choices)
+        
+        print(f"BillGiftMegaStep: Set Bill's Pokemon to {first_pokemon_name} (ID {first_pokemon_id}, ability {bill_gift.ability})")
+        
+        # Now update the gift item in file 9
+        # The item is given via SetVar pattern similar to NpcGiftItems
+        item_updated = self._update_bill_item(script_narc, mega_stone_id)
+        
+        if item_updated:
+            print(f"BillGiftMegaStep: Set Bill's item to mega stone ID {mega_stone_id} ({mega_pokemon_name}'s stone)")
+        else:
+            print(f"BillGiftMegaStep: WARNING - Could not update Bill's item in file {self.BILL_ITEM_FILE}")
+        
+        # Apply Pokemon changes
+        gift_pokemon.apply_changes()
+    
+    def _update_bill_item(self, script_narc, new_item_id):
+        """Update the item given by Bill in script file 9.
+        
+        Searches for SetVar 0x8004 pattern and updates the item ID.
+        Returns True if successful, False otherwise.
+        """
+        SETVAR_CMD = 0x0029
+        VAR_ITEM = 0x8004
+        VAR_QUANTITY = 0x8005
+        
+        if self.BILL_ITEM_FILE >= len(script_narc.data):
+            return False
+        
+        file_data = bytearray(script_narc.data[self.BILL_ITEM_FILE])
+        updated = False
+        
+        # Search for SetVar 0x8004 followed by SetVar 0x8005
+        for offset in range(len(file_data) - 12):
+            # Check for SetVar command (0x0029)
+            if file_data[offset] != 0x29 or file_data[offset + 1] != 0x00:
+                continue
+            
+            # Check for var 0x8004
+            var = file_data[offset + 2] | (file_data[offset + 3] << 8)
+            if var != VAR_ITEM:
+                continue
+            
+            # Verify next command is SetVar 0x8005 (quantity)
+            next_offset = offset + 6
+            if next_offset + 6 > len(file_data):
+                continue
+            
+            if file_data[next_offset] != 0x29 or file_data[next_offset + 1] != 0x00:
+                continue
+            
+            next_var = file_data[next_offset + 2] | (file_data[next_offset + 3] << 8)
+            if next_var != VAR_QUANTITY:
+                continue
+            
+            # Found the pattern - update the item ID at offset+4
+            file_data[offset + 4] = new_item_id & 0xFF
+            file_data[offset + 5] = (new_item_id >> 8) & 0xFF
+            updated = True
+            # Don't break - update all instances (branching paths)
+        
+        if updated:
+            script_narc.data[self.BILL_ITEM_FILE] = bytes(file_data)
+        
+        return updated
 
 
 #add class for rival fights

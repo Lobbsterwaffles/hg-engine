@@ -406,22 +406,22 @@ arm9 0204B94C FC
 0012 02246560 FC
 
 # MainMusicComboTable combo range
-arm9 080517AA 2D
-arm9 080517D4 2D
+arm9 080517AA 31
+arm9 080517D4 31
 
 # TrainerClassToMusicCombo table range
-arm9 08051886 20
+arm9 08051886 24
 
 # PokemonBattleMusic table range
-arm9 080518CA 0B
+arm9 080518CA 0F
 
 # sTrainerEncounterMusicParam table range
-arm9 080550D4 2C
+arm9 080550D4 30
 
 # PrizeMoney table range
-0012 0223FBD0 81
-0012 0223FBD4 81
-0012 0223FBDC 81
+0012 0223FBD0 85
+0012 0223FBD4 85
+0012 0223FBDC 85
 
 #ifdef STATIC_HP_BAR
 

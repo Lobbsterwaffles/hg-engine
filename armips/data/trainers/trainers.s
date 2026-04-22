@@ -5152,7 +5152,7 @@ trainerdata 164, "Miki"
 
 trainerdata 165, "Lorelei"
     trainermontype TRAINER_DATA_TYPE_ITEMS | TRAINER_DATA_TYPE_MOVES
-    trainerclass TRAINERCLASS_BEAUTY
+    trainerclass TRAINERCLASS_KAHUNA_LORELEI
     nummons 6
     item ITEM_FULL_RESTORE
     item ITEM_FULL_RESTORE
@@ -5238,7 +5238,7 @@ trainerdata 165, "Lorelei"
 
 trainerdata 166, "Iris"
     trainermontype TRAINER_DATA_TYPE_ITEMS | TRAINER_DATA_TYPE_MOVES
-    trainerclass TRAINERCLASS_BEAUTY
+    trainerclass TRAINERCLASS_CHAMPION_IRIS
     nummons 6
     item ITEM_FULL_RESTORE
     item ITEM_FULL_RESTORE
@@ -5324,7 +5324,7 @@ trainerdata 166, "Iris"
 
 trainerdata 167, "Steven"
      trainermontype TRAINER_DATA_TYPE_ITEMS | TRAINER_DATA_TYPE_MOVES
-    trainerclass TRAINERCLASS_ACE_TRAINER_M
+    trainerclass TRAINERCLASS_PKMN_TRAINER_STEVEN
     nummons 6
     item ITEM_FULL_RESTORE
     item ITEM_FULL_RESTORE
@@ -5410,7 +5410,7 @@ trainerdata 167, "Steven"
     
 trainerdata 168, "Cynthia"
       trainermontype TRAINER_DATA_TYPE_ITEMS | TRAINER_DATA_TYPE_MOVES
-    trainerclass TRAINERCLASS_ACE_TRAINER_F
+    trainerclass TRAINERCLASS_CHAMPION_CYNTHIA
     nummons 6
     item ITEM_FULL_RESTORE
     item ITEM_FULL_RESTORE
@@ -5496,7 +5496,7 @@ trainerdata 168, "Cynthia"
 
 trainerdata 169, "Wallace"
     trainermontype TRAINER_DATA_TYPE_ITEMS | TRAINER_DATA_TYPE_MOVES
-    trainerclass TRAINERCLASS_ACE_TRAINER_M
+    trainerclass TRAINERCLASS_CHAMPION_WALLACE
     nummons 6
     item ITEM_FULL_RESTORE
     item ITEM_FULL_RESTORE

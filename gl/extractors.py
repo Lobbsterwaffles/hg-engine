@@ -723,6 +723,24 @@ class ItemPool(Extractor):
         # All pools empty - shouldn't happen
         raise ValueError("All item pools are empty!")
     
+    def replace_item(self, old_item_id, new_item_id):
+        """Replace all occurrences of old_item_id with new_item_id in all pools.
+        
+        Args:
+            old_item_id: Item ID to find and replace
+            new_item_id: Item ID to replace with
+            
+        Returns:
+            True if at least one replacement was made, False otherwise
+        """
+        replaced = False
+        for tier, pool in self.pools.items():
+            for i, item_id in enumerate(pool):
+                if item_id == old_item_id:
+                    pool[i] = new_item_id
+                    replaced = True
+        return replaced
+    
     def draw_tm_by_type(self, type_enum, tier=None, context=None, path=None):
         """Draw a TM of a specific type, optionally filtered by tier.
         

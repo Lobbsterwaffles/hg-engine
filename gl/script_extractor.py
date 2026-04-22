@@ -877,3 +877,43 @@ class RandomizeBerryPiles(Step):
         # Apply changes to shared ScriptNarc data
         item_script.apply_changes()
 
+
+class DebugJunkToFocusSash(Step):
+    """DEBUG: Replaces all hidden slot items with Focus Sash.
+    
+    Hidden slots are marked as 'hidden' in Item_Slot_tier.csv and normally
+    receive random junk items. This step overwrites them with Focus Sash
+    for debugging purposes.
+    """
+    
+    def _load_hidden_slots(self):
+        """Load Item_Slot_tier.csv to find hidden slots."""
+        import os
+        
+        hidden_slots = []
+        csv_path = os.path.join(os.path.dirname(__file__), 'Item_Slot_tier.csv')
+        with open(csv_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    slot, tier = line.split(',')
+                    if tier.lower() == 'hidden':
+                        hidden_slots.append(int(slot))
+        return hidden_slots
+    
+    def run(self, context):
+        from enums import Item
+        
+        item_script = context.get(ItemScript)
+        hidden_slots = self._load_hidden_slots()
+        
+        focus_sash_id = Item.FOCUS_SASH.value  # 275
+        
+        print(f"DEBUG: Setting {len(hidden_slots)} hidden slots to Focus Sash (ID {focus_sash_id})")
+        
+        for slot_num in hidden_slots:
+            item_script.slots[slot_num]['item_id'] = focus_sash_id
+        
+        item_script.apply_changes()
+        print(f"DEBUG: Done - {len(hidden_slots)} hidden items set to Focus Sash")
+
