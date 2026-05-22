@@ -1,0 +1,115 @@
+{
+	"labelEnabled": true,
+	"sequenceCount": 3,
+	"frameCount": 12,
+	"sequences": [
+		{
+			"frameCount": 1,
+			"loopStartFrame": 0,
+			"animationElement": 0,
+			"animationType": 1,
+			"playbackMode": 1,
+			"frameData": [
+				{
+					"frameDelay": 4,
+					"resultId": 0
+				}
+			]
+		},
+		{
+			"frameCount": 10,
+			"loopStartFrame": 0,
+			"animationElement": 2,
+			"animationType": 1,
+			"playbackMode": 1,
+			"frameData": [
+				{
+					"frameDelay": 30,
+					"resultId": 1
+				},
+				{
+					"frameDelay": 4,
+					"resultId": 2
+				},
+				{
+					"frameDelay": 4,
+					"resultId": 3
+				},
+				{
+					"frameDelay": 4,
+					"resultId": 2
+				},
+				{
+					"frameDelay": 4,
+					"resultId": 3
+				},
+				{
+					"frameDelay": 4,
+					"resultId": 2
+				},
+				{
+					"frameDelay": 4,
+					"resultId": 3
+				},
+				{
+					"frameDelay": 30,
+					"resultId": 1
+				},
+				{
+					"frameDelay": 60,
+					"resultId": 4
+				}
+			]
+		},
+		{
+			"frameCount": 1,
+			"loopStartFrame": 0,
+			"animationElement": 0,
+			"animationType": 1,
+			"playbackMode": 1,
+			"frameData": [
+				{
+					"frameDelay": 4,
+					"resultId": 0
+				}
+			]
+		}
+	],
+	"animationResults": [
+		{
+			"resultType": 0,
+			"index": 0
+		},
+		{
+			"resultType": 2,
+			"index": 1,
+			"positionX": 0,
+			"positionY": 0
+		},
+		{
+			"resultType": 2,
+			"index": 1,
+			"positionX": -1,
+			"positionY": 0
+		},
+		{
+			"resultType": 2,
+			"index": 1,
+			"positionX": 1,
+			"positionY": 0
+		},
+		{
+			"resultType": 2,
+			"index": 2,
+			"positionX": 0,
+			"positionY": 0
+		}
+	],
+	"resultCount": 5,
+	"labels": [
+		"\\",
+		"",
+		""
+	],
+	"labelCount": 3
+}
