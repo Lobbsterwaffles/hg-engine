@@ -15,7 +15,7 @@ type_mimics_data = {
             "Swirlix", "Slurpuff",
             "Hoppip", "Jumpluff", "Skiploom", "Roselia", "Budew", "Roserade",
             "Lurantis", "Fomantis",
-            "Lanturn", "Chinchou", "Mareep", "Flaaffy", "Ampharos"
+            "Lanturn", "Chinchou", "Mareep", "Flaaffy", "Ampharos", "Naganadel"
         ],
         
         Type.DARK: [
@@ -37,7 +37,8 @@ type_mimics_data = {
             "Girafarig", "Farigiraf", "Kecleon",
             "Pansage", "Pansear", "Panpour", "Simipour", "Simisear", "Simisage",
             "Whismur", "Loudred", "Exploud",
-            ("Rattata", "ALOLAN"), ("Raticate", "ALOLAN"), 
+            ("Rattata", "ALOLAN"), ("Raticate", "ALOLAN"), "Necrozma", ("Necrozma", "DUSK"), ("Necrozma", "DAWN"),
+            "Tornadus", "Thundurus", "Landorus"
         ],
         
         Type.DRAGON: [
@@ -54,7 +55,8 @@ type_mimics_data = {
             "Salandit", "Salazzle", "Scrafty", "Scraggy",
             "Onix", "Steelix",
             "Tropius",
-            "Iron Neck", "IronThorns"
+            "Iron Neck", "IronThorns",
+            ("Tornadus", "THERIAN")
         ],
         
         Type.ELECTRIC: [
@@ -86,7 +88,8 @@ type_mimics_data = {
             "Minior",
             "Musharna",
             "Porygon2", "Porygon-Z",
-            "Delibird"
+            "Delibird",
+            "Uxie", "Mesprit", "Azelf"
         ],
         
         Type.FIGHTING: [
@@ -116,7 +119,7 @@ type_mimics_data = {
             "Decidueye",
             ("Rotom", "FROST"), ("Rotom", "HEAT"), ("Rotom", "MOW"), ("Rotom", "WASH"),
             ("Farfetch’d", "GALARIAN"), "Sirfetch’d",
-            "Porygon2", "Porygon-Z", "Porygon"
+            "Porygon2", "Porygon-Z", "Porygon", "Cresselia"
             
         ],
         
@@ -149,7 +152,8 @@ type_mimics_data = {
             "Mawile",
             "Azurill", "Azumarill", "Marill",
             "Goomy", "Sliggoo", "Goodra", ("Goodra", "HISUIAN"), ("Sliggoo", "HISUIAN"),
-            "Drampa", "Girafarig", "Farigiraf"
+            "Drampa", "Girafarig", "Farigiraf",
+            "Regice", "Registeel"
         ],
         
         Type.GROUND: [
@@ -277,7 +281,8 @@ type_mimics_data = {
             "Clefairy", "Clefable", "Cleffa", "Togepi", "Togetic", "Togekiss",
             "Snubbull", "Granbull",
             "Pachirisu", "Shinx", "Luxio", "Luxray",
-            ("Meowth", "ALOLAN"), ("Persian", "ALOLAN")
+            ("Meowth", "ALOLAN"), ("Persian", "ALOLAN"),
+            "Raikou", "Entei", "Suicune", ("Landorus", "THERIAN")
         ],
         
         Type.WATER: [

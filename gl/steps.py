@@ -2748,79 +2748,294 @@ class RandomizeStaticPokemonStep(Step):
             battle.level = min(100, new_level)
 
 
-
-
-
-class DebugAlolanMarowakStaticStep(Step):
-
-    """Temporary debugging step that forces all static encounters to be Alolan Marowak.
-
+class RandomizeStaticLegendaryStep(Step):
+    """Randomize static legendary Pokemon encounters to other legendaries.
     
-
-    Tests using form encoding: species + (2048 * form_number)
-
-    For Alolan Marowak: 105 + (2048 * 1) = 2153
-
+    Specifically targets known legendary encounter script files and replaces
+    them with a random Pokemon from: SubLegendary, Mythical, UltraBeast, or Paradox.
+    Excludes any Pokemon on the blacklist.
+    
+    Args:
+        wild_level_mult: Multiplier to apply to legendary Pokemon levels (default 1.0)
     """
-
     
-
+    # Script file indices containing legendary encounters
+    # Will be expanded as more locations are identified
+    LEGENDARY_FILE_INDICES = [
+        842,  # New Bark Town legendary
+        191,  # Route 10 (Zapdos)
+    ]
+    
+    def __init__(self, wild_level_mult=1.0):
+        self.wild_level_mult = wild_level_mult
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
     def run(self, context):
-
-        wild_battles = context.get(WildBattle)
-
-        mondata = context.get(Mons)
-
+        self.mondata = context.get(Mons)
+        self.wild_battles = context.get(WildBattle)
+        self.context = context
         
-
-        # Find Alolan Marowak
-
-        alolan_marowak = None
-
-        for pokemon in mondata.data:
-
-            if pokemon.name == "Marowak-ALOLAN":
-
-                alolan_marowak = pokemon
-
-                break
-
+        # Get legendary Pokemon pools
+        sub_legendaries = context.get(SubLegendaryPokemon)
+        mythicals = context.get(MythicalPokemon)
+        ultra_beasts = context.get(UltraBeastPokemon)
+        paradox = context.get(ParadoxPokemon)
         
-
-        if alolan_marowak is None:
-
-            print("DEBUG: Could not find Alolan Marowak in mondata")
-
+        # Get blacklist to exclude
+        blacklist = context.get(LoadBlacklistStep)
+        
+        # Build candidate pool: union of all legendary categories minus blacklist
+        legendary_ids = (
+            sub_legendaries.by_id | 
+            mythicals.by_id | 
+            ultra_beasts.by_id | 
+            paradox.by_id
+        ) - blacklist.by_id
+        
+        # Convert IDs to Pokemon data objects for filtering
+        self.candidates = [self.mondata[pid] for pid in legendary_ids if pid < len(self.mondata.data)]
+        
+        print(f"RandomizeStaticLegendaryStep: {len(self.candidates)} legendary candidates (excluding blacklist)")
+        
+        # Find and randomize only battles in legendary file indices
+        for battle in self.wild_battles.battles:
+            if battle.file_index in self.LEGENDARY_FILE_INDICES:
+                self._randomize_legendary(battle)
+        
+        # Apply changes to shared ScriptNarc data
+        self.wild_battles.apply_changes()
+    
+    def _randomize_legendary(self, battle):
+        """Randomize a single legendary encounter."""
+        original_species_id = battle.pokemon_id
+        
+        if original_species_id == 0:
             return
-
         
-
-        # Use encode_species_for_encounter for form encoding
-
-        encoded_id = encode_species_for_encounter(alolan_marowak)
-
+        original_mon = self.mondata[original_species_id]
         
-
-        print(f"DEBUG: Replacing all static encounters with Alolan Marowak")
-
-        print(f"DEBUG: encoded_id={encoded_id}")
-
+        path = ["static_legendary", f"file_{battle.file_index}", original_mon.name]
         
-
-        for battle in wild_battles.battles:
-
-            original_id = battle.pokemon_id
-
-            battle.pokemon_id = encoded_id
-
-            print(f"DEBUG: File {battle.file_index} offset 0x{battle.offset:04X}: {original_id} -> {encoded_id} (Alolan Marowak)")
-
+        # Pick a random legendary using NoFilter (all candidates are valid)
+        new_species = self.context.decide(
+            path=path,
+            original=original_mon,
+            candidates=self.candidates,
+            filter=NoFilter()
+        )
         
+        # Check for cosmetic forms and randomly select one
+        final_species = select_cosmetic_variant(
+            self.context, 
+            self.mondata, 
+            new_species.pokemon_id, 
+            path + ["cosmetic_form"]
+        )
+        
+        # Use encode_species_for_encounter for form encoding (species | form << 11)
+        encoded_species = encode_species_for_encounter(final_species)
+        battle.pokemon_id = encoded_species
+        
+        # Apply wild level multiplier
+        if self.wild_level_mult != 1.0:
+            new_level = max(1, self._round_half_up(battle.level * self.wild_level_mult))
+            battle.level = min(100, new_level)
+        
+        print(f"RandomizeStaticLegendaryStep: File {battle.file_index} - {original_mon.name} -> {final_species.name}")
 
-        print(f"DEBUG: Replaced {len(wild_battles.battles)} static encounters with Alolan Marowak")
+
+class RandomizeRestrictedLegendaryStep(Step):
+    """Randomize restricted legendary Pokemon encounters (cover legendaries).
+    
+    Specifically targets known restricted legendary encounter script files and
+    replaces them with a random Pokemon from: RestrictedPokemon.
+    Excludes any Pokemon on the blacklist.
+    
+    Args:
+        wild_level_mult: Multiplier to apply to legendary Pokemon levels (default 1.0)
+    """
+    
+    # Script file indices containing restricted legendary encounters
+    # Will be expanded as more locations are identified
+    RESTRICTED_FILE_INDICES = [
+        106,  # Moltres location (changed to Mewtwo in test)
+    ]
+    
+    def __init__(self, wild_level_mult=1.0):
+        self.wild_level_mult = wild_level_mult
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
+    def run(self, context):
+        self.mondata = context.get(Mons)
+        self.wild_battles = context.get(WildBattle)
+        self.context = context
+        
+        # Get restricted Pokemon pool (cover legendaries)
+        restricted = context.get(RestrictedPokemon)
+        
+        # Get blacklist to exclude
+        blacklist = context.get(LoadBlacklistStep)
+        
+        # Build candidate pool: restricted minus blacklist
+        restricted_ids = restricted.by_id - blacklist.by_id
+        
+        # Convert IDs to Pokemon data objects for filtering
+        self.candidates = [self.mondata[pid] for pid in restricted_ids if pid < len(self.mondata.data)]
+        
+        print(f"RandomizeRestrictedLegendaryStep: {len(self.candidates)} restricted candidates (excluding blacklist)")
+        
+        # Find and randomize only battles in restricted file indices
+        for battle in self.wild_battles.battles:
+            if battle.file_index in self.RESTRICTED_FILE_INDICES:
+                self._randomize_restricted(battle)
+        
+        # Apply changes to shared ScriptNarc data
+        self.wild_battles.apply_changes()
+    
+    def _randomize_restricted(self, battle):
+        """Randomize a single restricted legendary encounter."""
+        original_species_id = battle.pokemon_id
+        
+        if original_species_id == 0:
+            return
+        
+        original_mon = self.mondata[original_species_id]
+        
+        path = ["restricted_legendary", f"file_{battle.file_index}", original_mon.name]
+        
+        # Pick a random restricted legendary using NoFilter (all candidates are valid)
+        new_species = self.context.decide(
+            path=path,
+            original=original_mon,
+            candidates=self.candidates,
+            filter=NoFilter()
+        )
+        
+        # Check for cosmetic forms and randomly select one
+        final_species = select_cosmetic_variant(
+            self.context, 
+            self.mondata, 
+            new_species.pokemon_id, 
+            path + ["cosmetic_form"]
+        )
+        
+        # Use encode_species_for_encounter for form encoding (species | form << 11)
+        encoded_species = encode_species_for_encounter(final_species)
+        battle.pokemon_id = encoded_species
+        
+        # Apply wild level multiplier
+        if self.wild_level_mult != 1.0:
+            new_level = max(1, self._round_half_up(battle.level * self.wild_level_mult))
+            battle.level = min(100, new_level)
+        
+        print(f"RandomizeRestrictedLegendaryStep: File {battle.file_index} - {original_mon.name} -> {final_species.name}")
 
 
-
+class RandomizeSuicuneStep(Step):
+    """Randomize recurring Suicune encounters to the same SubLegendary.
+    
+    Suicune appears in multiple locations throughout the game. This step ensures
+    all appearances are randomized to the SAME Pokemon for consistency.
+    Uses SubLegendary pool, excluding blacklisted Pokemon.
+    
+    Args:
+        wild_level_mult: Multiplier to apply to Pokemon levels (default 1.0)
+    """
+    
+    # All script file indices where Suicune appears (WildBattle commands)
+    # Will be expanded as more locations are identified
+    SUICUNE_FILE_INDICES = [
+        216,  # First Suicune location
+    ]
+    
+    def __init__(self, wild_level_mult=1.0):
+        self.wild_level_mult = wild_level_mult
+    
+    def _round_half_up(self, value):
+        """Round to nearest integer, with .5 always rounding up."""
+        import math
+        return int(math.floor(value + 0.5))
+    
+    def run(self, context):
+        self.mondata = context.get(Mons)
+        self.wild_battles = context.get(WildBattle)
+        self.context = context
+        
+        # Get SubLegendary Pokemon pool (Suicune is a SubLegendary)
+        sub_legendaries = context.get(SubLegendaryPokemon)
+        
+        # Get blacklist to exclude
+        blacklist = context.get(LoadBlacklistStep)
+        
+        # Build candidate pool: SubLegendaries minus blacklist
+        legendary_ids = sub_legendaries.by_id - blacklist.by_id
+        
+        # Convert IDs to Pokemon data objects
+        self.candidates = [self.mondata[pid] for pid in legendary_ids if pid < len(self.mondata.data)]
+        
+        print(f"RandomizeSuicuneStep: {len(self.candidates)} SubLegendary candidates (excluding blacklist)")
+        
+        # Find Suicune battles
+        suicune_battles = [b for b in self.wild_battles.battles if b.file_index in self.SUICUNE_FILE_INDICES]
+        
+        if not suicune_battles:
+            print("RandomizeSuicuneStep: No Suicune battles found")
+            return
+        
+        # Randomize ONCE - use first battle for the decision
+        first_battle = suicune_battles[0]
+        original_species_id = first_battle.pokemon_id
+        
+        if original_species_id == 0:
+            print("RandomizeSuicuneStep: First battle has species ID 0, skipping")
+            return
+        
+        original_mon = self.mondata[original_species_id]
+        
+        path = ["suicune_recurring", original_mon.name]
+        
+        # Pick a random SubLegendary using NoFilter
+        new_species = self.context.decide(
+            path=path,
+            original=original_mon,
+            candidates=self.candidates,
+            filter=NoFilter()
+        )
+        
+        # Check for cosmetic forms
+        final_species = select_cosmetic_variant(
+            self.context, 
+            self.mondata, 
+            new_species.pokemon_id, 
+            path + ["cosmetic_form"]
+        )
+        
+        # Encode for encounter
+        encoded_species = encode_species_for_encounter(final_species)
+        
+        print(f"RandomizeSuicuneStep: {original_mon.name} -> {final_species.name} (applied to {len(suicune_battles)} locations)")
+        
+        # Apply the SAME replacement to ALL Suicune battles
+        for battle in suicune_battles:
+            battle.pokemon_id = encoded_species
+            
+            # Apply wild level multiplier
+            if self.wild_level_mult != 1.0:
+                new_level = max(1, self._round_half_up(battle.level * self.wild_level_mult))
+                battle.level = min(100, new_level)
+            
+            print(f"  - File {battle.file_index}: Updated to {final_species.name}")
+        
+        # Apply changes to shared ScriptNarc data
+        self.wild_battles.apply_changes()
 
 
 class StaticCries(Step):
@@ -9242,7 +9457,470 @@ class BillGiftMegaStep(Step):
         return updated
 
 
-#add class for rival fights
+# Stone item IDs for legendary/mythical megas not in BillGiftMegaStep.MEGA_POKEMON_DATA
+_LEGENDARY_MEGA_STONES = [
+    ("Mewtwo", 662),    # MEWTWONITE_X
+    ("Mewtwo", 663),    # MEWTWONITE_Y
+    ("Latias", 684),    # LATIASITE
+    ("Latios", 685),    # LATIOSITE
+    ("Diancie", 764),   # DIANCITE (mythical)
+    ("Kyogre", 535),    # BLUE_ORB (Primal Reversion)
+    ("Groudon", 534),   # RED_ORB (Primal Reversion)
+    
+]
 
-#add class for red
+# Extra non-legendary mega stones to widen on-type coverage beyond MEGA_POKEMON_DATA
+_EXTRA_MEGA_STONES = [
+    ("Charizard", 678),  # CHARIZARDITE_Y
+    ("Gallade", 756),    # GALLADITE
+]
+
+# Move-based megas have no held stone; they mega-evolve by knowing a specific move.
+# Each entry is (mega_species_name, triggering_move_id).
+_MOVE_BASED_MEGAS = [
+    ("Rayquaza", 623),   # MOVE_DRAGON_ASCENT
+]
+
+
+class RandomizeKantoBossesStep(Step):
+    """Theme the Kanto gym leaders, Rival 6, and the post-game Gauntlet with
+    legendaries and mega evolutions.
+
+    Pipeline placement: runs AFTER AddPivotStep/AddFulcrumStep/AddTypeMimicStep
+    (so pivot/fulcrum/mimic slots are known) and BEFORE the move/ability/item
+    steps (so the new species receive correct movesets, abilities, EVs, etc.).
+
+    Mega stones are NOT written here. The chosen stone for a slot is recorded on
+    the trainer as ``trainer._boss_mega_stones[slot] = stone_id``; the companion
+    ApplyBossMegaStonesStep stamps them onto ``held_item`` AFTER TrainerHeldItem
+    (which would otherwise clear and reassign every held item).
+
+    "Sub-legendary" here means the combined pool of SubLegendary, Mythical,
+    Paradox and Ultra Beast Pokemon. If every candidate for a slot is blacklisted
+    the slot is left unchanged.
+
+    Group rules (gym leaders, themed by the gym's randomized type):
+      - Group 1: ace -> on-type sub-legendary.
+      - Group 2: ace + 1 other on-type/type-mimic slot -> on-type sub-legendaries.
+      - Group 3: ace + 2 other on-type/fulcrum/pivot slots -> on-type sub-legendaries.
+      - Group 4: ace -> on-type mega (holding its stone); 1 on-type slot -> on-type
+        sub-legendary; 2 other slots -> sub-legendaries (any type).
+
+    Rival 6 (group-4 style but no type theme): ace -> its consistent starter's mega
+    if that starter can mega evolve, otherwise any mega; plus 3 sub-legendaries.
+
+    Gauntlet (Lorelei, Iris, Steven, Wallace, Cynthia, Red): first randomized with
+    Champion BST rules, then overridden to 1 Restricted, 3 sub-legendaries and a
+    mega, plus an always-present signature species. The mega placement follows
+    one of three scenarios chosen 40%/40%/20%.
+    """
+
+    # group -> list of (leader trainer name, gym name in IdentifyGymTrainers)
+    GROUP_LEADERS = {
+        1: [("Lt. Surge", "Vermilion City"), ("Sabrina", "Saffron City")],
+        2: [("Misty", "Cerulean City"), ("Erika", "Celadon City")],
+        3: [("Janine", "Fuchsia City"), ("Brock", "Pewter City")],
+        4: [("Blue", "Viridian City"), ("Blaine", "Seafoam Islands")],
+    }
+
+    # Gauntlet trainers and their always-present signature species
+    GAUNTLET_SIGNATURES = {
+        "Lorelei": "Lapras",
+        "Iris": "Haxorus",
+        "Steven": "Metagross",
+        "Wallace": "Milotic",
+        "Cynthia": "Garchomp",
+        "Red": "Pikachu",
+    }
+
+    def __init__(self, filter):
+        """filter should ALLOW legendaries (i.e. a blacklist/invalid-only filter),
+        since this step intentionally assigns legendary Pokemon."""
+        form_filter = FormCategoryFilter([FormCategory.DISCRETE, FormCategory.OUT_OF_BATTLE_CHANGE])
+        self.filter = AllFilters([filter, form_filter])
+
+    def run(self, context):
+        self.context = context
+        self.mondata = context.get(Mons)
+        self.pokemon_names = context.get(LoadPokemonNamesStep)
+        gyms = context.get(IdentifyGymTrainers)
+        index = context.get(IndexTrainers)
+        trainers = context.get(Trainers)
+        rivals = context.get(IdentifyRivals)
+
+        # Build the broad "sub-legendary" pool and the restricted pool.
+        self.sublegendary_ids = set()
+        for cls in (SubLegendaryPokemon, MythicalPokemon, ParadoxPokemon, UltraBeastPokemon):
+            self.sublegendary_ids |= set(context.get(cls).by_id)
+        self.restricted_ids = set(context.get(RestrictedPokemon).by_id)
+        self.legendary_ids = self.sublegendary_ids | self.restricted_ids
+
+        self._build_mega_tables()
+
+        # --- Gym leader groups ---
+        for group, leaders in self.GROUP_LEADERS.items():
+            for leader_name, gym_name in leaders:
+                gym = gyms.data.get(gym_name)
+                if gym is None:
+                    print(f"RandomizeKantoBosses: gym '{gym_name}' not found, skipping {leader_name}")
+                    continue
+                leader = self._find_leader(gym, leader_name)
+                if leader is None:
+                    print(f"RandomizeKantoBosses: leader '{leader_name}' not found in {gym_name}")
+                    continue
+                self._apply_group(group, leader, gym.type)
+
+        # --- Rival 6 (group-4 style, no type theme) ---
+        for rival_id in self._rival6_ids(rivals):
+            if rival_id < len(trainers.data):
+                self._apply_rival6(trainers.data[rival_id])
+
+        # --- Gauntlet ---
+        for name, signature in self.GAUNTLET_SIGNATURES.items():
+            tid = index.find(name)
+            if tid is None:
+                print(f"RandomizeKantoBosses: gauntlet trainer '{name}' not found")
+                continue
+            self._apply_gauntlet(trainers.data[tid], signature)
+
+    # ------------------------------------------------------------- mega tables
+
+    def _build_mega_tables(self):
+        """Build lists of (species_id, stone_id) megas, split by legendary class."""
+        entries = []
+        for first_name, stone_id, mega_name in BillGiftMegaStep.MEGA_POKEMON_DATA:
+            sid = self._species_id(mega_name)
+            if sid is not None:
+                entries.append((sid, stone_id))
+        for name, stone_id in _EXTRA_MEGA_STONES + _LEGENDARY_MEGA_STONES:
+            sid = self._species_id(name)
+            if sid is not None:
+                entries.append((sid, stone_id))
+
+        # Move-based megas (e.g. Mega Rayquaza): use stone_id None and record the
+        # triggering move in mega_move_by_species.
+        self.mega_move_by_species = {}
+        for name, move_id in _MOVE_BASED_MEGAS:
+            sid = self._species_id(name)
+            if sid is not None:
+                entries.append((sid, None))
+                self.mega_move_by_species[sid] = move_id
+
+        self.mega_entries = entries
+        self.nonleg_mega_entries = [
+            (sid, st) for (sid, st) in entries if sid not in self.legendary_ids
+        ]
+        self.sublegendary_mega_entries = [
+            (sid, st) for (sid, st) in entries if sid in self.sublegendary_ids
+        ]
+        self.restricted_mega_entries = [
+            (sid, st) for (sid, st) in entries if sid in self.restricted_ids
+        ]
+        # species_id -> list of stone_ids (stone-based only; for rival/signature
+        # mega detection, which relies on giving a held stone).
+        self.mega_by_species = {}
+        for sid, st in entries:
+            if st is not None:
+                self.mega_by_species.setdefault(sid, []).append(st)
+
+    def _species_id(self, name):
+        try:
+            ids = self.pokemon_names.get_all_by_name(name)
+        except KeyError:
+            return None
+        return ids[0] if ids else None
+
+    # ----------------------------------------------------------------- helpers
+
+    def _find_leader(self, gym, leader_name):
+        for trainer in gym.trainers:
+            if trainer.info.name == leader_name:
+                return trainer
+        return None
+
+    def _rival6_ids(self, rivals):
+        ids = []
+        for group in (rivals.chikorita_group_ids, rivals.cyndaquil_group_ids, rivals.totodile_group_ids):
+            if len(group) >= 6:
+                ids.append(group[5])
+        return ids
+
+    def _ace_slot(self, trainer):
+        if not trainer.team:
+            return None
+        if trainer.ace_index is not None:
+            return trainer.ace_index
+        maxlvl = max(p.level for p in trainer.team)
+        for i, p in enumerate(trainer.team):
+            if p.level == maxlvl:
+                return i
+        return 0
+
+    def _slot_categories(self, trainer):
+        ace = self._ace_slot(trainer)
+        pivot = getattr(trainer, '_pivot_slot', None)
+        fulcrum = getattr(trainer, '_fulcrum_slot', None)
+        mimic = getattr(trainer, '_mimic_slot', None)
+        used = {s for s in (ace, pivot, fulcrum, mimic) if s is not None}
+        on_type = [i for i in range(len(trainer.team)) if i not in used]
+        return ace, pivot, fulcrum, mimic, on_type
+
+    def _pick_slot(self, slots, path):
+        slots = [s for s in slots if s is not None]
+        if not slots:
+            return None
+        return self.context.decide(path=path, original=slots[0], candidates=slots, filter=NoFilter())
+
+    def _matches_type(self, species_id, type_id):
+        mon = self.mondata.data[species_id]
+        return int(mon.type1) == int(type_id) or int(mon.type2) == int(type_id)
+
+    def _decide_from_ids(self, id_pool, original, path, type_id=None):
+        """Pick a MonData from the id pool, applying the blacklist + optional type
+        filter. Returns the chosen MonData, or None if nothing survives."""
+        candidates = [self.mondata.data[i] for i in id_pool if 0 <= i < len(self.mondata.data)]
+        if not candidates:
+            return None
+        flt = self.filter
+        if type_id is not None:
+            flt = AllFilters([self.filter, TypeMatches([int(type_id)])])
+        filtered = flt.filter_all(self.context, original, candidates)
+        if not filtered:
+            return None
+        return self.context.decide(path=path, original=original, candidates=filtered, filter=NoFilter())
+
+    def _set_species(self, trainer, slot, new_species, path):
+        final = select_cosmetic_variant(self.context, self.mondata, new_species.pokemon_id, path + ["cosmetic_form"])
+        trainer.team[slot].species_id = encode_species_for_encounter(final)
+
+    def _record_mega(self, trainer, slot, stone_id):
+        if getattr(trainer, '_boss_mega_stones', None) is None:
+            trainer._boss_mega_stones = {}
+        trainer._boss_mega_stones[slot] = stone_id
+
+    def _record_mega_move(self, trainer, slot, move_id):
+        if move_id is None:
+            return
+        if getattr(trainer, '_boss_mega_moves', None) is None:
+            trainer._boss_mega_moves = {}
+        trainer._boss_mega_moves[slot] = move_id
+
+    def _set_from_pool(self, trainer, slot, id_pool, path, type_id=None):
+        original = self.mondata.data[trainer.team[slot].species_id & 0x7FF]
+        chosen = self._decide_from_ids(id_pool, original, path, type_id=type_id)
+        if chosen is not None:
+            self._set_species(trainer, slot, chosen, path)
+            return True
+        return False
+
+    def _set_mega(self, trainer, slot, entries, path, type_id=None):
+        """Set slot to a mega from entries (list of (species_id, stone_id)),
+        preferring on-type when type_id is given, and record the stone."""
+        pool = entries
+        if type_id is not None:
+            typed = [(sid, st) for (sid, st) in entries if self._matches_type(sid, type_id)]
+            if typed:
+                pool = typed
+        if not pool:
+            return False
+        sid, stone_id = self.context.decide(path=path, original=None, candidates=pool, filter=NoFilter())
+        trainer.team[slot].species_id = sid  # base mega species (no form encoding)
+        if stone_id is None:
+            # Move-based mega (e.g. Mega Rayquaza via Dragon Ascent).
+            self._record_mega_move(trainer, slot, self.mega_move_by_species.get(sid))
+        else:
+            self._record_mega(trainer, slot, stone_id)
+        return True
+
+    # ----------------------------------------------------------- group handlers
+
+    def _apply_group(self, group, leader, gym_type):
+        ace, pivot, fulcrum, mimic, on_type = self._slot_categories(leader)
+        if ace is None:
+            return
+        tname = leader.info.name
+        type_id = int(gym_type) if gym_type is not None else None
+        replaced = {ace}
+
+        if group == 1:
+            self._set_from_pool(leader, ace, self.sublegendary_ids, ["kanto", tname, "ace_sub"], type_id=type_id)
+
+        elif group == 2:
+            self._set_from_pool(leader, ace, self.sublegendary_ids, ["kanto", tname, "ace_sub"], type_id=type_id)
+            extra = [s for s in on_type if s not in replaced]
+            if mimic is not None:
+                extra.append(mimic)
+            slot = self._pick_slot(extra, ["kanto", tname, "g2_slot"])
+            if slot is not None:
+                self._set_from_pool(leader, slot, self.sublegendary_ids, ["kanto", tname, "g2_sub"], type_id=type_id)
+
+        elif group == 3:
+            self._set_from_pool(leader, ace, self.sublegendary_ids, ["kanto", tname, "ace_sub"], type_id=type_id)
+            extra = [s for s in on_type if s not in replaced]
+            for s in (fulcrum, pivot):
+                if s is not None:
+                    extra.append(s)
+            for n in range(2):
+                slot = self._pick_slot([s for s in extra if s not in replaced], ["kanto", tname, "g3_slot", n])
+                if slot is None:
+                    break
+                self._set_from_pool(leader, slot, self.sublegendary_ids, ["kanto", tname, "g3_sub", n], type_id=type_id)
+                replaced.add(slot)
+
+        elif group == 4:
+            # ace -> on-type mega
+            self._set_mega(leader, ace, self.mega_entries, ["kanto", tname, "ace_mega"], type_id=type_id)
+            # 1 on-type slot -> on-type sub-legendary
+            slot = self._pick_slot([s for s in on_type if s not in replaced], ["kanto", tname, "g4_ontype"])
+            if slot is not None:
+                self._set_from_pool(leader, slot, self.sublegendary_ids, ["kanto", tname, "g4_ontype_sub"], type_id=type_id)
+                replaced.add(slot)
+            # 2 other slots (any non-ace, not yet used) -> sub-legendary (any type)
+            others = [i for i in range(len(leader.team)) if i not in replaced]
+            for n in range(2):
+                slot = self._pick_slot([s for s in others if s not in replaced], ["kanto", tname, "g4_other", n])
+                if slot is None:
+                    break
+                self._set_from_pool(leader, slot, self.sublegendary_ids, ["kanto", tname, "g4_other_sub", n])
+                replaced.add(slot)
+
+    def _apply_rival6(self, trainer):
+        if not trainer.team:
+            return
+        ace = self._ace_slot(trainer)
+        if ace is None:
+            return
+        tname = trainer.info.name
+        replaced = {ace}
+
+        # Ace: if the rival's (consistent) starter can mega evolve, keep it and give
+        # its stone; otherwise replace with any mega.
+        ace_sid = trainer.team[ace].species_id & 0x7FF
+        if ace_sid in self.mega_by_species:
+            stones = self.mega_by_species[ace_sid]
+            stone = self.context.decide(path=["kanto", "rival6", tname, "ace_stone"],
+                                        original=None, candidates=stones, filter=NoFilter())
+            trainer.team[ace].species_id = ace_sid
+            self._record_mega(trainer, ace, stone)
+        else:
+            self._set_mega(trainer, ace, self.nonleg_mega_entries or self.mega_entries,
+                           ["kanto", "rival6", tname, "ace_mega"])
+
+        # 3 sub-legendaries (any type)
+        others = [i for i in range(len(trainer.team)) if i not in replaced]
+        for n in range(3):
+            slot = self._pick_slot([s for s in others if s not in replaced], ["kanto", "rival6", tname, "sub_slot", n])
+            if slot is None:
+                break
+            self._set_from_pool(trainer, slot, self.sublegendary_ids, ["kanto", "rival6", tname, "sub", n])
+            replaced.add(slot)
+
+    def _apply_gauntlet(self, trainer, signature_name):
+        team = trainer.team
+        n = len(team)
+        if n == 0:
+            return
+        tname = trainer.info.name
+
+        # 1. Champion-rule base randomization for every slot (non-legendary).
+        self._champion_randomize(trainer)
+
+        # 2. Choose mega scenario: 40% a, 40% b, 20% c.
+        scenario = self.context.decide(path=["kanto", "gauntlet", tname, "scenario"],
+                                       original="a", candidates=["a", "a", "b", "b", "c"],
+                                       filter=NoFilter())
+
+        sig_id = self._species_id(signature_name)
+        sig_slot = 0
+        rest_slot = 1 if n > 1 else None
+        sub_slots = [s for s in (2, 3, 4) if s < n]
+
+        # 3. Always-present signature.
+        if sig_id is not None:
+            team[sig_slot].species_id = sig_id
+
+        # 4. Restricted legendary.
+        if rest_slot is not None:
+            self._set_from_pool(trainer, rest_slot, self.restricted_ids, ["kanto", "gauntlet", tname, "restricted"])
+
+        # 5. Three sub-legendaries (any type).
+        for idx, slot in enumerate(sub_slots):
+            self._set_from_pool(trainer, slot, self.sublegendary_ids, ["kanto", "gauntlet", tname, "sub", idx])
+
+        # 6. Mega placement per scenario.
+        self._apply_gauntlet_mega(trainer, scenario, sig_slot, sig_id, rest_slot, sub_slots)
+
+    def _apply_gauntlet_mega(self, trainer, scenario, sig_slot, sig_id, rest_slot, sub_slots):
+        tname = trainer.info.name
+        path = ["kanto", "gauntlet", tname, "mega"]
+
+        # Scenario c: the mega IS the restricted legendary (e.g. Mewtwo).
+        if scenario == "c" and self.restricted_mega_entries and rest_slot is not None:
+            self._set_mega(trainer, rest_slot, self.restricted_mega_entries, path)
+            return
+        # Scenario b: the mega IS one of the sub-legendaries (e.g. Latios/Latias).
+        if scenario == "b" and self.sublegendary_mega_entries and sub_slots:
+            self._set_mega(trainer, sub_slots[0], self.sublegendary_mega_entries, path)
+            return
+        # Scenario a (and fallbacks): a non-legendary mega.
+        # If the signature species can mega evolve (Steven's Metagross, Cynthia's
+        # Garchomp), make the signature the mega; otherwise use the last slot.
+        if sig_id is not None and sig_id in self.mega_by_species:
+            stones = self.mega_by_species[sig_id]
+            stone = self.context.decide(path=path + ["sig_stone"], original=None,
+                                        candidates=stones, filter=NoFilter())
+            self._record_mega(trainer, sig_slot, stone)
+            return
+        last_slot = len(trainer.team) - 1
+        self._set_mega(trainer, last_slot, self.nonleg_mega_entries or self.mega_entries, path)
+
+    def _champion_randomize(self, trainer):
+        """Randomize every slot using Champion BST rules, excluding legendaries."""
+        tname = trainer.info.name
+        no_legendaries = NotInSet(self.legendary_ids)
+        candidates = list(self.mondata.data)
+        for i, pokemon in enumerate(trainer.team):
+            bst = BstExact600() if i >= 5 else BstRange515to601()
+            bst_filter = AllFilters([self.filter, no_legendaries, bst])
+            original = self.mondata[pokemon.species_id]
+            filtered = bst_filter.filter_all(self.context, original, candidates)
+            if not filtered:
+                continue
+            new_species = self.context.decide(path=["kanto", "gauntlet", tname, "champ", i],
+                                              original=original, candidates=filtered, filter=NoFilter())
+            self._set_species(trainer, i, new_species, ["kanto", "gauntlet", tname, "champ", i])
+
+
+class ApplyBossMegaStonesStep(Step):
+    """Stamp mega stones recorded by RandomizeKantoBossesStep onto the relevant
+    Pokemon's held_item.
+
+    Must run AFTER TrainerHeldItem (which clears and reassigns every held item),
+    so the mega stones survive into the final ROM.
+    """
+
+    def run(self, context):
+        trainers = context.get(Trainers)
+        stamped = 0
+        moves_forced = 0
+        for trainer in trainers.data:
+            stones = getattr(trainer, '_boss_mega_stones', None)
+            if stones:
+                for slot, stone_id in stones.items():
+                    if 0 <= slot < len(trainer.team):
+                        trainer.team[slot].held_item = stone_id
+                        stamped += 1
+            # Move-based megas (e.g. Mega Rayquaza): force the triggering move into a
+            # move slot if the Pokemon does not already know it.
+            moves = getattr(trainer, '_boss_mega_moves', None)
+            if moves:
+                for slot, move_id in moves.items():
+                    if 0 <= slot < len(trainer.team):
+                        pokemon = trainer.team[slot]
+                        if hasattr(pokemon, 'moves') and pokemon.moves:
+                            if move_id not in pokemon.moves:
+                                pokemon.moves[0] = move_id
+                            moves_forced += 1
+        print(f"ApplyBossMegaStones: stamped {stamped} mega stones and forced "
+              f"{moves_forced} mega-trigger moves onto boss Pokemon")
 

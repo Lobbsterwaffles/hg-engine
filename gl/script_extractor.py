@@ -917,3 +917,255 @@ class DebugJunkToFocusSash(Step):
         item_script.apply_changes()
         print(f"DEBUG: Done - {len(hidden_slots)} hidden items set to Focus Sash")
 
+
+class LevelCaps(Extractor):
+    """Extractor for level cap assignments in script NARC a/0/1/2.
+    
+    Finds all SetVar commands that set the level cap variable (0x416F).
+    
+    Command structure (6 bytes total):
+        - Command ID: 0x0029 (2 bytes) - SetVar command
+        - Variable: 0x416F (2 bytes) - Level cap variable
+        - Value: 2 bytes - The level cap value
+    
+    Usage:
+        level_caps = context.get(LevelCaps)
+        for cap in level_caps.caps:
+            print(f"File {cap.file_index}: Level cap = {cap.value}")
+            cap.value = 50  # Change level cap
+    """
+    
+    SETVAR_CMD = 0x0029   # SetVar command ID
+    LEVELCAP_VAR = 0x416F # Level cap variable
+    COMMAND_SIZE = 6      # 2 (cmd) + 2 (var) + 2 (value)
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        # Define the SetVar command structure using construct
+        self.setvar_struct = Struct(
+            "command_id" / Int16ul,   # Should be 0x0029
+            "variable" / Int16ul,      # Should be 0x416F
+            "value" / Int16ul          # Level cap value
+        )
+        
+        # Use shared ScriptNarc
+        self.script_narc = context.get(ScriptNarc)
+        self.data = self.script_narc.data
+        self.caps = self._find_all_level_caps()
+        print(f"LevelCaps: Found {len(self.caps)} level cap assignments", file=sys.stderr)
+    
+    def _find_all_level_caps(self):
+        """Scan all script files for SetVar 0x416F commands.
+        
+        Returns list of construct Containers with file_index and offset added.
+        """
+        caps = []
+        
+        for file_idx, file_data in enumerate(self.data):
+            if len(file_data) < self.COMMAND_SIZE:
+                continue
+            
+            for offset in range(len(file_data) - self.COMMAND_SIZE + 1):
+                # Check for SetVar command (0x0029)
+                if file_data[offset] == 0x29 and file_data[offset + 1] == 0x00:
+                    # Check for level cap variable (0x416F)
+                    var = file_data[offset + 2] | (file_data[offset + 3] << 8)
+                    if var != self.LEVELCAP_VAR:
+                        continue
+                    
+                    # Parse using construct
+                    try:
+                        parsed = self.setvar_struct.parse(file_data[offset:offset + self.COMMAND_SIZE])
+                    except Exception:
+                        continue
+                    
+                    # Add location metadata
+                    parsed.file_index = file_idx
+                    parsed.offset = offset
+                    caps.append(parsed)
+        
+        return caps
+    
+    def apply_changes(self):
+        """Apply level cap changes to shared ScriptNarc data."""
+        for cap in self.caps:
+            command_bytes = self.setvar_struct.build(cap)
+            file_data = bytearray(self.data[cap.file_index])
+            file_data[cap.offset:cap.offset + len(command_bytes)] = command_bytes
+            self.data[cap.file_index] = bytes(file_data)
+    
+    def get_caps_in_file(self, file_index):
+        """Get all level caps in a specific script file, sorted by value."""
+        caps_in_file = [cap for cap in self.caps if cap.file_index == file_index]
+        return sorted(caps_in_file, key=lambda c: c.value)
+
+
+class SyncLevelCapsWithBosses(Step):
+    """Syncs level cap values with boss trainer ace levels.
+    
+    Uses 'boss to cap file.csv' to map boss names to script files containing
+    their level cap assignments.
+    
+    CSV format: boss_name,file_index,note
+    - note can be empty, "dupe", "lower", or "higher"
+    - "dupe": File has multiple caps with same value (branching paths) - all get same new value
+    - "lower": File has two different caps - this boss uses the one with lower value
+    - "higher": File has two different caps - this boss uses the one with higher value
+    """
+    
+    def __init__(self):
+        self.csv_path = os.path.join(os.path.dirname(__file__), 'boss to cap file.csv')
+    
+    def _load_csv_mapping(self):
+        """Load boss-to-file mapping from CSV.
+        
+        Returns list of dicts with keys: boss_name, file_index, note
+        """
+        mappings = []
+        with open(self.csv_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                parts = line.split(',')
+                if len(parts) < 2:
+                    continue
+                
+                boss_name = parts[0].strip()
+                try:
+                    file_index = int(parts[1].strip())
+                except ValueError:
+                    print(f"SyncLevelCaps: Invalid file index for {boss_name}: {parts[1]}", file=sys.stderr)
+                    continue
+                
+                note = parts[2].strip().lower() if len(parts) > 2 else ""
+                
+                mappings.append({
+                    'boss_name': boss_name,
+                    'file_index': file_index,
+                    'note': note
+                })
+        
+        return mappings
+    
+    def run(self, context):
+        from steps import TrainerToBossMapping
+        
+        level_caps = context.get(LevelCaps)
+        boss_mapping = context.get(TrainerToBossMapping)
+        
+        csv_mappings = self._load_csv_mapping()
+        
+        # Track which caps we've already updated (for dupe handling)
+        updated_caps = set()
+        
+        for mapping in csv_mappings:
+            boss_name = mapping['boss_name']
+            file_index = mapping['file_index']
+            note = mapping['note']
+            
+            # Get boss ace level
+            ace_level = boss_mapping.get_boss_ace_level(boss_name, context)
+            if ace_level is None:
+                print(f"SyncLevelCaps: WARNING - Could not find ace level for boss '{boss_name}'")
+                continue
+            
+            # Get all level caps in this file
+            caps_in_file = level_caps.get_caps_in_file(file_index)
+            if not caps_in_file:
+                print(f"SyncLevelCaps: WARNING - No level caps found in file {file_index} for boss '{boss_name}'")
+                continue
+            
+            # Determine which cap(s) to update based on note
+            if note == "lower":
+                # Use the cap with lower value (first after sorting)
+                target_caps = [caps_in_file[0]]
+            elif note == "higher":
+                # Use the cap with higher value (last after sorting)
+                target_caps = [caps_in_file[-1]]
+            elif note == "dupe" or note == "":
+                # Update all caps in file (branching paths or single cap)
+                target_caps = caps_in_file
+            else:
+                # Unknown note, default to all caps in file
+                target_caps = caps_in_file
+            
+            # Update the target cap(s)
+            for cap in target_caps:
+                cap_id = (cap.file_index, cap.offset)
+                if cap_id in updated_caps:
+                    continue  # Skip already updated caps
+                
+                old_value = cap.value
+                cap.value = ace_level
+                updated_caps.add(cap_id)
+                print(f"SyncLevelCaps: {boss_name} (File {file_index}) Level Cap {old_value} -> {ace_level}")
+        
+        # Apply all changes
+        level_caps.apply_changes()
+
+
+class SyncStarterVariables(Step):
+    """Sets script variables 0x4067 and 0x4068 to the first and second starter IDs.
+    
+    These variables are read by the game scripts to determine starter ordering.
+    Located in script file 843.
+    """
+    
+    SCRIPT_FILE = 843
+    VAR_STARTER_1 = 0x4067
+    VAR_STARTER_2 = 0x4068
+    SETVAR_CMD = 0x0029
+    COMMAND_SIZE = 6
+    
+    def __init__(self):
+        self.setvar_struct = Struct(
+            "command_id" / Int16ul,
+            "variable" / Int16ul,
+            "value" / Int16ul
+        )
+    
+    def _find_setvar(self, file_data, target_var):
+        """Find SetVar command for a specific variable in file data."""
+        for offset in range(len(file_data) - self.COMMAND_SIZE + 1):
+            if file_data[offset] == 0x29 and file_data[offset + 1] == 0x00:
+                var = file_data[offset + 2] | (file_data[offset + 3] << 8)
+                if var == target_var:
+                    return offset
+        return None
+    
+    def run(self, context):
+        from steps import StarterExtractor
+        
+        script_narc = context.get(ScriptNarc)
+        starter_extractor = context.get(StarterExtractor)
+        
+        # Get starter IDs (already encoded for encounters)
+        starter_1_id = starter_extractor.data.starter_id[0]
+        starter_2_id = starter_extractor.data.starter_id[1]
+        
+        file_data = bytearray(script_narc.data[self.SCRIPT_FILE])
+        
+        # Find and update first starter variable
+        offset_1 = self._find_setvar(file_data, self.VAR_STARTER_1)
+        if offset_1 is not None:
+            old_val = file_data[offset_1 + 4] | (file_data[offset_1 + 5] << 8)
+            file_data[offset_1 + 4] = starter_1_id & 0xFF
+            file_data[offset_1 + 5] = (starter_1_id >> 8) & 0xFF
+            print(f"SyncStarterVariables: Var 0x4067 (File 843) {old_val} -> {starter_1_id}")
+        else:
+            print(f"SyncStarterVariables: WARNING - Could not find SetVar 0x4067 in file 843")
+        
+        # Find and update second starter variable
+        offset_2 = self._find_setvar(file_data, self.VAR_STARTER_2)
+        if offset_2 is not None:
+            old_val = file_data[offset_2 + 4] | (file_data[offset_2 + 5] << 8)
+            file_data[offset_2 + 4] = starter_2_id & 0xFF
+            file_data[offset_2 + 5] = (starter_2_id >> 8) & 0xFF
+            print(f"SyncStarterVariables: Var 0x4068 (File 843) {old_val} -> {starter_2_id}")
+        else:
+            print(f"SyncStarterVariables: WARNING - Could not find SetVar 0x4068 in file 843")
+        
+        script_narc.data[self.SCRIPT_FILE] = bytes(file_data)
+

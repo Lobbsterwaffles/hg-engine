@@ -202,6 +202,13 @@ if __name__ == "__main__":
 
     champion_filter = AllFilters(legendary_filters)  
 
+    # Boss filter for the Kanto boss themer: allows legendaries (this step
+    # intentionally assigns them) but still excludes blacklisted/invalid mons.
+    kanto_boss_filter = AllFilters([
+        NotInSet(ctx.get(LoadBlacklistStep).by_id),
+        NotInSet(ctx.get(InvalidPokemon).by_id),
+    ])
+
 
 
     type_mimics = ctx.get(TypeMimics)
@@ -214,7 +221,7 @@ if __name__ == "__main__":
 
         #DebugForcePumpkabooLargeStep(),
 
-        TrainerMult(multiplier=args.trainer_level_mult, gauntlet_mode=args.gauntlet_mode),
+        TrainerMult(multiplier=args.trainer_level_mult, gauntlet_mode=True),
 
         ExpandTrainerTeamsStep(bosses_only=args.expand_bosses_only),
 
@@ -229,6 +236,7 @@ if __name__ == "__main__":
         RandomizeWildItemsStep(),
 
         *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
+        SyncStarterVariables(),
 
         #DebugForceGalarianDarumakaStarterStep(),
 
@@ -250,6 +258,8 @@ if __name__ == "__main__":
 
         AddTypeMimicStep(gym_filter),
 
+        RandomizeKantoBossesStep(kanto_boss_filter),
+
         GeneralEVStep(),
 
         GeneralIVStep(mode="ScalingIVs"),
@@ -266,6 +276,8 @@ if __name__ == "__main__":
 
         TrainerHeldItem(),
 
+        ApplyBossMegaStonesStep(),
+
         # DEBUG: Set all trainer Pokemon to Weepinbell with Gastro Acid - runs LAST to overwrite everything
 
         #DebugWeepinbellStep(),
@@ -276,13 +288,13 @@ if __name__ == "__main__":
 
         RandomizeBerryPiles(),
 
-        DebugJunkToFocusSash(),
+        #DebugJunkToFocusSash(),
 
         RandomizeGiftPokemonStep(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
 
-        DebugAlolanMarowakGiftsStep(),
+        #DebugAlolanMarowakGiftsStep(),
 
-        DebugAlolanMarowakStaticStep(),
+        #DebugAlolanMarowakStaticStep(),
 
         RandomizeStaticPokemonStep(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
 
@@ -292,8 +304,12 @@ if __name__ == "__main__":
 
         RandomizeGiftEggsStep(encounter_filter),
         BillGiftMegaStep(),
+        RandomizeStaticLegendaryStep(),
+        RandomizeRestrictedLegendaryStep(),
+        RandomizeSuicuneStep(),
 
         UpdateStaticOverworldSprites(),
+        SyncLevelCapsWithBosses(),
 
         #DebugHeavySlamStep(),
 
