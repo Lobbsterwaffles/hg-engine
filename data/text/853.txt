@@ -726,4 +726,4 @@ a {COLOR 255}Synchro Machine{COLOR 0}
 a {COLOR 255}Meteorite{COLOR 0}
 a {COLOR 255}Scarlet Book{COLOR 0}
 a {COLOR 255}Violet Book{COLOR 0}
-a {COLOR 255}copy of Briar’s Book{COLOR 0}
+a {COLOR 255}copy of M2’s Letter{COLOR 0}
