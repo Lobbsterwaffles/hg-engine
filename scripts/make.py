@@ -80,7 +80,7 @@ OUTPUT = BUILD + "/output.bin"
 LINKED_SECTIONS = [BUILD + "/linked.o"]
 for file in OVERLAYS:
     LINKED_SECTIONS.append(BUILD + "/" + file + "_linked.o")
-OFFSET_START_IN_129 = 0x600
+OFFSET_START_IN_129 = 0x680
 
 def ExtractPointer(byteList: [bytes]):
     pointer = 0
@@ -282,6 +282,9 @@ def install():
     if os.path.isfile(BYTE_REPLACEMENT):
         with open(BYTE_REPLACEMENT, 'r') as replacelist:
             definesDict = {}
+            additionalFlags = [flag.removeprefix('-D') for flag in sys.argv if flag.startswith('-D')]
+            for flag in additionalFlags:
+                definesDict[flag] = True
             conditionals = []
             for line in replacelist:
                 if TryProcessFileInclusion(line, definesDict):
@@ -330,6 +333,9 @@ def hook():
         table = GetSymbols()
         with open(HOOKS, 'r') as hookList:
             definesDict = {}
+            additionalFlags = [flag.removeprefix('-D') for flag in sys.argv if flag.startswith('-D')]
+            for flag in additionalFlags:
+                definesDict[flag] = True
             conditionals = []
             for line in hookList:
                 if TryProcessFileInclusion(line, definesDict):

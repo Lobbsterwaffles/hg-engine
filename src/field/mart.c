@@ -1,9 +1,9 @@
+#include "../../include/constants/item.h"
 #include "../../include/debug.h"
 #include "../../include/pokemon.h"
 #include "../../include/save.h"
 #include "../../include/script.h"
 #include "../../include/types.h"
-#include "../../include/constants/item.h"
 
 #ifdef MART_EXPANSION
 
@@ -19,25 +19,25 @@ struct BadgeMartItems {
 
 // note: limited to 203 items (~34 pages)
 const struct BadgeMartItems sBadgeMart[] = {
-    { ITEM_POKE_BALL,      0 },
-    { ITEM_GREAT_BALL,     3 },
-    { ITEM_ULTRA_BALL,     5 },
-    { ITEM_POTION,         0 },
-    { ITEM_SUPER_POTION,   1 },
-    { ITEM_HYPER_POTION,   5 },
-    { ITEM_MAX_POTION,     7 },
-    { ITEM_FULL_RESTORE,   8 },
-    { ITEM_REVIVE,         3 },
-    { ITEM_ANTIDOTE,       0 },
-    { ITEM_PARALYZE_HEAL,  0 },
-    { ITEM_AWAKENING,      1 },
-    { ITEM_BURN_HEAL,      1 },
-    { ITEM_ICE_HEAL,       1 },
-    { ITEM_FULL_HEAL,      5 },
-    { ITEM_ESCAPE_ROPE,    1 },
-    { ITEM_REPEL,          1 },
-    { ITEM_SUPER_REPEL,    3 },
-    { ITEM_MAX_REPEL,      5 },
+    { ITEM_POKE_BALL, 0 },
+    { ITEM_GREAT_BALL, 3 },
+    { ITEM_ULTRA_BALL, 5 },
+    { ITEM_POTION, 0 },
+    { ITEM_SUPER_POTION, 1 },
+    { ITEM_HYPER_POTION, 5 },
+    { ITEM_MAX_POTION, 7 },
+    { ITEM_FULL_RESTORE, 8 },
+    { ITEM_REVIVE, 3 },
+    { ITEM_ANTIDOTE, 0 },
+    { ITEM_PARALYZE_HEAL, 0 },
+    { ITEM_AWAKENING, 1 },
+    { ITEM_BURN_HEAL, 1 },
+    { ITEM_ICE_HEAL, 1 },
+    { ITEM_FULL_HEAL, 5 },
+    { ITEM_ESCAPE_ROPE, 1 },
+    { ITEM_REPEL, 1 },
+    { ITEM_SUPER_REPEL, 3 },
+    { ITEM_MAX_REPEL, 5 },
 };
 
 void LONG_CALL InitMartUI(void *taskManager, FieldSystem *fieldSystem, const u16 *items, int kind, int buySell, int decoWhich, const struct MartItem *priceOverrides);
@@ -55,15 +55,11 @@ u16 sAzaleaCityMart[] = {
 };
 
 u16 sGoldenrodDepartmentUpper2F[] = {
-    ITEM_POTION, ITEM_SUPER_POTION, ITEM_HYPER_POTION, ITEM_MAX_POTION, ITEM_REVIVE,
-    ITEM_ANTIDOTE, ITEM_PARALYZE_HEAL, ITEM_BURN_HEAL, ITEM_ICE_HEAL, ITEM_AWAKENING,
-    ITEM_FULL_HEAL, 0xFFFF
+    ITEM_POTION, ITEM_SUPER_POTION, ITEM_HYPER_POTION, ITEM_MAX_POTION, ITEM_REVIVE, ITEM_ANTIDOTE, ITEM_PARALYZE_HEAL, ITEM_BURN_HEAL, ITEM_ICE_HEAL, ITEM_AWAKENING, ITEM_FULL_HEAL, 0xFFFF
 };
 
 u16 sGoldenrodDepartmentLower2F[] = {
-    ITEM_POKE_BALL, ITEM_GREAT_BALL, ITEM_ULTRA_BALL, ITEM_ESCAPE_ROPE, ITEM_POKE_DOLL,
-    ITEM_REPEL, ITEM_SUPER_REPEL, ITEM_MAX_REPEL, ITEM_GRASS_MAIL, ITEM_FLAME_MAIL,
-    ITEM_BUBBLE_MAIL, ITEM_SPACE_MAIL, 0xFFFF
+    ITEM_POKE_BALL, ITEM_GREAT_BALL, ITEM_ULTRA_BALL, ITEM_ESCAPE_ROPE, ITEM_POKE_DOLL, ITEM_REPEL, ITEM_SUPER_REPEL, ITEM_MAX_REPEL, ITEM_GRASS_MAIL, ITEM_FLAME_MAIL, ITEM_BUBBLE_MAIL, ITEM_SPACE_MAIL, 0xFFFF
 };
 
 u16 sGoldenrodDepartment3F[] = {
@@ -72,8 +68,7 @@ u16 sGoldenrodDepartment3F[] = {
 };
 
 u16 sGoldenrodDepartment4F[] = {
-    ITEM_PROTEIN, ITEM_IRON, ITEM_CALCIUM, ITEM_ZINC, ITEM_CARBOS,
-    ITEM_HP_UP, 0xFFFF
+    ITEM_PROTEIN, ITEM_IRON, ITEM_CALCIUM, ITEM_ZINC, ITEM_CARBOS, ITEM_HP_UP, 0xFFFF
 };
 
 u16 sGoldenrodDepartment5F[] = {
@@ -134,15 +129,11 @@ u16 sCeruleanMart[] = {
 };
 
 u16 sCeladonDepartmentUpper2F[] = {
-    ITEM_POTION, ITEM_SUPER_POTION, ITEM_HYPER_POTION, ITEM_MAX_POTION, ITEM_REVIVE,
-    ITEM_ANTIDOTE, ITEM_PARALYZE_HEAL, ITEM_BURN_HEAL, ITEM_ICE_HEAL, ITEM_AWAKENING,
-    ITEM_FULL_HEAL, 0xFFFF
+    ITEM_POTION, ITEM_SUPER_POTION, ITEM_HYPER_POTION, ITEM_MAX_POTION, ITEM_REVIVE, ITEM_ANTIDOTE, ITEM_PARALYZE_HEAL, ITEM_BURN_HEAL, ITEM_ICE_HEAL, ITEM_AWAKENING, ITEM_FULL_HEAL, 0xFFFF
 };
 
 u16 sCeladonDepartmentLower2F[] = {
-    ITEM_POKE_BALL, ITEM_GREAT_BALL, ITEM_ULTRA_BALL, ITEM_ESCAPE_ROPE, ITEM_POKE_DOLL,
-    ITEM_REPEL, ITEM_SUPER_REPEL, ITEM_MAX_REPEL, ITEM_GRASS_MAIL, ITEM_FLAME_MAIL,
-    ITEM_BUBBLE_MAIL, ITEM_SPACE_MAIL, 0xFFFF
+    ITEM_POKE_BALL, ITEM_GREAT_BALL, ITEM_ULTRA_BALL, ITEM_ESCAPE_ROPE, ITEM_POKE_DOLL, ITEM_REPEL, ITEM_SUPER_REPEL, ITEM_MAX_REPEL, ITEM_GRASS_MAIL, ITEM_FLAME_MAIL, ITEM_BUBBLE_MAIL, ITEM_SPACE_MAIL, 0xFFFF
 };
 
 u16 sCeladonDepartment3F[] = {
@@ -156,13 +147,11 @@ u16 sCeladonDepartment4F[] = {
 };
 
 u16 sCeladonDepartmentLeft5F[] = {
-    ITEM_X_SPEED, ITEM_X_ATTACK, ITEM_X_DEFENSE, ITEM_GUARD_SPEC, ITEM_DIRE_HIT,
-    ITEM_X_ACCURACY, ITEM_X_SP_ATK, ITEM_X_SP_DEF, 0xFFFF
+    ITEM_X_SPEED, ITEM_X_ATTACK, ITEM_X_DEFENSE, ITEM_GUARD_SPEC, ITEM_DIRE_HIT, ITEM_X_ACCURACY, ITEM_X_SP_ATK, ITEM_X_SP_DEF, 0xFFFF
 };
 
 u16 sCeladonDepartmentRight5F[] = {
-    ITEM_PROTEIN, ITEM_IRON, ITEM_CALCIUM, ITEM_ZINC, ITEM_CARBOS,
-    ITEM_HP_UP, 0xFFFF
+    ITEM_PROTEIN, ITEM_IRON, ITEM_CALCIUM, ITEM_ZINC, ITEM_CARBOS, ITEM_HP_UP, 0xFFFF
 };
 
 u16 sFuschiaMart[] = {
@@ -197,9 +186,10 @@ u16 sMahoganyPostRocketHideout[] = {
     ITEM_ADRENALINE_ORB, ITEM_BLUNDER_POLICY, ITEM_EJECT_PACK, ITEM_ROOM_SERVICE, ITEM_THROAT_SPRAY, ITEM_ABILITY_CAPSULE, ITEM_FOCUS_SASH, 0xFFFF
 };
 
-BOOL ScrCmd_MartBuy(SCRIPTCONTEXT *ctx) {
+BOOL ScrCmd_MartBuy(SCRIPTCONTEXT *ctx)
+{
     u16 unused UNUSED = ScriptGetVar(ctx);
-    
+
     u16 items[NELEMS(sBadgeMart) + 1];
     u8 badgeCount = 0;
     u8 index = 0;
@@ -227,116 +217,186 @@ BOOL ScrCmd_MartBuy(SCRIPTCONTEXT *ctx) {
 
 #ifdef POKEATHLON_SHOP_EXPANSION
 
-const struct MartItem sPokeathlonShopSunday[] = {
-    { ITEM_RED_APRICORN,   200  },
-    { ITEM_BLUE_APRICORN,  200  },
-    { ITEM_BLACK_APRICORN, 200  },
-    { ITEM_MOOMOO_MILK,    100  },
-    { ITEM_GRASS_MAIL,     3000 },
-    { ITEM_FLAME_MAIL,    1000 },
-    { ITEM_BUBBLE_MAIL,   500  },
-    { ITEM_NUGGET,         500  },
-    { ITEM_BUBBLE_MAIL,      3000 },
-    { ITEM_SPACE_MAIL,     2500 },
-    { ITEM_AIR_MAIL,    3000 },
-    { ITEM_TUNNEL_MAIL,     3000 },
-    { 0xFFFF,              0    },
+const struct MartItem sPokeathlonShop_Sunday[] = {
+    { ITEM_RED_APRICORN, 200 },
+    { ITEM_BLUE_APRICORN, 200 },
+    { ITEM_BLACK_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_KINGS_ROCK, 3000 },
+    { ITEM_HEART_SCALE, 1000 },
+    { 0xFFFF, 0 },
 };
 
-const struct MartItem sPokeathlonShopMonday[] = {
-    { ITEM_RED_APRICORN,   200  },
-    { ITEM_BLUE_APRICORN,  200  },
-    { ITEM_BLACK_APRICORN, 200  },
-    { ITEM_MOOMOO_MILK,    100  },
-    { ITEM_GRASS_MAIL,     3000 },
-    { ITEM_FLAME_MAIL,    1000 },
-    { ITEM_BUBBLE_MAIL,   500  },
-    { ITEM_NUGGET,         500  },
-    { ITEM_BUBBLE_MAIL,      3000 },
-    { ITEM_SPACE_MAIL,     2500 },
-    { ITEM_AIR_MAIL,    3000 },
-    { ITEM_TUNNEL_MAIL,     3000 },
-    { 0xFFFF,              0    },
+const struct MartItem sPokeathlonShop_Monday[] = {
+    { ITEM_RED_APRICORN, 200 },
+    { ITEM_BLUE_APRICORN, 200 },
+    { ITEM_GREEN_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_MOON_STONE, 3000 },
+    { ITEM_RARE_CANDY, 2000 },
+    { 0xFFFF, 0 },
 };
 
-const struct MartItem sPokeathlonShopTuesday[] = {
-   { ITEM_RED_APRICORN,   200  },
-    { ITEM_BLUE_APRICORN,  200  },
-    { ITEM_BLACK_APRICORN, 200  },
-    { ITEM_MOOMOO_MILK,    100  },
-    { ITEM_GRASS_MAIL,     3000 },
-    { ITEM_FLAME_MAIL,    1000 },
-    { ITEM_BUBBLE_MAIL,   500  },
-    { ITEM_NUGGET,         500  },
-    { ITEM_BUBBLE_MAIL,      3000 },
-    { ITEM_SPACE_MAIL,     2500 },
-    { ITEM_AIR_MAIL,    3000 },
-    { ITEM_TUNNEL_MAIL,     3000 },
-    { 0xFFFF,              0    },
+const struct MartItem sPokeathlonShop_Tuesday[] = {
+    { ITEM_YELLOW_APRICORN, 200 },
+    { ITEM_PINK_APRICORN, 200 },
+    { ITEM_WHITE_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_FIRE_STONE, 2500 },
+    { ITEM_PP_UP, 1000 },
+    { 0xFFFF, 0 },
 };
 
-const struct MartItem sPokeathlonShopWednesday[] = {
-   { ITEM_RED_APRICORN,   200  },
-    { ITEM_BLUE_APRICORN,  200  },
-    { ITEM_BLACK_APRICORN, 200  },
-    { ITEM_MOOMOO_MILK,    100  },
-    { ITEM_GRASS_MAIL,     3000 },
-    { ITEM_FLAME_MAIL,    1000 },
-    { ITEM_BUBBLE_MAIL,   500  },
-    { ITEM_NUGGET,         500  },
-    { ITEM_BUBBLE_MAIL,      3000 },
-    { ITEM_SPACE_MAIL,     2500 },
-    { ITEM_AIR_MAIL,    3000 },
-    { ITEM_TUNNEL_MAIL,     3000 },
-    { 0xFFFF,              0    },
+const struct MartItem sPokeathlonShop_Wednesday[] = {
+    { ITEM_BLUE_APRICORN, 200 },
+    { ITEM_PINK_APRICORN, 200 },
+    { ITEM_BLACK_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_WATER_STONE, 2500 },
+    { ITEM_HEART_SCALE, 1000 },
+    { 0xFFFF, 0 },
 };
 
-const struct MartItem sPokeathlonShopThursday[] = {
-   { ITEM_RED_APRICORN,   200  },
-    { ITEM_BLUE_APRICORN,  200  },
-    { ITEM_BLACK_APRICORN, 200  },
-    { ITEM_MOOMOO_MILK,    100  },
-    { ITEM_GRASS_MAIL,     3000 },
-    { ITEM_FLAME_MAIL,    1000 },
-    { ITEM_BUBBLE_MAIL,   500  },
-    { ITEM_NUGGET,         500  },
-    { ITEM_BUBBLE_MAIL,      3000 },
-    { ITEM_SPACE_MAIL,     2500 },
-    { ITEM_AIR_MAIL,    3000 },
-    { ITEM_TUNNEL_MAIL,     3000 },
-    { 0xFFFF,              0    },
+const struct MartItem sPokeathlonShop_Thursday[] = {
+    { ITEM_YELLOW_APRICORN, 200 },
+    { ITEM_PINK_APRICORN, 200 },
+    { ITEM_WHITE_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_THUNDER_STONE, 2500 },
+    { ITEM_PP_UP, 1000 },
+    { 0xFFFF, 0 },
 };
 
-const struct MartItem sPokeathlonShopFriday[] = {
-    { ITEM_RED_APRICORN,   200  },
-    { ITEM_BLUE_APRICORN,  200  },
-    { ITEM_BLACK_APRICORN, 200  },
-    { ITEM_MOOMOO_MILK,    100  },
-    { ITEM_GRASS_MAIL,     3000 },
-    { ITEM_FLAME_MAIL,    1000 },
-    { ITEM_BUBBLE_MAIL,   500  },
-    { ITEM_NUGGET,         500  },
-    { ITEM_BUBBLE_MAIL,      3000 },
-    { ITEM_SPACE_MAIL,     2500 },
-    { ITEM_AIR_MAIL,    3000 },
-    { ITEM_TUNNEL_MAIL,     3000 },
-    { 0xFFFF,              0    },
+const struct MartItem sPokeathlonShop_Friday[] = {
+    { ITEM_RED_APRICORN, 200 },
+    { ITEM_YELLOW_APRICORN, 200 },
+    { ITEM_GREEN_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_METAL_COAT, 2500 },
+    { ITEM_NUGGET, 500 },
+    { 0xFFFF, 0 },
 };
 
-const struct MartItem sPokeathlonShopSaturday[] = {
-   { ITEM_RED_APRICORN,   200  },
-    { ITEM_BLUE_APRICORN,  200  },
-    { ITEM_BLACK_APRICORN, 200  },
-    { ITEM_MOOMOO_MILK,    100  },
-    { ITEM_GRASS_MAIL,     3000 },
-    { ITEM_FLAME_MAIL,    1000 },
-    { ITEM_BUBBLE_MAIL,   500  },
-    { ITEM_NUGGET,         500  },
-    { ITEM_BUBBLE_MAIL,      3000 },
-    { ITEM_SPACE_MAIL,     2500 },
-    { ITEM_AIR_MAIL,    3000 },
-    { ITEM_TUNNEL_MAIL,     3000 },
-    { 0xFFFF,              0    },
+const struct MartItem sPokeathlonShop_Saturday[] = {
+    { ITEM_GREEN_APRICORN, 200 },
+    { ITEM_WHITE_APRICORN, 200 },
+    { ITEM_BLACK_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_LEAF_STONE, 2500 },
+    { ITEM_RARE_CANDY, 2000 },
+    { 0xFFFF, 0 },
+};
+
+const struct MartItem sPokeathlonShop_NatdexSunday[] = {
+    { ITEM_RED_APRICORN, 200 },
+    { ITEM_BLUE_APRICORN, 200 },
+    { ITEM_BLACK_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_KINGS_ROCK, 3000 },
+    { ITEM_HEART_SCALE, 1000 },
+    { ITEM_FULL_RESTORE, 500 },
+    { ITEM_NUGGET, 500 },
+    { ITEM_SUN_STONE, 3000 },
+    { ITEM_FIRE_STONE, 2500 },
+    { ITEM_SHINY_STONE, 3000 },
+    { ITEM_DAWN_STONE, 3000 },
+    { 0xFFFF, 0 },
+};
+
+const struct MartItem sPokeathlonShop_NatdexMonday[] = {
+    { ITEM_RED_APRICORN, 200 },
+    { ITEM_BLUE_APRICORN, 200 },
+    { ITEM_GREEN_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_MOON_STONE, 3000 },
+    { ITEM_RARE_CANDY, 2000 },
+    { ITEM_FULL_RESTORE, 500 },
+    { ITEM_KINGS_ROCK, 3000 },
+    { ITEM_SUN_STONE, 3000 },
+    { ITEM_WATER_STONE, 2500 },
+    { ITEM_SHINY_STONE, 3000 },
+    { ITEM_DUSK_STONE, 3000 },
+    { 0xFFFF, 0 },
+};
+
+const struct MartItem sPokeathlonShop_NatdexTuesday[] = {
+    { ITEM_YELLOW_APRICORN, 200 },
+    { ITEM_PINK_APRICORN, 200 },
+    { ITEM_WHITE_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_FIRE_STONE, 2500 },
+    { ITEM_PP_UP, 1000 },
+    { ITEM_FULL_RESTORE, 500 },
+    { ITEM_METAL_COAT, 2500 },
+    { ITEM_WATER_STONE, 2500 },
+    { ITEM_LEAF_STONE, 2500 },
+    { ITEM_DUSK_STONE, 3000 },
+    { ITEM_DAWN_STONE, 3000 },
+    { 0xFFFF, 0 },
+};
+
+const struct MartItem sPokeathlonShop_NatdexWednesday[] = {
+    { ITEM_BLUE_APRICORN, 200 },
+    { ITEM_PINK_APRICORN, 200 },
+    { ITEM_BLACK_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_WATER_STONE, 2500 },
+    { ITEM_HEART_SCALE, 1000 },
+    { ITEM_FULL_RESTORE, 500 },
+    { ITEM_DRAGON_SCALE, 2500 },
+    { ITEM_THUNDER_STONE, 2500 },
+    { ITEM_MOON_STONE, 3000 },
+    { ITEM_SHINY_STONE, 3000 },
+    { ITEM_DAWN_STONE, 3000 },
+    { 0xFFFF, 0 },
+};
+
+const struct MartItem sPokeathlonShop_NatdexThursday[] = {
+    { ITEM_YELLOW_APRICORN, 200 },
+    { ITEM_PINK_APRICORN, 200 },
+    { ITEM_WHITE_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_THUNDER_STONE, 2500 },
+    { ITEM_PP_UP, 1000 },
+    { ITEM_FULL_RESTORE, 500 },
+    { ITEM_KINGS_ROCK, 3000 },
+    { ITEM_FIRE_STONE, 2500 },
+    { ITEM_LEAF_STONE, 2500 },
+    { ITEM_SHINY_STONE, 3000 },
+    { ITEM_DUSK_STONE, 3000 },
+    { 0xFFFF, 0 },
+};
+
+const struct MartItem sPokeathlonShop_NatdexFriday[] = {
+    { ITEM_RED_APRICORN, 200 },
+    { ITEM_YELLOW_APRICORN, 200 },
+    { ITEM_GREEN_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_METAL_COAT, 2500 },
+    { ITEM_NUGGET, 500 },
+    { ITEM_FULL_RESTORE, 500 },
+    { ITEM_DRAGON_SCALE, 2500 },
+    { ITEM_WATER_STONE, 2500 },
+    { ITEM_SUN_STONE, 3000 },
+    { ITEM_DUSK_STONE, 3000 },
+    { ITEM_DAWN_STONE, 3000 },
+    { 0xFFFF, 0 },
+};
+
+const struct MartItem sPokeathlonShop_NatdexSaturday[] = {
+    { ITEM_GREEN_APRICORN, 200 },
+    { ITEM_WHITE_APRICORN, 200 },
+    { ITEM_BLACK_APRICORN, 200 },
+    { ITEM_MOOMOO_MILK, 100 },
+    { ITEM_LEAF_STONE, 2500 },
+    { ITEM_RARE_CANDY, 2000 },
+    { ITEM_FULL_RESTORE, 500 },
+    { ITEM_METAL_COAT, 2500 },
+    { ITEM_THUNDER_STONE, 2500 },
+    { ITEM_SHINY_STONE, 3000 },
+    { ITEM_DUSK_STONE, 3000 },
+    { ITEM_DAWN_STONE, 3000 },
+    { 0xFFFF, 0 },
 };
 
 #endif // POKEATHLON_SHOP_EXPANSION
