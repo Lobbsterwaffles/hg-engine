@@ -553,11 +553,14 @@ if __name__ == "__main__":
     p = build_parser()
     args = p.parse_args()
 
-    if not (args.descriptions or args.sprites):
-        print("[ERROR] Specify at least one of --descriptions or --sprites")
+    # Require at least one action
+    if not (args.descriptions or args.sprites or args.export):
+        print("[ERROR] Specify at least one of --descriptions, --sprites, or --export")
         exit(1)
 
     if args.descriptions:
         update_descriptions(args)
     if args.sprites:
         update_sprites(args)
+    if args.export:
+        export_machine_moves(args)
