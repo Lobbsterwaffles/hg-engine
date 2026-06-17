@@ -1,5 +1,7 @@
 import sys
+import os
 from framework import *
+import asm
 
 
 class ScriptNarc(Writeback, NarcExtractor):
@@ -1168,4 +1170,411 @@ class SyncStarterVariables(Step):
             print(f"SyncStarterVariables: WARNING - Could not find SetVar 0x4068 in file 843")
         
         script_narc.data[self.SCRIPT_FILE] = bytes(file_data)
+
+
+class ScriptDisassembler(Extractor):
+    """Disassembles binary scripts from NARC a/0/1/2 back to readable assembly.
+    
+    Uses the asm.py module to parse scriptmacros.s and build a command lookup table.
+    
+    Build process summary:
+    - Source: armips/scr_seq/scr_seq_NNNNN_name.s
+    - Creates: build/a012/2_NNN (intermediate binary)
+    - Packed into: NARC a/0/1/2, file index NNN
+    
+    For example:
+    - scr_seq_00003_commonscript.s -> build/a012/2_003 -> a/0/1/2 file index 3
+    
+    Usage:
+        disasm = context.get(ScriptDisassembler)
+        output = disasm.disassemble(3)  # Disassemble file 3 (commonscript)
+        print(output)
+    """
+    
+    SCRDEF_END_MARKER = 0xFD13  # End of script definition header
+    
+    def __init__(self, context):
+        super().__init__(context)
+        
+        # Use shared ScriptNarc
+        self.script_narc = context.get(ScriptNarc)
+        self.data = self.script_narc.data
+        
+        # Build command lookup from scriptmacros.s
+        self.cmd_lookup = self._build_cmd_lookup()
+        print(f"ScriptDisassembler: Loaded {len(self.cmd_lookup)} command signatures", file=sys.stderr)
+    
+    def _build_cmd_lookup(self):
+        """Parse scriptmacros.s and build command ID -> signature lookup."""
+        # Find scriptmacros.s relative to this file
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        repo_root = os.path.dirname(script_dir)
+        macro_file = os.path.join(repo_root, 'armips', 'include', 'scriptmacros.s')
+        
+        if not os.path.exists(macro_file):
+            print(f"ScriptDisassembler: WARNING - scriptmacros.s not found at {macro_file}", file=sys.stderr)
+            return {}
+        
+        # Parse the file using asm module
+        parsed_lines = asm.parse_file(macro_file)
+        macros = asm.extract_macros(parsed_lines)
+        cmd_lookup = asm.build_cmd_lookup(macros)
+        
+        return cmd_lookup
+    
+    def _read_u8(self, data, offset):
+        """Read unsigned 8-bit value."""
+        if offset >= len(data):
+            return None, offset
+        return data[offset], offset + 1
+    
+    def _read_u16(self, data, offset):
+        """Read unsigned 16-bit little-endian value."""
+        if offset + 2 > len(data):
+            return None, offset
+        val = data[offset] | (data[offset + 1] << 8)
+        return val, offset + 2
+    
+    def _read_u32(self, data, offset):
+        """Read unsigned 32-bit little-endian value."""
+        if offset + 4 > len(data):
+            return None, offset
+        val = data[offset] | (data[offset + 1] << 8) | (data[offset + 2] << 16) | (data[offset + 3] << 24)
+        return val, offset + 4
+    
+    def _read_s32(self, data, offset):
+        """Read signed 32-bit little-endian value."""
+        val, new_offset = self._read_u32(data, offset)
+        if val is None:
+            return None, offset
+        # Convert to signed
+        if val >= 0x80000000:
+            val -= 0x100000000
+        return val, new_offset
+    
+    def _parse_header(self, data):
+        """Parse script definition header (scrdef entries).
+        
+        Returns:
+            tuple: (list of (offset, target_address) tuples, end_offset)
+        """
+        scrdefs = []
+        offset = 0
+        
+        while offset + 2 <= len(data):
+            # Check for end marker
+            marker = data[offset] | (data[offset + 1] << 8)
+            if marker == self.SCRDEF_END_MARKER:
+                return scrdefs, offset + 2
+            
+            # Read relative offset (32-bit signed)
+            if offset + 4 > len(data):
+                break
+            
+            rel_offset, _ = self._read_s32(data, offset)
+            if rel_offset is None:
+                break
+            
+            # Calculate absolute target address
+            # scrdef uses: .word offset - . - 4
+            # So target = current_offset + rel_offset + 4
+            target = offset + rel_offset + 4
+            scrdefs.append((offset, target))
+            offset += 4
+        
+        return scrdefs, offset
+    
+    def _format_param(self, size, value, is_relative=False, current_offset=0):
+        """Format a parameter value for output."""
+        if is_relative:
+            # Convert relative offset to label reference
+            # The binary stores: dest - . - 4, so target = current + value + 4
+            target = current_offset + value + 4
+            return f"_0{target:04X}"
+        elif value >= 0x8000 and value <= 0x80FF:
+            # Common script variables
+            var_names = {
+                0x8000: "VAR_SPECIAL_x8000",
+                0x8001: "VAR_SPECIAL_x8001",
+                0x8002: "VAR_SPECIAL_x8002",
+                0x8003: "VAR_SPECIAL_x8003",
+                0x8004: "VAR_SPECIAL_x8004",
+                0x8005: "VAR_SPECIAL_x8005",
+                0x8006: "VAR_SPECIAL_x8006",
+                0x8007: "VAR_SPECIAL_x8007",
+                0x8008: "VAR_SPECIAL_x8008",
+                0x8009: "VAR_SPECIAL_x8009",
+                0x800A: "VAR_SPECIAL_x800A",
+                0x800B: "VAR_SPECIAL_x800B",
+                0x800C: "VAR_SPECIAL_RESULT",
+            }
+            return var_names.get(value, f"0x{value:04X}")
+        else:
+            return str(value)
+    
+    def disassemble(self, file_index, armips_compatible=True):
+        """Disassemble a script file from the NARC.
+        
+        Args:
+            file_index: Index of the script file in the NARC
+            armips_compatible: If True, output armips-compatible assembly
+            
+        Returns:
+            str: Assembly-like output
+        """
+        if file_index >= len(self.data):
+            return f"; ERROR: File index {file_index} out of range (max {len(self.data)-1})"
+        
+        data = self.data[file_index]
+        if not data:
+            return f"; File {file_index} is empty"
+        
+        lines = []
+        
+        # Armips header
+        if armips_compatible:
+            lines.append(".nds")
+            lines.append(".thumb")
+            lines.append("")
+            lines.append('.include "armips/include/scriptmacros.s"')
+            lines.append('.include "armips/include/flags.s"')
+            lines.append('.include "armips/include/soundeffects.s"')
+            lines.append('.include "armips/include/vars.s"')
+            lines.append('.include "asm/include/items.inc"')
+            lines.append("")
+            lines.append(f"// Disassembled from NARC a/0/1/2, file {file_index}")
+            lines.append(f"// Total size: {len(data)} bytes")
+            lines.append("")
+            lines.append(f'.create "build/a012/2_{file_index:03d}", 0')
+            lines.append("")
+        else:
+            lines.append(f"; Disassembly of script file {file_index}")
+            lines.append(f"; Total size: {len(data)} bytes")
+            lines.append("")
+        
+        # Parse header
+        scrdefs, header_end = self._parse_header(data)
+        
+        # Build label map: offset -> list of label names
+        # Multiple scrdefs can point to the same code (shared handlers)
+        label_map = {}  # offset -> list of labels
+        for i, (offset, target) in enumerate(scrdefs):
+            if target not in label_map:
+                label_map[target] = []
+            label_map[target].append(f"scr_seq_{file_index:04d}_{i:03d}")
+        
+        # Output script definitions
+        for i, (offset, target) in enumerate(scrdefs):
+            lines.append(f"scrdef scr_seq_{file_index:04d}_{i:03d}")
+        lines.append("scrdef_end")
+        lines.append("")
+        
+        # First pass: collect all jump/data targets so we can create labels
+        # Start with scrdef targets
+        jump_targets = set(target for _, target in scrdefs)
+        
+        # Scan from EVERY scrdef target to find all relative references
+        # Use a work queue to handle branches
+        scanned_offsets = set()
+        work_queue = list(jump_targets)
+        
+        while work_queue:
+            temp_offset = work_queue.pop(0)
+            
+            # Skip if out of bounds or already scanned
+            if temp_offset < header_end or temp_offset >= len(data):
+                continue
+            if temp_offset in scanned_offsets:
+                continue
+            
+            # Scan from this offset until we hit end/return or known code
+            while temp_offset < len(data) and temp_offset not in scanned_offsets:
+                scanned_offsets.add(temp_offset)
+                
+                cmd_id, next_offset = self._read_u16(data, temp_offset)
+                if cmd_id is None:
+                    break
+                
+                if cmd_id in self.cmd_lookup:
+                    sig = self.cmd_lookup[cmd_id]
+                    param_offset = next_offset
+                    for slot in sig.slots:
+                        if slot.size == 1:
+                            _, param_offset = self._read_u8(data, param_offset)
+                        elif slot.size == 2:
+                            _, param_offset = self._read_u16(data, param_offset)
+                        elif slot.size == 4:
+                            if slot.is_relative:
+                                val, param_offset = self._read_s32(data, param_offset)
+                                if val is not None:
+                                    target = (param_offset - 4) + val + 4
+                                    # Only add if within file bounds
+                                    if header_end <= target < len(data):
+                                        jump_targets.add(target)
+                                        if target not in scanned_offsets:
+                                            work_queue.append(target)
+                            else:
+                                _, param_offset = self._read_u32(data, param_offset)
+                    temp_offset = param_offset
+                    
+                    # Stop scanning if we hit an unconditional end/return/jump
+                    if sig.name in ('end', 'return', 'Jump'):
+                        break
+                else:
+                    temp_offset = next_offset
+        
+        # Assign auto-labels to jump targets that aren't scrdef labels
+        auto_label_counter = 0
+        for target in sorted(jump_targets):
+            if target not in label_map:
+                label_map[target] = [f"_auto_{auto_label_counter:04d}"]
+                auto_label_counter += 1
+        
+        # Second pass: output ALL bytes from header_end to end of file
+        # Track which bytes are code vs data
+        offset = header_end
+        while offset < len(data):
+            # Check if this is a label target - emit ALL labels at this address
+            if offset in label_map:
+                for label in label_map[offset]:
+                    lines.append(f"{label}:")
+            
+            # Check if this offset was scanned as code
+            if offset in scanned_offsets:
+                # Try to read command ID
+                cmd_id, next_offset = self._read_u16(data, offset)
+                if cmd_id is None:
+                    lines.append(f"    .byte 0x{data[offset]:02X}")
+                    offset += 1
+                    continue
+                
+                # Look up command signature
+                if cmd_id in self.cmd_lookup:
+                    sig = self.cmd_lookup[cmd_id]
+                    cmd_line = f"    {sig.name}"
+                    params = []
+                    param_offset = next_offset
+                    
+                    for slot in sig.slots:
+                        if slot.size == 1:
+                            val, param_offset = self._read_u8(data, param_offset)
+                        elif slot.size == 2:
+                            val, param_offset = self._read_u16(data, param_offset)
+                        elif slot.size == 4:
+                            if slot.is_relative:
+                                val, param_offset = self._read_s32(data, param_offset)
+                            else:
+                                val, param_offset = self._read_u32(data, param_offset)
+                        
+                        if val is None:
+                            params.append("???")
+                            break
+                        
+                        # Format the parameter
+                        if slot.is_relative:
+                            target = (param_offset - slot.size) + val + 4
+                            if target in label_map:
+                                formatted = label_map[target][0]  # Use first label at this address
+                            else:
+                                formatted = f"_0x{target:04X}"
+                        else:
+                            formatted = self._format_param(slot.size, val)
+                        
+                        params.append(formatted)
+                    
+                    if params:
+                        cmd_line += " " + ", ".join(params)
+                    
+                    lines.append(cmd_line)
+                    offset = param_offset
+                else:
+                    # Unknown command - output as raw bytes
+                    lines.append(f"    .halfword 0x{cmd_id:04X}")
+                    offset = next_offset
+            else:
+                # This is data, not code - output as raw bytes
+                # Try to output in groups for readability
+                val, _ = self._read_u16(data, offset)
+                if val is not None:
+                    lines.append(f"    .halfword 0x{val:04X}")
+                    offset += 2
+                else:
+                    lines.append(f"    .byte 0x{data[offset]:02X}")
+                    offset += 1
+        
+        # Close armips file
+        if armips_compatible:
+            lines.append("")
+            lines.append(".close")
+        
+        return "\n".join(lines)
+    
+    def disassemble_to_file(self, file_index, output_path):
+        """Disassemble a script and write to a file.
+        
+        Args:
+            file_index: Index of the script file in the NARC
+            output_path: Path to write the output
+        """
+        output = self.disassemble(file_index)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(output)
+        print(f"ScriptDisassembler: Wrote disassembly to {output_path}")
+
+
+def disassemble_script(rom_path, file_index, output_path=None):
+    """Standalone function to disassemble a script from a ROM.
+    
+    This is a convenience function for command-line usage.
+    
+    Args:
+        rom_path: Path to the NDS ROM file
+        file_index: Index of the script file in NARC a/0/1/2
+        output_path: Optional path to write output (prints to stdout if None)
+    
+    Example:
+        python script_extractor.py disasm rom.nds 3
+    """
+    import ndspy.rom
+    
+    # Load ROM
+    rom = ndspy.rom.NintendoDSRom.fromFile(rom_path)
+    
+    # Create a minimal context
+    class MinimalContext:
+        def __init__(self, rom):
+            self.rom = rom
+            self._objects = {}
+        
+        def get(self, obj_class):
+            if obj_class not in self._objects:
+                self._objects[obj_class] = obj_class(self)
+            return self._objects[obj_class]
+    
+    context = MinimalContext(rom)
+    
+    # Disassemble
+    disasm = context.get(ScriptDisassembler)
+    output = disasm.disassemble(file_index)
+    
+    if output_path:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(output)
+        print(f"Wrote disassembly to {output_path}")
+    else:
+        print(output)
+
+
+if __name__ == '__main__':
+    # Command-line interface for script disassembly
+    if len(sys.argv) >= 3 and sys.argv[1] == 'disasm':
+        rom_path = sys.argv[2]
+        file_index = int(sys.argv[3]) if len(sys.argv) > 3 else 3
+        output_path = sys.argv[4] if len(sys.argv) > 4 else None
+        disassemble_script(rom_path, file_index, output_path)
+    else:
+        print("Usage: python script_extractor.py disasm <rom.nds> <file_index> [output.s]")
+        print("")
+        print("Example: python script_extractor.py disasm rom.nds 3")
+        print("         Disassembles file 3 (commonscript) from NARC a/0/1/2")
 
