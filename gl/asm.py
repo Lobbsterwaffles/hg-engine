@@ -321,10 +321,8 @@ def main():
     """Test the parser on scriptmacros.s"""
     import os
     
-    # Find the scriptmacros.s file relative to this script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(script_dir)
-    target_file = os.path.join(repo_root, 'armips', 'include', 'scriptmacros.s')
+    # Find the scriptmacros.s file relative to repo root
+    target_file = 'armips/include/scriptmacros.s'
     
     if not os.path.exists(target_file):
         print(f"File not found: {target_file}")

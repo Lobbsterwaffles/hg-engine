@@ -20,11 +20,6 @@ _0000: // Trainer 0
        // Trainer 107
        // Trainer 138
        // Trainer 141
-       // Trainer 165
-       // Trainer 166
-       // Trainer 167
-       // Trainer 168
-       // Trainer 169
        // Trainer 170
        // Trainer 171
        // Trainer 174
@@ -3094,6 +3089,31 @@ _1ACC: // Trainer 629
 _1AD0: // Trainer 630
     trainertextentry 630, TEXT_DEFEATED_IN_BATTLE, "Whoa, you’re kickin’!\n"
 
+_1AD4: // Trainer 165
+    trainertextentry 165, TEXT_LAST_MON_SENT_OUT, "This is it, sink or swim!\n"
+    trainertextentry 165, TEXT_LAST_MON_CRITICAL, "The cold of defeat is creeping in...\n"
+    trainertextentry 165, TEXT_DEFEATED_IN_BATTLE, "Brilliantly done.\n"
+
+_1AD8: // Trainer 166
+    trainertextentry 166, TEXT_LAST_MON_SENT_OUT, "Back against the wall...\rWe can do it!\n"
+    trainertextentry 166, TEXT_LAST_MON_CRITICAL, "We’re not done yet! Fight on!\n"
+    trainertextentry 166, TEXT_DEFEATED_IN_BATTLE, "We’ve been defeated...\rGreat job, everyone!\n"
+
+_1ADC: // Trainer 167
+    trainertextentry 167, TEXT_LAST_MON_SENT_OUT, "Ahaha! This is exhilarating!\n"
+    trainertextentry 167, TEXT_LAST_MON_CRITICAL, "It’s our last chance!\n"
+    trainertextentry 167, TEXT_DEFEATED_IN_BATTLE, "Fufufu, what fun!\n"
+
+_1AE0: // Trainer 168
+    trainertextentry 168, TEXT_LAST_MON_SENT_OUT, "Don’t stop now, keep it up!\n"
+    trainertextentry 168, TEXT_LAST_MON_CRITICAL, "Just a little more!\n"
+    trainertextentry 168, TEXT_DEFEATED_IN_BATTLE, "Whew, well done!\n"
+
+_1AE4: // Trainer 169
+    trainertextentry 169, TEXT_LAST_MON_SENT_OUT, "What a spectacle!\n"
+    trainertextentry 169, TEXT_LAST_MON_CRITICAL, "Time for a grand finale!\n"
+    trainertextentry 169, TEXT_DEFEATED_IN_BATTLE, "Bravo!\n"
+
 .close
 
 
@@ -3265,11 +3285,11 @@ _1AD0: // Trainer 630
 /* Trainer 162 */ .halfword _0E7C
 /* Trainer 163 */ .halfword _0E80
 /* Trainer 164 */ .halfword _0E84
-/* Trainer 165 */ .halfword _0000
-/* Trainer 166 */ .halfword _0000
-/* Trainer 167 */ .halfword _0000
-/* Trainer 168 */ .halfword _0000
-/* Trainer 169 */ .halfword _0000
+/* Trainer 165 */ .halfword _1AD4
+/* Trainer 166 */ .halfword _1AD8
+/* Trainer 167 */ .halfword _1ADC
+/* Trainer 168 */ .halfword _1AE0
+/* Trainer 169 */ .halfword _1AE4
 /* Trainer 170 */ .halfword _0000
 /* Trainer 171 */ .halfword _0000
 /* Trainer 172 */ .halfword _1A2C

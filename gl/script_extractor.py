@@ -393,7 +393,7 @@ class NpcGiftItems(Extractor):
         
         gifts = []
         seen = set()  # Track (file_index, item_id) to avoid duplicates
-        csv_path = os.path.join(os.path.dirname(__file__), 'gifttiers.csv')
+        csv_path = 'gl/gifttiers.csv'
         
         with open(csv_path, 'r') as f:
             for line_num, line in enumerate(f, 1):
@@ -625,7 +625,7 @@ class RandomizeGroundItems(Step):
         import os
         
         slot_to_tier = {}
-        csv_path = os.path.join(os.path.dirname(__file__), 'Item_Slot_tier.csv')
+        csv_path = 'gl/Item_Slot_tier.csv'
         with open(csv_path, 'r') as f:
             for line in f:
                 line = line.strip()
@@ -645,7 +645,7 @@ class RandomizeGroundItems(Step):
         junk_ids = []
         name_to_id = {item.name.replace('_', ' ').title(): item.value for item in Item}
         
-        csv_path = os.path.join(os.path.dirname(__file__), 'Ground_Item_Tier.csv')
+        csv_path = 'gl/Ground_Item_Tier.csv'
         with open(csv_path, 'r') as f:
             for line in f:
                 line = line.strip()
@@ -826,7 +826,7 @@ class RandomizeBerryPiles(Step):
         import os
         
         slot_to_tier = {}
-        csv_path = os.path.join(os.path.dirname(__file__), 'Item_Slot_tier.csv')
+        csv_path = 'gl/Item_Slot_tier.csv'
         with open(csv_path, 'r') as f:
             for line in f:
                 line = line.strip()
@@ -893,7 +893,7 @@ class DebugJunkToFocusSash(Step):
         import os
         
         hidden_slots = []
-        csv_path = os.path.join(os.path.dirname(__file__), 'Item_Slot_tier.csv')
+        csv_path = 'gl/Item_Slot_tier.csv'
         with open(csv_path, 'r') as f:
             for line in f:
                 line = line.strip()
@@ -1017,7 +1017,7 @@ class SyncLevelCapsWithBosses(Step):
     """
     
     def __init__(self):
-        self.csv_path = os.path.join(os.path.dirname(__file__), 'boss to cap file.csv')
+        self.csv_path = 'gl/boss to cap file.csv'
     
     def _load_csv_mapping(self):
         """Load boss-to-file mapping from CSV.
@@ -1207,9 +1207,7 @@ class ScriptDisassembler(Extractor):
     def _build_cmd_lookup(self):
         """Parse scriptmacros.s and build command ID -> signature lookup."""
         # Find scriptmacros.s relative to this file
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        repo_root = os.path.dirname(script_dir)
-        macro_file = os.path.join(repo_root, 'armips', 'include', 'scriptmacros.s')
+        macro_file = 'armips/include/scriptmacros.s'
         
         if not os.path.exists(macro_file):
             print(f"ScriptDisassembler: WARNING - scriptmacros.s not found at {macro_file}", file=sys.stderr)

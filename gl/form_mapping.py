@@ -310,6 +310,9 @@ class FormMapping(Extractor):
         505: ("Rotom", "FROST", FormCategory.OUT_OF_BATTLE_CHANGE),
         506: ("Rotom", "FAN", FormCategory.OUT_OF_BATTLE_CHANGE),
         507: ("Rotom", "MOW", FormCategory.OUT_OF_BATTLE_CHANGE),
+
+        #shaymin
+        502: ("Shaymin", "SKY", FormCategory.OUT_OF_BATTLE_CHANGE),
         
         # Deoxys forms (species 496-498)
         496: ("Deoxys", "ATTACK", FormCategory.OUT_OF_BATTLE_CHANGE),

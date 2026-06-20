@@ -72,6 +72,14 @@ class Levelups(NarcExtractor):
         
         # Filter out terminator entries (move_id == 0xFFFF)
         self.data = [[e for e in s if e.move_id != 0xFFFF] for s in self.load_narc()]
+        
+        # Fill in empty form learnsets from their base species
+        form_mapping = context.get(FormMapping)
+        for i, learnset in enumerate(self.data):
+            if not learnset:
+                base_id = form_mapping.get_base_species(i)
+                if base_id is not None and base_id < len(self.data):
+                    self.data[i] = list(self.data[base_id])
     
     def get_narc_path(self):
         return "a/0/3/3"
@@ -506,7 +514,7 @@ class TMHM(Extractor):
         import json
         import os
         
-        json_path = os.path.join(os.path.dirname(__file__), 'machine_moves.json')
+        json_path = 'gl/machine_moves.json'
         with open(json_path, 'r', encoding='utf-8') as f:
             self.data = json.load(f)
         
@@ -622,7 +630,7 @@ class ItemPool(Extractor):
         self.tm_item_ids = set(entry['item_id'] for entry in self.tmhm.data if entry['kind'] in ('TM', 'TR'))
         
         # Load items from CSV
-        csv_path = os.path.join(os.path.dirname(__file__), 'Ground_Item_Tier.csv')
+        csv_path = 'gl/Ground_Item_Tier.csv'
         with open(csv_path, 'r') as f:
             for line in f:
                 line = line.strip()
@@ -1301,7 +1309,7 @@ class OverworldTags(Extractor):
         super().__init__(context)
         
         # Load the JSON mapping
-        json_path = os.path.join(os.path.dirname(__file__), 'overworld_tags.json')
+        json_path = 'gl/overworld_tags.json'
         with open(json_path, 'r') as f:
             entries = json.load(f)
         

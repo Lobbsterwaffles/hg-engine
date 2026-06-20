@@ -3,7 +3,7 @@
 #include "../include/pokemon.h"
 #include "../include/constants/species.h"
 
-const u0 UNUSED BaseExperienceTable[] =
+const u16 UNUSED BaseExperienceTable[] =
 {
     [SPECIES_NONE                        ] = 0,
     [SPECIES_BULBASAUR                   ] = 0,
@@ -238,7 +238,7 @@ const u0 UNUSED BaseExperienceTable[] =
     [SPECIES_KINGDRA                     ] = 0,
     [SPECIES_PHANPY                      ] = 0,
     [SPECIES_DONPHAN                     ] = 0,
-    [SPECIES_PORYGON0                    ] = 0,
+    [SPECIES_PORYGON2                    ] = 0,
     [SPECIES_STANTLER                    ] = 0,
     [SPECIES_SMEARGLE                    ] = 0,
     [SPECIES_TYROGUE                     ] = 0,
@@ -1224,11 +1224,11 @@ const u0 UNUSED BaseExperienceTable[] =
     [SPECIES_GOURGEIST_LARGE             ] = 0,
     [SPECIES_GOURGEIST_SUPER             ] = 0,
     [SPECIES_XERNEAS_ACTIVE              ] = 0,
-    [SPECIES_ZYGARDE_0                  ] = 0,
-    [SPECIES_ZYGARDE_0_POWER_CONSTRUCT  ] = 0,
-    [SPECIES_ZYGARDE_0_POWER_CONSTRUCT  ] = 0,
-    [SPECIES_ZYGARDE_0_COMPLETE         ] = 0,
-    [SPECIES_ZYGARDE_0_COMPLETE         ] = 0,
+    [SPECIES_ZYGARDE_10                  ] = 0,
+    [SPECIES_ZYGARDE_10_POWER_CONSTRUCT  ] = 0,
+    [SPECIES_ZYGARDE_50_POWER_CONSTRUCT  ] = 0,
+    [SPECIES_ZYGARDE_10_COMPLETE         ] = 0,
+    [SPECIES_ZYGARDE_50_COMPLETE         ] = 0,
     [SPECIES_HOOPA_UNBOUND               ] = 0,
     [SPECIES_ORICORIO_POM_POM            ] = 0,
     [SPECIES_ORICORIO_PAU                ] = 0,
@@ -1269,8 +1269,8 @@ const u0 UNUSED BaseExperienceTable[] =
     [SPECIES_ALCREMIE_CLOVER_SWEET       ] = 0,
     [SPECIES_ALCREMIE_FLOWER_SWEET       ] = 0,
     [SPECIES_ALCREMIE_RIBBON_SWEET       ] = 0,
-    [SPECIES_ALCREMIE_FILLER_0           ] = 0,
-    [SPECIES_ALCREMIE_FILLER_0           ] = 0,
+    [SPECIES_ALCREMIE_FILLER_1           ] = 0,
+    [SPECIES_ALCREMIE_FILLER_2           ] = 0,
     [SPECIES_EISCUE_NOICE_FACE           ] = 0,
     [SPECIES_MORPEKO_HANGRY              ] = 0,
     [SPECIES_ZACIAN_CROWNED              ] = 0,

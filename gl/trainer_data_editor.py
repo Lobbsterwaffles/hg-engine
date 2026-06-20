@@ -289,7 +289,7 @@ class CustomSetReader(Extractor):
         # Note: Pokemon data structure uses 'name' field, not 'species_name'
         
         # Set the base directory for Pokemon sets
-        self.pokemon_sets_dir = os.path.join(os.path.dirname(__file__), '..', 'pokemon_sets')
+        self.pokemon_sets_dir = 'pokemon_sets'
         
         print(f"CustomSetReader initialized with {len(self.move_name_to_id)} moves and {len(self.ability_name_to_id)} abilities")
     
