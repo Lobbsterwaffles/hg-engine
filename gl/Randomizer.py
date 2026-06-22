@@ -96,7 +96,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--allow-sublegendary", action="store_true", help="Allow SubLegendary Pokémon")
 
-    parser.add_argument("--independent-encounters", action="store_true", help="Make encounter replacements independent by area")
+    parser.add_argument("--no-independent-encounters", action="store_false", dest="independent_encounters", default=True,
+                       help="Disable making encounter replacements independent by area (default: enabled)")
 
     parser.add_argument("--expand-bosses-only", action="store_true", help="Only expand teams for boss trainers (gym leaders, Elite Four, etc.)")
 
