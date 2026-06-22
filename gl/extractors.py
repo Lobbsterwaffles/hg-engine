@@ -650,6 +650,33 @@ class ItemPool(Extractor):
                 except ValueError:
                     print(f"ItemPool: WARNING - Could not find item '{item_name}'", file=sys.stderr)
         
+        # Exclude TMs/TRs whose move is UNIMPLEMENTED so they can never be drawn
+        # (e.g. given out by NPCs/gym leaders or placed as ground items).
+        moves = context.get(Moves)
+        # Normalize the names of every unimplemented move to match machine_moves.json
+        # (which stores names like "MOVE_TAKE_DOWN" -> compared against "TAKE_DOWN").
+        unimplemented_move_names = set()
+        for m in moves.data:
+            if m.name and m.flags.UNIMPLEMENTED:
+                unimplemented_move_names.add(m.name.upper().replace(' ', '_').replace('-', '_'))
+        
+        # Find the item IDs of every TM/TR that teaches one of those moves.
+        self.unimplemented_tm_ids = set()
+        for entry in self.tmhm.data:
+            if entry['kind'] in ('TM', 'TR'):
+                move_name = entry['move_name'].replace('MOVE_', '')
+                if move_name in unimplemented_move_names:
+                    self.unimplemented_tm_ids.add(entry['item_id'])
+        
+        # Remove those TMs from every tier pool and from the TM tracking set.
+        removed = 0
+        for tier in self.pools:
+            before = len(self.pools[tier])
+            self.pools[tier] = [iid for iid in self.pools[tier] if iid not in self.unimplemented_tm_ids]
+            removed += before - len(self.pools[tier])
+        self.tm_item_ids -= self.unimplemented_tm_ids
+        print(f"ItemPool: Excluded {removed} TM(s) teaching unimplemented moves", file=sys.stderr)
+        
         # Shuffle all pools initially
         for tier in self.pools:
             self.random.shuffle(self.pools[tier])
