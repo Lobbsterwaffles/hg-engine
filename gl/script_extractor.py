@@ -235,11 +235,13 @@ class GiftEggs(Extractor):
     COMMAND_ID = 0x008A  # GivePokemonEgg command
     COMMAND_SIZE = 6     # 2 (cmd) + 4 (2 params * 2 bytes each)
     
-    # Known egg locations: (file_index, pokemon_id, location)
-    # These are the base ROM values used to locate the commands
-    KNOWN_EGGS = [
-        (858, 175, 13),  # Togepi from Mr. Pokemon
-        (860, 179, 14),  # Mareep from Primo
+    # Script files known to contain a single GivePokemonEgg command.
+    # We locate the command by its command ID (0x008A) rather than by
+    # species/location, so it keeps working even after the base ROM's egg
+    # species have been edited.
+    KNOWN_EGG_FILES = [
+        858,  # Togepi from Mr. Pokemon
+        860,  # egg from Primo
     ]
     
     def __init__(self, context):
@@ -265,7 +267,7 @@ class GiftEggs(Extractor):
         """
         eggs = []
         
-        for file_idx, base_pokemon_id, base_location in self.KNOWN_EGGS:
+        for file_idx in self.KNOWN_EGG_FILES:
             if file_idx >= len(self.data):
                 print(f"GiftEggs: File {file_idx} not found in NARC", file=sys.stderr)
                 continue
@@ -274,7 +276,9 @@ class GiftEggs(Extractor):
             if len(file_data) < self.COMMAND_SIZE:
                 continue
             
-            # Scan for command pattern (0x008A as little-endian) with matching location
+            # Scan for the GivePokemonEgg command pattern (0x008A little-endian).
+            # Each known file contains exactly one egg command, so take the
+            # first valid occurrence.
             for offset in range(len(file_data) - self.COMMAND_SIZE + 1):
                 if file_data[offset] == 0x8A and file_data[offset + 1] == 0x00:
                     try:
@@ -282,13 +286,11 @@ class GiftEggs(Extractor):
                     except Exception:
                         continue
                     
-                    # Match by location field (stable across randomization)
-                    if parsed.location == base_location:
-                        parsed.file_index = file_idx
-                        parsed.offset = offset
-                        eggs.append(parsed)
-                        print(f"GiftEggs: Found egg in file {file_idx} at offset 0x{offset:04X}: species={parsed.pokemon_id}, location={parsed.location}", file=sys.stderr)
-                        break  # Only one egg per known location
+                    parsed.file_index = file_idx
+                    parsed.offset = offset
+                    eggs.append(parsed)
+                    print(f"GiftEggs: Found egg in file {file_idx} at offset 0x{offset:04X}: species={parsed.pokemon_id}, location={parsed.location}", file=sys.stderr)
+                    break  # Only one egg per known file
         
         return eggs
     
