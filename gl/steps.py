@@ -1142,6 +1142,32 @@ class RandomizeEncountersStep(Step):
             slot.species = self.replacements[replacement_key]
 
 
+class DebugAllWiglett(Step):
+    """DEBUG: Replace all wild Pokemon with Wiglett (species 1010).
+    
+    This is a temporary debugging step. Remove after testing.
+    """
+    
+    WIGLETT_ID = 1010
+    
+    def run(self, context):
+        encounters = context.get(Encounters)
+        
+        for encounter in encounters.data:
+            # Replace grass/cave encounters (morning/day/night are lists of species IDs)
+            for slot_list in [encounter.morning, encounter.day, encounter.night]:
+                for i in range(len(slot_list)):
+                    if slot_list[i] != 0:
+                        slot_list[i] = self.WIGLETT_ID
+            
+            # Replace water/fishing encounters (these have .species attribute)
+            for slots in [encounter.surf, encounter.rocksmash, encounter.oldrod, 
+                          encounter.goodrod, encounter.superrod]:
+                for slot in slots:
+                    if slot.species != 0:
+                        slot.species = self.WIGLETT_ID
+
+
 class RandomizeGiftPokemonStep(Step):
     """Randomize gift Pokemon species independently and apply wild level multiplier.
     
@@ -3100,6 +3126,9 @@ class TrainerToBossMapping(Extractor):
         self.trainer_to_boss = {}
         # boss_name -> list of trainer_ids
         self.boss_to_trainers = {}
+        # Track trainer IDs that were explicitly set via CSV ID override column
+        # These take priority over name-based lookups
+        self.explicit_trainer_ids = set()
         
         # Store references for get_boss_ace_level
         self.trainers = trainers
@@ -3122,6 +3151,7 @@ class TrainerToBossMapping(Extractor):
                 if trainer_id_override:
                     # Explicit ID provided - use it directly
                     trainer_id = int(trainer_id_override)
+                    self.explicit_trainer_ids.add(trainer_id)
                 else:
                     # No explicit ID - look up by class and name
                     class_id = self.class_name_to_id.get(trainer_class)
@@ -3151,6 +3181,12 @@ class TrainerToBossMapping(Extractor):
                 
                 if trainer_id is None:
                     print(f"TrainerToBossMapping: Could not find trainer '{trainer_class} {trainer_name}'")
+                    continue
+                
+                # Skip if this trainer_id was already explicitly mapped via ID override
+                # This prevents name-based lookups from overwriting explicit mappings
+                if trainer_id in self.explicit_trainer_ids and trainer_id_override is None:
+                    print(f"TrainerToBossMapping: Skipping '{trainer_class} {trainer_name}' (trainer_id={trainer_id}) - already explicitly mapped")
                     continue
                 
                 self.trainer_to_boss[trainer_id] = boss_name

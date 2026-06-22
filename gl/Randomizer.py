@@ -232,6 +232,7 @@ if __name__ == "__main__":
         RandomizeGymsStep(gym_filter),
 
         RandomizeEncountersStep(encounter_filter, args.independent_encounters),
+        #DebugAllWiglett(),
 
         RandomizeWildItemsStep(),
 
@@ -288,11 +289,13 @@ if __name__ == "__main__":
 
         RandomizeBerryPiles(),
 
-        #DebugJunkToFocusSash(),
+        DebugJunkToFocusSash(),
+
 
         RandomizeGiftPokemonStep(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
 
-        #DebugAlolanMarowakGiftsStep(),
+        DebugAlolanMarowakGiftsStep(),
+
 
         #DebugAlolanMarowakStaticStep(),
 

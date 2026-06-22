@@ -21,10 +21,10 @@
 //#define DEBUG_SCALED_EXPERIENCE
 
 // DEBUG_BATTLE_SCRIPT_COMMANDS prints out the battle script command names in the desmume window
-#define DEBUG_BATTLE_SCRIPT_COMMANDS
+//#define DEBUG_BATTLE_SCRIPT_COMMANDS
 
 // DEBUG_PRINT_OVERLAY_LOADS prints out overlay loads and unloads in the desmume window
-#define DEBUG_PRINT_OVERLAY_LOADS
+//#define DEBUG_PRINT_OVERLAY_LOADS
 
 // DEBUG_SOUND_SSEQ_LOADS prints out sseq loads from the SDAT and the free space left after the load.
 //#define DEBUG_SOUND_SSEQ_LOADS
