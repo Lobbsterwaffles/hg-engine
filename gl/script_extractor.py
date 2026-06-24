@@ -235,12 +235,13 @@ class GiftEggs(Extractor):
     COMMAND_ID = 0x008A  # GivePokemonEgg command
     COMMAND_SIZE = 6     # 2 (cmd) + 4 (2 params * 2 bytes each)
     
-    # Script files known to contain a single GivePokemonEgg command.
-    # We locate the command by its command ID (0x008A) rather than by
+    # Script files known to contain GivePokemonEgg command(s).
+    # We locate the command(s) by their command ID (0x008A) rather than by
     # species/location, so it keeps working even after the base ROM's egg
-    # species have been edited.
+    # species have been edited. A file may contain more than one command
+    # (file 858 has two GivePokemonEgg commands on separate script branches).
     KNOWN_EGG_FILES = [
-        858,  # Togepi from Mr. Pokemon
+        858,  # Togepi from Mr. Pokemon (two branches -> two commands)
         860,  # egg from Primo
     ]
     
@@ -277,8 +278,9 @@ class GiftEggs(Extractor):
                 continue
             
             # Scan for the GivePokemonEgg command pattern (0x008A little-endian).
-            # Each known file contains exactly one egg command, so take the
-            # first valid occurrence.
+            # A single file can contain more than one egg command (e.g. file 858
+            # has two GivePokemonEgg commands on separate script branches), so we
+            # collect every occurrence rather than stopping at the first.
             for offset in range(len(file_data) - self.COMMAND_SIZE + 1):
                 if file_data[offset] == 0x8A and file_data[offset + 1] == 0x00:
                     try:
@@ -290,7 +292,6 @@ class GiftEggs(Extractor):
                     parsed.offset = offset
                     eggs.append(parsed)
                     print(f"GiftEggs: Found egg in file {file_idx} at offset 0x{offset:04X}: species={parsed.pokemon_id}, location={parsed.location}", file=sys.stderr)
-                    break  # Only one egg per known file
         
         return eggs
     

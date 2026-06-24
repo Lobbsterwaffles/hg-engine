@@ -1302,8 +1302,22 @@ class RandomizeGiftEggsStep(Step):
         # Build candidate pool - base Pokemon only (no forms since command has no form field)
         self.candidates = self._build_base_candidates()
         
+        # A single script file can contain more than one GivePokemonEgg command
+        # for the same gift (e.g. file 858 has two Togepi branches). Group the
+        # commands by (file_index, original_species) so we make ONE decision per
+        # group and apply the SAME randomized species to every command in it.
+        groups = {}
         for egg in self.gift_eggs.eggs:
-            self._randomize_egg(egg)
+            original_species_id = egg.pokemon_id
+            
+            # Skip invalid/false-positive matches (species 0 or out of range).
+            if original_species_id <= 0 or original_species_id >= len(self.mondata.data):
+                continue
+            
+            groups.setdefault((egg.file_index, original_species_id), []).append(egg)
+        
+        for (file_index, original_species_id), eggs in groups.items():
+            self._randomize_egg_group(file_index, original_species_id, eggs)
         
         # Apply changes to shared ScriptNarc data
         self.gift_eggs.apply_changes()
@@ -1319,20 +1333,18 @@ class RandomizeGiftEggsStep(Step):
         
         return candidates
     
-    def _randomize_egg(self, egg):
-        """Randomize a single gift egg entry independently."""
-        original_species_id = egg.pokemon_id
+    def _randomize_egg_group(self, file_index, original_species_id, eggs):
+        """Randomize a group of identical egg commands together.
         
-        # Skip if species ID is 0 or invalid
-        if original_species_id == 0:
-            return
-        
+        All commands in the group share the same file and original species, so
+        they receive a single randomization decision and are set to the same
+        new species (e.g. both Togepi branches in file 858 stay consistent).
+        """
         original_mon = self.mondata[original_species_id]
         
-        # Each egg gets its own independent randomization
-        path = ["gift_eggs", f"file_{egg.file_index}", original_mon.name]
+        path = ["gift_eggs", f"file_{file_index}", original_mon.name]
         
-        # Select new species using BST filter
+        # Select new species using BST filter (one decision for the whole group)
         new_species = self.context.decide(
             path=path,
             original=original_mon,
@@ -1341,7 +1353,8 @@ class RandomizeGiftEggsStep(Step):
         )
         
         # GivePokemonEgg has no form field, so we use base species only
-        egg.pokemon_id = new_species.pokemon_id
+        for egg in eggs:
+            egg.pokemon_id = new_species.pokemon_id
 
 
 class RandomizeStaticPokemonStep(Step):
