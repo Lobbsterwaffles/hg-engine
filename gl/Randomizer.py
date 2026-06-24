@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     # Load ROM
 
-    with open("Goldilockes.nds", "rb") as f:
+    with open("raw.nds", "rb") as f:
 
         rom = ndspy.rom.NintendoDSRom(f.read())
 
@@ -329,7 +329,7 @@ if __name__ == "__main__":
 
     # Save modified ROM
 
-    modified_rom_path = "Randomized.nds"
+    modified_rom_path = "Goldilockes.nds"
 
     with open(modified_rom_path, "wb") as f:
 
