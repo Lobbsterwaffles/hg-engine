@@ -725,6 +725,62 @@ class ParadoxPokemon(PokemonListBase):
     ]
 
 
+class SetLegendaryCatchRateStep(Step):
+    """Sets the catch rate to 25 for all Legendary, Sub-legendary, Ultra Beast, Paradox, and Mythical Pokémon.
+    
+    This makes these special Pokémon easier to catch by setting a uniform catch rate of 25
+    (out of 255, where higher = easier to catch).
+    
+    Categories affected:
+        - RestrictedPokemon: Cover Legendaries (e.g., Mewtwo, Lugia, Ho-Oh)
+        - SubLegendaryPokemon: Lesser legendaries (e.g., Articuno, Raikou, Latios)
+        - UltraBeastPokemon: Ultra Beasts (e.g., Nihilego, Buzzwole)
+        - ParadoxPokemon: Paradox Pokémon (e.g., Great Tusk, Iron Treads)
+        - MythicalPokemon: Mythical Pokémon (e.g., Mew, Celebi, Jirachi)
+    """
+    
+    TARGET_CATCH_RATE = 25
+    
+    def run(self, context):
+        # Get the Mons extractor which contains all Pokemon data including catch_rate
+        mondata = context.get(Mons)
+        
+        # Get all special Pokemon category extractors
+        # Each of these has a 'by_id' set containing Pokemon IDs in that category
+        restricted = context.get(RestrictedPokemon)      # Cover Legendaries
+        sub_legendary = context.get(SubLegendaryPokemon) # Sub-legendaries
+        ultra_beasts = context.get(UltraBeastPokemon)    # Ultra Beasts
+        paradox = context.get(ParadoxPokemon)            # Paradox Pokemon
+        mythical = context.get(MythicalPokemon)          # Mythical Pokemon
+        
+        # Combine all special Pokemon IDs into one set
+        special_pokemon_ids = (
+            restricted.by_id |
+            sub_legendary.by_id |
+            ultra_beasts.by_id |
+            paradox.by_id |
+            mythical.by_id
+        )
+        
+        # Track changes for logging
+        updated_count = 0
+        
+        # Update catch_rate for each special Pokemon
+        for pokemon_id in special_pokemon_ids:
+            # Make sure the ID is valid
+            if pokemon_id < len(mondata.data):
+                pokemon = mondata.data[pokemon_id]
+                old_catch_rate = pokemon.catch_rate
+                
+                # Set the new catch rate
+                pokemon.catch_rate = self.TARGET_CATCH_RATE
+                updated_count += 1
+                
+                print(f"SetLegendaryCatchRateStep: {pokemon.name} catch rate {old_catch_rate} -> {self.TARGET_CATCH_RATE}")
+        
+        print(f"SetLegendaryCatchRateStep: Updated catch rate to {self.TARGET_CATCH_RATE} for {updated_count} special Pokémon")
+
+
 class LoadBlacklistStep(PokemonListBase):
     """Extractor that creates Pokémon blacklist with hardcoded data."""
     

@@ -237,6 +237,8 @@ if __name__ == "__main__":
 
         RandomizeWildItemsStep(),
 
+        SetLegendaryCatchRateStep(),
+
         *([] if not args.randomize_starters else [RandomizeStartersStep(starter_filter)]),
         SyncStarterVariables(),
 
