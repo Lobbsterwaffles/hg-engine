@@ -1,0 +1,17 @@
+,Early,Mid,Late,End,Post
+Boss Team Size,4,6,6,6,6
+,,,,,
+Boss EVs,0,510,510,510,510
+Boss IVs,All 0-16,2 max | 4 rand.,4 max | 2 rand.,All max,All max
+Boss Evos,Unchanged,Force Middle,Force Full,Force Full,Force Full
+Boss Movesets,Unchanged,Force STAB,Force STAB,Custom Set,Custom Set
+Boss Natures,Any,Non-Harmful,Helpful,Optimal,Optimal
+Boss Held Items*,100/0/0,45/50/5*,0/50/50,0/0/100,0/0/100
+,,,,,
+Trainer Team Size,2,3,3,4,4
+Trainer EVs,0,255,510,510,510
+Trainer IVs,All 0-16,All 8-24,2 max | 4 rand.,4 max | 2 rand.,5 max | 2 rand.
+Trainer Evos,Unchanged,Unchanged,Force Middle,Force Full,Force Full
+Trainer Movesets,Unchanged,Unchanged,Force STAB,Force STAB,Force STAB
+Trainer Natures,Any,Any,Non-Harmful,Helpful,Helpful
+Trainer Held Items,100/0/0,45/50/5,0/50/50,0/0/100,0/0/100

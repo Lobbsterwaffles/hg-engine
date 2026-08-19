@@ -1,0 +1,27 @@
+{
+    "sections": [
+        {
+            "title": "Basic Nuzlocke Rules",
+            "items": [
+                "Any Pokemon that faints must be released",
+                "The player may only catch the first Pokemon encountered in each area",
+                [
+                    "Goldilockes plays with some Nuzlocke conventions.",
+                    "Rods, Rock Smash, Surf, and Headbutt are considered distinct \"areas\" themselves. Therefore, once you've gotten your Surf encounter (regardless of where you choose to have it), you can't have another one. When in doubt, believe the Tracker.",
+                    "The Run only starts when you can catch Pokemon (in HG/Goldilockes, this occurs after the first Rival fight). For the avoidance of doubt, any encounters before this do not count, nor do any faints or blackouts. Ironmon eat your heart out."
+                ],
+                "A Black-Out results in a Game Over",
+                "All Pokemon must be nicknamed"
+            ]
+        },
+        {
+            "title": "Nuzlocke Clauses",
+            "items": [
+                "Set Clause: Battle Style is turned to \"Set\"",
+                "Dupes (Duplicates) Clause: A wild encounter with a Pokemon or Evolution Line you have already captured (INCLUDING Regional and Form Variants) may be ignored. It is never allowed to run two identical Pokemon at once (e.g. Eevee & Eevee: NO; Eevee & Umbreon: YES; Indeedee-F & Indeedee-M: YES)",
+                "Level Clause: Your Pokemon are bound to a level cap, which will be tracked and enforced by the game. The level cap is determined by the next boss' Ace Pokemon's level. You will receive a notification when the Level Cap increases",
+                "Item Clause: No items may be used in battle"
+            ]
+        }
+    ]
+}

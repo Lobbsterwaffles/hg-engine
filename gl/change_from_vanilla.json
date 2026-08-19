@@ -1,0 +1,69 @@
+{
+    "sections": [
+        {
+            "title": "QoL Buffs",
+            "items": [
+                "A Move Reminder has been added to the 2nd floor of each PokeCenter.",
+                "All grinding has been removed. Battling no longer grants Exp or EVs; in each area where a new Pokemon can be encountered, there is a Rare Candy Cache which can be used to level your Pokemon; Vitamins and EV Berries are available for cheap at the Goldenrod Dept. Store.",
+                "Beneath every Apricorn Tree is a Berry Pile containing 500 of a single non-useless Berry type. Berry Piles are randomized with no repeats. Lum and Sitrus are always findable (though they may be in Kanto)",
+                "Since breeding is against the Nuzlocke Rules, all Egg Moves are available at the Move Reminder if a Pokemon is fully-evolved.",
+                "Pokemon which evolve with an item have a chance to be holding that item (e.g. Pikachu -> Thunderstone); All Evolution Items are available at either the Ecruteak, Blackthorn, or Vermilion Marts",
+                "All eggs hatch after 1 cycle (~256 steps)",
+                "HMs (except Fly due to technical limitations) have been replaced by PokePagers. Some moves which were HMs are now TMs (Surf, Waterfall)",
+                "All Pokemon have a 10% chance to have their hidden ability (including enemy trainer Pokemon)",
+                "Impossible/Annoying Evolution methods have been replaced with more accessible methods (no more Time of Day evos)"
+            ]
+        },
+        {
+            "title": "Learnsets",
+            "items": [
+                "Since not every pokemon is in Gen 9 (and a select few aren't in Gen 8 either), Goldilockes' Level-Ups are determined using this priority: Gen 9 learnset -> Gen 8 Learnset -> Custom, modernized learnset",
+                "TM learnsets follow a similar logic; since the the TM list in Gen 9 is different to that of Gen 8, we developed a \"bellwether\" system that correlates new TM moves to older ones and then builds Gen 9-esque Machine learnsets. (e.g. if a pokemon could learn Dive in Gen 8, it can learn Flip Turn, a Gen 9 move; Body Slam -> Take Down; Breaking Swipe -> Scale Shot, etc.)",
+                ""
+            ]
+        },
+        {
+            "title": "Bosses",
+            "items": [
+                "Gyms in Pokemon Goldilockes each have a Random Type Theme.",
+                "E4 ARE type-themed; Rocket Bosses, Rival, and Champion are not",
+                "Rival will always have his starter or an evo of it",
+                "Gym Leader Rewards have been enhanced to include Heart Scales and Ability-changing items.",
+                "Bosses are further broken down in the \"Difficulty Scaling\" section",
+                "Note: there is a good deal of overlap between a Gym Theme's Pivots and Fulcrums, so it can be unclear which is which."
+            ]
+        },
+        {
+            "title": "Difficulty",
+            "items": [
+                "Hardcore Rules (Level Clause, Set Clause, Item Clause) are enforced by the ROM",
+                "Additional \"walls\" have been added to make the game more linear",
+                "Many bosses have been rebalanced",
+                "Gauntlet Mode: Traners' Pokemon are leveled to just below the current Level Cap",
+                "All Wild Pokemon levels are multiplied by 1.5"
+            ]
+        },
+        {
+            "title": "Intentionally Inaccessible Areas",
+            "items": [
+                "Safari Zone",
+                "Battle Frontier",
+                "Pokeathlon Dome",
+                "Ruins of Alph (this is due to technical issue and will be changed as soon as it is resolved. For now, enjoy the static encounter)",
+                "Embedded Tower"
+            ]
+        },
+        {
+            "title": "Move Changes",
+            "items": [
+                "Moves which ALWAYS affect Accuracy or Evasion have been removed or changed",
+                "Double Team -> +1 Speed",
+                "Smokescreen -> -1 Sp. Def",
+                "Mud Slap -> 40 BP, -1 Speed",
+                "Sand Attack -> -1 Speed",
+                "Flash, Kinesis, Acupressure, and Minimize -> REMOVED",
+                "Note: moves which have a CHANCE of affecting Accuracy or Evasion remain unchanged (Octazooka, Leaf Tornado, Night Daze, Mirror Shot, Mud Bomb, Muddy Water, Secret Power)"
+            ]
+        }
+    ]
+}
