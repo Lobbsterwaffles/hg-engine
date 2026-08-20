@@ -14,4 +14,4 @@ Trainer IVs,All 0-16,All 8-24,2 max | 4 rand.,4 max | 2 rand.,5 max | 2 rand.
 Trainer Evos,Unchanged,Unchanged,Force Middle,Force Full,Force Full
 Trainer Movesets,Unchanged,Unchanged,Force STAB,Force STAB,Force STAB
 Trainer Natures,Any,Any,Non-Harmful,Helpful,Helpful
-Trainer Held Items,100/0/0,45/50/5,0/50/50,0/0/100,0/0/100
+Trainer Held Items*,100/0/0,45/50/5,0/50/50,0/0/100,0/0/100

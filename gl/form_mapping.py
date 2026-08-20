@@ -458,10 +458,10 @@ class FormMapping(Extractor):
         # form_id: ("Arceus", "FIGHTING", FormCategory.HELD_ITEM),
         
         # Gender dimorphism forms (SPECIES_SIGNIFICANT_GENDER_DIFFERENCE_START = 1347)
-        1347: ("Unfezant", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_UNFEZANT_FEMALE
-        1348: ("Frillish", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_FRILLISH_FEMALE
-        1349: ("Jellicent", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_JELLICENT_FEMALE
-        1350: ("Pyroar", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_PYROAR_FEMALE
+        #1347: ("Unfezant", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_UNFEZANT_FEMALE
+        #1348: ("Frillish", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_FRILLISH_FEMALE
+        #1349: ("Jellicent", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_JELLICENT_FEMALE
+        #1350: ("Pyroar", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_PYROAR_FEMALE
         1351: ("Meowstic", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_MEOWSTIC_FEMALE
         1352: ("Indeedee", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_INDEEDEE_FEMALE
         1353: ("Basclegion", "FEMALE", FormCategory.GENDER_DIMORPHISM),  # SPECIES_BASCULEGION_FEMALE

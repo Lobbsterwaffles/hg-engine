@@ -910,8 +910,7 @@ class TrainerHeldItem(Step):
                 valid_evos = [evo for evo in evo_data.data[base_species_id] if evo.method != 0]
                 return len(valid_evos) > 0
         except:
-            # If evolution data is not available, use a simpler approach with common unevolved Pokémon
-            # These are some common unevolved Pokémon for demonstration
+            # get rid of this slop
             unevolved_pokemon = [
                 1, 4, 7, 10, 13, 16, 19, 21, 23, 25, 27, 29, 32, 35, 37, 39, 41, 
                 43, 46, 48, 50, 52, 54, 56, 58, 60, 63, 66, 69, 72, 74, 77, 79, 
