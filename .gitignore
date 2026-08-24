@@ -117,3 +117,7 @@ randomizer.log
 /include/constants/generated/
 test_logs.txt
 .scratch/
+
+# PyInstaller build outputs
+gl/build/
+gl/dist/
