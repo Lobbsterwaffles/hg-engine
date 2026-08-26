@@ -297,7 +297,7 @@ if __name__ == "__main__":
 
         RandomizeGiftPokemonStep(encounter_filter, wild_level_mult=args.gift_level_mult or args.wild_level_mult),
 
-        DebugAlolanMarowakGiftsStep(),
+        #DebugAlolanMarowakGiftsStep(),
 
 
         #DebugAlolanMarowakStaticStep(),
