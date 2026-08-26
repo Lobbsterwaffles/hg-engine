@@ -23378,22 +23378,6 @@ mondata SPECIES_MEGA_DIANCIE, "-----"
     runchance 0
     colorflip 0, 0
 
-mondata SPECIES_GROUDON_PRIMAL, "-----"
-    basestats 100, 180, 160, 90, 150, 90
-    types TYPE_GROUND, TYPE_FIRE
-    catchrate 5
-    baseexp 230
-    evyields 0, 0, 0, 0, 0, 0
-    items ITEM_NONE, ITEM_NONE
-    genderratio 255
-    eggcycles 120
-    basefriendship 0
-    growthrate GROWTH_SLOW
-    egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
-    abilities ABILITY_DESOLATE_LAND, ABILITY_NONE
-    runchance 0
-    colorflip 0, 0
-
 mondata SPECIES_KYOGRE_PRIMAL, "-----"
     basestats 100, 150, 90, 90, 180, 160
     types TYPE_WATER, TYPE_WATER
@@ -23407,6 +23391,22 @@ mondata SPECIES_KYOGRE_PRIMAL, "-----"
     growthrate GROWTH_SLOW
     egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
     abilities ABILITY_PRIMORDIAL_SEA, ABILITY_NONE
+    runchance 0
+    colorflip 0, 0
+
+mondata SPECIES_GROUDON_PRIMAL, "-----"
+    basestats 100, 180, 160, 90, 150, 90
+    types TYPE_GROUND, TYPE_FIRE
+    catchrate 5
+    baseexp 230
+    evyields 0, 0, 0, 0, 0, 0
+    items ITEM_NONE, ITEM_NONE
+    genderratio 255
+    eggcycles 120
+    basefriendship 0
+    growthrate GROWTH_SLOW
+    egggroups EGG_GROUP_UNDISCOVERED, EGG_GROUP_UNDISCOVERED
+    abilities ABILITY_DESOLATE_LAND, ABILITY_NONE
     runchance 0
     colorflip 0, 0
 
